@@ -1,4 +1,5 @@
 #pragma once
+#include "share/Define.hpp"
 
 namespace game::share::vector
 {
@@ -7,16 +8,21 @@ class Vector2
 {
 public:
     Vector2();
-    Vector2(int x = 0, int y = 0);
+    Vector2(float x = 0, float y = 0);
     ~Vector2();
 
-    inline int GetX(int x);
-    inline int GetY(int y);
-    inline void SetX(int x);
-    inline void SetY(int y);
+    inline float GetX(float x);
+    inline float GetY(float y);
+    inline void SetX(float x);
+    inline void SetY(float y);    
 private:
-    int m_x;
-    int m_y;
+    float m_x;
+    float m_y;
 };
+
+void MoveToPoint()
+{
+    
+}
 
 }
