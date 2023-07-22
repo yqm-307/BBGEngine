@@ -13,8 +13,8 @@
     "C_Cpp.default.includePath": [
         "${workspaceRoot}/project/server"
     ],
-    "C_Cpp.default.systemIncludePath": [
-        "/usr/local/include",
-        "/usr/include"
-    ]
+    "cmake.sourceDirectory": "/home/yqm/Git/owner/my_mmo/project/server",
+    "C_Cpp.default.compilerPath": "/usr/bin/g++-11",
+    "C_Cpp.dimInactiveRegions": false,
+    "cmake.buildDirectory": "${workspaceFolder}/project/server/build"
 }
