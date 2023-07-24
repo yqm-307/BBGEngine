@@ -6,7 +6,8 @@
         "functional": "cpp",
         "tuple": "cpp",
         "type_traits": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "memory": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.cStandard": "c99",
