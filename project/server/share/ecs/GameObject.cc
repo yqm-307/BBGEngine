@@ -1,6 +1,14 @@
 #include "share/ecs/GameObject.hpp"
+#include "util/assert/Assert.hpp"
 
 using namespace game::share::ecs;
+
+
+GameObject::GameObject(GameObjType gobj_type)
+    :m_gobj_type(gobj_type)
+{
+    AssertWithInfo( gobj_type > 0, "game object type error");
+}
 
 
 Component::SPtr GameObject::GetComponent(std::string component_name)
@@ -30,4 +38,9 @@ bool GameObject::AddComponent(Component::SPtr component)
     auto& name = component->GetName();
     auto it = m_component_map.insert(std::make_pair(name, component));
     return it.second;
+}
+
+GameObjType GameObject::Type()
+{
+    return m_gobj_type;
 }

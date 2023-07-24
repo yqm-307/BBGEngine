@@ -5,9 +5,7 @@
 namespace game::share::ecs::system
 {
 
-class AOISystem: 
-    public bbt::templateutil::BaseType<AOISystem>,
-    public Component
+class AOISystem
 {
 public:
 

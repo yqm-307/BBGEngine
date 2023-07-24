@@ -14,8 +14,9 @@
     "C_Cpp.default.includePath": [
         "${workspaceRoot}/project/server"
     ],
-    "cmake.sourceDirectory": "/home/yqm/Git/owner/my_mmo/project/server",
+    "cmake.sourceDirectory": "/home/yqm/Code/owner/my_mmo/project/server",
     "C_Cpp.default.compilerPath": "/usr/bin/g++-11",
     "C_Cpp.dimInactiveRegions": false,
-    "cmake.buildDirectory": "${workspaceFolder}/project/server/build"
+    "cmake.buildDirectory": "${workspaceFolder}/project/server/build",
+    "C_Cpp.errorSquiggles": "enabled"
 }

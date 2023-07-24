@@ -7,7 +7,8 @@ namespace game::share::ecs
 
 class GameObject;
 
-class Component: public bbt::templateutil::BaseType<Component>
+class Component: 
+    public bbt::templateutil::BaseType<Component>
 {
 public:
     Component(){}
@@ -15,8 +16,8 @@ public:
 
     virtual void OnCreate(){}
     virtual void OnDestory(){}
-    virtual void OnAddComponent(GameObject) = 0;
-    virtual void OnDelComponent(GameObject) = 0;
+    virtual void OnAddComponent() = 0;
+    virtual void OnDelComponent() = 0;
     virtual void OnUpdate() = 0;
     const std::string& GetName() const;
 protected:

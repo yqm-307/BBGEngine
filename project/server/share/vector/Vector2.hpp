@@ -4,25 +4,10 @@
 namespace game::share::vector
 {
 
-class Vector2
+struct Vector2
 {
-public:
-    Vector2();
-    Vector2(float x = 0, float y = 0);
-    ~Vector2();
-
-    inline float GetX(float x);
-    inline float GetY(float y);
-    inline void SetX(float x);
-    inline void SetY(float y);    
-private:
-    float m_x;
-    float m_y;
+    float m_x{0.0f};
+    float m_y{0.0f};
 };
-
-void MoveToPoint()
-{
-    
-}
 
 }

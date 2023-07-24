@@ -3,5 +3,12 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"files.associations": {
+			"*.bat": "bat",
+			"cstddef": "cpp",
+			"cassert": "cpp"
+		}
+	}
 }
