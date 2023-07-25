@@ -1,13 +1,17 @@
 #pragma once
 #include "share/ecs/Component.hpp"
 #include "share/vector/Vector3.hpp"
-#include "share/aoi/Define.hpp"
+#include "share/aoi/Aoi.hpp"
+
+// namespace game::share::aoi{
+// struct AABBBox;
+// }
 
 namespace game::share::ecs::component
 {
 
 class AoiComponent:
-    public Component
+    public game::share::ecs::Component
 {
 public:
     AoiComponent();
@@ -25,7 +29,8 @@ private:
     float           m_view_range_y;
     float           m_view_range_z;
     /* 实体大小 */
-    aoi::AABBBox    m_aabb_box;
+    // aoi::AABBBox    m_aabb_box;
+    game::share::aoi::AABBBox   m_aabb_box;
 
     /* 位移请求队列: 缓存客户端发来的位移请求，并在World Update时执行 */
 

@@ -1,21 +1,24 @@
 #pragma once
 #include <map>
-#include "share/vector/Vector2.hpp"
 #include "share/aoi/Define.hpp"
 
 namespace game::share::aoi
 {
 
-class Aoi
+class Aoi:
+    public bbt::templateutil::BaseType<Aoi>
 {
 public:
-    Aoi(int size[3], int tower[3]);
+    static RawPtr GetInstance();
+private:
+    Aoi();
     ~Aoi();
 
-    void OnEnter(game::share::ecs::GameObject::SPtr GameObject);
-    void OnLeave();
-    void OnMove();
-    void OnUpdate();
+    void Init();
+    void OnEnter(game::share::ecs::GameObject::SPtr player);
+    void OnLeave(game::share::ecs::GameObject::SPtr player);
+    void OnMove(game::share::ecs::GameObject::SPtr player);
+    void OnUpdate(game::share::ecs::GameObject::SPtr player);
 private:
     size_t      m_length;
     MapSlot*    m_slots;

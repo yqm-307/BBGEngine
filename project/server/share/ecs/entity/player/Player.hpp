@@ -13,7 +13,7 @@ public:
     ~Player();
 private:
     // 静态定义的Component
-    component::AoiComponent::SPtr   m_com_aoi;
+    component::AoiComponent::SPtr m_com_aoi; 
     // 动态挂在的Component    
 };
 

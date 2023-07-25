@@ -1,7 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <set>
-#include "share/ecs/entity/player/Player.hpp"
+#include "share/ecs/GameObject.hpp"
 
 namespace game::share::aoi
 {
