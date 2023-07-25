@@ -20,9 +20,9 @@ struct GameObjSet
 struct Tower
 {
     /* 灯塔照亮的三维区域 */
-    size_t      m_x_max_len;
-    size_t      m_y_max_len;
-    size_t      m_z_max_len;
+    float      m_max_len_x;
+    float      m_max_len_y;
+    float      m_max_len_z;
     /* 灯塔范围内的对象 */
     GameObjSet  m_players;
     /* 此灯塔的关注者 */
@@ -36,6 +36,13 @@ struct MapSlot
     Pos m_pos_y;
     Pos m_pos_z;
     Tower* m_tower;
+};
+
+struct AABBBox
+{
+    float m_len_x;
+    float m_len_y;
+    float m_len_z;
 };
 
 

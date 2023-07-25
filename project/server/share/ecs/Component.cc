@@ -11,3 +11,6 @@ void Component::SetName(std::string component)
 {
     m_name = component;
 }
+
+Component::~Component()
+{}
