@@ -20,6 +20,8 @@ public:
     virtual void OnDelComponent();
     virtual void OnUpdate();
 private:
+    /* aoi 中对象id */
+    int             m_aoi_object_id;
     /* 当前位置坐标 */
     vector::Vector3 m_location;
     /* 上一帧位置坐标 */

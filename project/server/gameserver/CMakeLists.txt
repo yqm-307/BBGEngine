@@ -14,7 +14,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/..        # util、share等库
     ${PROJECT_SOURCE_DIR}           # gs源文件
 )
-message(${PROJECT_SOURCE_DIR})
 # 搜索CPP文件
 file(GLOB_RECURSE SRC_FILE
     # gameserver 目录下
@@ -31,7 +30,6 @@ add_executable( gameserver
     ${SRC_FILE}
 )
 
-message(${SRC_FILE})
 
 # 为可执行程序添加链接库
 target_link_libraries( gameserver

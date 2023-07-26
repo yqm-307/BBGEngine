@@ -6,7 +6,8 @@
 namespace game::share::aoi
 {
 
-typedef size_t Pos;
+typedef uint32_t    Pos;            // 
+typedef int         AoiObjectId;    // aoi 对象id, aoi中任何 gameobject 都有该id
 
 struct GameObjSet
 {
@@ -30,7 +31,8 @@ struct Tower
 };
 
 /* 地图格子 */
-struct MapSlot
+struct MapSlot:
+    public bbt::templateutil::BaseType<MapSlot>
 {
     Pos m_pos_x;
     Pos m_pos_y;
@@ -38,7 +40,8 @@ struct MapSlot
     Tower* m_tower;
 };
 
-struct AABBBox
+struct AABBBox:
+    public bbt::templateutil::BaseType<AABBBox>
 {
     float m_len_x;
     float m_len_y;
