@@ -1,18 +1,17 @@
 #pragma once
 #include <cstddef>
 #include <set>
+#include <map>
 #include "share/ecs/GameObject.hpp"
 
 namespace game::share::aoi
 {
 
-typedef uint32_t    Pos;            // 
+typedef float       Pos;            // 
 typedef int         AoiObjectId;    // aoi 对象id, aoi中任何 gameobject 都有该id
+typedef int         Index;          // 
 
-struct GameObjSet
-{
-    std::set<share::ecs::GameObject::SPtr> m_set; 
-};
+typedef std::map<int, share::ecs::GameObject::SPtr> GameObjMap;
 
 
 /**
@@ -21,13 +20,13 @@ struct GameObjSet
 struct Tower
 {
     /* 灯塔照亮的三维区域 */
-    float      m_max_len_x;
-    float      m_max_len_y;
-    float      m_max_len_z;
+    float      m_index_x;
+    float      m_index_y;
+    float      m_index_z;
     /* 灯塔范围内的对象 */
-    GameObjSet  m_players;
+    GameObjMap  m_players;
     /* 此灯塔的关注者 */
-    GameObjSet  m_watchers;
+    GameObjMap  m_watchers;
 };
 
 /* 地图格子 */

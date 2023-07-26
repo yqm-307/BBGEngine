@@ -1,7 +1,7 @@
 #pragma once
 #include "share/ecs/Component.hpp"
-#include "share/vector/Vector3.hpp"
 #include "share/aoi/Aoi.hpp"
+#include "util/vector/Vector3.hpp"
 
 // namespace game::share::aoi{
 // struct AABBBox;
@@ -23,9 +23,9 @@ private:
     /* aoi 中对象id */
     int             m_aoi_object_id;
     /* 当前位置坐标 */
-    vector::Vector3 m_location;
+    util::vector::Vector3 m_location;
     /* 上一帧位置坐标 */
-    vector::Vector3 m_prev_location;
+    util::vector::Vector3 m_prev_location;
     /* 视野范围 */
     float           m_view_range_x;
     float           m_view_range_y;

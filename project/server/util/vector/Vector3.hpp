@@ -1,7 +1,6 @@
 #pragma once
-#include "share/Define.hpp"
 
-namespace game::share::vector
+namespace game::util::vector
 {
 
 struct Vector3
