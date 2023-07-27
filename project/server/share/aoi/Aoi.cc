@@ -90,7 +90,7 @@ void Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::pos::Index3 
     /* 玩家是否已经在Aoi中 */
     // std::dynamic_pointer_cast<ecs::component::>
     // player->GetComponent();
-    ecs::GameObject::SPtr old_obj = GetObjFromAoiById();
+    // ecs::GameObject::SPtr old_obj = GetObjFromAoiById();
 }
 
 

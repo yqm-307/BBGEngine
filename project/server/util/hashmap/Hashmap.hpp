@@ -4,7 +4,7 @@
 #include <array>
 #include <functional>
 
-#define MYGAME_HASH_MAX_BUCKET 16
+#define MYGAME_HASH_MAX_BUCKET 1024
 
 namespace game::util::hashmap
 {
@@ -17,7 +17,7 @@ namespace game::util::hashmap
  *  3、不支持重复键
  *  4、不支持引用类型（如果使用引用类型可能有问题）
  */
-template<typename TKey, typename TValue, size_t BucketNum = 16>
+template<typename TKey, typename TValue, size_t BucketNum = 256>
 class Hashmap
 {
     typedef TKey    KeyType;
@@ -28,10 +28,8 @@ class Hashmap
     typedef std::pair<HashBucket*, bool>    BucketResult;
 public:
     /**
-     * @brief 构造一个hashmap
-     * 
-     * @param bucket_size 桶数量
-     * @param key_hash 键哈希函数
+     * @param key_hash 哈希函数 
+     * @param default_value 值的默认值
      */
     Hashmap(const HashFunction& key_hash, const ValueType& default_value);
     ~Hashmap();

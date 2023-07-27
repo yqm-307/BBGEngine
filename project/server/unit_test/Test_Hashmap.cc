@@ -3,6 +3,7 @@
 #include <bbt/random/Random.hpp>
 #include <bbt/timer/Interval.hpp>
 #include "util/hashmap/Hashmap.hpp"
+#include <hash_map>
 
 
 BOOST_AUTO_TEST_CASE(t_hashmap_create_test)
@@ -23,13 +24,13 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
     using namespace game::util::hashmap;
     bbt::random::mt_random<int, 1, 1000000> rd1; 
     bbt::random::mt_random<int, 1, INT32_MAX> rd2; 
-    Hashmap<int, int, 16> map([](int key){return key%16;}, 1);
+    Hashmap<int, int, 256> map([](int key){return key%256;}, 1);
 
     int default_value = 1;
-
+    printf("my Hashmap----------------------------\n");
     bbt::timer::interval stopwatch; // 开始计时
     std::set<int> tmp;
-    for(int i = 0; i<10000; i++)
+    for(int i = 0; i<1000000; i++)
     {
         int key = rd2();
         auto it = tmp.insert(key);
@@ -49,7 +50,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
         auto it = map.Find(keys[idx]);
         BOOST_ASSERT_MSG(it.second, "not found key!");
     }
-    printf("Hashmap搜索1w次，耗时 %ldms\n", stopwatch.intervalnow());
+    printf("Hashmap搜索100w次，耗时 %ldms\n", stopwatch.intervalnow());
 
 }
 
@@ -58,10 +59,11 @@ BOOST_AUTO_TEST_CASE(t_std_map_rom_test)
 {
     bbt::random::mt_random<int, 1, INT32_MAX> rd1;
     std::map<int,int> map;
+    printf("stl map----------------------------");
 
     bbt::timer::interval stopwitch;
     std::set<int> tmp;
-    for(int i = 0; i<10000; i++)
+    for(int i = 0; i<1000000; i++)
     {
         int key = rd1();
         auto it = tmp.insert(key);
@@ -86,6 +88,38 @@ BOOST_AUTO_TEST_CASE(t_std_map_rom_test)
     printf("stl map搜索100w次，耗时 %ldms \n", stopwitch.intervalnow());
 }
 
+BOOST_AUTO_TEST_CASE(t_std_hash_map_rom_test)
+{
+    bbt::random::mt_random<int, 1, INT32_MAX> rd1;
+    __gnu_cxx::hash_map<int,int> map;
+    printf("stl hash map----------------------------\n");
+
+    bbt::timer::interval stopwitch;
+    std::set<int> tmp;
+    for(int i = 0; i<1000000; i++)
+    {
+        int key = rd1();
+        auto it = tmp.insert(key);
+        if(it.second)
+        {
+            auto [_, isok] = map.insert(std::make_pair(key, 1));
+            BOOST_ASSERT_MSG(isok, "key repeat!");
+        }
+    }
+    printf("插入1w个数据到hashmap中，耗时: %ldms\n", stopwitch.intervalnow());
+
+    stopwitch.recycle();
+    std::vector<int> keys(tmp.begin(), tmp.end());
+    for(int i = 0; i< 1000000; i++)
+    {
+        int idx = rd1()%keys.size();
+        // bbt::timer::interval sw;
+        auto it = map.find(keys[idx]);
+        // printf("find耗时 %ld ns\n", sw.intervalnow<bbt::timer::clock::ns>());
+        BOOST_ASSERT_MSG(it != map.end(), "not found key!");
+    }
+    printf("stl map搜索100w次，耗时 %ldms \n", stopwitch.intervalnow());
+}
 
 // hashmap 插入删除效率对比
 BOOST_AUTO_TEST_CASE(t_hashmap_remove_insert)

@@ -14,6 +14,7 @@ include_directories(
 
 file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/*.cc
+    # ${PROJECT_SOURCE_DIR}/main.cc
     ${PROJECT_SOURCE_DIR}/../share/*.cc
     ${PROJECT_SOURCE_DIR}/../util/*.cc
 )
