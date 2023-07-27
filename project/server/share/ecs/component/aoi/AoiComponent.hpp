@@ -3,9 +3,6 @@
 #include "share/aoi/Aoi.hpp"
 #include "util/vector/Vector3.hpp"
 
-// namespace game::share::aoi{
-// struct AABBBox;
-// }
 
 namespace game::share::ecs::component
 {

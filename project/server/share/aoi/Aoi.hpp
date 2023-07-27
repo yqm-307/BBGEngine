@@ -27,7 +27,7 @@ enum AoiEntityFlag
 class Aoi:
     public bbt::templateutil::BaseType<Aoi>
 {
-    typedef util::hashmap::Hashmap<AoiObjectId, game::share::ecs::GameObject::SPtr, AoiHashBucketNum> GameObjMap;    /* 游戏对象hash桶 */
+    typedef util::hashmap::Hashmap<AoiObjectId, ecs::GameObject::SPtr, AoiHashBucketNum> GameObjMap;    /* 游戏对象hash桶 */
 public:
     static RawPtr GetInstance();
 private:
@@ -35,12 +35,18 @@ private:
     ~Aoi();
 
     void Init();
-    void EnterAoi();
+    /**
+     * @brief 将 player 放进aoi中的 drop_point 位置
+     * 
+     * @param player 游戏对象
+     * @param drop_point 降落点
+     */
+    void EnterAoi(ecs::GameObject::SPtr player, util::pos::Index3 drop_point);
     /* 进入地图 */
-    void OnEnter(game::share::ecs::GameObject::SPtr player);
-    void OnLeave(game::share::ecs::GameObject::SPtr player);
-    void OnMove(game::share::ecs::GameObject::SPtr player);
-    void OnUpdate(game::share::ecs::GameObject::SPtr player);
+    void OnEnter(ecs::GameObject::SPtr player);
+    void OnLeave(ecs::GameObject::SPtr player);
+    void OnMove(ecs::GameObject::SPtr player);
+    void OnUpdate(ecs::GameObject::SPtr player);
 private:
     bool CheckConfig(const util::config::AoiConfig*);
 private:
@@ -49,6 +55,8 @@ private:
      */
     Tower* GetTowerByIndex3(util::pos::Index3 index3);
     util::pos::Index3 GetIndex3ByIndex(int tower_index);
+    /* 从aoi中根据id取gameobject对象 */
+    ecs::GameObject::SPtr GetObjFromAoiById(AoiObjectId id);
 private:
     size_t      m_length;
     int         m_tower_max_x;  // x 轴上灯塔数量

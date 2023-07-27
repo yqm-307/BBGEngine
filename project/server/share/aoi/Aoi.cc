@@ -3,7 +3,9 @@
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
 
-using namespace game::share::aoi;
+namespace game::share::aoi
+{
+
 
 
 Aoi::RawPtr Aoi::GetInstance()
@@ -83,6 +85,13 @@ void Aoi::OnUpdate(game::share::ecs::GameObject::SPtr player)
 
 }
 
+void Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::pos::Index3 drop_point)
+{
+    /* 玩家是否已经在Aoi中 */
+    // std::dynamic_pointer_cast<ecs::component::>
+    // player->GetComponent();
+    ecs::GameObject::SPtr old_obj = GetObjFromAoiById();
+}
 
 
 
@@ -117,4 +126,15 @@ game::util::pos::Index3 Aoi::GetIndex3ByIndex(int tower_index)
     return {x, y, z};
 }
 
+ecs::GameObject::SPtr Aoi::GetObjFromAoiById(AoiObjectId id)
+{
+    auto [gameobj, isexist] = m_gameobj_map.Find(id);
+    if(!isexist)
+        return nullptr;
+    
+    return gameobj;
+}
+
 #pragma endregion
+
+}
