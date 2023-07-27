@@ -1,6 +1,6 @@
 #include <cmath>
 #include "share/aoi/Aoi.hpp"
-#include "util/log/log.hpp"
+#include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
 
 using namespace game::share::aoi;
@@ -17,7 +17,8 @@ Aoi::RawPtr Aoi::GetInstance()
 }
 
 Aoi::Aoi()
-    :m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi))
+    :m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),
+    m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr)
 {
     CheckConfig(m_config);
     Init();
@@ -30,7 +31,6 @@ Aoi::~Aoi()
 
 void Aoi::Init()
 {
-    auto m_slot_num = m_config->m_map_x * m_config->m_map_y * m_config->m_map_z;
     /* 灯塔数量 */
     m_tower_max_x = (int)ceil(m_config->m_map_x / m_config->m_tower_x);
     m_tower_max_y = (int)ceil(m_config->m_map_y / m_config->m_tower_y);
@@ -51,7 +51,7 @@ void Aoi::Init()
 
 bool Aoi::CheckConfig(const util::config::AoiConfig* cfg)
 {
-    AssertWithInfo(cfg == nullptr, " config not found!");
+    AssertWithInfo(cfg != nullptr, " config not found!");
     AssertWithInfo(
         cfg->m_tower_x > 0 && 
         cfg->m_tower_y > 0 && 
@@ -60,7 +60,7 @@ bool Aoi::CheckConfig(const util::config::AoiConfig* cfg)
         cfg->m_map_y > cfg->m_tower_y && 
         cfg->m_map_z > cfg->m_tower_z,
         "aoi config invalid!");
-
+    return true;
 }
 
 void Aoi::OnEnter(game::share::ecs::GameObject::SPtr player)
@@ -116,6 +116,5 @@ game::util::pos::Index3 Aoi::GetIndex3ByIndex(int tower_index)
     y = tower_index;
     return {x, y, z};
 }
-
 
 #pragma endregion
