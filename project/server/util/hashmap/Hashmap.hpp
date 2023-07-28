@@ -47,7 +47,7 @@ public:
     size_t Size() const;
 private:
     void InitHashmap() const;
-    bool CheckIndex(size_t idx);
+    bool CheckIndex(size_t idx) const;
     BucketResult GetBucket(const KeyType& key);
 private:
     size_t                  m_bucket_size{BucketNum};

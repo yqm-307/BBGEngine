@@ -48,7 +48,7 @@ void Hashmap<TKey, TValue, BucketNum>::InitHashmap() const
 template<typename TKey, typename TValue, size_t BucketNum>
 typename Hashmap<TKey, TValue, BucketNum>::Result Hashmap<TKey, TValue, BucketNum>::Find(const KeyType& key) const
 {
-    auto bucket_index = m_key_hash_func(key);
+    size_t bucket_index = m_key_hash_func(key);
     if( bbt_unlikely(!CheckIndex(bucket_index)) )
         return {m_default_value, false};
 
@@ -93,7 +93,7 @@ typename Hashmap<TKey, TValue, BucketNum>::Result Hashmap<TKey, TValue, BucketNu
 #pragma endregion
 
 template<typename TKey, typename TValue, size_t BucketNum>
-bool Hashmap<TKey, TValue, BucketNum>::CheckIndex(size_t idx)
+bool Hashmap<TKey, TValue, BucketNum>::CheckIndex(size_t idx) const
 {
     return ( idx >= 0 && idx < m_bucket_size );
 }

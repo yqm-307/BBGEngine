@@ -79,13 +79,13 @@ private:
     void                EnterTower(ecs::GameObject::SPtr player, Tower* tower, int n);
 private:
     bool                HasAoiComponent(ecs::GameObject::SPtr obj);
-    ecs::component::AoiComponent::SPtr GetAoiComponent(ecs::GameObject::SPtr obj);
+    std::shared_ptr<ecs::component::AoiComponent> GetAoiComponent(ecs::GameObject::SPtr obj);
 private:
     size_t      m_length;
     int         m_tower_max_x;  // x 轴上灯塔数量
     int         m_tower_max_y;  // y 轴上灯塔数量
     int         m_tower_max_z;  // z 轴上灯塔数量
-    std::string m_comp_name;    // 组件名
+    const std::string m_comp_name;    // 组件名
     ecs::ComponentTemplateId    m_comp_template_id{ecs::ComponentTemplateId::EM_AoiComponent};  // 组件模板id
     GameObjMap                  m_gameobj_map;          // AOI中所有游戏对象 hashmap
     std::vector<Tower>          m_towers;   // AOI中所有灯塔

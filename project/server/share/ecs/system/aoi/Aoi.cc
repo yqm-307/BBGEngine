@@ -138,14 +138,14 @@ bool Aoi::HasAoiComponent(ecs::GameObject::SPtr obj)
     return true;
 }
 
-ecs::component::AoiComponent::SPtr Aoi::GetAoiComponent(ecs::GameObject::SPtr obj)
+std::shared_ptr<ecs::component::AoiComponent> Aoi::GetAoiComponent(ecs::GameObject::SPtr obj)
 {
     if(obj == nullptr)
         return nullptr;
     auto comp = obj->GetComponent(m_comp_template_id);
     if(comp == nullptr)
         return nullptr;
-    return std::dynamic_pointer_cast<ecs::component::AoiComponent>(comp); 
+    return std::static_pointer_cast<ecs::component::AoiComponent>(comp); 
 }
 
 Tower* Aoi::GetTowerByPos3(util::vector::Vector3 pos3)
@@ -180,7 +180,7 @@ void Aoi::ScanTowerAround(Tower* center_tower, AroundFunc dofunc)
     int n = 0;
     for( int i = x-1; i <= x+1; i++) {
         for( int j = y-1; j <= y+1; j++ ) {
-            for( int k = k-1; k <= k+1; k++ ) {
+            for( int k = z-1; k <= z+1; k++ ) {
                 auto tmp_tower = GetTowerByIndex3({i, j, k});
                 dofunc(tmp_tower, ++n);
             }
@@ -196,7 +196,7 @@ void Aoi::ScanTowerAround(Tower* center_tower, AroundFunc dofunc)
 
 void Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vector3 drop_point)
 {
-    ecs::component::AoiComponent::SPtr aoi_comp = GetAoiComponent(player);
+    std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
     if(aoi_comp == nullptr)
         return;
     
@@ -234,7 +234,7 @@ void Aoi::EnterTower(ecs::GameObject::SPtr player, Tower* tower, int n)
 }
 
 
-void LeaveAoi(ecs::GameObject::SPtr player)
+void Aoi::LeaveAoi(ecs::GameObject::SPtr player)
 {
     
 }

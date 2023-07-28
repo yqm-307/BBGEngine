@@ -9,7 +9,7 @@ namespace game::share::ecs
 class GameObject;
 
 class Component: 
-    public bbt::templateutil::BaseType<Component>
+    virtual public bbt::templateutil::BaseType<Component>
 {
 public:
     Component(std::string name);
