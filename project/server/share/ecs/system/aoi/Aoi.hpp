@@ -44,9 +44,9 @@ private:
 
     void Init();
     /**
-     * @brief 将 player 放进aoi中的 drop_point 位置
+     * @brief 将玩家player放置到aoi中的drop_point位置，如果已经存在立即返回
      * 
-     * @param player 游戏对象
+     * @param player 玩家
      * @param drop_point 降落点
      */
     void EnterAoi(ecs::GameObject::SPtr player, util::vector::Vector3 drop_point);
@@ -77,8 +77,12 @@ private:
     void                ScanTowerAround(Tower* center_tower, AroundFunc dofunc);
     /* player进入灯塔 tower 的关注范围，n是第几个灯塔 */
     void                EnterTower(ecs::GameObject::SPtr player, Tower* tower, int n);
+    /* player离开灯塔 tower 的关注范围，n是第几个灯塔 */
+    void                LeaveTower(ecs::GameObject::SPtr player, Tower* tower, int n);
 private:
+    /* gameobj是否有AoiComponent组件 */
     bool                HasAoiComponent(ecs::GameObject::SPtr obj);
+    /* 从gameobj上获取AoiComponent组件，获取失败返回nullptr */
     std::shared_ptr<ecs::component::AoiComponent> GetAoiComponent(ecs::GameObject::SPtr obj);
 private:
     size_t      m_length;
@@ -93,7 +97,6 @@ private:
     OnEnterFunc                 m_enter_func;
     OnLeaveFunc                 m_leave_func;
     const util::config::AoiConfig*      m_config;       // AOI配置
-    
 };
 
 }// namespace game::share

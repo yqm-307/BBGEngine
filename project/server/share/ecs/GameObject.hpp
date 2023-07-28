@@ -34,5 +34,3 @@ private:
 };
 
 }
-
-#include "share/ecs/GameObjectT.hpp"

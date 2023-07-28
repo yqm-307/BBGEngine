@@ -211,33 +211,96 @@ void Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vect
     if(tower == nullptr)
         return;
     /* 将player加入aoi中管理 */
-    m_gameobj_map.Insert(id, player);
-    tower->m_players.insert(std::make_pair(id, player));
-    /* 扫描九宫格 */
+    auto isok = m_gameobj_map.Insert(id, player);
+    AssertWithInfo(isok, "player is existed in aoi!");
+    /* 将player加入到灯塔中 */
+    auto [_,isok2] = tower->m_players.insert(std::make_pair(id, player));
+    AssertWithInfo(isok2, "player is existed in tower!");
+
+    /* 通知九宫格所有人 */
     ScanTowerAround(tower, [this, player](Tower* tower, int n){
         EnterTower(player, tower, n);
     });
     OnEnter(player);
+}
 
+void Aoi::LeaveAoi(ecs::GameObject::SPtr player)
+{
+    std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
+    if(aoi_comp == nullptr)
+        return;
+    int id = aoi_comp->GetObjId();
+    ecs::GameObject::SPtr old_obj = GetGameObj(id);
+    
+    /* 不存在aoi中直接返回 */
+    if(old_obj == nullptr)
+        return;
+    auto tower = GetTowerByPos3(aoi_comp->GetCurrentPos());
+    AssertWithInfo(tower != nullptr, "player pos info failed!");
+    
+    /* 将player从aoi中删除 */
+    auto [_, isok] = m_gameobj_map.Earse(id);
+    AssertWithInfo(isok, "aoi remove gameobj failed!");
+    
+    /* 将player从灯塔中删除 */
+    auto a = tower->m_players.erase(id);
+    AssertWithInfo(a > 0, "tower not found player!");
+
+    /* 通知灯塔范围内的所有人 */
+    ScanTowerAround(tower, [this, player](Tower* tower, int n){
+        LeaveTower(player, tower, n);
+    });
+    OnLeave(player);
 }
 
 void Aoi::EnterTower(ecs::GameObject::SPtr player, Tower* tower, int n)
 {
+    /**
+     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
+     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
+     */
     auto aoi_comp = GetAoiComponent(player);
     if(aoi_comp == nullptr)
         return;
     for (auto it_tplayer : tower->m_players)
     {
-        // if(it_tplayer.first == aoi_comp)
+        if(it_tplayer.first == aoi_comp->GetObjId())
+            return;
+        auto it_comp = GetAoiComponent(it_tplayer.second);
+        if(it_comp == nullptr)
+            return;
+        if( aoi_comp->GetEntityMode() & ecs::system::AoiEntityFlag::Watcher )
+            m_enter_func(player, it_tplayer.second);
+        if( it_comp->GetEntityMode() & ecs::system::AoiEntityFlag::Watcher )
+            m_enter_func(it_tplayer.second, player);
     }
-    
 }
 
-
-void Aoi::LeaveAoi(ecs::GameObject::SPtr player)
+void Aoi::LeaveTower(ecs::GameObject::SPtr player, Tower* tower, int n)
 {
-    
+    /**
+     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
+     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
+     */
+    auto aoi_comp = GetAoiComponent(player);
+    if(aoi_comp == nullptr)
+        return;
+    for (auto it_tplayer : tower->m_players)
+    {
+        if(it_tplayer.first == aoi_comp->GetObjId())
+            return;
+        auto it_comp = GetAoiComponent(it_tplayer.second);
+        if(it_comp == nullptr)
+            return;
+        if( aoi_comp->GetEntityMode() & ecs::system::AoiEntityFlag::Watcher )
+            m_leave_func(player, it_tplayer.second);
+        if( it_comp->GetEntityMode() & ecs::system::AoiEntityFlag::Watcher )
+            m_leave_func(it_tplayer.second, player);
+    }
 }
+
+
+
 
 #pragma endregion
 

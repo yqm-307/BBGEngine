@@ -17,10 +17,14 @@ public:
     virtual void OnDelComponent();
     virtual void OnUpdate();
     /* 获取组件的 aoi object id */
-    virtual int GetObjId() const;
+    int GetObjId() const;
+    /* 获取实体的身份 */
+    int GetEntityMode() const;
+    /* 获取aoi当前位置 */
+    util::vector::Vector3 GetCurrentPos() const;
 private:
     int     m_aoi_object_id;    // aoi 对象id
-    int     m_aoi_entity_flag;  // aoi 实体身份      
+    int     m_aoi_entity_mode;  // aoi 实体身份      
     /* 视野范围 */
     float           m_view_range_x;
     float           m_view_range_y;
