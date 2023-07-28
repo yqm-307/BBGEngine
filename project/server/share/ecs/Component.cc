@@ -2,15 +2,22 @@
 
 using namespace game::share::ecs;
 
+Component::Component(std::string name)
+    :m_name(name)
+{
+}
+
+
+Component::~Component()
+{
+}
+
 const std::string& Component::GetName() const
 {
     return m_name;
 }
 
-void Component::SetName(std::string component)
+ComponentTemplateId Component::GetTemplateId() const
 {
-    m_name = component;
+    return m_template_id;
 }
-
-Component::~Component()
-{}

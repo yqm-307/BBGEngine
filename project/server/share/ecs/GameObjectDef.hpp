@@ -1,0 +1,15 @@
+#pragma once
+namespace game::share::ecs
+{
+
+/**
+ * @brief 游戏对象实体枚举
+ * 
+ */
+enum GameObjType: int
+{
+    Player = 1001,
+};
+
+
+}

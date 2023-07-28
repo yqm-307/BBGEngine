@@ -2,15 +2,12 @@
 #include <map>
 #include <set>
 #include <string>
+#include "GameObjectDef.hpp"
 #include "share/ecs/Component.hpp"
 
 namespace game::share::ecs
 {
 
-enum GameObjType: int
-{
-    Player = 1001,
-};
 
 
 class GameObject: public bbt::templateutil::BaseType<GameObject>
@@ -25,14 +22,14 @@ public:
     /* 插入一个组件, 如果组件已经存在，返回false，否则true */
     bool            AddComponent(Component::SPtr component);
     /* 获取一个组件，如果不存在返回nullptr */
-    Component::SPtr GetComponent(std::string component_name);
+    Component::SPtr GetComponent(ComponentTemplateId component_name);
     /* 删除一个组件，如果不存在返回nullptr */
-    Component::SPtr DelComponent(std::string component_name);
+    Component::SPtr DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
     GameObjType     Type();
 private:
     GameObjType                             m_gobj_type;
-    std::map<std::string, Component::SPtr>  m_component_map;
+    std::map<ComponentTemplateId, Component::SPtr>  m_component_map;
     std::set<std::string>                   m_components;
 };
 

@@ -11,23 +11,25 @@ GameObject::GameObject(GameObjType gobj_type)
 }
 
 
-Component::SPtr GameObject::GetComponent(std::string component_name)
+Component::SPtr GameObject::GetComponent(ComponentTemplateId tid)
 {
-    if(component_name.empty())
+    if(tid < 0)
         return nullptr;
-    auto it = m_component_map.find(component_name);
-    if(it != m_component_map.end())
-        return it->second;
-    return nullptr;
+    auto it = m_component_map.find(tid);
+    if(it == m_component_map.end())
+        return nullptr;
+        
+    return it->second;
 }
 
-Component::SPtr GameObject::DelComponent(std::string component_name)
+Component::SPtr GameObject::DelComponent(ComponentTemplateId tid)
 {
-    auto it = m_component_map.find(component_name);
-    if(it == m_component_map.end())
-    {
+    if(tid < 0)
         return nullptr;
-    }
+    auto it = m_component_map.find(tid);
+    if(it == m_component_map.end())
+        return nullptr;
+    
     m_component_map.erase(it);
     return it->second;
 }
@@ -35,8 +37,12 @@ Component::SPtr GameObject::DelComponent(std::string component_name)
 
 bool GameObject::AddComponent(Component::SPtr component)
 {
-    auto& name = component->GetName();
-    auto it = m_component_map.insert(std::make_pair(name, component));
+    // auto& name = component->GetName();
+    if(component == nullptr)
+        return false;
+
+    ComponentTemplateId tid = component->GetTemplateId();
+    auto it = m_component_map.insert(std::make_pair(tid, component));
     return it.second;
 }
 

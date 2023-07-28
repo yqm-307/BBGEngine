@@ -1,6 +1,6 @@
 #pragma once
 #include "share/ecs/Component.hpp"
-#include "share/aoi/Aoi.hpp"
+#include "share/ecs/system/aoi/Define.hpp"
 #include "util/vector/Vector3.hpp"
 
 
@@ -16,6 +16,8 @@ public:
     virtual void OnAddComponent();
     virtual void OnDelComponent();
     virtual void OnUpdate();
+    /* 获取组件的 aoi object id */
+    virtual int GetObjId() const;
 private:
     int     m_aoi_object_id;    // aoi 对象id
     int     m_aoi_entity_flag;  // aoi 实体身份      
@@ -24,7 +26,7 @@ private:
     float           m_view_range_y;
     float           m_view_range_z;
     /* 实体大小 */
-    game::share::aoi::AABBBox   m_aabb_box;
+    system::AABBBox   m_aabb_box;
     util::vector::Vector3 m_prev_pos;  // 上一帧位置
     util::vector::Vector3 m_current_pos;   // 当前帧位置
     /* 位移请求队列: 缓存客户端发来的位移请求，并在World Update时执行 */

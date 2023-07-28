@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <bbt/templateutil/BaseType.hpp>
+#include "share/ecs/ComponentDef.hpp"
 
 namespace game::share::ecs
 {
@@ -11,7 +12,7 @@ class Component:
     public bbt::templateutil::BaseType<Component>
 {
 public:
-    Component(){}
+    Component(std::string name);
 
 
     // interface
@@ -25,10 +26,11 @@ public:
     virtual void OnCreate(){}
     virtual void OnDestory(){}
     const std::string& GetName() const;
+    ComponentTemplateId GetTemplateId() const;
 protected:
-    void SetName(std::string component);
 private:
-    std::string     m_name;
+    ComponentTemplateId     m_template_id;
+    std::string             m_name;
 };
 
 }

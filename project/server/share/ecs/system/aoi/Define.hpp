@@ -4,7 +4,7 @@
 #include <map>
 #include "share/ecs/GameObject.hpp"
 
-namespace game::share::aoi
+namespace game::share::ecs::system
 {
 
 typedef float       Pos;            // 

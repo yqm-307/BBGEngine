@@ -32,20 +32,21 @@ public:
      * @param default_value 值的默认值
      */
     Hashmap(const HashFunction& key_hash, const ValueType& default_value);
+    Hashmap(const HashFunction& key_hash, const ValueType& default_value, std::initializer_list<std::pair<KeyType, ValueType>> args);
     ~Hashmap();
 
     /* 根据key查找value */
-    Result Find(const KeyType& key);
+    Result Find(const KeyType& key) const;
     /* 插入一个元素，并返回结果 */
     bool Insert(const KeyType& key, ValueType value);
     /* 删除一个元素，并返回 */
     Result Earse(const KeyType& key);
     /* 桶数量 */
-    size_t BucketSize();
+    size_t BucketSize() const;
     /* Hashmap中元素数量 */
-    size_t Size();
+    size_t Size() const;
 private:
-    void InitHashmap();
+    void InitHashmap() const;
     bool CheckIndex(size_t idx);
     BucketResult GetBucket(const KeyType& key);
 private:

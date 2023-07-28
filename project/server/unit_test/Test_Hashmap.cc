@@ -203,4 +203,15 @@ BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
 
     BOOST_CHECK_EQUAL( map.BucketSize(), bucket_num);
 
+    Hashmap<int, int, 10> ma2p([=](int key){return key%10;}, 0,
+    {
+        {1, 10},
+        {2, 10},
+        {3, 10},
+        {4, 10},
+        {5, 10},
+        {6, 10},
+    }
+    );
+
 }

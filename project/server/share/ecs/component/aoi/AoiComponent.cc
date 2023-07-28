@@ -3,6 +3,7 @@
 using namespace game::share::ecs::component;
 
 AoiComponent::AoiComponent()
+    :Component("AoiComponent")
 {
 
 }
@@ -25,4 +26,9 @@ void AoiComponent::OnDelComponent()
 void AoiComponent::OnUpdate()
 {
     
+}
+
+int AoiComponent::GetObjId() const
+{
+    return m_aoi_object_id;
 }
