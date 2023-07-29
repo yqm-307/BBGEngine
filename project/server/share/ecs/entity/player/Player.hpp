@@ -2,7 +2,7 @@
 #include "share/ecs/GameObject.hpp"
 #include "share/ecs/component/aoi/AoiComponent.hpp"
 
-namespace game::share::ecs::gameobject
+namespace game::share::ecs::entity
 {
 
 class Player:
@@ -11,11 +11,8 @@ class Player:
 public:
     Player();
     ~Player();
+    virtual void OnUpdate();
 private:
-    // 静态定义的Component
-    component::AoiComponent::SPtr m_com_aoi; 
-    // 动态挂在的Component    
-
 };
 
 }

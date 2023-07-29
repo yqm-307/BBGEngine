@@ -14,14 +14,26 @@ include_directories(
 )
 
 file(GLOB_RECURSE SRC_FILE
-    ${PROJECT_SOURCE_DIR}/*.cc
-    # ${PROJECT_SOURCE_DIR}/main.cc
     ${PROJECT_SOURCE_DIR}/../share/*.cc
     ${PROJECT_SOURCE_DIR}/../util/*.cc
 )
 
-add_executable(unittest ${SRC_FILE})
+add_executable(unittest Test_Hashmap.cc ${SRC_FILE})
 target_link_libraries(unittest
+    boost_unit_test_framework
+    boost_test_exec_monitor
+    ybbt
+)
+
+add_executable(aoi_test Test_aoi.cc ${SRC_FILE})
+target_link_libraries(aoi_test
+    boost_unit_test_framework
+    boost_test_exec_monitor
+    ybbt
+)
+
+add_executable(aabb_test Test_aabbbox.cc ${SRC_FILE})
+target_link_libraries(aabb_test
     boost_unit_test_framework
     boost_test_exec_monitor
     ybbt

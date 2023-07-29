@@ -8,7 +8,8 @@ namespace game::share::ecs
  */
 enum GameObjType: int
 {
-    Player = 1001,
+    Player      = 1001,
+    Aoi         = 1100,
 };
 
 

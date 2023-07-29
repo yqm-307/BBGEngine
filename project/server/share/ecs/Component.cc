@@ -2,8 +2,9 @@
 
 using namespace game::share::ecs;
 
-Component::Component(std::string name)
-    :m_name(name)
+Component::Component(std::string name, ComponentTemplateId id)
+    :m_name(name),
+    m_template_id(id)
 {
 }
 

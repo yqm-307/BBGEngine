@@ -12,7 +12,7 @@ class Component:
     virtual public bbt::templateutil::BaseType<Component>
 {
 public:
-    Component(std::string name);
+    Component(std::string name, ComponentTemplateId id);
 
 
     // interface

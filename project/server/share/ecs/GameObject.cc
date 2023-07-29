@@ -10,6 +10,9 @@ GameObject::GameObject(GameObjType gobj_type)
     AssertWithInfo( gobj_type > 0, "game object type error");
 }
 
+GameObject::~GameObject()
+{
+}
 
 Component::SPtr GameObject::GetComponent(ComponentTemplateId tid)
 {
