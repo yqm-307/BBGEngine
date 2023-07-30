@@ -9,7 +9,7 @@ using namespace game::share;
 using namespace game::util;
 typedef game::share::ecs::entity::aoi::Aoi Aoi;
 
-void print_notify(game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m)
+void print_notify(game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m , const std::string str)
 {
 
     auto p1 = std::static_pointer_cast<ecs::entity::Player>(w);
@@ -17,7 +17,7 @@ void print_notify(game::share::ecs::GameObject::SPtr w, game::share::ecs::GameOb
     auto pos1 = Aoi::GetAoiComponent(p1);
     auto pos2 = Aoi::GetAoiComponent(p2);
     printf("\n----------------------------------------------------\n");
-    printf("对象: %d 看到 对象(%d):\n", pos1->GetObjId(), pos2->GetObjId());
+    printf("[%s]对象: %d 看到 对象(%d):\n", str.c_str(), pos1->GetObjId(), pos2->GetObjId());
     pos2->Debug_PosChange();
 }
 
@@ -42,18 +42,18 @@ void aoiconfig()
     G_SetConfigPtr(game::util::config::AoiConfig, aoi, game::util::config::Cfg_Aoi);
 }
 
-/* aoi 随机移动测试 */
-BOOST_AUTO_TEST_CASE(t_aoi_base_test)
+/* aoi 随机降落测试 */
+BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
 {
     bbt::random::mt_random<int, 1, 12> rd;
     aoiconfig();
     int num = 10;
     auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
     [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
-        print_notify(w, m);
+        print_notify(w, m, "进入通知");
     },
     [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
-        print_notify(w, m);
+        print_notify(w, m, "离开通知");
     }
     );
 
@@ -76,4 +76,51 @@ BOOST_AUTO_TEST_CASE(t_aoi_base_test)
             }
         );
     }
+}
+
+/* aoi z轴为0，地面移动测试 */
+BOOST_AUTO_TEST_CASE(t_aoi_move_test)
+{
+    system("clear");
+    // int num = 10;
+    auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
+    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+        print_notify(w, m, "进入通知");
+    },
+    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+        print_notify(w, m, "离开通知");
+    }
+    );
+
+    auto p1 = create_player(1);
+    auto p2 = create_player(2);
+    
+    aoi->EnterAoi(
+        p1,
+        {
+            10,
+            10,
+            0
+        }
+    );
+    aoi->EnterAoi(
+        p2,
+        {
+            10,
+            20,
+            0
+        }
+    );
+
+    for(int i = 0; i<10; ++i)
+    {
+        aoi->Move(p1,
+            {
+                10,
+                (float)(10 + i),
+                0
+            }
+        );
+    }
+
 }

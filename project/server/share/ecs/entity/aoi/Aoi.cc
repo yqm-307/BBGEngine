@@ -164,7 +164,7 @@ Tower* Aoi::GetTowerByPos3(util::vector::Vector3 pos3)
     
     int index = index3.z * (m_tower_max_x * m_tower_max_y) + 
                 index3.x * (m_tower_max_y) + 
-                index3.z;
+                index3.y;
     return &(m_towers[index]);
 }
 
@@ -189,7 +189,8 @@ void Aoi::ScanTowerAround(Tower* center_tower, AroundFunc dofunc)
         for( int j = y-1; j <= y+1; j++ ) {
             for( int k = z-1; k <= z+1; k++ ) {
                 auto tmp_tower = GetTowerByIndex3({i, j, k});
-                dofunc(tmp_tower, ++n);
+                if(tmp_tower != nullptr)
+                    dofunc(tmp_tower, ++n);
             }
         }
     }
