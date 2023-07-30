@@ -29,16 +29,18 @@ enum AoiEntityFlag
 class Aoi:
     public GameObject
 {
-    // friend class ecs::component::AoiComponent;
     typedef util::hashmap::Hashmap<AoiObjectId, ecs::GameObject::SPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */
     typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
     typedef std::function<void(ecs::GameObject::SPtr, ecs::GameObject::SPtr)>   OnEnterFunc;
     typedef std::function<void(ecs::GameObject::SPtr, ecs::GameObject::SPtr)>   OnLeaveFunc;
 public:
-    // static RawPtr GetInstance();
+    typedef std::vector<ecs::GameObject::SPtr>     EntityResult;
+
     static std::shared_ptr<Aoi> Create(OnEnterFunc onenter, OnLeaveFunc onleave);
+    
     Aoi(OnEnterFunc onenter, OnLeaveFunc onleave);
+    
     ~Aoi();
     /**
      * @brief 将玩家player放置到aoi中的drop_point位置，如果已经存在立即返回
@@ -47,16 +49,57 @@ public:
      * @param drop_point 降落点
      */
     void EnterAoi(ecs::GameObject::SPtr player, util::vector::Vector3 drop_point);
+    
     /* 将player踢出aoi */
     void LeaveAoi(ecs::GameObject::SPtr player);
+    
     void Move(ecs::GameObject::SPtr player, util::vector::Vector3 moveto);
+
+    /**
+     * @brief 获取坐标附近的九宫格的实体
+     * 
+     * @param pos 坐标位置
+     * @return EntityResult  成功返回实体列表和true，否则返回空表和false。下同
+     */
+    EntityResult GetEntitysByPos(util::vector::Vector3 pos);
+
+    /**
+     * @brief 通过 gameobject 获取
+     * 
+     * @param gameobj 
+     * @return EntityResult 
+     */
+    EntityResult GetEntitysByGameobj(ecs::GameObject::SPtr gameobj);
+    
+    /**
+     * @brief 通过 aoi obj id 获取
+     * 
+     * @param aoiobj_id 
+     * @return EntityResult 
+     */
+    EntityResult GetEntitysByAoiObjId(AoiObjectId aoiobj_id);
+
+    /**
+     * @brief 根据aoi obj id 判断是否存在于该aoi中
+     * 
+     * @param aoiobj_id 
+     * @return true 
+     * @return false 
+     */
+    bool CheckEntityIsInAoi(AoiObjectId aoiobj_id);
+
+    ecs::GameObject::SPtr GetEntityByAoiObjectId(AoiObjectId aoiobj_id);
 private:
 
     void Init();
+    
     /* 进入地图 */
     void OnEnter(ecs::GameObject::SPtr player);
+    
     void OnLeave(ecs::GameObject::SPtr player);
+    
     void OnMove(ecs::GameObject::SPtr player);
+    
     void OnUpdate();
 private:
     bool CheckConfig(const util::config::AoiConfig*) const;
@@ -67,34 +110,46 @@ private:
 
     /* 根据 pos 获取 index，失败返回{-1,-1,-1} */
     util::pos::Index3   GetIndex3ByPos3(util::vector::Vector3 pos3) const;
+    
     /* 根据 tower 的 index，获取失败返回{-1,-1,-1} */
     util::pos::Index3   GetIndex3ByIndex(int tower_index) const;
+    
     /* 根据 aoi object id 获取在aoi中的 gameobject对象。失败返回nullptr */
     ecs::GameObject::SPtr GetGameObj(AoiObjectId id);
+    
     /* 环视 center_tower 灯塔周边的9宫格，并执行dofunc操作。 dofunc(Tower*, int)->void  */
     void                ScanTowerAround(Tower* center_tower, AroundFunc dofunc);
+    
     /* player进入灯塔 tower 的关注范围，n是第几个灯塔 */
     void                EnterTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n);
+    
     /* player离开灯塔 tower 的关注范围，n是第几个灯塔 */
     void                LeaveTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n);
+    
+    std::vector<ecs::GameObject::SPtr>  GetEntitysEx(util::vector::Vector3 pos);
 private:
     /**
      *  Tower相关 
      */
     /* 根据 index 获取灯塔，失败返回nullptr */
     Tower*              GetTowerByIndex3(util::pos::Index3 index3);
+
     /* 根据 pos 获取灯塔，失败返回nullptr */
     Tower*              GetTowerByPos3(util::vector::Vector3 pos3);
     /* 根据id从灯塔中删除一个aoi对象 */
     ecs::GameObject::SPtr RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id);
+
     /* 根据id往灯塔中添加一个aoi对象 */
     bool                InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr obj);
+
     /* Tower中的成员变动后修改 */
 public:
     /* gameobj是否有AoiComponent组件 */
     static bool                HasAoiComponent(ecs::GameObject::SPtr obj);
+
     /* 从gameobj上获取AoiComponent组件，获取失败返回nullptr */
     static std::shared_ptr<ecs::component::AoiComponent> GetAoiComponent(ecs::GameObject::SPtr obj);
+    
 private:
     int         m_tower_max_x;  // x 轴上灯塔数量
     int         m_tower_max_y;  // y 轴上灯塔数量

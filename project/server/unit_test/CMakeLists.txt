@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(unittest)
+# project(unittest)
 
 enable_language(CXX)
 
@@ -14,8 +14,8 @@ include_directories(
 )
 
 file(GLOB_RECURSE SRC_FILE
-    ${PROJECT_SOURCE_DIR}/../share/*.cc
-    ${PROJECT_SOURCE_DIR}/../util/*.cc
+    ${PROJECT_SOURCE_DIR}/share/*.cc
+    ${PROJECT_SOURCE_DIR}/util/*.cc
 )
 
 add_executable(unittest Test_Hashmap.cc ${SRC_FILE})

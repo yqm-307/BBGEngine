@@ -202,6 +202,118 @@ void Aoi::ScanTowerAround(Tower* center_tower, AroundFunc dofunc)
 
 #pragma region "AOI函数"
 
+
+
+void Aoi::EnterTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
+{
+    /**
+     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
+     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
+     */
+    auto aoi_comp = GetAoiComponent(player);
+    if(aoi_comp == nullptr)
+        return;
+
+    for (auto it_tplayer : tower->m_players)
+    {
+        if(it_tplayer.first == aoi_comp->GetObjId())
+            return;
+            
+        auto it_comp = GetAoiComponent(it_tplayer.second);
+        if(it_comp == nullptr)
+            return;
+            
+        if( aoi_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
+            m_enter_func(player, it_tplayer.second);
+            
+        if( it_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
+            m_enter_func(it_tplayer.second, player);
+    }
+}
+
+void Aoi::LeaveTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
+{
+    /**
+     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
+     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
+     */
+    auto aoi_comp = GetAoiComponent(player);
+    if(aoi_comp == nullptr)
+        return;
+        
+    for (auto it_tplayer : tower->m_players)
+    {
+        if(it_tplayer.first == aoi_comp->GetObjId())
+            return;
+            
+        auto it_comp = GetAoiComponent(it_tplayer.second);
+        if(it_comp == nullptr)
+            return;
+            
+        if( aoi_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
+            m_leave_func(player, it_tplayer.second);
+
+        if( it_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
+            m_leave_func(it_tplayer.second, player);
+    }
+}
+
+ecs::GameObject::SPtr Aoi::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
+{
+    if(from_tower == nullptr || from_tower->m_players.empty())
+        return nullptr;
+        
+    auto it = from_tower->m_players.find(id);
+    if(it == from_tower->m_players.end())
+        return nullptr;
+    
+    from_tower->m_players.erase(it);    
+    return it->second;
+}
+
+bool Aoi::InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr obj)
+{
+    if(to_tower == nullptr || id < 0 || obj == nullptr)
+        return false;
+
+    /* debug阶段做好，我们可以保证runtime不会出问题。这样就不需要多次取id */
+#ifdef Debug
+    auto aoi_comp = GetAoiComponent(obj);
+    AssertWithInfo(aoi_comp != nullptr, "gameobj has no AoiComponent!");
+    AssertWithInfo(aoi_comp->GetObjId() == id, "aoi id not equal!");
+#endif
+
+    auto it = to_tower->m_players.find(id);
+    if(it != to_tower->m_players.end())
+        return false;
+    
+    to_tower->m_players.insert(std::make_pair(id, obj));
+    return true;
+}
+
+std::vector<ecs::GameObject::SPtr>  Aoi::GetEntitysEx(util::vector::Vector3 pos)
+{
+    std::vector<ecs::GameObject::SPtr> rlts;
+    do{
+        auto tower = GetTowerByPos3(pos);
+        if(tower == nullptr)
+            break;
+        ScanTowerAround(tower, [&rlts](Tower* tower, int n){
+            for(auto&& entity: tower->m_players)
+            {
+                if(entity.second != nullptr)
+                    rlts.push_back(entity.second);
+            }
+        });
+    }while(0);
+    return rlts;
+}
+
+#pragma endregion
+
+
+#pragma region "Aoi公共接口"
+
 void Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vector3 drop_point)
 {
     std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
@@ -299,94 +411,86 @@ void Aoi::Move(ecs::GameObject::SPtr player, util::vector::Vector3 new_pos)
     });
 }
 
-void Aoi::EnterTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
+Aoi::EntityResult Aoi::GetEntitysByPos(util::vector::Vector3 pos)
 {
-    /**
-     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
-     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
-     */
-    auto aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
-        return;
-
-    for (auto it_tplayer : tower->m_players)
-    {
-        if(it_tplayer.first == aoi_comp->GetObjId())
-            return;
-            
-        auto it_comp = GetAoiComponent(it_tplayer.second);
-        if(it_comp == nullptr)
-            return;
-            
-        if( aoi_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
-            m_enter_func(player, it_tplayer.second);
-            
-        if( it_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
-            m_enter_func(it_tplayer.second, player);
-    }
+    std::vector<ecs::GameObject::SPtr> rlts;
+    auto rlts = GetEntitysEx(pos);
+    return GetEntitysEx(pos);
 }
 
-void Aoi::LeaveTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
+Aoi::EntityResult Aoi::GetEntitysByGameobj(ecs::GameObject::SPtr gameobj)
 {
-    /**
-     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
-     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
-     */
-    auto aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
-        return;
+    std::vector<ecs::GameObject::SPtr> rlts;
+    do{
+        if(gameobj == nullptr)
+            break;
+
+        auto aoi_comp = GetAoiComponent(gameobj);
+        if(aoi_comp == nullptr)
+            break;
+
+        auto id = aoi_comp->GetObjId();
+        if(!CheckEntityIsInAoi(id))
+            break;
+
+        auto pos = aoi_comp->GetCurrentPos();
+        if(util::vector::Vec3IsNull(pos))
+            break;
         
-    for (auto it_tplayer : tower->m_players)
-    {
-        if(it_tplayer.first == aoi_comp->GetObjId())
-            return;
-            
-        auto it_comp = GetAoiComponent(it_tplayer.second);
-        if(it_comp == nullptr)
-            return;
-            
-        if( aoi_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
-            m_leave_func(player, it_tplayer.second);
-
-        if( it_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
-            m_leave_func(it_tplayer.second, player);
-    }
+        rlts = GetEntitysByPos(pos);
+    }while(0);
+    
+    return rlts;
 }
 
-ecs::GameObject::SPtr Aoi::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
+Aoi::EntityResult Aoi::GetEntitysByAoiObjId(AoiObjectId aoiobj_id)
 {
-    if(from_tower == nullptr || from_tower->m_players.empty())
-        return nullptr;
+    std::vector<ecs::GameObject::SPtr> rlts;
+    do{ 
+        if(bbt_unlikely(aoiobj_id < 0))
+            break;
+
+
+        if(bbt_unlikely(!CheckEntityIsInAoi(aoiobj_id)))
+            break;
         
-    auto it = from_tower->m_players.find(id);
-    if(it == from_tower->m_players.end())
-        return nullptr;
-    
-    from_tower->m_players.erase(it);    
-    return it->second;
+        auto gobj = GetEntityByAoiObjectId(aoiobj_id);
+        if(gobj == nullptr)
+            break;
+        
+        auto aoi_comp = GetAoiComponent(gobj);
+        if(aoi_comp == nullptr)
+            break;
+        
+        auto pos = aoi_comp->GetCurrentPos();
+        if(util::vector::Vec3IsNull(pos))
+            break;
+
+        rlts = GetEntitysByPos(pos);
+    }while(0);
+    return rlts;
 }
 
-bool Aoi::InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr obj)
+bool Aoi::CheckEntityIsInAoi(AoiObjectId aoiobj_id)
 {
-    if(to_tower == nullptr || id < 0 || obj == nullptr)
-        return false;
+    auto [_, isexist] = m_gameobj_map.Find(aoiobj_id);
+    return isexist;
+}
 
-    /* debug阶段做好，我们可以保证runtime不会出问题。这样就不需要多次取id */
-#ifdef Debug
-    auto aoi_comp = GetAoiComponent(obj);
-    AssertWithInfo(aoi_comp != nullptr, "gameobj has no AoiComponent!");
-    AssertWithInfo(aoi_comp->GetObjId() == id, "aoi id not equal!");
-#endif
+ecs::GameObject::SPtr Aoi::GetEntityByAoiObjectId(AoiObjectId aoiobj_id)
+{
+    if(aoiobj_id < 0)
+        return nullptr;
 
-    auto it = to_tower->m_players.find(id);
-    if(it != to_tower->m_players.end())
-        return false;
-    
-    to_tower->m_players.insert(std::make_pair(id, obj));
-    return true;
+    auto [entity, isexist] = m_gameobj_map.Find(aoiobj_id);
+    if(bbt_unlikely(!isexist))
+        return nullptr;
+
+    return entity;
 }
 
 
 #pragma endregion
 
-}
+
+} // namespace game::share::ecs::entity::aoi

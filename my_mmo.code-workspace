@@ -59,7 +59,24 @@
 			"stdexcept": "cpp",
 			"streambuf": "cpp",
 			"thread": "cpp",
-			"typeinfo": "cpp"
-		}
+			"typeinfo": "cpp",
+			"hash_map": "cpp",
+			"strstream": "cpp",
+			"bitset": "cpp",
+			"complex": "cpp",
+			"list": "cpp",
+			"source_location": "cpp",
+			"iomanip": "cpp",
+			"iostream": "cpp",
+			"cfenv": "cpp",
+			"cinttypes": "cpp",
+			"typeindex": "cpp",
+			"variant": "cpp",
+			"*.ipp": "cpp"
+		},
+		"C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
+		"C_Cpp.intelliSenseEngineFallback": "enabled",
+		"C_Cpp.workspaceParsingPriority": "high",
+		"C_Cpp.workspaceSymbols": "All"
 	}
 }

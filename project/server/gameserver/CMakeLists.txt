@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(gameserver)
+# project(gameserver)
 
 enable_language(CXX)
 
@@ -17,11 +17,11 @@ include_directories(
 # 搜索CPP文件
 file(GLOB_RECURSE SRC_FILE
     # gameserver 目录下
-    ${PROJECT_SOURCE_DIR}/*.cc
+    ${PROJECT_SOURCE_DIR}/gameserver/*.cc
     # share 目录下
-    ${PROJECT_SOURCE_DIR}/../share/*.cc
+    ${PROJECT_SOURCE_DIR}/share/*.cc
     # util 目录下
-    ${PROJECT_SOURCE_DIR}/../util/*.cc
+    ${PROJECT_SOURCE_DIR}/util/*.cc
 )
 
 # 为可执行程序添加CPP源文件
