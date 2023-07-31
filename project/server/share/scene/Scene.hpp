@@ -17,7 +17,7 @@ public:
     Scene();
     ~Scene();
 
-    void OnUpdate();
+    virtual void OnUpdate() = 0;
 private:
     GameObjMap  m_all_obj;
 };
