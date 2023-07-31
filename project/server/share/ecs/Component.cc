@@ -6,11 +6,13 @@ Component::Component(std::string name, ComponentTemplateId id)
     :m_name(name),
     m_template_id(id)
 {
+    OnCreate();
 }
 
 
 Component::~Component()
 {
+    OnDestory();
 }
 
 const std::string& Component::GetName() const

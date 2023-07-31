@@ -1,1 +1,5 @@
-#include "System.hpp"
+#include "share/ecs/System.hpp"
+
+namespace game::share::ecs
+{
+}

@@ -22,7 +22,7 @@ Aoi::Aoi(OnEnterFunc onenter, OnLeaveFunc onleave)
     m_enter_func(onenter),
     m_leave_func(onleave)
 {
-    AssertWithInfo(m_comp_name.empty() , "not found component!");
+    AssertWithInfo(!m_comp_name.empty() , "not found component!");
     CheckConfig(m_config);
     Init();
 }
@@ -68,14 +68,14 @@ bool Aoi::CheckConfig(const util::config::AoiConfig* cfg) const
 
 void Aoi::OnEnter(game::share::ecs::GameObject::SPtr player)
 {
-
+    // Log();
 }
 
 void Aoi::OnLeave(game::share::ecs::GameObject::SPtr player)
 {
-    Assert(player != nullptr);
+    DebugAssert(player != nullptr);
     auto aoi_comp = GetAoiComponent(player);
-    Assert(aoi_comp != nullptr);
+    DebugAssert(aoi_comp != nullptr);
     aoi_comp->Clean();
 }
 
@@ -211,7 +211,7 @@ void Aoi::EnterTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
      * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
      */
     auto aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
+    if(bbt_unlikely(aoi_comp == nullptr))
         return;
 
     for (auto it_tplayer : tower->m_players)
@@ -238,16 +238,17 @@ void Aoi::LeaveTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
      * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
      */
     auto aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
+    if(bbt_unlikely(aoi_comp == nullptr))
         return;
         
     for (auto it_tplayer : tower->m_players)
     {
-        if(it_tplayer.first == aoi_comp->GetObjId())
-            return;
+        /* 跳过自己？是否通知自己呢，感觉还是需要通知自己的 */
+        // if( it_tplayer.first == aoi_comp->GetObjId())
+        //     return;
             
         auto it_comp = GetAoiComponent(it_tplayer.second);
-        if(it_comp == nullptr)
+        if(bbt_unlikely(it_comp == nullptr))
             return;
             
         if( aoi_comp->GetEntityMode() & ecs::entity::aoi::AoiEntityFlag::Watcher )
@@ -276,11 +277,11 @@ bool Aoi::InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr
     if(to_tower == nullptr || id < 0 || obj == nullptr)
         return false;
 
-    /* debug阶段做好，我们可以保证runtime不会出问题。这样就不需要多次取id */
 #ifdef Debug
+    /* debug阶段做好，我们可以保证runtime不会出问题。这样就不需要多次取id */
     auto aoi_comp = GetAoiComponent(obj);
-    AssertWithInfo(aoi_comp != nullptr, "gameobj has no AoiComponent!");
-    AssertWithInfo(aoi_comp->GetObjId() == id, "aoi id not equal!");
+    DebugAssertWithInfo(aoi_comp != nullptr, "gameobj has no AoiComponent!");
+    DebugAssertWithInfo(aoi_comp->GetObjId() == id, "aoi id not equal!");
 #endif
 
     auto it = to_tower->m_players.find(id);
@@ -314,108 +315,155 @@ std::vector<ecs::GameObject::SPtr>  Aoi::GetEntitysEx(util::vector::Vector3 pos)
 
 #pragma region "Aoi公共接口"
 
-void Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vector3 drop_point)
+bool Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vector3 drop_point)
 {
-    std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
-        return;
+    bool success = false;
+    do
+    {
+        std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
+        if(aoi_comp == nullptr)
+            break;
+
+        int id = aoi_comp->GetObjId();
+        if(id < 0)
+            break;
+
+        ecs::GameObject::SPtr old_obj = GetGameObj(id);
+        if(bbt_unlikely(old_obj == nullptr))
+            LeaveAoi(player);
+        
+        /* 获取灯塔下标 */
+        auto tower = GetTowerByPos3(drop_point);
+        if(bbt_unlikely(tower == nullptr))
+            break;
+
+        /* 移动aoi obj */
+        aoi_comp->Moveto(drop_point);
+        aoi_comp->Moveto(tower);
+
+        /* 将player加入aoi中管理 */
+        auto isok = m_gameobj_map.Insert(id, player);
+        if(bbt_unlikely(!isok))
+            break;
+
+        /* 将player加入到灯塔中 */
+        auto [_,isok2] = tower->m_players.insert(std::make_pair(id, player));
+        if(bbt_unlikely(!isok2))
+            break;
+
+        success = true;
+        /* 通知九宫格所有人 */
+        ScanTowerAround(tower, [this, player](Tower* tower, int n){
+            EnterTowerBroadCast(player, tower, n);
+        });
+        OnEnter(player);
+    }while(0);
     
-    int id = aoi_comp->GetObjId();
-    ecs::GameObject::SPtr old_obj = GetGameObj(id);
-
-    if(old_obj != nullptr)
-        LeaveAoi(player);
-    
-    /* 获取灯塔下标 */
-    auto tower = GetTowerByPos3(drop_point);
-    if(tower == nullptr)
-        return;
-    /* 移动aoi obj */
-    aoi_comp->Moveto(drop_point);
-    aoi_comp->Moveto(tower);
-
-    /* 将player加入aoi中管理 */
-    [[maybe_unused]] auto isok = m_gameobj_map.Insert(id, player);
-    AssertWithInfo(isok, "player is existed in aoi!");
-    /* 将player加入到灯塔中 */
-    [[maybe_unused]] auto [_,isok2] = tower->m_players.insert(std::make_pair(id, player));
-    AssertWithInfo(isok2, "player is existed in tower!");
-
-    /* 通知九宫格所有人 */
-    ScanTowerAround(tower, [this, player](Tower* tower, int n){
-        EnterTowerBroadCast(player, tower, n);
-    });
-    OnEnter(player);
+    return success;
 }
 
-void Aoi::LeaveAoi(ecs::GameObject::SPtr player)
+bool Aoi::LeaveAoi(ecs::GameObject::SPtr player)
 {
-    std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
-        return;
-    int id = aoi_comp->GetObjId();
-    ecs::GameObject::SPtr old_obj = GetGameObj(id);
-    
-    /* 不存在aoi中直接返回 */
-    if(old_obj == nullptr)
-        return;
-    auto tower = GetTowerByPos3(aoi_comp->GetCurrentPos());
-    AssertWithInfo(tower != nullptr, "player pos info failed!");
-    
-    /* 将player从aoi中删除 */
-    auto [_, isok] = m_gameobj_map.Earse(id);
-    AssertWithInfo(isok, "aoi remove gameobj failed!");
-    
-    /* 将player从灯塔中删除 */
-    [[maybe_unused]] auto a = tower->m_players.erase(id);
-    AssertWithInfo(a > 0, "tower not found player!");
+    bool success = false;
+    do
+    {
+        std::shared_ptr<ecs::component::AoiComponent> aoi_comp = GetAoiComponent(player);
+        if(bbt_unlikely(aoi_comp == nullptr))
+            break;
 
-    /* 通知灯塔范围内的所有人 */
-    ScanTowerAround(tower, [this, player](Tower* tower, int n){
-        LeaveTowerBroadCast(player, tower, n);
-    });
-    OnLeave(player);
+        int id = aoi_comp->GetObjId();
+        if(bbt_unlikely(id < 0))
+            break;
+
+        ecs::GameObject::SPtr old_obj = GetGameObj(id);
+        if(bbt_unlikely(old_obj == nullptr))
+            break;
+
+        auto tower = GetTowerByPos3(aoi_comp->GetCurrentPos());
+        if(bbt_unlikely(tower == nullptr))
+            break;
+        
+        /* 将player从aoi中删除 */
+        auto [_, isok] = m_gameobj_map.Earse(id);
+        if(bbt_unlikely(!isok))
+            break;
+        
+        /* 将player从灯塔中删除 */
+        auto a = RemoveObjFromTowerById(tower, id);
+        if(bbt_unlikely(a == nullptr))
+            break;            
+
+        success = true;
+        /* 通知灯塔范围内的所有人 */
+        ScanTowerAround(tower, [this, player](Tower* tower, int n){
+            LeaveTowerBroadCast(player, tower, n);
+        });
+        OnLeave(player);
+    }while(0);
+
+    return success;
 }
 
-void Aoi::Move(ecs::GameObject::SPtr player, util::vector::Vector3 new_pos)
+bool Aoi::Move(ecs::GameObject::SPtr player, util::vector::Vector3 new_pos)
 {
-    auto aoi_comp = GetAoiComponent(player);
-    if(aoi_comp == nullptr)
-        return;
+    bool success = false;
+    do
+    {
+        /* 是否可以看做aoi中的对象 */
+        auto aoi_comp = GetAoiComponent(player);
+        if(bbt_unlikely(aoi_comp == nullptr))
+            break;
 
-    [[maybe_unused]] int id = aoi_comp->GetObjId();
-    AssertWithInfo(id >= 0, "aoi object id error!");
-    auto old_pos = aoi_comp->GetCurrentPos();
+        /* id是否合法 */
+        int id = aoi_comp->GetObjId();
+        if(bbt_unlikely(id < 0))
+            break;
+
+        auto old_pos = aoi_comp->GetCurrentPos();        
+        /* 是否为aoi中对象，debug检测 */
+        DebugAssertWithInfo(GetGameObj(id) != nullptr , "aoi object not found");
+
+        /* 新灯塔插入，旧灯塔删除 */
+        auto new_tower = GetTowerByPos3(new_pos);
+        auto old_tower = GetTowerByPos3(old_pos);
+
+        /* 从旧灯塔中删除 */
+        auto oldobj = RemoveObjFromTowerById(old_tower, id);
+        if(bbt_unlikely(oldobj == nullptr))
+            break;
+        
+        /* 插入到新灯塔中 */
+        bool isexist = InsertObj2Tower(new_tower, id, player);
+        if(bbt_unlikely(!isexist))
+            break;
+
+        /* 移动aoi obj */
+        aoi_comp->Moveto(new_pos);
+        aoi_comp->Moveto(new_tower);
+
+        /* 通知灯塔范围内的玩家 */
+        if(bbt_unlikely(new_tower == old_tower))
+            break;
+
+        success = true;
+        /* 广播新灯塔九宫格 */
+        ScanTowerAround(new_tower, [this, player](Tower* tower, int n){
+            this->EnterTowerBroadCast(player, tower, n);
+        });
+        /* 广播旧灯塔九宫格 */
+        ScanTowerAround(old_tower, [this, player](Tower* tower, int n){
+            this->LeaveTowerBroadCast(player, tower, n);
+        });
+    }while(0);
     
-    /* 新灯塔插入，旧灯塔删除 */
-    auto new_tower = GetTowerByPos3(new_pos);
-    auto old_tower = GetTowerByPos3(old_pos);
-    AssertWithInfo(RemoveObjFromTowerById(old_tower, id) != nullptr, "game obj not found!");
-    AssertWithInfo(InsertObj2Tower(new_tower, id, player), "game obj is existed!");
-
-    /* 移动aoi obj */
-    aoi_comp->Moveto(new_pos);
-    aoi_comp->Moveto(new_tower);
-
-    /* 通知灯塔范围内的玩家 */
-    if(new_tower == old_tower)
-        return;
-    
-    /* 广播新灯塔九宫格 */
-    ScanTowerAround(new_tower, [this, player](Tower* tower, int n){
-        this->EnterTowerBroadCast(player, tower, n);
-    });
-    /* 广播旧灯塔九宫格 */
-    ScanTowerAround(old_tower, [this, player](Tower* tower, int n){
-        this->LeaveTowerBroadCast(player, tower, n);
-    });
+    return success;
 }
 
 Aoi::EntityResult Aoi::GetEntitysByPos(util::vector::Vector3 pos)
 {
     std::vector<ecs::GameObject::SPtr> rlts;
-    auto rlts = GetEntitysEx(pos);
-    return GetEntitysEx(pos);
+    rlts = GetEntitysEx(pos);
+    return rlts;
 }
 
 Aoi::EntityResult Aoi::GetEntitysByGameobj(ecs::GameObject::SPtr gameobj)
@@ -430,9 +478,12 @@ Aoi::EntityResult Aoi::GetEntitysByGameobj(ecs::GameObject::SPtr gameobj)
             break;
 
         auto id = aoi_comp->GetObjId();
-        if(!CheckEntityIsInAoi(id))
+        if(bbt_unlikely(id < 0))
             break;
-
+        
+        /* debug模式严格审查，release减少计算，不再次取值 */
+        DebugAssert(GetGameObj(id) != nullptr);
+        
         auto pos = aoi_comp->GetCurrentPos();
         if(util::vector::Vec3IsNull(pos))
             break;
@@ -450,9 +501,7 @@ Aoi::EntityResult Aoi::GetEntitysByAoiObjId(AoiObjectId aoiobj_id)
         if(bbt_unlikely(aoiobj_id < 0))
             break;
 
-
-        if(bbt_unlikely(!CheckEntityIsInAoi(aoiobj_id)))
-            break;
+        DebugAssert(GetGameObj(aoiobj_id) != nullptr);
         
         auto gobj = GetEntityByAoiObjectId(aoiobj_id);
         if(gobj == nullptr)

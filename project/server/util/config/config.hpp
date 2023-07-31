@@ -1,5 +1,5 @@
 #pragma once
-#include "configutil.hpp"
+#include "util/config/configutil.hpp"
 
 namespace game::util::config
 {

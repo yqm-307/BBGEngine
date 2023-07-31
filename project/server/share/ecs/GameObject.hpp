@@ -2,7 +2,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include "GameObjectDef.hpp"
+#include "share/ecs/GameObjectDef.hpp"
 #include "share/ecs/Component.hpp"
 
 namespace game::share::ecs
@@ -10,7 +10,9 @@ namespace game::share::ecs
 
 
 
-class GameObject: public bbt::templateutil::BaseType<GameObject>
+class GameObject: 
+    public bbt::templateutil::BaseType<GameObject>,
+    public std::enable_shared_from_this<GameObject>
 {
 public:
     GameObject(GameObjType gobj_type);

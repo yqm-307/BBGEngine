@@ -1,5 +1,5 @@
 #pragma once
-#include "Hashmap.hpp" // 为了语法提示
+#include "util/hashmap/Hashmap.hpp" // 为了语法提示
 #include "util/assert/Assert.hpp"
 #include <bbt/timer/Interval.hpp>
 #include <bbt/Define.hpp>
@@ -29,7 +29,7 @@ Hashmap<TKey, TValue, BucketNum>::Hashmap(const HashFunction& key_hash, const Va
     AssertWithInfo(key_hash != nullptr, "hash function not null!");
     AssertWithInfo(m_bucket_size > 0 && m_bucket_size <= MYGAME_HASH_MAX_BUCKET, "bucket num too much!"); /* 桶数量限制 */
     InitHashmap();
-    for(auto arg: args)
+    for([[maybe_unused]]auto arg: args)
     {
         AssertWithInfo(Insert(arg.first, arg.second), "Hashmap init failed!");
     }

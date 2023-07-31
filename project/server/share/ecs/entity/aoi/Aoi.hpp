@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <vector>
-#include "./Define.hpp"
+#include "share/ecs/entity/aoi/Define.hpp"
 #include "util/config/config.hpp"
 #include "util/hashmap/Hashmap.hpp"
 #include "util/vector/Pos3.hpp"
@@ -48,12 +48,12 @@ public:
      * @param player 玩家
      * @param drop_point 降落点
      */
-    void EnterAoi(ecs::GameObject::SPtr player, util::vector::Vector3 drop_point);
+    bool EnterAoi(ecs::GameObject::SPtr player, util::vector::Vector3 drop_point);
     
     /* 将player踢出aoi */
-    void LeaveAoi(ecs::GameObject::SPtr player);
+    bool LeaveAoi(ecs::GameObject::SPtr player);
     
-    void Move(ecs::GameObject::SPtr player, util::vector::Vector3 moveto);
+    bool Move(ecs::GameObject::SPtr player, util::vector::Vector3 moveto);
 
     /**
      * @brief 获取坐标附近的九宫格的实体
@@ -136,11 +136,11 @@ private:
 
     /* 根据 pos 获取灯塔，失败返回nullptr */
     Tower*              GetTowerByPos3(util::vector::Vector3 pos3);
-    /* 根据id从灯塔中删除一个aoi对象 */
+    /* 根据id从灯塔中删除一个aoi对象，失败返回nullptr */
     ecs::GameObject::SPtr RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id);
 
-    /* 根据id往灯塔中添加一个aoi对象 */
-    bool                InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr obj);
+    /* 向灯塔的实体列表中添加 aoi object id 和 实体 的键值对，失败返回false */
+    bool                InsertObj2Tower(Tower* to_tower, AoiObjectId key, ecs::GameObject::SPtr value);
 
     /* Tower中的成员变动后修改 */
 public:

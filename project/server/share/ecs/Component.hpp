@@ -9,7 +9,7 @@ namespace game::share::ecs
 class GameObject;
 
 class Component: 
-    virtual public bbt::templateutil::BaseType<Component>
+    public bbt::templateutil::BaseType<Component>
 {
 public:
     Component(std::string name, ComponentTemplateId id);
@@ -18,15 +18,16 @@ public:
     // interface
     //--------------------------------------------
     virtual ~Component() = 0;
-    virtual void OnAddComponent() = 0;
-    virtual void OnDelComponent() = 0;
+    virtual void OnAddComponent(std::shared_ptr<ecs::GameObject>) = 0;
+    virtual void OnDelComponent(std::shared_ptr<ecs::GameObject>) = 0;
     virtual void OnUpdate() = 0;
     //--------------------------------------------
 
-    virtual void OnCreate(){}
-    virtual void OnDestory(){}
     const std::string& GetName() const;
     ComponentTemplateId GetTemplateId() const;
+protected:
+    virtual void OnCreate(){}
+    virtual void OnDestory(){}
 protected:
 private:
     ComponentTemplateId     m_template_id;

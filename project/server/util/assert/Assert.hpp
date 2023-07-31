@@ -1,21 +1,27 @@
 #pragma once
 #include <cassert>
 
-namespace game::util::assert
-{
-
 #ifdef Debug
-#define AssertWithInfo(expr, info) \
+#define DebugAssertWithInfo(expr, info) \
     assert( (expr) && (info) )
 #else
-#define AssertWithInfo(expr, info) {}
+#define DebugAssertWithInfo(expr, info) {}
 #endif
 
 #ifdef Debug
-#define Assert(expr) \
+#define DebugAssert(expr) \
     assert( expr )
 #else
-#define Assert(expr) {}
+#define DebugAssert(expr) {}
 #endif
+
+#define Assert(expr) \
+    assert( expr )
+
+#define AssertWithInfo(expr, info) \
+    assert( (expr) && (info) )
+
+namespace game::util::assert
+{
 
 }

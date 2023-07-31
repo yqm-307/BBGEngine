@@ -17,12 +17,12 @@ AoiComponent::~AoiComponent()
 
 }
 
-void AoiComponent::OnAddComponent()
+void AoiComponent::OnAddComponent(ecs::GameObject::SPtr)
 {
 
 }
 
-void AoiComponent::OnDelComponent()
+void AoiComponent::OnDelComponent(ecs::GameObject::SPtr)
 {
 
 }
@@ -39,7 +39,7 @@ int AoiComponent::GetObjId() const
 
 void AoiComponent::SetObjId(int id)
 {
-    Assert(id);
+    DebugAssert(id);
     m_aoi_object_id = id;
 }
 
@@ -62,7 +62,7 @@ void AoiComponent::Moveto(util::vector::Vector3 new_pos)
 
 void AoiComponent::Moveto(entity::aoi::Tower* new_tower)
 {
-    Assert(new_tower != nullptr);
+    DebugAssert(new_tower != nullptr);
     m_tower = new_tower;
 }
 

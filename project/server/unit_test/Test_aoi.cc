@@ -12,18 +12,18 @@ typedef game::share::ecs::entity::aoi::Aoi Aoi;
 void print_notify(game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m , const std::string str)
 {
 
-    auto p1 = std::static_pointer_cast<ecs::entity::Player>(w);
-    auto p2 = std::static_pointer_cast<ecs::entity::Player>(m);
+    auto p1 = std::static_pointer_cast<ecs::entity::player::Player>(w);
+    auto p2 = std::static_pointer_cast<ecs::entity::player::Player>(m);
     auto pos1 = Aoi::GetAoiComponent(p1);
     auto pos2 = Aoi::GetAoiComponent(p2);
-    printf("\n----------------------------------------------------\n");
+    printf("----------------------------------------------------\n");
     printf("[%s]对象: %d 看到 对象(%d):\n", str.c_str(), pos1->GetObjId(), pos2->GetObjId());
     pos2->Debug_PosChange();
 }
 
 game::share::ecs::GameObject::SPtr create_player(int aoi_id)
 {
-    auto player = std::make_shared<ecs::entity::Player>();
+    auto player = std::make_shared<ecs::entity::player::Player>();
     auto aoi_comp = std::make_shared<ecs::component::AoiComponent>();
     player->AddComponent(aoi_comp);
     aoi_comp->SetObjId(aoi_id);
@@ -121,6 +121,53 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
                 0
             }
         );
+    }
+
+}
+
+
+// 对 aoi 接口进行测试
+BOOST_AUTO_TEST_CASE(t_aoi_api_test)
+{
+    // const int num = 100;
+    bbt::random::mt_random<int, 0, 100> rd;
+    auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
+    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+        // print_notify(w, m, "进入通知");
+    },
+    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+        // print_notify(w, m, "离开通知");
+    }
+    );
+
+    auto p1 = create_player(1);
+    auto p2 = create_player(2);
+    
+    std::vector<game::share::ecs::GameObject::SPtr> players;
+    /* 每个灯塔放一个 */
+    for(int i = 1; i <= 34*34*34; ++i)
+    {
+        auto player = create_player(i);
+        BOOST_ASSERT(player != nullptr);
+        players.push_back(player);
+    }
+
+    /* 每个灯塔放一个 */
+    for(int i = 0; i < 34; ++i) {
+        for(int j = 0; j < 34; ++j) {
+            for(int k = 0; k < 34; ++k) {
+                aoi->EnterAoi(players[i*34*34 + j*34 + k], {(float)i * 3, (float)j * 3, (float)k * 3} );
+            }
+        }
+    }
+    std::map<int, int> stat;
+
+    for(auto&& obj : players)
+    {
+        auto vec = aoi->GetEntitysByGameobj(obj);
+        BOOST_ASSERT(!vec.empty());
+        // BOOST_ASSERT(vec.size() < 9);
+        stat[vec.size()]++;        
     }
 
 }

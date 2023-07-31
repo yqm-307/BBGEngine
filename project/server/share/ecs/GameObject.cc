@@ -34,18 +34,19 @@ Component::SPtr GameObject::DelComponent(ComponentTemplateId tid)
         return nullptr;
     
     m_component_map.erase(it);
+    it->second->OnDelComponent(shared_from_this());
     return it->second;
 }
 
 
 bool GameObject::AddComponent(Component::SPtr component)
 {
-    // auto& name = component->GetName();
     if(component == nullptr)
         return false;
 
     ComponentTemplateId tid = component->GetTemplateId();
     auto it = m_component_map.insert(std::make_pair(tid, component));
+    component->OnAddComponent(shared_from_this());
     return it.second;
 }
 
