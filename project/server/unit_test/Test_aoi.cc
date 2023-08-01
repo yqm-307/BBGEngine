@@ -9,7 +9,7 @@ using namespace game::share;
 using namespace game::util;
 typedef game::share::ecs::entity::aoi::Aoi Aoi;
 
-void print_notify(game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m , const std::string str)
+void print_notify(game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m , const std::string str)
 {
 
     auto p1 = std::static_pointer_cast<ecs::entity::player::Player>(w);
@@ -21,7 +21,7 @@ void print_notify(game::share::ecs::GameObject::SPtr w, game::share::ecs::GameOb
     pos2->Debug_PosChange();
 }
 
-game::share::ecs::GameObject::SPtr create_player(int aoi_id)
+game::share::ecs::GameObjectSPtr create_player(int aoi_id)
 {
     auto player = std::make_shared<ecs::entity::player::Player>();
     auto aoi_comp = std::make_shared<ecs::component::AoiComponent>();
@@ -49,15 +49,15 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
     aoiconfig();
     int num = 10;
     auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
-    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
         print_notify(w, m, "进入通知");
     },
-    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
         print_notify(w, m, "离开通知");
     }
     );
 
-    std::vector<game::share::ecs::GameObject::SPtr> players;
+    std::vector<game::share::ecs::GameObjectSPtr> players;
     for(int i = 1; i <= num; ++i)
     {
         auto player = create_player(i);
@@ -84,10 +84,10 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
     system("clear");
     // int num = 10;
     auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
-    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
         print_notify(w, m, "进入通知");
     },
-    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
         print_notify(w, m, "离开通知");
     }
     );
@@ -132,10 +132,10 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
     // const int num = 100;
     bbt::random::mt_random<int, 0, 100> rd;
     auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
-    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
         // print_notify(w, m, "进入通知");
     },
-    [](game::share::ecs::GameObject::SPtr w, game::share::ecs::GameObject::SPtr m){
+    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
         // print_notify(w, m, "离开通知");
     }
     );
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
     auto p1 = create_player(1);
     auto p2 = create_player(2);
     
-    std::vector<game::share::ecs::GameObject::SPtr> players;
+    std::vector<game::share::ecs::GameObjectSPtr> players;
     /* 每个灯塔放一个 */
     for(int i = 1; i <= 34*34*34; ++i)
     {

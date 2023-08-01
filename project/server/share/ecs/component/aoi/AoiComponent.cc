@@ -17,14 +17,12 @@ AoiComponent::~AoiComponent()
 
 }
 
-void AoiComponent::OnAddComponent(ecs::GameObject::SPtr)
+void AoiComponent::OnAddComponent(ecs::GameObjectRawPtr)
 {
-
 }
 
-void AoiComponent::OnDelComponent(ecs::GameObject::SPtr)
+void AoiComponent::OnDelComponent(ecs::GameObjectRawPtr)
 {
-
 }
 
 void AoiComponent::OnUpdate()

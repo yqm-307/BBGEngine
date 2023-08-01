@@ -12,7 +12,7 @@ typedef float       Pos;            //
 typedef int         AoiObjectId;    // aoi 对象id, aoi中任何 gameobject 都有该id
 typedef int         Index;          // 
 
-typedef std::map<int, share::ecs::GameObject::SPtr> GameObjMap;
+typedef std::map<int, share::ecs::GameObjectSPtr> GameObjMap;
 
 
 /**

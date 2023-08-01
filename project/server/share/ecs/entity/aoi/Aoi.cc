@@ -59,19 +59,19 @@ bool Aoi::CheckConfig(const util::config::AoiConfig* cfg) const
         cfg->m_tower_x > 0 && 
         cfg->m_tower_y > 0 && 
         cfg->m_tower_z > 0 &&
-        cfg->m_map_x > cfg->m_tower_x && 
-        cfg->m_map_y > cfg->m_tower_y && 
-        cfg->m_map_z > cfg->m_tower_z,
+        cfg->m_map_x >= cfg->m_tower_x && 
+        cfg->m_map_y >= cfg->m_tower_y && 
+        cfg->m_map_z >= cfg->m_tower_z,
         "aoi config invalid!");
     return true;
 }
 
-void Aoi::OnEnter(game::share::ecs::GameObject::SPtr player)
+void Aoi::OnEnter(game::share::ecs::GameObjectSPtr player)
 {
     // Log();
 }
 
-void Aoi::OnLeave(game::share::ecs::GameObject::SPtr player)
+void Aoi::OnLeave(game::share::ecs::GameObjectSPtr player)
 {
     DebugAssert(player != nullptr);
     auto aoi_comp = GetAoiComponent(player);
@@ -79,7 +79,7 @@ void Aoi::OnLeave(game::share::ecs::GameObject::SPtr player)
     aoi_comp->Clean();
 }
 
-void Aoi::OnMove(game::share::ecs::GameObject::SPtr player)
+void Aoi::OnMove(game::share::ecs::GameObjectSPtr player)
 {
 
 }
@@ -124,7 +124,7 @@ game::util::pos::Index3 Aoi::GetIndex3ByIndex(int tower_index) const
     return {x, y, z};
 }
 
-ecs::GameObject::SPtr Aoi::GetGameObj(AoiObjectId id)
+ecs::GameObjectSPtr Aoi::GetGameObj(AoiObjectId id)
 {
     auto [gameobj, isexist] = m_gameobj_map.Find(id);
     if(!isexist)
@@ -133,7 +133,7 @@ ecs::GameObject::SPtr Aoi::GetGameObj(AoiObjectId id)
     return gameobj;
 }
 
-bool Aoi::HasAoiComponent(ecs::GameObject::SPtr obj)
+bool Aoi::HasAoiComponent(ecs::GameObjectSPtr obj)
 {
     if(obj == nullptr)
         return false;
@@ -144,7 +144,7 @@ bool Aoi::HasAoiComponent(ecs::GameObject::SPtr obj)
     return true;
 }
 
-std::shared_ptr<ecs::component::AoiComponent> Aoi::GetAoiComponent(ecs::GameObject::SPtr obj)
+std::shared_ptr<ecs::component::AoiComponent> Aoi::GetAoiComponent(ecs::GameObjectSPtr obj)
 {
     if(obj == nullptr)
         return nullptr;
@@ -204,7 +204,7 @@ void Aoi::ScanTowerAround(Tower* center_tower, AroundFunc dofunc)
 
 
 
-void Aoi::EnterTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
+void Aoi::EnterTowerBroadCast(ecs::GameObjectSPtr player, Tower* tower, int n)
 {
     /**
      * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
@@ -231,7 +231,7 @@ void Aoi::EnterTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
     }
 }
 
-void Aoi::LeaveTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
+void Aoi::LeaveTowerBroadCast(ecs::GameObjectSPtr player, Tower* tower, int n)
 {
     /**
      * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
@@ -259,7 +259,7 @@ void Aoi::LeaveTowerBroadCast(ecs::GameObject::SPtr player, Tower* tower, int n)
     }
 }
 
-ecs::GameObject::SPtr Aoi::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
+ecs::GameObjectSPtr Aoi::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
 {
     if(from_tower == nullptr || from_tower->m_players.empty())
         return nullptr;
@@ -272,7 +272,7 @@ ecs::GameObject::SPtr Aoi::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId
     return it->second;
 }
 
-bool Aoi::InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr obj)
+bool Aoi::InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObjectSPtr obj)
 {
     if(to_tower == nullptr || id < 0 || obj == nullptr)
         return false;
@@ -292,9 +292,9 @@ bool Aoi::InsertObj2Tower(Tower* to_tower, AoiObjectId id, ecs::GameObject::SPtr
     return true;
 }
 
-std::vector<ecs::GameObject::SPtr>  Aoi::GetEntitysEx(util::vector::Vector3 pos)
+std::vector<ecs::GameObjectSPtr>  Aoi::GetEntitysEx(util::vector::Vector3 pos)
 {
-    std::vector<ecs::GameObject::SPtr> rlts;
+    std::vector<ecs::GameObjectSPtr> rlts;
     do{
         auto tower = GetTowerByPos3(pos);
         if(tower == nullptr)
@@ -315,7 +315,7 @@ std::vector<ecs::GameObject::SPtr>  Aoi::GetEntitysEx(util::vector::Vector3 pos)
 
 #pragma region "Aoi公共接口"
 
-bool Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vector3 drop_point)
+bool Aoi::EnterAoi(game::share::ecs::GameObjectSPtr player, util::vector::Vector3 drop_point)
 {
     bool success = false;
     do
@@ -328,7 +328,7 @@ bool Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vect
         if(id < 0)
             break;
 
-        ecs::GameObject::SPtr old_obj = GetGameObj(id);
+        ecs::GameObjectSPtr old_obj = GetGameObj(id);
         if(bbt_unlikely(old_obj == nullptr))
             LeaveAoi(player);
         
@@ -362,7 +362,7 @@ bool Aoi::EnterAoi(game::share::ecs::GameObject::SPtr player, util::vector::Vect
     return success;
 }
 
-bool Aoi::LeaveAoi(ecs::GameObject::SPtr player)
+bool Aoi::LeaveAoi(ecs::GameObjectSPtr player)
 {
     bool success = false;
     do
@@ -375,7 +375,7 @@ bool Aoi::LeaveAoi(ecs::GameObject::SPtr player)
         if(bbt_unlikely(id < 0))
             break;
 
-        ecs::GameObject::SPtr old_obj = GetGameObj(id);
+        ecs::GameObjectSPtr old_obj = GetGameObj(id);
         if(bbt_unlikely(old_obj == nullptr))
             break;
 
@@ -404,7 +404,7 @@ bool Aoi::LeaveAoi(ecs::GameObject::SPtr player)
     return success;
 }
 
-bool Aoi::Move(ecs::GameObject::SPtr player, util::vector::Vector3 new_pos)
+bool Aoi::Move(ecs::GameObjectSPtr player, util::vector::Vector3 new_pos)
 {
     bool success = false;
     do
@@ -461,14 +461,14 @@ bool Aoi::Move(ecs::GameObject::SPtr player, util::vector::Vector3 new_pos)
 
 Aoi::EntityResult Aoi::GetEntitysByPos(util::vector::Vector3 pos)
 {
-    std::vector<ecs::GameObject::SPtr> rlts;
+    std::vector<ecs::GameObjectSPtr> rlts;
     rlts = GetEntitysEx(pos);
     return rlts;
 }
 
-Aoi::EntityResult Aoi::GetEntitysByGameobj(ecs::GameObject::SPtr gameobj)
+Aoi::EntityResult Aoi::GetEntitysByGameobj(ecs::GameObjectSPtr gameobj)
 {
-    std::vector<ecs::GameObject::SPtr> rlts;
+    std::vector<ecs::GameObjectSPtr> rlts;
     do{
         if(gameobj == nullptr)
             break;
@@ -496,7 +496,7 @@ Aoi::EntityResult Aoi::GetEntitysByGameobj(ecs::GameObject::SPtr gameobj)
 
 Aoi::EntityResult Aoi::GetEntitysByAoiObjId(AoiObjectId aoiobj_id)
 {
-    std::vector<ecs::GameObject::SPtr> rlts;
+    std::vector<ecs::GameObjectSPtr> rlts;
     do{ 
         if(bbt_unlikely(aoiobj_id < 0))
             break;
@@ -526,7 +526,7 @@ bool Aoi::CheckEntityIsInAoi(AoiObjectId aoiobj_id)
     return isexist;
 }
 
-ecs::GameObject::SPtr Aoi::GetEntityByAoiObjectId(AoiObjectId aoiobj_id)
+ecs::GameObjectSPtr Aoi::GetEntityByAoiObjectId(AoiObjectId aoiobj_id)
 {
     if(aoiobj_id < 0)
         return nullptr;

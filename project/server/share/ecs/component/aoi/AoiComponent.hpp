@@ -14,8 +14,8 @@ class AoiComponent:
 public:
     AoiComponent();
     virtual ~AoiComponent();
-    virtual void OnAddComponent(ecs::GameObject::SPtr );
-    virtual void OnDelComponent(ecs::GameObject::SPtr );
+    virtual void OnAddComponent(ecs::GameObjectRawPtr);
+    virtual void OnDelComponent(ecs::GameObjectRawPtr);
     virtual void OnUpdate();
     /* 获取组件的 aoi object id */
     int GetObjId() const;

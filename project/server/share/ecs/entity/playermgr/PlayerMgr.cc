@@ -3,25 +3,59 @@
 namespace game::share::ecs::entity::playermgr
 {
 
-PlayerMgr::SPtr PlayerMgr::GetInstance()
+PlayerMgrSPtr PlayerMgr::GetInstance()
 {
-    static SPtr instance = nullptr;
+    static PlayerMgr* instance = nullptr;
     if(instance == nullptr)
     {
-        instance = std::make_shared<PlayerMgr>();
+        instance = new PlayerMgr();
     }
-    return instance;
+    return instance->shared_from_this();
 }
 
 #pragma region "公共接口实现"
 
-player::PlayerSPtr PlayerMgr::GetPlayerById(player::PlayerId player_id)
+PlayerMgr::Result PlayerMgr::GetPlayerById(player::PlayerId player_id)
 {
     if(player_id == 0)
-        return nullptr;
+        return {nullptr, false};
     
-    auto [player, isexist] = m_all_player.Find(player_id);
-    return player;
+    return m_all_player.Find(player_id);
+}
+
+PlayerMgr::Result PlayerMgr::KickPlayer(player::PlayerId id)
+{
+    return KickPlayerEx(id);
+}
+
+PlayerMgr::Result PlayerMgr::KickPlayer(player::PlayerSPtr player)
+{
+    player::PlayerSPtr ret = nullptr;
+    bool success = false;
+    do
+    {
+        if(player == nullptr)
+            break;
+
+        auto id = player->GetPlayerId();
+        if(id < 0)
+            break;
+
+        auto [old_player, isok] = KickPlayerEx(id);
+        if(!isok)
+            break;
+        
+        DebugAssert(old_player == player);
+        ret = old_player;
+        success = true;
+    }while(0);
+
+    return {ret, success};
+}
+
+void PlayerMgr::OnUpdate()
+{
+
 }
 
 #pragma endregion
@@ -31,10 +65,41 @@ player::PlayerSPtr PlayerMgr::GetPlayerById(player::PlayerId player_id)
 #pragma region "内部接口实现"
 
 PlayerMgr::PlayerMgr()
-    :m_all_player([](const player::PlayerId& key){ return key%Default_Hash_Bucket_Num; }, nullptr)
+    :GameObject(ecs::GameObjType::PlayerMgr),
+    m_all_player([](const player::PlayerId& key){ return key % Default_Hash_Bucket_Num; }, nullptr)
 {
 }
 
+PlayerMgr::~PlayerMgr()
+{
+}
+
+PlayerMgr::Result PlayerMgr::KickPlayerEx(player::PlayerId id)
+{
+    player::PlayerSPtr ret = nullptr;
+    bool success = false;
+
+    do
+    {
+        if(id < 0)
+            break;
+
+        auto [player, isexist] = m_all_player.Earse(id);
+        if(!isexist)
+            break;
+        
+        if(player == nullptr)
+            break;
+
+        if(!player->IsOnline())
+            break;
+
+        ret = player;
+        success = true;
+    }while(0);
+    
+    return {ret, success};
+}
 
 #pragma endregion
 

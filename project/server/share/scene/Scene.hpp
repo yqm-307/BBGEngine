@@ -8,18 +8,15 @@ namespace game::share::scene
 
 const int Default_Hash_Bucket_Num = 128;
 
-class Scene:
-    public bbt::templateutil::noncopyable
+class Scene
 {
 public:
-    typedef util::hashmap::Hashmap<std::string, ecs::GameObject::SPtr> GameObjMap;
-    
+    typedef std::map<std::string, ecs::GameObjectSPtr> GameObjMap;
+    typedef std::pair<ecs::GameObjectSPtr, bool> Result;
     Scene();
-    ~Scene();
+    virtual ~Scene() = 0;
 
     virtual void OnUpdate() = 0;
-private:
-    GameObjMap  m_all_obj;
 };
 
 }

@@ -2,14 +2,12 @@
 #include <string>
 #include <bbt/templateutil/BaseType.hpp>
 #include "share/ecs/ComponentDef.hpp"
+#include "share/ecs/EcsDefine.hpp"
 
 namespace game::share::ecs
 {
 
-class GameObject;
-
-class Component: 
-    public bbt::templateutil::BaseType<Component>
+class Component 
 {
 public:
     Component(std::string name, ComponentTemplateId id);
@@ -18,8 +16,8 @@ public:
     // interface
     //--------------------------------------------
     virtual ~Component() = 0;
-    virtual void OnAddComponent(std::shared_ptr<ecs::GameObject>) = 0;
-    virtual void OnDelComponent(std::shared_ptr<ecs::GameObject>) = 0;
+    virtual void OnAddComponent(ecs::GameObjectRawPtr) = 0;
+    virtual void OnDelComponent(ecs::GameObjectRawPtr) = 0;
     virtual void OnUpdate() = 0;
     //--------------------------------------------
 

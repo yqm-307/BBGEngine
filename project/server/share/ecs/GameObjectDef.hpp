@@ -10,6 +10,7 @@ enum GameObjType: int
 {
     Player      = 1001,
     Aoi         = 1100,
+    PlayerMgr   = 1200,
 };
 
 

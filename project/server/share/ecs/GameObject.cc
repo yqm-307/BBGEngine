@@ -1,7 +1,9 @@
 #include "share/ecs/GameObject.hpp"
 #include "util/assert/Assert.hpp"
 
-using namespace game::share::ecs;
+namespace game::share::ecs
+{
+
 
 
 GameObject::GameObject(GameObjType gobj_type)
@@ -14,7 +16,7 @@ GameObject::~GameObject()
 {
 }
 
-Component::SPtr GameObject::GetComponent(ComponentTemplateId tid)
+ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid)
 {
     if(tid < 0)
         return nullptr;
@@ -25,7 +27,7 @@ Component::SPtr GameObject::GetComponent(ComponentTemplateId tid)
     return it->second;
 }
 
-Component::SPtr GameObject::DelComponent(ComponentTemplateId tid)
+ComponentSPtr GameObject::DelComponent(ComponentTemplateId tid)
 {
     if(tid < 0)
         return nullptr;
@@ -34,23 +36,25 @@ Component::SPtr GameObject::DelComponent(ComponentTemplateId tid)
         return nullptr;
     
     m_component_map.erase(it);
-    it->second->OnDelComponent(shared_from_this());
+    it->second->OnDelComponent(this);
     return it->second;
 }
 
 
-bool GameObject::AddComponent(Component::SPtr component)
+bool GameObject::AddComponent(ComponentSPtr component)
 {
     if(component == nullptr)
         return false;
 
     ComponentTemplateId tid = component->GetTemplateId();
     auto it = m_component_map.insert(std::make_pair(tid, component));
-    component->OnAddComponent(shared_from_this());
+    component->OnAddComponent(this);
     return it.second;
 }
 
 GameObjType GameObject::Type()
 {
     return m_gobj_type;
+}
+
 }

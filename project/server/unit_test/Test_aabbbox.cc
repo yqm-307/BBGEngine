@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(t_aabb_check_test)
     Box_Init(b, 1, 0, 1, 0, 2, 0);
     Box_Init(c, 3, 0, 3, 0, 3, 0);
     Box_Init(d, 2, 1, 1, 0, 1, 0);
-    Box_Init(e, 1, 1, 1, 1, 1, 1);
+    Box_Init(e, 2, 1, 2, 1, 2, 1);
     bool rlt1 = AABBCheck(a, a);
     BOOST_ASSERT_MSG(rlt1, "重叠测试失败");
 

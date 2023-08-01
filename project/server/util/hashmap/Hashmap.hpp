@@ -38,13 +38,15 @@ public:
     /* 根据key查找value */
     Result Find(const KeyType& key) const;
     /* 插入一个元素，并返回结果 */
-    bool Insert(const KeyType& key, ValueType value);
+    bool   Insert(const KeyType& key, ValueType value);
     /* 删除一个元素，并返回 */
     Result Earse(const KeyType& key);
     /* 桶数量 */
     size_t BucketSize() const;
     /* Hashmap中元素数量 */
     size_t Size() const;
+
+    
 private:
     void InitHashmap() const;
     bool CheckIndex(size_t idx) const;
