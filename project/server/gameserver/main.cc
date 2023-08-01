@@ -1,4 +1,3 @@
-#include "system/testsystem.hpp"
 #include "share/ecs/entity/aoi/Aoi.hpp"
 
 // 数据库初始化
