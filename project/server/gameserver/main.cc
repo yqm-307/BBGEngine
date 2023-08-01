@@ -1,14 +1,26 @@
 #include "system/testsystem.hpp"
 #include "share/ecs/entity/aoi/Aoi.hpp"
 
+// 数据库初始化
+void DBInit()
+{
+
+}
+
+// 网络初始化
+void NetWorkInit()
+{
+
+}
+
+// 游戏场景初始化
+void GameSceneInit()
+{
+
+}
+
+
+
 int main()
 {
-    SetConfig();
-    auto* aoi = G_GetConfigPtr(game::util::config::AoiConfig, game::util::config::Cfg_Aoi);
-    printf("%0.f %0.f %0.f %0.f %0.f %0.f \n", aoi->m_map_x, aoi->m_map_y, aoi->m_map_z,
-        aoi->m_tower_x, aoi->m_tower_y, aoi->m_tower_z);
-    game::share::ecs::entity::aoi::Aoi myaoi(
-        [](game::share::ecs::GameObject::SPtr, game::share::ecs::GameObject::SPtr){},
-        [](game::share::ecs::GameObject::SPtr, game::share::ecs::GameObject::SPtr){}
-    );
 }
