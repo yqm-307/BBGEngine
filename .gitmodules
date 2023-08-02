@@ -1,0 +1,3 @@
+[submodule "project/server/thirdparty"]
+	path = project/server/thirdparty
+	url = git@github.com:yqm-307/mmothirdpatry.git
