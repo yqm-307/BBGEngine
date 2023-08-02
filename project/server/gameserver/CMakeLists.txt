@@ -11,9 +11,21 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin) # 可执行文件目录
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib) # 库输出路径
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}/..        # util、share等库
+    ${PROJECT_SOURCE_DIR}/util        # util、share等库
+    ${PROJECT_SOURCE_DIR}/share       # util、share等库
     ${PROJECT_SOURCE_DIR}           # gs源文件
+    ${THIRD_PARTY_PATH}/include
 )
+
+# message(
+# ${PROJECT_SOURCE_DIR}/util "\n"        # util、share等库
+# ${PROJECT_SOURCE_DIR}/share   "\n"    # util、share等库
+# ${PROJECT_SOURCE_DIR}        "\n"   # gs源文件
+# ${THIRD_PARTY_PATH}/include "\n"
+# )
+
+link_directories(${THIRD_PARTY_PATH}/libs)
+
 # 搜索CPP文件
 file(GLOB_RECURSE SRC_FILE
     # gameserver 目录下
@@ -36,4 +48,5 @@ target_link_libraries( gameserver
     event_core
     pthread
     ybbt
+    inih
 )
