@@ -16,6 +16,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/util        # util、share等库
     ${PROJECT_SOURCE_DIR}/share        # util、share等库
     ${PROJECT_SOURCE_DIR}           # gs源文件
+    ${THIRD_PARTY_PATH}/include
 )
 
 # lib文件搜索目录
