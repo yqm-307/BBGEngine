@@ -39,7 +39,7 @@ public:
 
     static std::shared_ptr<Aoi> Create(OnEnterFunc onenter, OnLeaveFunc onleave);
     
-    Aoi(OnEnterFunc onenter, OnLeaveFunc onleave);
+    explicit Aoi(OnEnterFunc onenter, OnLeaveFunc onleave);
     
     ~Aoi();
     /**

@@ -15,7 +15,7 @@ SmartPtrTypeDef(GameObject);
 class GameObject
 {
 public:
-    GameObject(GameObjType gobj_type);
+    explicit GameObject(GameObjType gobj_type);
     virtual ~GameObject() = 0;
     virtual void OnCreate(){};
     virtual void OnDestory(){};

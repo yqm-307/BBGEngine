@@ -31,8 +31,8 @@ public:
      * @param key_hash 哈希函数 
      * @param default_value 值的默认值
      */
-    Hashmap(const HashFunction& key_hash, const ValueType& default_value);
-    Hashmap(const HashFunction& key_hash, const ValueType& default_value, std::initializer_list<std::pair<KeyType, ValueType>> args);
+    explicit Hashmap(const HashFunction& key_hash, const ValueType& default_value);
+    explicit Hashmap(const HashFunction& key_hash, const ValueType& default_value, std::initializer_list<std::pair<KeyType, ValueType>> args);
     ~Hashmap();
 
     /* 根据key查找value */

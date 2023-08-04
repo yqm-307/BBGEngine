@@ -10,7 +10,7 @@ namespace game::share::ecs
 class Component 
 {
 public:
-    Component(std::string name, ComponentTemplateId id);
+    explicit Component(std::string name, ComponentTemplateId id);
 
 
     // interface

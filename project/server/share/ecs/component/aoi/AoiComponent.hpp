@@ -12,7 +12,7 @@ class AoiComponent:
     public game::share::ecs::Component
 {
 public:
-    AoiComponent();
+    explicit AoiComponent();
     virtual ~AoiComponent();
     virtual void OnAddComponent(ecs::GameObjectRawPtr);
     virtual void OnDelComponent(ecs::GameObjectRawPtr);
