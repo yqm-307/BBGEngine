@@ -17,15 +17,13 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/share        # util、share等库
     ${PROJECT_SOURCE_DIR}           # gs源文件
     ${THIRD_PARTY_INCLUDE_PATH}
-)
-
-# c++待编译的源文件
+    )
+    
+    # c++待编译的源文件
 file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/share/*.cc
     ${PROJECT_SOURCE_DIR}/util/*.cc
 )
-
-link_directories(${THIRD_PARTY_LIB_PATH})
 
 # 链接库
 set(MY_LINK_LIB
@@ -48,4 +46,10 @@ target_link_libraries(aoi_test
 add_executable(aabb_test Test_aabbbox.cc ${SRC_FILE})
 target_link_libraries(aabb_test
     ${MY_LINK_LIB}
+)
+
+add_executable(lockfree_test Test_lockfree.cc ${SRC_FILE})
+target_link_libraries(lockfree_test
+    ${MY_LINK_LIB}
+    pthread
 )

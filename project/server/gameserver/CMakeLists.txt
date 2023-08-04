@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-# project(gameserver)
+
 
 enable_language(CXX)
 
@@ -8,10 +8,12 @@ set(Wall_Flag "-Wall -Wno-sign-compare -Wno-format -Wno-reorder -Wno-unknown-pra
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -std=c++17 -g ${Wall_Flag}")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin) # 可执行文件目录
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib) # 库输出路径
 
-link_directories(${THIRD_PARTY_LIB_PATH})
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ./thirdparty/libs)
 
+# get_directory_property(result LINK_DIRECTORIES)
+# message("\n" ${result})
+# message(${THIRD_PARTY_LIB_PATH})
 include_directories(
     ${PROJECT_SOURCE_DIR}/util        # util、share等库
     ${PROJECT_SOURCE_DIR}/share       # util、share等库
@@ -19,13 +21,6 @@ include_directories(
     ${THIRD_PARTY_INCLUDE_PATH}
 )
 
-
-# message(
-# ${PROJECT_SOURCE_DIR}/util "\n"        # util、share等库
-# ${PROJECT_SOURCE_DIR}/share   "\n"    # util、share等库
-# ${PROJECT_SOURCE_DIR}        "\n"   # gs源文件
-# ${THIRD_PARTY_PATH}/include "\n"
-# )
 
 # 搜索CPP文件
 file(GLOB_RECURSE SRC_FILE
@@ -38,14 +33,20 @@ file(GLOB_RECURSE SRC_FILE
 )
 
 # 为可执行程序添加CPP源文件
-add_executable( gameserver 
+add_executable(gameserver 
     main.cc
     ${SRC_FILE}
 )
 
+# find_library(rlt inih ${THIRD_PARTY_LIB_PATH} ${PROJECT_SOURCE_DIR}/thirdparty/libs)
 
+# if( ${rlt} STREQUAL "rlt-NOTFOUND"  )
+#     message("找不到" ${rlt})
+# else()
+#     message("找到了" ${rlt})
+# endif()
 # 为可执行程序添加链接库
-target_link_libraries( gameserver
+target_link_libraries(gameserver
     event_core
     pthread
     ybbt

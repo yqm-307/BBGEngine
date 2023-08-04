@@ -7,6 +7,8 @@ set(THIRD_PARTY_PATH ${PROJECT_SOURCE_DIR}/thirdparty)
 set(THIRD_PARTY_LIB_PATH ${THIRD_PARTY_PATH}/libs)
 set(THIRD_PARTY_INCLUDE_PATH ${THIRD_PARTY_PATH}/include)
 
+link_directories(thirdparty/libs)
+
 add_subdirectory(unit_test)
 
 add_subdirectory(gameserver)
