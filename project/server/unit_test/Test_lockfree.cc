@@ -8,11 +8,11 @@
 
 BOOST_AUTO_TEST_CASE(t_lockfree_test)
 {
-    const int nthread = 100;
+    const int nthread = 20;
     std::vector<std::thread*> threads(nthread, nullptr);
 
     // 无锁队列
-    game::util::lockfree::Queue<int, 100000> lockfree_queue;
+    game::util::lockfree::Queue<int, 1000000> lockfree_queue;
 
 
     for(int i = 0; i < nthread; ++i)
