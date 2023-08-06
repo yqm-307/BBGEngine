@@ -53,3 +53,9 @@ target_link_libraries(lockfree_test
     ${MY_LINK_LIB}
     pthread
 )
+message(${SRC_FILE})
+add_executable(network_test Test_network.cc ${SRC_FILE})
+target_link_libraries(network_test
+    ybbt
+    inih
+)
