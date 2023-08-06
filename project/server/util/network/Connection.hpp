@@ -1,14 +1,27 @@
 #pragma once
 #include <iostream>
 #include <event2/event.h>
+#include <optional>
+#include "util/typedef/NamespaceType.hpp"
 
 namespace game::util::network
 {
 
+class Connection;
+SmartPtrTypeDef(Connection);
+
+enum ConnStatus
+{
+    Done        = 0,        // 初始状态
+    Connecting  = 1,        // 连接建立中
+    Connected   = 2,        // 连接中
+    Disconnected = 3,       // 连接已断开
+};
+
 class Connection
 {
 public:
-    Connection();
+    Connection(){}
     virtual ~Connection() = 0;
 
     /**
@@ -38,30 +51,32 @@ public:
      * 
      * @return std::string 对端地址
      */
-    virtual std::string GetPeerIP() = 0;
+    virtual std::optional<std::string> GetPeerIP() = 0;
 
     /**
      * @brief 获取对端端口
      * 
      * @return int 对端端口
      */
-    virtual int GetPeerPort() = 0;
+    virtual std::optional<int> GetPeerPort() = 0;
 
     /**
      * @brief 获取本地监听ip
      * 
      * @return std::string 本地监听ip
      */
-    virtual std::string GetLocalIP() = 0;
+    virtual std::optional<std::string> GetLocalIP() = 0;
 
     /**
      * @brief 获取本地监听端口
      * 
      * @return int 本地监听端口
      */
-    virtual int GetLocalPort() = 0;
+    virtual std::optional<int> GetLocalPort() = 0;
+
 private:
 
 };
+
 
 }
