@@ -30,7 +30,8 @@ BOOST_AUTO_TEST_CASE(t_lockfree_test)
                 auto timeout = bbt::timer::clock::nowAfter(bbt::timer::clock::ms(5000));
                 while(!bbt::timer::clock::expired<bbt::timer::clock::ms>(timeout))
                 {
-                    lockfree_queue.PopOptional();
+                    int a = 0;
+                    lockfree_queue.Pop(a);
                 }
             });
     }

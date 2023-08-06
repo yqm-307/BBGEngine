@@ -11,35 +11,37 @@
 namespace game::util::lockfree
 {
 
-/*************************** TYPES ****************************/
+/**
+ *  基于C++ atomic 实现的无锁队列，涉及到 memory_order ，因此下面注释会详细解释
+ *  1、用作计数的atomic，只需要保证原子性即可。因此使用的memory_order是 memory_order_relaxed
+ *  2、使用 memory_order_release 要在当前的逻辑之后，之前有读操作要用 memory_order_acquire
+ */
+
 
 template <typename T, size_t size> 
 class Queue {
-    static_assert(std::is_trivial<T>::value, "The type T must be trivial");
     static_assert(size > 2, "Buffer size must be bigger than 2");
 
 public:
     Queue();
 
     /**
-     * @brief Adds an element into the queue.
-     * @param[in] element
-     * @retval Operation success
+     * @brief 向队尾追加一个元素
+     * 
+     * @param[in] element 入队元素
+     * @return true 
+     * @return false 
      */
     bool Push(const T &element);
 
     /**
-     * @brief Removes an element from the queue.
-     * @param[out] element
-     * @retval Operation success
+     * @brief 从队尾弹出一个元素
+     * 
+     * @param[out] element 出队元素
+     * @return true 
+     * @return false 
      */
     bool Pop(T &element);
-
-    /**
-     * @brief Removes an element from the queue.
-     * @retval Either the element or nothing
-     */
-    std::optional<T> PopOptional();
 
 private:
     struct Slot {

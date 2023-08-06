@@ -1,5 +1,5 @@
 #pragma once
-
+#include <memory>
 
 #define SmartPtrTypeDef(classname) \
     typedef std::shared_ptr<classname> classname##SPtr; \
