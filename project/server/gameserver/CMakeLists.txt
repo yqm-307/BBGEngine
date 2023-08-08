@@ -11,9 +11,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin) # 可执行文件目录
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ./thirdparty/libs)
 
-# get_directory_property(result LINK_DIRECTORIES)
-# message("\n" ${result})
-# message(${THIRD_PARTY_LIB_PATH})
 include_directories(
     ${PROJECT_SOURCE_DIR}/util        # util、share等库
     ${PROJECT_SOURCE_DIR}/share       # util、share等库
@@ -38,13 +35,6 @@ add_executable(gameserver
     ${SRC_FILE}
 )
 
-# find_library(rlt inih ${THIRD_PARTY_LIB_PATH} ${PROJECT_SOURCE_DIR}/thirdparty/libs)
-
-# if( ${rlt} STREQUAL "rlt-NOTFOUND"  )
-#     message("找不到" ${rlt})
-# else()
-#     message("找到了" ${rlt})
-# endif()
 # 为可执行程序添加链接库
 target_link_libraries(gameserver
     event_core
