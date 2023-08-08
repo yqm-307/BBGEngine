@@ -1,4 +1,5 @@
 #include "util/network/libevent/evConnection.hpp"
+#include "util/network/libevent/evIOCallbacks.hpp"
 
 namespace game::util::network::ev
 {
@@ -51,5 +52,18 @@ void evConnection::Close()
 {
 }
 
+const event_base* evConnection::GetEvBase() const
+{
+    return m_ev_base;
+}
+
+void evConnection::InitEvent()
+{
+    m_ev_event = event_new(m_ev_base, m_sockfd, EV_PERSIST | EV_READ, OnRecvCallback, NULL);
+}
+
+void evConnection::OnRecv(int sockfd, short events, void* args)
+{
+}
 
 }
