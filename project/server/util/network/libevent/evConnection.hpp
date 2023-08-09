@@ -6,8 +6,13 @@
  * @brief libevent实现
  * 
  */
-namespace game::util::network::ev
+namespace game::util::network
 {
+void OnRecvCallback(int sockfd, short events, void* args);
+
+namespace ev
+{
+
 
 class evConnection;
 SmartPtrTypeDef(evConnection);
@@ -18,6 +23,7 @@ SmartPtrTypeDef(evConnection);
 class evConnection:
     public Connection
 {
+    friend void game::util::network::OnRecvCallback(int sockfd, short events, void* args);
 public:
     evConnection();
     virtual ~evConnection();
@@ -34,7 +40,7 @@ public:
 protected:
     /* IO event 的注册和初始化 */
     void InitEvent();
-    void OnRecv(int sockfd, short events, void* args);
+    void OnRecv(int sockfd);
     
 private:
     event_base* m_ev_base;
@@ -44,5 +50,6 @@ private:
     std::string m_ip;
     int         m_port;
 };
+}
 
 }
