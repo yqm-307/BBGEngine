@@ -1,5 +1,6 @@
 #include "util/network/libevent/evConnection.hpp"
 #include "util/network/libevent/evIOCallbacks.hpp"
+#include "util/log/Log.hpp"
 
 namespace game::util::network::ev
 {
@@ -59,11 +60,18 @@ const event_base* evConnection::GetEvBase() const
 
 void evConnection::InitEvent()
 {
+    int err = 0;
     m_ev_event = event_new(m_ev_base, m_sockfd, EV_PERSIST | EV_READ, OnRecvCallback, NULL);
+    err = event_add(m_ev_event, nullptr);
+    if(err < 0)
+    {
+        GAME_EXT1_LOG_ERROR("event add failed!");
+    }
 }
 
-void evConnection::OnRecv(int sockfd, short events, void* args)
+void evConnection::OnRecv(int sockfd)
 {
+
 }
 
 }

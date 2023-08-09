@@ -5,6 +5,14 @@
 namespace game::util::network
 {
 
+struct evIOCallbacks
+{
+    ev::evConnectionSPtr m_conn_ptr;
+    errcode::ErrCode err;
+};
+
+
+
 template<>
 void OnAccept<ev::evConnection>(ConnectionSPtr new_conn, const errcode::ErrCode& err)
 {
@@ -18,6 +26,12 @@ void OnConnect<ev::evConnection>(ConnectionSPtr new_conn, const errcode::ErrCode
     printf("OnConnect 对于 evConnection 的专用化!\n");
 }
 
-void OnRecvCallback(int sockfd, short events, void* args){}
+/* 因为本身 OnRecv 函数带状态，所以只能用全局的void(void*)来包裹 */
+
+static void OnConnectCallback(int sockfd, short events, void* args);
+
+void OnAcceptCallback(int sockfd, short events, void* args);
+
+void OnRecvCallback(int sockfd, short events, void* args);
 
 }
