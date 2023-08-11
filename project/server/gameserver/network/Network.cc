@@ -11,5 +11,10 @@ Network::Network(const std::string& ip, short port)
 
 Network::~Network() {}
 
+bool Network::SyncStart()
+{
+    
+}
+
 
 }// namespace end
