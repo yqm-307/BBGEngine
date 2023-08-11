@@ -9,11 +9,12 @@ namespace ev
 {
 
 class evIOThread:
-    public IOThread
+    public game::util::network::IOThread
 {
 public:
     typedef std::function<void()> OnEventCallback;
 
+    evIOThread(event_base* base);
     evIOThread(const IOThread::WorkCallback& work_cb);
     virtual ~evIOThread();
 
@@ -24,8 +25,9 @@ public:
      * 
      */
     void SetOnDestory(const OnEventCallback& cb);
+    void Init(const WorkCallback& cb);
 protected:
-
+    event_base*     m_ev_base{nullptr};
     OnEventCallback m_ondestory_cb;
 };
 

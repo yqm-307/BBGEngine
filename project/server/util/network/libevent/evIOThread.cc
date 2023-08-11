@@ -3,8 +3,14 @@
 namespace game::util::network::ev
 {
 
+evIOThread::evIOThread(event_base* base)
+    :m_ev_base(base)
+{
+    AssertWithInfo(m_ev_base != nullptr, "evIOThread init fatal!");
+}
+
+
 evIOThread::evIOThread(const IOThread::WorkCallback& work_cb)
-    :IOThread(work_cb)
 {}
 
 evIOThread::~evIOThread()
@@ -25,6 +31,11 @@ void evIOThread::Start()
 void evIOThread::SetOnDestory(const OnEventCallback& cb)
 {
     m_ondestory_cb = cb;
+}
+
+void evIOThread::Init(const WorkCallback& cb)
+{
+    SetWorkTask(cb);
 }
 
 

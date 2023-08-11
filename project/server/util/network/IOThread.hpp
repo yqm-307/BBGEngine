@@ -1,8 +1,10 @@
 #pragma once
 #include "util/network/IOCallbacks.hpp"
 #include "util/assert/Assert.hpp"
+#include "util/log/Log.hpp"
 #include <functional>
 #include <thread>
+#include <any>
 
 namespace game::util::network
 {
@@ -17,23 +19,20 @@ public:
      * 
      * @param work_cb 工作函数
      */
-    IOThread(const WorkCallback& work_cb):m_work_callback(work_cb){}
+    IOThread(){}
     virtual ~IOThread() = 0;
 
     /**
      * @brief 启动线程
      */
-    virtual void Start() = 0;
+    virtual void Start();
+    void SetWorkTask(const WorkCallback& cb);
 protected:
     WorkCallback    m_work_callback;
     std::thread*    m_thread{nullptr};
+    std::atomic_bool    m_entrant_already{false};
 };
 
 
-IOThread::IOThread(const WorkCallback& work_cb)
-    :m_work_callback(work_cb)
-{
-    AssertWithInfo(work_cb != nullptr, "work callback can`t nullptr!");
-}
 
 }// namespace end

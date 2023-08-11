@@ -29,8 +29,10 @@ file(GLOB_RECURSE SRC_FILE
 set(MY_LINK_LIB
     boost_unit_test_framework
     boost_test_exec_monitor
+    event_core
     ybbt
     inih
+    pthread
 )
 
 add_executable(unittest Test_Hashmap.cc ${SRC_FILE})
@@ -51,11 +53,10 @@ target_link_libraries(aabb_test
 add_executable(lockfree_test Test_lockfree.cc ${SRC_FILE})
 target_link_libraries(lockfree_test
     ${MY_LINK_LIB}
-    pthread
 )
 
 add_executable(network_test Test_network.cc ${SRC_FILE})
 target_link_libraries(network_test
-    ybbt
-    inih
+    ${MY_LINK_LIB}
+
 )

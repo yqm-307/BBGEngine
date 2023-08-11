@@ -72,7 +72,8 @@
 			"cinttypes": "cpp",
 			"typeindex": "cpp",
 			"variant": "cpp",
-			"*.ipp": "cpp"
+			"*.ipp": "cpp",
+			"any": "cpp"
 		},
 		"C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
 		"C_Cpp.intelliSenseEngineFallback": "enabled",
