@@ -12,23 +12,26 @@ class evIOThread:
     public game::util::network::IOThread
 {
 public:
-    typedef std::function<void()> OnEventCallback;
+    typedef std::function<void()> IOWorkFunc;
 
-    evIOThread(event_base* base);
-    evIOThread(const IOThread::WorkCallback& work_cb);
+    evIOThread();
     virtual ~evIOThread();
 
-    virtual void Start() override; 
+    virtual void Start() override;
+    virtual void Stop() override;
 
-    /**
-     * @brief Set the On Destory object
-     * 
-     */
-    void SetOnDestory(const OnEventCallback& cb);
-    void Init(const WorkCallback& cb);
+    void SetWorkFunc(const IOWorkFunc& cb);
+
+private:
+    /* 初始化线程内部资源 */
+    void Init();
+    /* 回收线程内部资源 */
+    void Destory();
+    
+    void evWorkFunc();
 protected:
     event_base*     m_ev_base{nullptr};
-    OnEventCallback m_ondestory_cb;
+    IOWorkFunc      m_io_work_func{nullptr};
 };
 
 };

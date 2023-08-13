@@ -15,7 +15,7 @@ public:
 
     Network(const std::string& ip, short port);
     ~Network();
-    bool SyncStart();
+    void SyncStart();
 private:
     /* io 工作线程 */
     void IOWork(int index);
@@ -28,6 +28,7 @@ private:
 private:
     std::string     m_listen_ip;
     int             m_listen_port;
+    size_t          m_io_thread_num;
     std::vector<IOThread*> m_io_threads;    // 下标0是acceptor线程
     std::vector<event_base*> m_ev_bases;
     bbt::thread::lock::CountDownLatch* m_thread_latch;

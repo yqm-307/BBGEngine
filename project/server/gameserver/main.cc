@@ -1,6 +1,12 @@
 #include "gameserver/init/LoadConfig.hpp"
 #include "gameserver/network/Network.hpp"
 
+
+namespace g_global
+{
+static server::network::Network* network_scene;
+};
+
 // 数据库初始化
 void DBInit()
 {
@@ -9,7 +15,8 @@ void DBInit()
 // 网络初始化
 void NetWorkInit()
 {
-    server::network::Network net("127.0.0.1", 10010);
+    g_global::network_scene = new  server::network::Network("127.0.0.1", 10010);
+    g_global::network_scene->SyncStart();
 }
 
 // 游戏场景初始化
@@ -34,4 +41,7 @@ int main()
 {
     ConfigLoad();    
     NetWorkInit();
+    for(;;){
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    };
 }
