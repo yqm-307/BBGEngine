@@ -1,6 +1,7 @@
 #pragma once
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/IOThread.hpp"
+#include "bbt/timer/Clock.hpp"
 
 namespace game::util::network
 {
@@ -21,7 +22,7 @@ public:
     virtual void Stop() override;
 
     void SetWorkFunc(const IOWorkFunc& cb);
-
+    void SetEventBase(event_base* ev_base);
 private:
     /* 初始化线程内部资源 */
     void Init();
