@@ -16,7 +16,13 @@ public:
     Network(const std::string& ip, short port);
     ~Network();
     void SyncStart();
+    void SyncStop();
 private:
+    /* 对象内部数据申请 */
+    void Init();
+    /* 对象内部数据释放 */
+    void Destory();
+
     /* io 工作线程 */
     void IOWork(int index);
     /* accept 线程 */

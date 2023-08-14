@@ -2,7 +2,7 @@
 
 namespace server::network
 {
-
+// #define Debug
 #ifdef Debug
 
 struct TestInfo
@@ -20,10 +20,11 @@ void Test_Timer(evutil_socket_t , short, void* arg)
 void Test_AddEvent(event_base* base, const std::string& info_str)
 {
     timeval tv;
+    evutil_timerclear(&tv);
 	tv.tv_sec = 2;
     TestInfo* info = new TestInfo();
     info->info = info_str;
-    event* test_timer = event_new(base, -1, EV_TIMEOUT | EV_PERSIST, Test_Timer, info);
+    event* test_timer = event_new(base, -1, EV_PERSIST, Test_Timer, info);
     event_add(test_timer, &tv);
 }
 
@@ -34,28 +35,68 @@ Network::Network(const std::string& ip, short port)
     m_listen_port(port),
     m_io_thread_num(3)
 {
-    m_thread_latch = new bbt::thread::lock::CountDownLatch(4);
-    for(int i = 0; i < m_io_thread_num; ++i)
-    {
-        m_io_threads.push_back(new IOThread());
-        if(i == 0)
-            m_io_threads[i]->SetWorkFunc([=](){ 
-                this->AcceptWork(i); });
-        else
-            m_io_threads[i]->SetWorkFunc([=](){
-                this->IOWork(i); });
-    }
-
+    Init();
     GAME_BASE_LOG_INFO("Network init success!");
 }
 
-Network::~Network() {}
+Network::~Network() 
+{
+    Destory();
+    GAME_BASE_LOG_INFO("Network exit success!");
+}
+
+void Network::Init()
+{
+    /* 主线程 + accept线程 + io线程 */
+    m_thread_latch = new bbt::thread::lock::CountDownLatch(m_io_thread_num + 1);
+
+    /* IO线程和libevent初始化 */
+    for(int i = 0; i < m_io_thread_num; ++i)
+    {
+        /* 初始化io线程的回调 */
+        m_io_threads.push_back(new IOThread());
+        if(i == 0)
+            m_io_threads[i]->SetWorkFunc([=](){ AcceptWork(i); });
+        else        
+            m_io_threads[i]->SetWorkFunc([=](){ IOWork(i); });
+
+        /* 初始化libevent */
+        m_ev_bases.push_back(event_base_new());
+        m_io_threads[i]->SetEventBase(m_ev_bases[i]);
+    }
+
+    
+}
+
+void Network::Destory()
+{
+    delete m_thread_latch;
+    m_thread_latch = nullptr;
+
+    for (int i = 0; i < m_io_thread_num; i++)
+    {
+        DebugAssert( !m_io_threads[i]->IsRunning() );
+        if(m_io_threads[i]->IsRunning())
+           GAME_BASE_LOG_WARN("io thread status abnormal!");
+
+        delete m_io_threads[i];
+        event_base_free(m_ev_bases[i]);
+    }
+}
 
 void Network::SyncStart()
 {
     for(int i = 0; i < m_io_thread_num; ++i)
+    {
         m_io_threads[i]->Start();
+    }
     WaitForOtherIOThreadStart();
+}
+
+void Network::SyncStop()
+{
+    for(int i = 0; i < m_io_thread_num; ++i)
+        m_io_threads[i]->Stop();
 }
 
 void Network::IOWork(int index)
@@ -66,7 +107,8 @@ void Network::IOWork(int index)
 #ifdef Debug
     Test_AddEvent(ev_base, "io work test timer!");
 #endif
-    event_base_dispatch(ev_base);
+    int error = event_base_dispatch(ev_base);
+    AssertWithInfo(error == 0, "libevent error!");
 }
 
 void Network::AcceptWork(int index)
@@ -77,9 +119,10 @@ void Network::AcceptWork(int index)
 #ifdef Debug
     Test_AddEvent(ev_base, "accept test timer!");
 #endif
-    // ev_base
-    event_base_dispatch(ev_base);
+    int error = event_base_dispatch(ev_base);
+    AssertWithInfo(error == 0, "libevent error!");
 }
+
 void Network::WaitForOtherIOThreadStart()
 {
     m_thread_latch->down();
