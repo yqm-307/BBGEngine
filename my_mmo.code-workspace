@@ -74,7 +74,8 @@
 			"variant": "cpp",
 			"*.ipp": "cpp",
 			"any": "cpp",
-			"unordered_set": "cpp"
+			"unordered_set": "cpp",
+			"execution": "cpp"
 		},
 		"C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
 		"C_Cpp.intelliSenseEngineFallback": "enabled",

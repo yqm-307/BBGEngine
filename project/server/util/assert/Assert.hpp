@@ -1,6 +1,8 @@
 #pragma once
 #include <cassert>
 
+/* todo：实现一个带有stacktrace的Assert */
+
 #ifdef Debug
 #define DebugAssertWithInfo(expr, info) \
     assert( (expr) && (info) )

@@ -89,6 +89,8 @@ public:
     bool CheckEntityIsInAoi(AoiObjectId aoiobj_id);
 
     ecs::GameObjectSPtr GetEntityByAoiObjectId(AoiObjectId aoiobj_id);
+    
+    virtual void OnUpdate() override;
 private:
 
     void Init();
@@ -100,7 +102,6 @@ private:
     
     void OnMove(ecs::GameObjectSPtr player);
     
-    virtual void OnUpdate() override;
 private:
     bool CheckConfig(const util::config::AoiConfig*) const;
 private:

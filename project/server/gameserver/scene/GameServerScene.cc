@@ -14,10 +14,8 @@ GameServerScene::~GameServerScene()
 
 void GameServerScene::OnUpdate()
 {
-    for(auto&& obj : m_all_obj)
-    {
-        obj.second->OnUpdate();
-    }
+    DebugAssert(module_aoi != nullptr);
+    module_aoi->OnUpdate();  // 更新aoi
 }
 
 
