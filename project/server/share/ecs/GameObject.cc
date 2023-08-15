@@ -1,6 +1,6 @@
 #include "share/ecs/GameObject.hpp"
 #include "util/assert/Assert.hpp"
-
+#include "util/log/Log.hpp"
 namespace game::share::ecs
 {
 
@@ -56,5 +56,52 @@ GameObjType GameObject::Type()
 {
     return m_gobj_type;
 }
+
+GameObjectSPtr GameObject::GetGameObject(const std::string& gameobj_name)
+{
+    if(m_childs.size() == 0)
+        return nullptr;
+
+    auto it = m_childs.find(gameobj_name);
+    if(it == m_childs.end())
+        return nullptr;
+
+    DebugAssertWithInfo(!it->second->GetName().empty(), "obj is empty! maybe warning!");
+#ifndef Debug
+    if(it->second->GetName().empty())
+        GAME_EXT1_LOG_WARN("Gameobject name is empty! child type: %d , parent type: ", it->second->Type(), m_gobj_type);
+#endif
+
+    return it->second;
+}
+
+const std::string& GameObject::GetName() const
+{
+    return m_gameobj_name;
+}
+
+bool GameObject::DynamicAddChild(GameObjectSPtr gameobj)
+{
+    auto name = gameobj->GetName();
+    if(name.empty())
+        return false;
+
+    auto [_, isok] = m_childs.insert(std::make_pair(name, gameobj));
+    
+    return isok;
+}
+
+#pragma region "私有函数"
+
+bool GameObject::HasGameobj(const std::string& name) const
+{
+    auto it = m_childs.find(name);
+    if(it == m_childs.end())
+        return false;
+
+    return true;
+}
+
+#pragma endregion
 
 }
