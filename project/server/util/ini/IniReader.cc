@@ -49,7 +49,7 @@ long IniReader::GetInteger(const string& section, const string& name, long defau
     return end > value ? n : default_value;
 }
 
-INI_API int64_t IniReader::GetInteger64(const std::string& section, const std::string& name, int64_t default_value) const
+int64_t IniReader::GetInteger64(const std::string& section, const std::string& name, int64_t default_value) const
 {
     string valstr = Get(section, name, "");
     const char* value = valstr.c_str();
@@ -69,7 +69,7 @@ unsigned long IniReader::GetUnsigned(const string& section, const string& name, 
     return end > value ? n : default_value;
 }
 
-INI_API uint64_t IniReader::GetUnsigned64(const std::string& section, const std::string& name, uint64_t default_value) const
+uint64_t IniReader::GetUnsigned64(const std::string& section, const std::string& name, uint64_t default_value) const
 {
     string valstr = Get(section, name, "");
     const char* value = valstr.c_str();

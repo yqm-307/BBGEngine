@@ -127,4 +127,11 @@ size_t Hashmap<TKey, TValue, BucketNum>::Size() const
     return count;
 }
 
+template<typename TKey, typename TValue, size_t BucketNum>
+void Hashmap<TKey, TValue, BucketNum>::Foreach_Random(const ForeachFunction& func) const
+{
+        
+}
+
+
 }

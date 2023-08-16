@@ -10,7 +10,12 @@
 namespace game::share::ecs::entity::aoi
 {
 
+#pragma region "宏定义"
+
 static const int AoiHashBucketNum = 16;
+static const int AoiInfoIntervalMS = 5000;
+
+#pragma endregion
 
 /**
  * @brief aoi中实体对象的身份标识
@@ -29,18 +34,26 @@ enum AoiEntityFlag
 class Aoi:
     public GameObject
 {
+    template<typename T>
+    using Timestamp = bbt::timer::clock::Timestamp<T>;
     typedef util::hashmap::Hashmap<AoiObjectId, ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */
     typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
-    typedef std::function<void(ecs::GameObjectSPtr, ecs::GameObjectSPtr)>   OnEnterFunc;
-    typedef std::function<void(ecs::GameObjectSPtr, ecs::GameObjectSPtr)>   OnLeaveFunc;
+    typedef std::function<void(ecs::GameObjectSPtr/*p1*/, ecs::GameObjectSPtr/*p2*/)>   OnEnterFunc;    /* 通知p1，p2进入了他的九宫格视野 */
+    typedef std::function<void(ecs::GameObjectSPtr/*p1*/, ecs::GameObjectSPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
 public:
     typedef std::vector<ecs::GameObjectSPtr>     EntityResult;
 
     static std::shared_ptr<Aoi> Create(OnEnterFunc onenter, OnLeaveFunc onleave);
     
+    /**
+     * @brief 构造一个Aoi对象
+     * 
+     * @param onenter 有实体进入时通知
+     * @param onleave 有实体离开时通知
+     */
     explicit Aoi(OnEnterFunc onenter, OnLeaveFunc onleave);
-    
+
     ~Aoi();
     /**
      * @brief 将玩家player放置到aoi中的drop_point位置，如果已经存在立即返回
@@ -50,9 +63,23 @@ public:
      */
     bool EnterAoi(ecs::GameObjectSPtr player, util::vector::Vector3 drop_point);
     
-    /* 将player踢出aoi */
+    /**
+     * @brief 玩家移出Aoi
+     * 
+     * @param player 要移出的aoi 
+     * @return true 成功
+     * @return false 失败
+     */
     bool LeaveAoi(ecs::GameObjectSPtr player);
     
+    /**
+     * @brief 将 player 移动到 moveto 的位置
+     * 
+     * @param player 将要移动的实体
+     * @param moveto 将要移动到的地点
+     * @return true 成功
+     * @return false 失败
+     */
     bool Move(ecs::GameObjectSPtr player, util::vector::Vector3 moveto);
 
     /**
@@ -88,8 +115,17 @@ public:
      */
     bool CheckEntityIsInAoi(AoiObjectId aoiobj_id);
 
+    /**
+     * @brief 根据 aoi object id 获取在此Aoi中的实体
+     * 
+     * @param aoiobj_id aoi 对象id
+     * @return ecs::GameObjectSPtr Aoi对象，如果不存在返回nullptr 
+     */
     ecs::GameObjectSPtr GetEntityByAoiObjectId(AoiObjectId aoiobj_id);
     
+    /**
+     * @brief Aoi 驱动
+     */
     virtual void OnUpdate() override;
 private:
 
@@ -155,14 +191,16 @@ private:
     int         m_tower_max_x;  // x 轴上灯塔数量
     int         m_tower_max_y;  // y 轴上灯塔数量
     int         m_tower_max_z;  // z 轴上灯塔数量
-    const std::string m_comp_name;    // 组件名
-    static const ecs::ComponentTemplateId    m_comp_template_id;  // 组件模板id
-    GameObjHashmap                  m_gameobj_map;          // AOI中所有游戏对象 hashmap
-    std::vector<Tower>          m_towers;   // AOI中所有灯塔
-    std::vector<MapSlot>        m_slots;    // AOI中所有Slot
-    OnEnterFunc                 m_enter_func;
-    OnLeaveFunc                 m_leave_func;
-    const util::config::AoiConfig*      m_config;       // AOI配置
+    static const ecs::ComponentTemplateId    m_comp_template_id;    // 组件模板id
+    Timestamp<bbt::timer::clock::ms>m_create_ms;    // Aoi创建时间 
+    Timestamp<bbt::timer::clock::ms>m_prev_info_ms; // aoi定时输出当前信息，这个表示上次输出时间
+    const std::string               m_comp_name;    // 组件名
+    OnEnterFunc                     m_enter_func;
+    OnLeaveFunc                     m_leave_func;
+    GameObjHashmap                  m_gameobj_map; // AOI中所有游戏对象 hashmap
+    std::vector<Tower>              m_towers;   // AOI中所有灯塔
+    std::vector<MapSlot>            m_slots;    // AOI中所有Slot
+    const util::config::AoiConfig*  m_config;   // AOI配置
 };
 
 }// namespace game::share

@@ -1,5 +1,8 @@
 #pragma once
+#include <event2/event.h>
 #include "share/scene/Scene.hpp"
+// 游戏对象
+#include "share/ecs/entity/aoi/Aoi.hpp"         // 游戏 aoi
 
 /**
  * 关于游戏场景的理解
@@ -19,10 +22,6 @@
  * 于是基于前面的结论，我想设计一个支持这两种驱动方式的 "游戏主场景"，本质上就是ECS架构
  */
 
-#pragma region "依赖到的游戏对象"
-#include "share/ecs/entity/aoi/Aoi.hpp"         // 游戏 aoi
-#pragma endregion
-
 namespace server::scene
 {
 
@@ -35,17 +34,30 @@ const int GameSceneFrame = 20;  // 服务端游戏场景每秒20帧
 class GameServerScene:
     public game::share::scene::Scene
 {
+    typedef game::share::ecs::GameObjectSPtr    GameObjectSPtr;
 public:
     GameServerScene();
     ~GameServerScene();
 
     virtual void OnUpdate() override;
+    /* 启动场景，开启游戏 */
+    void StartScene();
+
+    /* 关闭场景 */
+    void StopScene();
 private:
+    void Init();
+    void Destory();
+    // void EventUpdate(evutil_socket_t,short,void*);
+private:
+    event_base*     m_ev_base;
+    event*          m_update_event;     // 场景update函数
+    event*          m_signal_sigint;    // SIGINT 信号捕获处理
     // std::map<std::string, game::share::ecs::GameObjectSPtr> m_all_obj;
     /* 思考了，感觉还是使用静态的方式来存储根场景的游戏对象，这里变动一般非常谨慎，不用做成动态的，而且有需求可以支持 */
 
     /* todo: 放在这里的应该是 aoi mgr */
-    game::share::ecs::GameObjectUQPtr       module_aoi{nullptr};
+    game::share::ecs::entity::aoi::Aoi*     module_aoi{nullptr};
 
 };
 

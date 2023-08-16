@@ -26,6 +26,7 @@ class Hashmap
     typedef std::function<size_t(const KeyType&)>  HashFunction;
     typedef std::pair<ValueType, bool>      Result;
     typedef std::pair<HashBucket*, bool>    BucketResult;
+    typedef std::function<void(const ValueType&/*值类型*/)> ForeachFunction;
 public:
     /**
      * @param key_hash 哈希函数 
@@ -45,8 +46,8 @@ public:
     size_t BucketSize() const;
     /* Hashmap中元素数量 */
     size_t Size() const;
-
-    
+    /* 遍历所有元素，随机 */
+    void Foreach_Random(const ForeachFunction& func) const;
 private:
     void InitHashmap() const;
     bool CheckIndex(size_t idx) const;

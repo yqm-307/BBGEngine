@@ -20,7 +20,8 @@ Aoi::Aoi(OnEnterFunc onenter, OnLeaveFunc onleave)
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
     m_comp_name(ecs::GetComponentName(ecs::ComponentTemplateId::EM_AoiComponent)),
     m_enter_func(onenter),
-    m_leave_func(onleave)
+    m_leave_func(onleave),
+    m_create_ms(bbt::timer::clock::now())
 {
     AssertWithInfo(!m_comp_name.empty() , "not found component!");
     CheckConfig(m_config);
@@ -86,7 +87,12 @@ void Aoi::OnMove(game::share::ecs::GameObjectSPtr player)
 
 void Aoi::OnUpdate()
 {
-
+    auto pass_ms = std::chrono::duration_cast<bbt::timer::clock::ms>(bbt::timer::clock::now() - m_prev_info_ms).count();
+    if(pass_ms >= AoiInfoIntervalMS)
+    {
+        GAME_BASE_LOG_INFO("Aoi: current player num: %d", m_gameobj_map.Size());
+        m_prev_info_ms = bbt::timer::clock::now();
+    }
 }
 
 

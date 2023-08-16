@@ -70,5 +70,9 @@ static inline bool AABBCheck(const AABBBox& a, const AABBBox& b)
     return xover && yover && zover;
 }
 
+static inline void AoiDefaultOnLeave(ecs::GameObjectSPtr )
+{
+
+}
 
 }
