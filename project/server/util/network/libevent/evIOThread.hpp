@@ -18,10 +18,13 @@ public:
     evIOThread();
     virtual ~evIOThread();
 
-    virtual void Start() override;
+    /* 非阻塞的停止thread（实现有问题，需要阻塞） */
     virtual void Stop() override;
 
+    /* 线程启动前需要初始化（必选） */
     void SetWorkFunc(const IOWorkFunc& cb);
+
+    /* 线程启动前需要初始化（必选） */
     void SetEventBase(event_base* ev_base);
 private:
     /* 初始化线程内部资源 */

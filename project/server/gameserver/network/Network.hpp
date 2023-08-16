@@ -15,7 +15,9 @@ public:
 
     Network(const std::string& ip, short port);
     ~Network();
+    /* 同步的启动所有线程，等所有IO线程全部启动返回 */
     void SyncStart();
+    /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
     void SyncStop();
 private:
     /* 对象内部数据申请 */
@@ -29,7 +31,9 @@ private:
     void AcceptWork(int index);
     /* 等待所有IO线程，启动完成 */
     void WaitForOtherIOThreadStart();
+    /* libevent event_base 构造 */
     event_base* OnCreateEventBase();
+    /* libevent event_base 释放 */
     void OnDestoryEventBase(event_base* base);
 private:
     std::string     m_listen_ip;

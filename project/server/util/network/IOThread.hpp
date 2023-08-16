@@ -20,6 +20,23 @@ enum IOThreadRunStatus
 /* io线程id，小于0是非法值 */
 typedef int IOThreadID;
 
+/**
+ * @brief IOThread是什么？是对抽象的IO线程的美好描绘
+ * 
+ * Q: IOThread其实可以拿来做其他的事情，比如非IO事件。那么看来叫Thread更好？
+ * A: 不是的，在游戏里面，如果是传统的网游，都是单逻辑线程 + 多IO线程，所以
+ * 游戏内一般不需要多开线程了。
+ * 
+ * Q: IOThread做了什么？
+ * A: 一个线程的基本标识（tid）、线程真正启动时的流程（封装起来会好）。一个继承
+ * 自IOThread的类需要继承并做一些事情就可以轻松的启动和关闭了，还支持了Hook。
+ * 
+ * Q: 继承需要注意什么？
+ * A: 重写Start、Stop方法，基本上是想让继承者自己控制线程如何启动，以及如何停止
+ * ，因为通常停止都是一个跨线程操作，所以需要继承者去做。其次就是启动前要设置工作
+ * 函数（SetWorkTask），启动时不需要重写启动逻辑，而是在做一些操作后调用IOThread
+ * 已经处理好的线程启动逻辑（这个是必须的）.
+ */
 class IOThread
 {
 public:
@@ -35,7 +52,7 @@ public:
     virtual ~IOThread();
 
     /* （对外接口）需要子类实现: 调用此函数开始让工作线程开始工作 */
-    virtual void Start() = 0;
+    virtual void Start();
 
     /* （对外接口）需要子类实现: 调用此函数阻塞的等待 work 线程调用完毕 */
     virtual void Stop() = 0;
@@ -60,6 +77,12 @@ protected:
     
     /* 设置工作函数，IOThread开始的时候会调用 */
     void SetWorkTask(const WorkCallback& cb);
+
+    /* 阻塞的等待线程退出 */
+    void SyncWaitThreadExit();
+
+    /* 阻塞的等待线程退出，阻塞到wait_time就返回，wait_time小于0则无限阻塞，等于0则不阻塞 */
+    void SyncWaitThreadExitWithTime(int wait_time);
 protected:
     /* 由子类控制 */
     IOThreadRunStatus   m_status{IOThreadRunStatus::Default};
@@ -68,6 +91,7 @@ private:
     void Destory();
     /* 核心函数，真正的work线程 */
     void Work();
+    void SyncWaitThreadExitEx(int wait_time);
 private:
     WorkCallback    m_work_callback{nullptr};
     HookCallback    m_thread_start_before_callback{nullptr};

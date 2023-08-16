@@ -61,8 +61,9 @@ void Network::Init()
             m_io_threads[i]->SetWorkFunc([=](){ IOWork(i); });
 
         /* 初始化libevent */
-        m_ev_bases.push_back(event_base_new());
-        m_io_threads[i]->SetEventBase(m_ev_bases[i]);
+        auto ev_base = OnCreateEventBase();
+        Assert(ev_base != nullptr);
+        m_io_threads[i]->SetEventBase(ev_base);
     }
 
     
@@ -80,7 +81,8 @@ void Network::Destory()
            GAME_BASE_LOG_WARN("io thread status abnormal!");
 
         delete m_io_threads[i];
-        event_base_free(m_ev_bases[i]);
+        OnDestoryEventBase(m_ev_bases[i]);
+        m_ev_bases[i] = nullptr;
     }
 }
 

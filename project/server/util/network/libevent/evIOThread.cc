@@ -40,23 +40,21 @@ void evIOThread::evWorkFunc()
     m_io_work_func();
 }
 
-void evIOThread::Start()
-{
-    AssertWithInfo(m_io_work_func != nullptr, "io work need be set!");
-    SetWorkTask([=](){ evWorkFunc(); });
-    StartWorkFunc();
-}
-
 void evIOThread::Stop()
 {
     DebugAssert(m_ev_base != nullptr);
     int error = event_base_loopbreak(m_ev_base);
+    
+    /* 阻塞式的等待 */
+    SyncWaitThreadExit();
     DebugAssert(error == 0);
 }
 
 void evIOThread::SetWorkFunc(const IOWorkFunc& cb)
 {
     m_io_work_func = cb;
+    AssertWithInfo(m_io_work_func != nullptr, "io work need be set!");
+    SetWorkTask([=](){ evWorkFunc(); });
 }
 
 void evIOThread::SetEventBase(event_base* ev_base)
