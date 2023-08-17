@@ -1,4 +1,5 @@
 #include "gameserver/network/Network.hpp"
+#include "util/network/libevent/evIOCallbacks.hpp"
 
 namespace server::network
 {
@@ -115,14 +116,15 @@ void Network::IOWork(int index)
 
 void Network::AcceptWork(int index)
 {
+    /* 等待所有IO线程初始化完毕 */
     WaitForOtherIOThreadStart();
     auto ev_base = m_ev_bases[index];
-    GAME_BASE_LOG_INFO("Accept thread start!");
+
+    // GAME_BASE_LOG_INFO("Accept thread start!");
 #ifdef Debug
     Test_AddEvent(ev_base, "accept test timer!");
 #endif
-    int error = event_base_dispatch(ev_base);
-    AssertWithInfo(error == 0, "libevent error!");
+    event_base_dispatch(ev_base);
 }
 
 void Network::WaitForOtherIOThreadStart()

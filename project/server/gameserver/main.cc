@@ -38,8 +38,7 @@ server::scene::GameServerScene* GameSceneInit()
  */
 void ConfigLoad()
 {
-    // !!!!!!!!!!! 一定要放在最前面 !!!!!!!!!!!!!!
-    // log 的 debug 配置
+    // !!!!!!!!!!! log debug 一定要放在最前面 !!!!!!!!!!!!!!
     int *debug_log = new int(1);
     BBT_CONFIG_QUICK_SET_DYNAMIC_ENTRY(int, debug_log, bbt::config::_BBTSysCfg::BBT_LOG_STDOUT_OPEN);
     
