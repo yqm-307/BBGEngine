@@ -35,8 +35,8 @@ set(MY_LINK_LIB
     pthread
 )
 
-add_executable(unittest Test_Hashmap.cc ${SRC_FILE})
-target_link_libraries(unittest
+add_executable(hashmap_test Test_Hashmap.cc ${SRC_FILE})
+target_link_libraries(hashmap_test
     ${MY_LINK_LIB}
 )
 
