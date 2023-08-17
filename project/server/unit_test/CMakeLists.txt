@@ -58,5 +58,9 @@ target_link_libraries(lockfree_test
 add_executable(network_test Test_network.cc ${SRC_FILE})
 target_link_libraries(network_test
     ${MY_LINK_LIB}
+)
 
+add_executable(other_test Test_Other.cc ${SRC_FILE})
+target_link_libraries(other_test
+    ${MY_LINK_LIB}
 )

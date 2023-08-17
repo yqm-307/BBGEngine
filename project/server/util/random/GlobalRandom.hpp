@@ -1,3 +1,4 @@
+#pragma once
 #include <bbt/random/Random.hpp>
 #include "util/log/Log.hpp"
 
@@ -8,11 +9,11 @@ class Random
 {
 public:
 
-static void SetSeed(time_t seed);
+    static void SetSeed(time_t seed);
 
-static time_t GetSeed();
+    static time_t GetSeed();
 
-static int64_t Rand();
+    static int64_t Rand();
 
 private:
     static time_t m_random_seed;
