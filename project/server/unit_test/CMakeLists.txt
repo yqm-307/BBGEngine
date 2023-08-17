@@ -35,8 +35,8 @@ set(MY_LINK_LIB
     pthread
 )
 
-add_executable(unittest Test_Hashmap.cc ${SRC_FILE})
-target_link_libraries(unittest
+add_executable(hashmap_test Test_Hashmap.cc ${SRC_FILE})
+target_link_libraries(hashmap_test
     ${MY_LINK_LIB}
 )
 
@@ -58,5 +58,9 @@ target_link_libraries(lockfree_test
 add_executable(network_test Test_network.cc ${SRC_FILE})
 target_link_libraries(network_test
     ${MY_LINK_LIB}
+)
 
+add_executable(other_test Test_Other.cc ${SRC_FILE})
+target_link_libraries(other_test
+    ${MY_LINK_LIB}
 )

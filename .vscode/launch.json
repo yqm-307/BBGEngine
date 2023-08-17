@@ -4,11 +4,12 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "aabb test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/project/server/unit_test/build/aabb_test",
+            "program": "${workspaceFolder}/project/server/build/unit_test/aabb_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -32,7 +33,7 @@
             "name": "aoi_test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/project/server/unit_test/build/aoi_test",
+            "program": "${workspaceFolder}/project/server/build/unit_test/aoi_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -53,10 +54,10 @@
             ]
         },
         {
-            "name": "unit test",
+            "name": "hash test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/project/server/unit_test/build/unittest",
+            "program": "${workspaceFolder}/project/server/build/unit_test/hashmap_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -75,7 +76,54 @@
                     "ignoreFailures": true
                 }
             ]
-        }
-
+        },
+        {
+            "name": "other test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/other_test",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "other test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/other_test",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
     ]
 }

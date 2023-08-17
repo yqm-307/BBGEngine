@@ -89,6 +89,21 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
 
 }
 
+BOOST_AUTO_TEST_CASE(t_hashmap_random_func)
+{
+    using namespace game::util::hashmap;
+    bbt::random::mt_random<int, 1, 1000000> rd1; 
+    bbt::random::mt_random<int, 1, INT32_MAX> rd2; 
+    Hashmap<int, int, 256> map([](int key){return key%256;}, 1);
+
+    bbt::timer::interval stopwatch; // 开始计时
+    for(int i = 0; i < 10; ++i)
+    {
+        
+    }
+
+}
+
 
 // BOOST_AUTO_TEST_CASE(t_std_map_rom_test)
 // {

@@ -1,6 +1,7 @@
 #pragma once
 #include "util/hashmap/Hashmap.hpp" // 为了语法提示
 #include "util/assert/Assert.hpp"
+#include "util/other/Math.hpp"
 #include <bbt/timer/Interval.hpp>
 #include <bbt/Define.hpp>
 
@@ -130,7 +131,19 @@ size_t Hashmap<TKey, TValue, BucketNum>::Size() const
 template<typename TKey, typename TValue, size_t BucketNum>
 void Hashmap<TKey, TValue, BucketNum>::Foreach_Random(const ForeachFunction& func) const
 {
-        
+    std::vector<int> idxs(m_bucket_size);
+    int i = 0;
+    std::for_each_n(idxs.begin(), m_bucket_size, [&](const int& val){ val = i++; });
+    [[maybe_unused]] bool isok = other::Math::Derange(idxs);
+    DebugAssertWithInfo(isok, "game::other::Math::Derange error!");
+
+    for(auto&& it_bucket : idxs)
+    {
+        for(auto&& item : m_hash_map[it_bucket])
+        {
+            func(item->second);
+        }
+    }
 }
 
 
