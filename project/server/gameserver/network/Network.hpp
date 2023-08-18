@@ -40,7 +40,7 @@ private:
     int             m_listen_port;
     size_t          m_io_thread_num;
     std::vector<IOThread*> m_io_threads;    // 下标0是acceptor线程
-    std::vector<event_base*> m_ev_bases;
+    std::vector<event_base*> m_ev_bases;    // 每个线程一个 event_base
     bbt::thread::lock::CountDownLatch* m_thread_latch;
 };
 
