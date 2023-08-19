@@ -81,5 +81,5 @@
 		"C_Cpp.intelliSenseEngineFallback": "enabled",
 		"C_Cpp.workspaceParsingPriority": "high",
 		"C_Cpp.workspaceSymbols": "All"
-	}
+	},
 }

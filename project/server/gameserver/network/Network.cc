@@ -32,8 +32,7 @@ void Test_AddEvent(event_base* base, const std::string& info_str)
 #endif
 
 Network::Network(const std::string& ip, short port)
-    :m_listen_ip(ip),
-    m_listen_port(port),
+    :m_acceptor(ip, port),
     m_io_thread_num(3)
 {
     Init();
@@ -120,7 +119,8 @@ void Network::AcceptWork(int index)
     WaitForOtherIOThreadStart();
     auto ev_base = m_ev_bases[index];
 
-    // GAME_BASE_LOG_INFO("Accept thread start!");
+    GAME_BASE_LOG_INFO("Accept thread start!");
+    m_acceptor.AddInEventBase(ev_base);
 #ifdef Debug
     Test_AddEvent(ev_base, "accept test timer!");
 #endif
