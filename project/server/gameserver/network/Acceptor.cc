@@ -1,7 +1,9 @@
+#include "util/network/libevent/evIOCallbacks.hpp"
 #include "gameserver/network/Acceptor.hpp"
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 #include <fcntl.h>
+#include <evutil.h>
 
 namespace server::network
 {
@@ -41,11 +43,22 @@ void Acceptor::Init()
     len = sizeof(addr);
     error = ::bind(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), len);
     Assert(error >= 0);
+
+    error = ::listen(m_listen_fd, 5);
+    Assert(error >= 0);
 }
 
 void Acceptor::Destory()
 {
+    ::close(m_listen_fd);
+    Clear();
+}
 
+void Acceptor::Clear()
+{
+    m_listen_fd = -1;
+    m_listen_addr = "";
+    m_listen_port = -1;
 }
 
 int Acceptor::SetNonBlock()
@@ -73,6 +86,99 @@ int Acceptor::SetNonBlock()
     }
 
     return 0;
+}
+
+evutil_socket_t Acceptor::Fd() const
+{
+    return m_listen_fd;
+}
+
+const std::string& Acceptor::IP() const
+{
+    return m_listen_addr;
+}
+
+short Acceptor::Port() const
+{
+    return m_listen_port;
+}
+
+int Acceptor::Accept()
+{
+    evutil_socket_t fd;
+    sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+    fd = ::accept(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), &len);
+    if(fd >= 0) {
+        // GAME_BASE_LOG_INFO("");
+        GAME_EXT1_LOG_DEBUG("accept newfd=%d", fd);
+        return fd;
+    }
+    return -1;
+}
+
+int Acceptor::Close()
+{
+    int error = ::close(m_listen_fd);
+    if(error < 0)
+    {
+        GAME_BASE_LOG_WARN("::close() fatal!", error);
+    }
+    Clear();
+    return error;
+}
+
+void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
+{
+    GAME_EXT1_LOG_DEBUG("listenfd=%d    event=%d", listenfd, event);
+    auto pthis = reinterpret_cast<Acceptor*>(args);
+    DebugAssert(pthis != nullptr);
+    while(1)
+    {
+        int fd = pthis->Accept();
+        if(fd < 0)
+            break;
+        else
+            pthis->OnAccept(fd);
+    }
+    if( !(errno == EINTR ||  errno == EAGAIN || errno == ECONNABORTED) )
+        GAME_BASE_LOG_ERROR("accept failed! errno=%d", errno);
+}
+
+int Acceptor::AddInEventBase(event_base* ev_base)
+{
+    int error = 0;
+    event* ev = nullptr;
+    timeval target_interval;
+
+    DebugAssert(ev_base);
+    if(ev_base == nullptr)
+        return -1;
+
+    ev = event_new(ev_base, m_listen_fd, EV_READ | EV_PERSIST, _AcceptReadCallback, this);
+    DebugAssert(ev != nullptr);
+    if(ev == nullptr) {
+        GAME_BASE_LOG_WARN("call event_new() failed!");
+        return -1;
+    }
+
+    evutil_timerclear(&target_interval);
+    target_interval.tv_usec = ListenCallback_Min_MS * 1000;
+
+    error = event_add(ev, NULL);
+    DebugAssert(error >= 0);
+    if(error < 0) {
+        GAME_BASE_LOG_WARN("call event_add() failed!");
+        return -1;
+    }
+    
+    return 0;
+}
+
+void Acceptor::OnAccept(int fd)
+{
+    // game::util::network::ev::evConnMgr
+    GAME_EXT1_LOG_DEBUG("accept success!");
 }
 
 }

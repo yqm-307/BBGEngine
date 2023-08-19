@@ -3,6 +3,7 @@
 #include <string>
 #include <bbt/thread/Lock.hpp>
 #include "util/network/libevent/evIOThread.hpp"
+#include "gameserver/network/Acceptor.hpp"
 
 
 namespace server::network
@@ -36,8 +37,7 @@ private:
     /* libevent event_base 释放 */
     void OnDestoryEventBase(event_base* base);
 private:
-    std::string     m_listen_ip;
-    int             m_listen_port;
+    Acceptor        m_acceptor;
     size_t          m_io_thread_num;
     std::vector<IOThread*> m_io_threads;    // 下标0是acceptor线程
     std::vector<event_base*> m_ev_bases;    // 每个线程一个 event_base

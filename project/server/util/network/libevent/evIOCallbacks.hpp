@@ -36,4 +36,6 @@ void OnRecvCallback(evutil_socket_t sockfd, short events, void* args);
 
 evutil_socket_t CreateListen(std::string ip, short port, bool isblock);
 
+void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args);
+
 }
