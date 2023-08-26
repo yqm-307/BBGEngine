@@ -50,9 +50,12 @@ void Network::Init()
     /* 主线程 + accept线程 + io线程 */
     m_thread_latch = new bbt::thread::lock::CountDownLatch(m_io_thread_num + 1);
 
-    /* IO线程和libevent初始化 */
+    /* IO线程和libevent初始化，关于初始化顺序，防止创建新线程立即关闭。所以先初始化每个线程的event_base */
     for(int i = 0; i < m_io_thread_num; ++i)
     {
+        /* 初始化libevent */
+        auto ev_base = OnCreateEventBase();
+        Assert(ev_base != nullptr);
         /* 初始化io线程的回调 */
         m_io_threads.push_back(new IOThread());
         if(i == 0)
@@ -60,9 +63,6 @@ void Network::Init()
         else        
             m_io_threads[i]->SetWorkFunc([=](){ IOWork(i); });
 
-        /* 初始化libevent */
-        auto ev_base = OnCreateEventBase();
-        Assert(ev_base != nullptr);
         m_io_threads[i]->SetEventBase(ev_base);
     }
 
