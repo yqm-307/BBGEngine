@@ -31,6 +31,7 @@ private:
     void Init();
     void Destory();
     void Clear();
+    /* 接收到新连接，处理新连接 */
     void OnAccept(int fd);
 
 private:

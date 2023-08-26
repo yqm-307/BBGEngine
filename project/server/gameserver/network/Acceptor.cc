@@ -23,6 +23,7 @@ Acceptor::~Acceptor()
 
 void Acceptor::Init()
 {
+    game::util::network::CreateListen(m_listen_addr, m_listen_port, true);
     sockaddr_in addr;
     socklen_t len=0;
     int error=0;
@@ -63,28 +64,8 @@ void Acceptor::Clear()
 
 int Acceptor::SetNonBlock()
 {
-    Assert(m_listen_fd >= 0);
-    int old_flags = ::fcntl(m_listen_fd, F_GETFL);
-
-    DebugAssertWithInfo( old_flags >= 0 , "maybe listen fd need init!");
-
-    if(old_flags < 0) 
-    {
-        GAME_BASE_LOG_WARN("fcntl F_GETFL failed! fd=%d", m_listen_fd);        
-        return -1;
-    }
-
-    int new_flags = old_flags | O_NONBLOCK;
-    int error = ::fcntl(m_listen_fd, F_SETFL, &new_flags);
-
-    DebugAssertWithInfo(error >= 0, "maybe system error");
-
-    if(error < 0)
-    {
-        GAME_BASE_LOG_WARN("fcntl F_SETFL failed! fd=%d", m_listen_fd);
-        return -1;
-    }
-
+    int error = game::util::network::SetFdNoBlock(m_listen_fd);
+    DebugAssert(error >= 0);
     return 0;
 }
 
