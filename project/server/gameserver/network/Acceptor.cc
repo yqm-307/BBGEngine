@@ -1,4 +1,5 @@
 #include "util/network/libevent/evIOCallbacks.hpp"
+#include "util/network/libevent/evConnMgr.hpp"
 #include "gameserver/network/Acceptor.hpp"
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
@@ -91,8 +92,8 @@ int Acceptor::Accept()
     socklen_t len = sizeof(addr);
     fd = ::accept(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), &len);
     if(fd >= 0) {
-        // GAME_BASE_LOG_INFO("");
         GAME_EXT1_LOG_DEBUG("accept newfd=%d", fd);
+        OnAccept(fd);
         return fd;
     }
     return -1;
@@ -114,6 +115,7 @@ void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
     GAME_EXT1_LOG_DEBUG("listenfd=%d    event=%d", listenfd, event);
     auto pthis = reinterpret_cast<Acceptor*>(args);
     DebugAssert(pthis != nullptr);
+    /* 取出所有新连接 */
     while(1)
     {
         int fd = pthis->Accept();
@@ -126,7 +128,7 @@ void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
         GAME_BASE_LOG_ERROR("accept failed! errno=%d", errno);
 }
 
-int Acceptor::AddInEventBase(event_base* ev_base)
+int Acceptor::RegistInEvBase(event_base* ev_base)
 {
     int error = 0;
     event* ev = nullptr;
@@ -136,6 +138,7 @@ int Acceptor::AddInEventBase(event_base* ev_base)
     if(ev_base == nullptr)
         return -1;
 
+    /* 构造event */
     ev = event_new(ev_base, m_listen_fd, EV_READ | EV_PERSIST, _AcceptReadCallback, this);
     DebugAssert(ev != nullptr);
     if(ev == nullptr) {
@@ -158,8 +161,11 @@ int Acceptor::AddInEventBase(event_base* ev_base)
 
 void Acceptor::OnAccept(int fd)
 {
-    // game::util::network::ev::evConnMgr
     GAME_EXT1_LOG_DEBUG("accept success!");
+    if(fd >= 0)
+    {
+        //TODO 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。
+    }
 }
 
 }

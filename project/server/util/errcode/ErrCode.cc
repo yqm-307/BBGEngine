@@ -58,9 +58,14 @@ const std::string& ErrCode::What() const
     return m_err_info; 
 } 
 
-int ErrCode::Err() const
+int ErrCode::GetErrCode() const
 { 
     return m_errcode; 
+}
+
+ErrType ErrCode::GetErrType() const
+{
+    return m_err_type;
 }
 
 }

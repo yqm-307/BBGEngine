@@ -1,17 +1,22 @@
 #pragma once
-#include "util/network/IOCallbacks.hpp"
+#include "util/network/IOThread.hpp"
 #include <functional>
 
 namespace server::network
 {
 static const int ListenCallback_Min_MS = 1000; // 如果没有事件，多久触发一次
 
+//XXX 这里放在evIOCallbacks.hpp中可能更好，因为本身就是IO回调事件
+// 处理新连接的回调
 void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args);
 
 class Acceptor
 {
-public:
     friend void _AcceptReadCallback(evutil_socket_t, short, void*);
+
+public:
+    typedef std::function<game::util::network::IOThread*()> LoadBlanceFunc;
+
     /* 创建listen 套接字 */
     Acceptor(std::string ip, short port);
     ~Acceptor();
@@ -25,7 +30,8 @@ public:
     short Port() const;
 
     int SetNonBlock();
-    int AddInEventBase(event_base*);
+    /* 将accept事件注册到event base中 */
+    int RegistInEvBase(event_base*);
 
 private:
     void Init();

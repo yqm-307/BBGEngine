@@ -3,6 +3,7 @@
 #include <event2/event.h>
 #include <optional>
 #include "util/typedef/NamespaceType.hpp"
+#include "util/network/IPAddress.hpp"
 
 namespace game::util::network
 {
@@ -42,37 +43,32 @@ public:
     virtual size_t Send(const char* buffer, size_t len) = 0;
 
     /**
+     * @brief 接收数据到buffer中，最多len字节
+     * 
+     * @param buffer 缓冲区地址
+     * @param len 缓冲区长度
+     * @return size_t 成功接收长度
+     */
+    virtual size_t Recv(const char* buffer, size_t len) = 0;
+
+    /**
      * @brief 关闭tcp连接
      */
     virtual void Close() = 0;
 
-    /**
-     * @brief 获取对端ip地址
-     * 
-     * @return std::string 对端地址
-     */
-    virtual std::optional<std::string> GetPeerIP() = 0;
 
     /**
-     * @brief 获取对端端口
-     * 
-     * @return int 对端端口
+     * @brief 获取对端的ip地址
+     * @return Address 
      */
-    virtual std::optional<int> GetPeerPort() = 0;
+    virtual const Address& GetPeerIPAddress() const = 0;
 
     /**
-     * @brief 获取本地监听ip
+     * @brief 获取本地的ip地址
      * 
-     * @return std::string 本地监听ip
+     * @return Address 
      */
-    virtual std::optional<std::string> GetLocalIP() = 0;
-
-    /**
-     * @brief 获取本地监听端口
-     * 
-     * @return int 本地监听端口
-     */
-    virtual std::optional<int> GetLocalPort() = 0;
+    virtual const Address& GetLocalIPAddress() const = 0;
 
 private:
 
