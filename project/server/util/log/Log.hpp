@@ -23,6 +23,7 @@
 //-------------------------------------------------------------------------------------
 // Begin
 
+// TODO 接入SysLog的相关接口
 /* 携带拓展信息的日志接口如下: */
 #ifdef Debug
 
@@ -42,6 +43,29 @@
 
 #define GAME_EXT1_LOG_ERROR(fmt, ...)   BBT_FULL_LOG_ERROR(fmt, ##__VA_ARGS__)
 #define GAME_EXT1_LOG_FATAL(fmt, ...)   BBT_FULL_LOG_FATAL(fmt, ##__VA_ARGS__)
+
+// End
+//-------------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------------
+// Begin
+
+#ifdef OpenSysLog
+
+#define GAME_SYS_LOG_WARN(fmt, ...)     BBT_FULL_LOG_WARN(fmt, ##__VA_ARGS__)
+#define GAME_SYS_LOG_INFO(fmt, ...)     BBT_FULL_LOG_INFO(fmt, ##__VA_ARGS__)
+#define GAME_SYS_LOG_ERROR(fmt, ...)    BBT_FULL_LOG_ERROR(fmt, ##__VA_ARGS__)
+#define GAME_SYS_LOG_FATAL(fmt, ...)    BBT_FULL_LOG_FATAL(fmt, ##__VA_ARGS__)
+
+#else
+
+#define GAME_SYS_LOG_WARN(fmt, ...)
+#define GAME_SYS_LOG_INFO(fmt, ...)
+#define GAME_SYS_LOG_ERROR(fmt, ...)
+#define GAME_SYS_LOG_FATAL(fmt, ...)
+
+#endif
 
 // End
 //-------------------------------------------------------------------------------------
