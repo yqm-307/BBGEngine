@@ -120,7 +120,7 @@ void Network::AcceptWork(int index)
     auto ev_base = m_ev_bases[index];
 
     GAME_BASE_LOG_INFO("Accept thread start!");
-    m_acceptor.AddInEventBase(ev_base);
+    m_acceptor.RegistInEvBase(ev_base);
 #ifdef Debug
     Test_AddEvent(ev_base, "accept test timer!");
 #endif

@@ -1,5 +1,6 @@
-#include "util/network/libevent/evConnection.hpp"
-#include "util/network/libevent/evIOCallbacks.hpp"
+// #include "util/network/libevent/evConnection.hpp"
+// #include "util/network/libevent/evIOCallbacks.hpp"
+#include "util/network/libevent/evIOThread.hpp"
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
 
@@ -8,12 +9,13 @@ namespace game::util::network::ev
 
 
 
-evConnection::evConnection(event_base* ev_base, int newfd, std::string peer_ip, short peer_port)
-    :m_ev_base(ev_base),
+evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip)
+    :m_io_thread(thread),
     m_sockfd(newfd),
-    m_ip(peer_ip),
-    m_port(peer_port)
+    m_peer_addr(peer_ip),
+    m_local_addr(local_ip)
 {
+    DebugAssert(thread != nullptr && newfd >= 0);
 }
 
 
@@ -25,39 +27,33 @@ evConnection::~evConnection()
 
 bool evConnection::IsClosed()
 {
-    return ( m_status == ConnStatus::Disconnected );
+    return (m_status == ConnStatus::Disconnected);
 }
 
-std::optional<std::string> evConnection::GetPeerIP()
+const Address& evConnection::GetPeerIPAddress() const
 {
-    if(IsClosed())
-        return std::nullopt;
-
-    return m_ip;
+    return m_peer_addr;
 }
 
-std::optional<std::string> evConnection::GetLocalIP()
+const Address& evConnection::GetLocalIPAddress() const
 {
-    return std::nullopt;
-}
-
-std::optional<int>  evConnection::GetPeerPort()
-{
-    return std::nullopt;
-}
-
-std::optional<int> evConnection::GetLocalPort()
-{
-    return std::nullopt;
+    return m_local_addr;
 }
 
 size_t evConnection::Send(const char* buffer, size_t len)
 {
+    // TODO 没有实现逻辑
     return 0;
+}
+
+size_t evConnection::Recv(const char* buffer, size_t len)
+{
+    // TODO 没有实现逻辑
 }
 
 void evConnection::Close()
 {
+    // TODO 没有实现逻辑
 }
 
 const event_base* evConnection::GetEvBase() const
@@ -69,39 +65,32 @@ void evConnection::InitEvent()
 {
     int err = 0;
     timeval heart;
-
-    /* 初始化网络读事件 */
-    m_recv_event = event_new(m_ev_base, m_sockfd, EV_PERSIST | EV_READ, OnRecvCallback, this);
-    err = event_add(m_recv_event, nullptr);
-    if(err < 0) {
-        GAME_EXT1_LOG_ERROR("event add failed!");
-    }
-
-    /* 初始化心跳事件 */
-    evutil_timerclear(&heart);
-    heart.tv_usec = evConnection_Timeout_MS * 1000;
-    m_timeout_event = event_new(m_ev_base, m_sockfd, EV_PERSIST | EV_READ, OnHeartBeatCallback, this);
-    err = event_add(m_timeout_event, &heart);
-    if(err < 0) {
-        GAME_EXT1_LOG_ERROR("event add failed!");
-    }
+    err = GetIOThread()->Register_OnRecv(m_sockfd, [this](const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err){
+        this->OnRecvEventDispatch(buffer, err);
+    });
+    DebugAssert(err >= 0);
+    err = GetIOThread()->Register_HeartBeat(m_sockfd, [this](const util::errcode::ErrCode& err){
+        this->TimeOutHandler(err);
+    });
+    DebugAssert(err >= 0);
 }
 
-void evConnection::OnRecv(int sockfd)
+void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
 {
-    char* buffer[40960];
-    memset(buffer, '\0', sizeof(buffer));
-    int nbyte = ::recv(sockfd, buffer, sizeof buffer, 0);
-    if(nbyte > 0) {
-        GAME_BASE_LOG_INFO("recv success! recv view: [%s]", buffer);
-    }
-    else if(nbyte == 0) {
-        GAME_BASE_LOG_WARN("need close connection!");
-    }
-    else {
-        GAME_BASE_LOG_ERROR("recv() failed, errno=%d", errno);
+    if(err.GetErrType() != util::errcode::ErrType::NetWorkErr)
+    {
+        GAME_EXT1_LOG_ERROR("recv fatal! ErrType:%d\tErrCode:%d", err.GetErrType(), err.GetErrCode());
+        return;
     }
 
+    auto it_handler = m_errcode_handler.find(err.GetErrCode());
+    if(it_handler == m_errcode_handler.end())
+    {
+        GAME_EXT1_LOG_ERROR("don`t know errcode. ErrCode:%d", err.GetErrCode());
+        return;
+    }
+    /* 找对应的事件处理函数，去处理对应的网络事件 */
+    it_handler->second(buffer);
 }
 
 void evConnection::Init()
@@ -134,4 +123,53 @@ void evConnection::Destroy()
 
 }
 
+std::pair<char*,size_t> evConnection::GetRecvBuffer()
+{
+    return {m_recv_buffer, sizeof(m_recv_buffer)};
+}
+
+evIOThread* evConnection::GetIOThread()
+{
+    return reinterpret_cast<evIOThread*>(m_io_thread);
+}
+
+
+#pragma region "网络事件处理函数的实现"
+
+void evConnection::NetHandler_RecvData(const bbt::buffer::Buffer& buffer)
+{
+    //TODO 测试逻辑
+    DebugAssert(buffer.DataSize() > 0);
+    auto s_view = buffer.View();
+    std::string s(s_view.begin(), s_view.end());
+    GAME_BASE_LOG_INFO("[test recv] network RECV: [%s]", s.c_str());
+}
+
+void evConnection::NetHandler_ConnClosed(const bbt::buffer::Buffer& buffer)
+{
+    Close();
+}
+
+void evConnection::NetHandler_TryAgain(const bbt::buffer::Buffer& buffer)
+{
+    //TODO 逻辑需要实现
+}
+
+void evConnection::NetHandler_OtherErr(const bbt::buffer::Buffer& buffer)
+{
+    //TODO 逻辑需要实现
+}
+
+
+#pragma endregion
+
+#pragma region "心跳时间发生"
+
+void evConnection::TimeOutHandler(const util::errcode::ErrCode& err)
+{
+    //TODO 可能把timeout事件抛给上层处理更好(使用回调的方式)
+    GAME_EXT1_LOG_DEBUG("Heart beat! ip{%s:%d}", GetPeerIP().c_str(), GetPeerPort());
+}
+
+#pragma endregion
 }

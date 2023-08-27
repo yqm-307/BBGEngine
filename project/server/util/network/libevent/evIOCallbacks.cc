@@ -21,8 +21,45 @@ namespace game::util::network
 
 [[maybe_unused]] void OnRecvCallback(evutil_socket_t sockfd, short events, void* args)
 {
+    DebugAssert(args != nullptr);
     evArgs* ev_cb = static_cast<evArgs*>(args);
-    ev_cb->m_conn_ptr->OnRecv(sockfd);
+    DebugAssert(ev_cb->m_conn_ptr != nullptr);
+    if(ev_cb->m_conn_ptr->IsClosed()) {
+        GAME_EXT1_LOG_WARN(
+            "conn is closed, but the event was not canceled! peer:{%s, %d}",
+            ev_cb->m_conn_ptr->GetPeerIP(),
+            ev_cb->m_conn_ptr->GetPeerPort());
+        return;
+    }
+    
+    int read_len = 0;
+    auto [recv_buff, buff_len] = ev_cb->m_conn_ptr->GetRecvBuffer();
+    util::errcode::ErrCode errcode("nothing", 
+            util::errcode::NetWorkErr, 
+            util::errcode::network::err::Default);
+
+
+    // read系统调用读取数据
+    read_len = ::read(sockfd, recv_buff, buff_len);
+    // 读取后处理errno，将errno处理，并转换为errno
+    if(read_len == -1) {
+        int err = errno;
+        if(err == EINTR || err == EAGAIN) {
+            errcode.SetInfo("please try again!");
+            errcode.SetCode(util::errcode::network::err::Recv_TryAgain);
+        } else if (err == ECONNREFUSED) {
+            errcode.SetInfo("connect refused!");
+            errcode.SetCode(util::errcode::network::err::Recv_Connect_Refused);
+        }
+    }else if (read_len == 0) {
+        errcode.SetInfo("connect refused!");
+        errcode.SetCode(util::errcode::network::err::Recv_Eof);
+    }else if (read_len < -1){
+        errcode.SetInfo("please look up errno!");
+        errcode.SetCode(util::errcode::network::err::Recv_Other_Err);
+    }
+    // 处理之后反馈给connection进行数据处理
+    ev_cb->m_conn_ptr->OnRecvEventDispatch(sockfd, errcode);
 }
 
 [[maybe_unused]] void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args)
