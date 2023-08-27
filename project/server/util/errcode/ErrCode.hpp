@@ -31,7 +31,9 @@ public:
 
     const std::string& What() const;
 
-    int Err() const;
+    int GetErrCode() const;
+
+    ErrType GetErrType() const;
 
 
 private:
