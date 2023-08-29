@@ -1,5 +1,6 @@
 #pragma once
 #include "util/network/IOThread.hpp"
+#include "util/network/IPAddress.hpp"
 #include <functional>
 
 namespace server::network
@@ -21,7 +22,7 @@ public:
     Acceptor(std::string ip, short port);
     ~Acceptor();
 
-    int Accept();
+    int Accept(sockaddr* addr, socklen_t* len);
     int Close();
 
 
@@ -37,8 +38,8 @@ private:
     void Init();
     void Destory();
     void Clear();
-    /* 接收到新连接，处理新连接 */
-    void OnAccept(int fd);
+    /* 接受到新连接，fd为新accept到的套接字 */
+    void OnAccept(int fd, game::util::network::Address addr);
 
 private:
     evutil_socket_t m_listen_fd;

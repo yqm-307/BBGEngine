@@ -85,15 +85,12 @@ short Acceptor::Port() const
     return m_listen_port;
 }
 
-int Acceptor::Accept()
+int Acceptor::Accept(sockaddr* addr, socklen_t* len)
 {
     evutil_socket_t fd;
-    sockaddr_in addr;
-    socklen_t len = sizeof(addr);
-    fd = ::accept(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), &len);
+    fd = ::accept(m_listen_fd, addr, len);
     if(fd >= 0) {
         GAME_EXT1_LOG_DEBUG("accept newfd=%d", fd);
-        OnAccept(fd);
         return fd;
     }
     return -1;
@@ -113,16 +110,25 @@ int Acceptor::Close()
 void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
 {
     GAME_EXT1_LOG_DEBUG("listenfd=%d    event=%d", listenfd, event);
+    sockaddr_in cli_addr;
+    socklen_t addr_len;
     auto pthis = reinterpret_cast<Acceptor*>(args);
     DebugAssert(pthis != nullptr);
     /* 取出所有新连接 */
     while(1)
     {
-        int fd = pthis->Accept();
+        int fd = pthis->Accept(reinterpret_cast<sockaddr*>(&cli_addr), &addr_len);
+        std::string ip('\0', 16);
+        auto ret = evutil_inet_ntop(AF_INET, &cli_addr.sin_addr, ip.data(), sizeof(cli_addr.sin_addr));
+        auto port = ::htons(cli_addr.sin_port);
+        DebugAssert(ret != nullptr);
+        game::util::network::Address addr(ip, port);
+        // TODO 错误码处理
         if(fd < 0)
             break;
         else
-            pthis->OnAccept(fd);
+            // 成功后回调让上层处理新连接
+            pthis->OnAccept(fd, addr);
     }
     if( !(errno == EINTR ||  errno == EAGAIN || errno == ECONNABORTED) )
         GAME_BASE_LOG_ERROR("accept failed! errno=%d", errno);
@@ -159,11 +165,12 @@ int Acceptor::RegistInEvBase(event_base* ev_base)
     return 0;
 }
 
-void Acceptor::OnAccept(int fd)
+void Acceptor::OnAccept(int fd, game::util::network::Address addr)
 {
     GAME_EXT1_LOG_DEBUG("accept success!");
     if(fd >= 0)
     {
+
         //TODO 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。
     }
 }
