@@ -70,21 +70,25 @@ void evIOThread::SetEventBase(event_base* ev_base)
 int evIOThread::Register_OnRecv(evutil_socket_t sockfd, const OnRecvCallback& onrecv_cb)
 {
     // todo 实现细节，注册事件
+    return -1;
 }
 
 int evIOThread::UnRegister_OnRecv(event* ev)
 {
     // todo 实现细节，注销接收事件
+    return -1;
 }
 
 int evIOThread::Register_HeartBeat(evutil_socket_t sockfd, const OnTimeOutCallback& time_out_cb)
 {
     // todo 实现细节，注册超时事件
+    return -1;
 }
 
 int evIOThread::UnRegister_HeartBeat(event* ev)
 {
     // todo 实现细节，注销超时事件
+    return -1;
 }
 
 }// namespace end

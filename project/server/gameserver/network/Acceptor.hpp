@@ -33,18 +33,20 @@ public:
     int SetNonBlock();
     /* 将accept事件注册到event base中 */
     int RegistInEvBase(event_base*);
-
+    void SetLoadBlance(const LoadBlanceFunc& cb);
 private:
     void Init();
     void Destory();
     void Clear();
-    /* 接受到新连接，fd为新accept到的套接字 */
-    void OnAccept(int fd, game::util::network::Address addr);
+    /* 接收到新连接，处理新连接 */
+    void OnAccept(int fd, const game::util::network::Address& peer_addr);
 
 private:
     evutil_socket_t m_listen_fd;
-    std::string     m_listen_addr;
+    std::string     m_listen_ip;
     short           m_listen_port;
+    game::util::network::Address    m_listen_addr;
+    LoadBlanceFunc  m_load_blance_cb;
 };
 
 }// namespace end

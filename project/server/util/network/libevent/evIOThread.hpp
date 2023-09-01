@@ -1,8 +1,8 @@
 #pragma once
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/IOThread.hpp"
-#include "bbt/timer/Clock.hpp"
-#include "bbt/buffer/Buffer.hpp"
+#include <bbt/timer/Clock.hpp>
+#include <bbt/buffer/Buffer.hpp>
 
 namespace game::util::network
 {

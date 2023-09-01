@@ -4,10 +4,6 @@
 #include "util/random/GlobalRandom.hpp"
 
 
-namespace g_global
-{
-static server::network::Network* network_scene;
-};
 
 void RandomSeedInit()
 {
@@ -17,20 +13,6 @@ void RandomSeedInit()
 // 数据库初始化
 void DBInit()
 {
-}
-
-// 网络初始化
-void NetWorkInit()
-{
-    g_global::network_scene = new  server::network::Network("127.0.0.1", 10010);
-    g_global::network_scene->SyncStart();
-}
-
-// 游戏场景初始化
-server::scene::GameServerScene* GameSceneInit()
-{
-    auto ptr = new server::scene::GameServerScene();
-    return ptr;
 }
 
 /**
@@ -56,11 +38,15 @@ void ConfigLoad()
 
 int main()
 {
+    // 加载全局配置
     ConfigLoad();
+    // 设置随机数种子
     RandomSeedInit();
-    NetWorkInit();
-    auto scene = GameSceneInit();
+    // 初始化游戏场景
+    auto scene = new server::scene::GameServerScene();
 
+
+    // 开启 World Scene
     scene->StartScene();
     delete scene;
 }

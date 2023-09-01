@@ -16,6 +16,7 @@ evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address
     m_local_addr(local_ip)
 {
     DebugAssert(thread != nullptr && newfd >= 0);
+    Init();
 }
 
 
@@ -49,6 +50,7 @@ size_t evConnection::Send(const char* buffer, size_t len)
 size_t evConnection::Recv(const char* buffer, size_t len)
 {
     // TODO 没有实现逻辑
+    return -1;
 }
 
 void evConnection::Close()
@@ -64,7 +66,6 @@ const event_base* evConnection::GetEvBase() const
 void evConnection::InitEvent()
 {
     int err = 0;
-    timeval heart;
     err = GetIOThread()->Register_OnRecv(m_sockfd, [this](const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err){
         this->OnRecvEventDispatch(buffer, err);
     });
@@ -103,6 +104,10 @@ void evConnection::Init()
 
 void evConnection::Destroy()
 {   
+    // 先执行 callback
+    if(m_ondestory_cb)
+        m_ondestory_cb(shared_from_this());
+
     [[maybe_unused]] int error = 0;
 
     DebugAssert(m_ev_base != nullptr);
@@ -133,6 +138,17 @@ evIOThread* evConnection::GetIOThread()
     return reinterpret_cast<evIOThread*>(m_io_thread);
 }
 
+evutil_socket_t evConnection::GetSocket()
+{
+    return m_sockfd;
+}
+
+
+void evConnection::SetOnDestory(const OnDestoryCallback& cb)
+{
+    DebugAssert(cb != nullptr);
+    m_ondestory_cb = cb;
+}
 
 #pragma region "网络事件处理函数的实现"
 
@@ -168,7 +184,7 @@ void evConnection::NetHandler_OtherErr(const bbt::buffer::Buffer& buffer)
 void evConnection::TimeOutHandler(const util::errcode::ErrCode& err)
 {
     //TODO 可能把timeout事件抛给上层处理更好(使用回调的方式)
-    GAME_EXT1_LOG_DEBUG("Heart beat! ip{%s:%d}", GetPeerIP().c_str(), GetPeerPort());
+    GAME_EXT1_LOG_DEBUG("Heart beat! ip{%s}", GetPeerIPAddress().GetIPPort().c_str());
 }
 
 #pragma endregion

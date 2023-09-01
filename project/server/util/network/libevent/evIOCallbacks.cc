@@ -26,9 +26,8 @@ namespace game::util::network
     DebugAssert(ev_cb->m_conn_ptr != nullptr);
     if(ev_cb->m_conn_ptr->IsClosed()) {
         GAME_EXT1_LOG_WARN(
-            "conn is closed, but the event was not canceled! peer:{%s, %d}",
-            ev_cb->m_conn_ptr->GetPeerIP(),
-            ev_cb->m_conn_ptr->GetPeerPort());
+            "conn is closed, but the event was not canceled! peer:{%s}",
+            ev_cb->m_conn_ptr->GetPeerIPAddress().GetIPPort().c_str());
         return;
     }
     
