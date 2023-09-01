@@ -1,5 +1,6 @@
 #pragma once
 #include "util/network/IOThread.hpp"
+#include "util/network/IPAddress.hpp"
 #include <functional>
 
 namespace server::network
@@ -21,7 +22,7 @@ public:
     Acceptor(std::string ip, short port);
     ~Acceptor();
 
-    int Accept();
+    int Accept(sockaddr* addr, socklen_t* len);
     int Close();
 
 
