@@ -22,13 +22,15 @@ namespace ev
 
 class evIOThread;
 class evConnection;
+class evConnMgr;
 SmartPtrTypeDef(evConnection);
 
 /**
  * @brief 可靠的双向连接，基于Tcp
  */
 class evConnection:
-    public Connection
+    public Connection,
+    public std::enable_shared_from_this<evConnection>
 {
     friend void game::util::network::OnRecvCallback(int sockfd, short events, void* args);
     friend void game::util::network::OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args);
@@ -45,8 +47,19 @@ class evConnection:
         NET_HANDLER_ENTRY(util::errcode::network::err::Recv_TryAgain,   this, NetHandler_TryAgain),
         NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Other_Err,  this, NetHandler_OtherErr),
     };
-
+    typedef std::function<void(evConnectionSPtr)>   OnDestoryCallback;
 public:
+    /**
+     * @deprecated 不允许被随意使用
+     * @
+     * @brief 构造一个新连接
+     * 
+     * @param thread 运行在的io线程上
+     * @param newfd 套接字
+     * @param peer_ip 对端socket地址
+     * @param local_ip 本地socket地址
+     */
+    evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip);
     virtual ~evConnection();
 
     virtual bool IsClosed() override;
@@ -61,18 +74,11 @@ public:
     std::pair<char*,size_t>             GetRecvBuffer();
 protected:
 
-    /**
-     * @brief 构造一个新连接
-     * 
-     * @param thread 运行在的io线程上
-     * @param newfd 套接字
-     * @param peer_ip 对端socket地址
-     * @param local_ip 本地socket地址
-     */
-    evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip);
     
     void Init();
     void Destroy();
+
+    void SetOnDestory(const OnDestoryCallback& cb);
 private:
     /* IO事件初始化 */
     void InitEvent();
@@ -80,7 +86,7 @@ private:
     void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
     /* 获取当前连接所在的IO线程 */
     evIOThread* GetIOThread();
-
+    evutil_socket_t GetSocket();
 private:
     //----------- NetWork Handler -------------//
     void NetHandler_RecvData(const bbt::buffer::Buffer& buffer);
@@ -103,6 +109,8 @@ private:
     util::network::Address  m_peer_addr;
 
     char        m_recv_buffer[4096];    // socket 接收缓存，后续可以接入配置中
+
+    OnDestoryCallback   m_ondestory_cb;
 };
 }
 

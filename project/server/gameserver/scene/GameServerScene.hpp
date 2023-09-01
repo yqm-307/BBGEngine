@@ -3,6 +3,7 @@
 #include "share/scene/Scene.hpp"
 // 游戏对象
 #include "share/ecs/entity/aoi/Aoi.hpp"         // 游戏 aoi
+#include "gameserver/network/Network.hpp"
 
 /**
  * 关于游戏场景的理解
@@ -48,7 +49,16 @@ public:
 private:
     void Init();
     void Destory();
-    // void EventUpdate(evutil_socket_t,short,void*);
+private:
+    /**
+     * Module 流程控制
+     */
+
+    void AoiInit();
+    void AoiDestory();
+
+    void NetWorkInit();
+    void NetWorkDestory();
 private:
     event_base*     m_ev_base;
     event*          m_update_event;     // 场景update函数
@@ -58,7 +68,7 @@ private:
 
     /* todo: 放在这里的应该是 aoi mgr */
     game::share::ecs::entity::aoi::Aoi*     module_aoi{nullptr};
-
+    server::network::Network*               module_network{nullptr};
 };
 
 } // namespace end

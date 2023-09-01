@@ -1,4 +1,6 @@
 #include "gameserver/scene/GameServerScene.hpp"
+#include "gameserver/init/LoadConfig.hpp"
+#include "gameserver/network/Network.hpp"
 #include "util/log/Log.hpp"
 #include <signal.h>
 
@@ -29,6 +31,7 @@ void EventUpdate(evutil_socket_t,short,void* arg)
     pthis->OnUpdate();
 }
 
+// SIGINT 信号
 void EventSignal_Sigint(evutil_socket_t, short, void* arg)
 {
     auto pthis = (GameServerScene*)arg;
@@ -43,12 +46,7 @@ void EventSignal_Sigint(evutil_socket_t, short, void* arg)
 
 void GameServerScene::Init()
 {
-    /* 初始化 aoi */
-    module_aoi = new game::share::ecs::entity::aoi::Aoi(
-    [](GameObjectSPtr p1, GameObjectSPtr p2){
-    }, 
-    [](GameObjectSPtr, GameObjectSPtr){
-    });
+
 
     m_ev_base = event_base_new();
     {// scene update 事件注册
@@ -66,12 +64,55 @@ void GameServerScene::Init()
         Assert(m_signal_sigint != nullptr);
         Assert(event_add(m_signal_sigint, NULL) == 0);
     }
+
+    {
+        AoiInit();
+    }
+
+    {// network 初始化
+        NetWorkInit();
+    }
+}
+
+void GameServerScene::AoiInit()
+{
+    /* 初始化 aoi */
+    module_aoi = new game::share::ecs::entity::aoi::Aoi(
+    [](GameObjectSPtr p1, GameObjectSPtr p2){
+    }, 
+    [](GameObjectSPtr, GameObjectSPtr){
+    });
+}
+
+void GameServerScene::AoiDestory()
+{
+    delete module_aoi;
+    module_aoi = nullptr;
+}
+
+void GameServerScene::NetWorkInit()
+{
+    auto cfgInst = server::init::ServerConfig::GetInstance();
+    auto ip     = cfgInst->GetServerIP();
+    auto port   = cfgInst->GetServerPort();
+
+    GAME_BASE_LOG_INFO("World Server! IP: %s  Port: %d", ip.c_str(), port);
+
+    module_network = new server::network::Network(ip, port);
+}
+
+void GameServerScene::NetWorkDestory()
+{
+    module_network->SyncStop();
+
+    delete module_network;
+    module_network = nullptr;
 }
 
 void GameServerScene::Destory()
 {
-    delete module_aoi;
-    module_aoi = nullptr;
+    AoiDestory();
+    NetWorkDestory();
 
     event_free(m_update_event);
     event_free(m_signal_sigint);
@@ -85,6 +126,7 @@ void GameServerScene::Destory()
 
 void GameServerScene::StartScene()
 {
+    module_network->SyncStart();
     event_base_dispatch(m_ev_base);
 }
 

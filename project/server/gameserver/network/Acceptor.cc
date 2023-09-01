@@ -10,8 +10,9 @@ namespace server::network
 {
 
 Acceptor::Acceptor(std::string ip, short port)
-    :m_listen_addr(ip),
-    m_listen_port(port)
+    :m_listen_ip(ip),
+    m_listen_port(port),
+    m_listen_addr(ip, port)
 {
     Assert(m_listen_port >= 0 && m_listen_port <= ((1 << 16) - 1) );
     Init();
@@ -24,7 +25,7 @@ Acceptor::~Acceptor()
 
 void Acceptor::Init()
 {
-    game::util::network::CreateListen(m_listen_addr, m_listen_port, true);
+    game::util::network::CreateListen(m_listen_ip, m_listen_port, true);
     sockaddr_in addr;
     socklen_t len=0;
     int error=0;
@@ -35,10 +36,10 @@ void Acceptor::Init()
     addr.sin_port = ntohs(m_listen_port);
     addr.sin_family = AF_INET;
 
-    if(m_listen_addr.empty())
+    if(m_listen_ip.empty())
         addr.sin_addr.s_addr = INADDR_ANY;  // 监听任意地址
     else
-        error = evutil_inet_pton(AF_INET, m_listen_addr.c_str(), &addr.sin_addr.s_addr);   // 监听指定地址
+        error = evutil_inet_pton(AF_INET, m_listen_ip.c_str(), &addr.sin_addr.s_addr);   // 监听指定地址
 
     Assert(error >= 0);
 
@@ -59,7 +60,7 @@ void Acceptor::Destory()
 void Acceptor::Clear()
 {
     m_listen_fd = -1;
-    m_listen_addr = "";
+    m_listen_ip = "";
     m_listen_port = -1;
 }
 
@@ -70,6 +71,12 @@ int Acceptor::SetNonBlock()
     return 0;
 }
 
+void Acceptor::SetLoadBlance(const LoadBlanceFunc& cb)
+{
+    DebugAssert(cb != nullptr);
+    m_load_blance_cb = cb;
+}
+
 evutil_socket_t Acceptor::Fd() const
 {
     return m_listen_fd;
@@ -77,7 +84,7 @@ evutil_socket_t Acceptor::Fd() const
 
 const std::string& Acceptor::IP() const
 {
-    return m_listen_addr;
+    return m_listen_ip;
 }
 
 short Acceptor::Port() const
@@ -91,9 +98,11 @@ int Acceptor::Accept()
     sockaddr_in addr;
     socklen_t len = sizeof(addr);
     fd = ::accept(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), &len);
+    game::util::network::Address endpoint;
+    endpoint.set(addr);
     if(fd >= 0) {
         GAME_EXT1_LOG_DEBUG("accept newfd=%d", fd);
-        OnAccept(fd);
+        OnAccept(fd, endpoint);
         return fd;
     }
     return -1;
@@ -112,17 +121,13 @@ int Acceptor::Close()
 
 void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
 {
-    GAME_EXT1_LOG_DEBUG("listenfd=%d    event=%d", listenfd, event);
+    GAME_EXT1_LOG_DEBUG("[_AcceptReadCallback] listenfd=%d event=%d", listenfd, event);
     auto pthis = reinterpret_cast<Acceptor*>(args);
     DebugAssert(pthis != nullptr);
     /* 取出所有新连接 */
     while(1)
     {
         int fd = pthis->Accept();
-        if(fd < 0)
-            break;
-        else
-            pthis->OnAccept(fd);
     }
     if( !(errno == EINTR ||  errno == EAGAIN || errno == ECONNABORTED) )
         GAME_BASE_LOG_ERROR("accept failed! errno=%d", errno);
@@ -159,12 +164,18 @@ int Acceptor::RegistInEvBase(event_base* ev_base)
     return 0;
 }
 
-void Acceptor::OnAccept(int fd)
+void Acceptor::OnAccept(int fd, const game::util::network::Address& peer_addr)
 {
     GAME_EXT1_LOG_DEBUG("accept success!");
     if(fd >= 0)
     {
-        //TODO 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。
+        //一、 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。
+        DebugAssertWithInfo(m_load_blance_cb != nullptr, "loadblance callback not initialized!");
+        auto run_in_target_thread = m_load_blance_cb();
+        DebugAssertWithInfo(run_in_target_thread, "loadblance error!");
+        auto new_conn = game::util::network::ev::evConnMgr::GetInstance()->CreateConn(run_in_target_thread, fd, peer_addr, m_listen_addr);
+
+        GAME_BASE_LOG_INFO("[Acceptor::OnAccept] Acceptor ==> Client IP:{%s}", peer_addr.GetIPPort().c_str());
     }
 }
 

@@ -1,3 +1,4 @@
+#pragma once
 #include "util/ini/IniReader.hpp"
 
 namespace server::init
