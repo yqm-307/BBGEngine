@@ -67,27 +67,31 @@ void evIOThread::SetEventBase(event_base* ev_base)
     m_ev_base = ev_base;
 }
 
-int evIOThread::Register_OnRecv(evutil_socket_t sockfd, const OnRecvCallback& onrecv_cb)
+int evIOThread::Register_OnRecv(evutil_socket_t sockfd, evArgs* onrecv_cb)
 {
-    // todo 实现细节，注册事件
-    return -1;
+    // XXX 选择什么形式实现参数生命期的管理，1、静态的，event对象保存在evConnection中。2、动态的，需要进行详细的生命期管理
+    // 目前是静态的，保存在evConnetion，由于evConnection释放时UnRegister，倒也不会有啥问题吧
+    DebugAssert(onrecv_cb != nullptr);
+    event* event = event_new(m_ev_base, sockfd, EV_READ | EV_PERSIST, game::util::network::OnRecvCallback, onrecv_cb);
+    return (event != nullptr);
 }
 
 int evIOThread::UnRegister_OnRecv(event* ev)
 {
-    // todo 实现细节，注销接收事件
-    return -1;
+    int err = event_del(ev);
+    DebugAssert(err >= 0);
+    return err;
 }
 
 int evIOThread::Register_HeartBeat(evutil_socket_t sockfd, const OnTimeOutCallback& time_out_cb)
 {
-    // todo 实现细节，注册超时事件
+    // TODO 实现细节，注册超时事件
     return -1;
 }
 
 int evIOThread::UnRegister_HeartBeat(event* ev)
 {
-    // todo 实现细节，注销超时事件
+    // TODO 实现细节，注销超时事件
     return -1;
 }
 

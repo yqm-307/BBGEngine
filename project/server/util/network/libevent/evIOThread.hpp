@@ -30,7 +30,7 @@ public:
     /* 线程启动前需要初始化（必选） */
     void SetEventBase(event_base* ev_base);
 
-    virtual int Register_OnRecv(evutil_socket_t sockfd, const OnRecvCallback& onrecv_cb);
+    virtual int Register_OnRecv(evutil_socket_t sockfd, evArgs* onrecv_cb);
     virtual int UnRegister_OnRecv(event* ev);
     virtual int Register_HeartBeat(evutil_socket_t sockfd, const OnTimeOutCallback& time_out_cb);
     virtual int UnRegister_HeartBeat(event* ev);

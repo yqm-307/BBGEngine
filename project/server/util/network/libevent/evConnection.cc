@@ -1,5 +1,5 @@
-// #include "util/network/libevent/evConnection.hpp"
-// #include "util/network/libevent/evIOCallbacks.hpp"
+#include "util/network/libevent/evConnection.hpp"
+#include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/libevent/evIOThread.hpp"
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
@@ -58,22 +58,22 @@ void evConnection::Close()
     // TODO 没有实现逻辑
 }
 
-const event_base* evConnection::GetEvBase() const
-{
-    return m_ev_base;
-}
-
 void evConnection::InitEvent()
 {
     int err = 0;
-    err = GetIOThread()->Register_OnRecv(m_sockfd, [this](const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err){
-        this->OnRecvEventDispatch(buffer, err);
-    });
+    err = GetIOThread()->Register_OnRecv(m_sockfd, &m_onrecv_args);
     DebugAssert(err >= 0);
     err = GetIOThread()->Register_HeartBeat(m_sockfd, [this](const util::errcode::ErrCode& err){
         this->TimeOutHandler(err);
     });
     DebugAssert(err >= 0);
+}
+
+void evConnection::InitEventArgs()
+{
+    m_onrecv_args.do_io_callback = [this](evutil_socket_t fd, short events, void* args){
+        this->OnRecv(fd, events, args);
+    };
 }
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
@@ -96,8 +96,8 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
 
 void evConnection::Init()
 {
-    [[maybe_unused]] int error = 0;
-    DebugAssert(m_ev_base != nullptr);
+    /* 初始化 event 事件 args */
+    InitEventArgs();
     /* 初始化心跳、读事件 */
     InitEvent();
 }
@@ -110,9 +110,9 @@ void evConnection::Destroy()
 
     [[maybe_unused]] int error = 0;
 
-    DebugAssert(m_ev_base != nullptr);
+    GetIOThread()->UnRegister_OnRecv(m_recv_event);
+
     DebugAssert(m_recv_event != nullptr);
-    m_ev_base = nullptr;    // 生命期控制权不在这里
 
     error = event_del(m_recv_event);
     DebugAssert(error >= 0);
@@ -148,6 +148,45 @@ void evConnection::SetOnDestory(const OnDestoryCallback& cb)
 {
     DebugAssert(cb != nullptr);
     m_ondestory_cb = cb;
+}
+
+void evConnection::OnRecv(evutil_socket_t fd, short events, void* args)
+{
+       
+    // DebugAssert(ev_cb->m_conn_ptr != nullptr);
+    if(IsClosed()) {
+        GAME_EXT1_LOG_WARN("conn is closed, but the event was not canceled! peer:{%s}", GetPeerIPAddress().GetIPPort().c_str());
+        return;
+    }
+
+    int read_len = 0;
+    auto [recv_buff, buff_len] = GetRecvBuffer();
+    util::errcode::ErrCode errcode("nothing", 
+        util::errcode::NetWorkErr, 
+        util::errcode::network::err::Default);
+
+
+    // read系统调用读取数据
+    read_len = ::read(fd, recv_buff, buff_len);
+    // 读取后处理errno，将errno处理，并转换为errno
+    if(read_len == -1) {
+        int err = errno;
+        if(err == EINTR || err == EAGAIN) {
+            errcode.SetInfo("please try again!");
+            errcode.SetCode(util::errcode::network::err::Recv_TryAgain);
+        } else if (err == ECONNREFUSED) {
+            errcode.SetInfo("connect refused!");
+            errcode.SetCode(util::errcode::network::err::Recv_Connect_Refused);
+        }
+    }else if (read_len == 0) {
+        errcode.SetInfo("connect refused!");
+        errcode.SetCode(util::errcode::network::err::Recv_Eof);
+    }else if (read_len < -1){
+        errcode.SetInfo("please look up errno!");
+        errcode.SetCode(util::errcode::network::err::Recv_Other_Err);
+    }
+    // 处理之后反馈给connection进行数据处理
+    OnRecvEventDispatch(fd, errcode);
 }
 
 #pragma region "网络事件处理函数的实现"

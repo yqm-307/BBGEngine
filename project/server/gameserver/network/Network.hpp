@@ -26,16 +26,23 @@ private:
     /* 对象内部数据释放 */
     void Destory();
 
+private:
     /* io 工作线程 */
     void IOWork(int index);
     /* accept 线程 */
     void AcceptWork(int index);
     /* 等待所有IO线程，启动完成 */
     void WaitForOtherIOThreadStart();
+private:
+    /**
+     * utils
+     */
+
     /* libevent event_base 构造 */
     event_base* OnCreateEventBase();
     /* libevent event_base 释放 */
     void OnDestoryEventBase(event_base* base);
+    game::util::network::IOThread* NewConnLoadBlance();
 private:
     Acceptor        m_acceptor;
     size_t          m_io_thread_num;

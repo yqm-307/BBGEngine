@@ -1,8 +1,10 @@
 #pragma once
+#include <functional>
 #include "util/network/Connection.hpp"
 #include "util/typedef/NamespaceType.hpp"
 #include "util/network/IOThread.hpp"
-#include "bbt/buffer/Buffer.hpp"
+// #include "util/network/libevent/evIOCallbacks.hpp"
+#include <bbt/buffer/Buffer.hpp>
 
 /**
  * @brief libevent实现
@@ -19,6 +21,16 @@ void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args);
 
 namespace ev
 {
+
+/* libevent 到 C++闭包对象中间层，希望使用函数对象统一io操作 */
+typedef std::function<void(evutil_socket_t, short, void*)> IOCommCallback;
+
+struct evArgs
+{
+    IOCommCallback  do_io_callback{nullptr};
+};
+
+
 
 class evIOThread;
 class evConnection;
@@ -69,8 +81,6 @@ public:
 
     virtual const Address& GetPeerIPAddress() const override;
     virtual const Address& GetLocalIPAddress() const override;
-    /* 获取所在的 event_base */
-    const event_base*                   GetEvBase() const;
     std::pair<char*,size_t>             GetRecvBuffer();
 protected:
 
@@ -79,15 +89,19 @@ protected:
     void Destroy();
 
     void SetOnDestory(const OnDestoryCallback& cb);
-private:
     /* IO事件初始化 */
     void InitEvent();
+    void InitEventArgs();
+private:
     /* read事件派发函数，read事件有很多可能eof、refused等，所以需要通过此函数派发到对应的事件处理函数 */
     void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
     /* 获取当前连接所在的IO线程 */
     evIOThread* GetIOThread();
     evutil_socket_t GetSocket();
 private:
+    //----------- IO Dispatcher  -------------//
+    void OnRecv(evutil_socket_t fd, short events, void* args);
+
     //----------- NetWork Handler -------------//
     void NetHandler_RecvData(const bbt::buffer::Buffer& buffer);
     void NetHandler_ConnClosed(const bbt::buffer::Buffer& buffer);
@@ -99,7 +113,6 @@ private:
 private:
 
     IOThread*   m_io_thread;
-    event_base* m_ev_base;
     int         m_sockfd;
     ConnStatus  m_status;
     event*      m_recv_event;   // 接收事件
@@ -111,6 +124,8 @@ private:
     char        m_recv_buffer[4096];    // socket 接收缓存，后续可以接入配置中
 
     OnDestoryCallback   m_ondestory_cb;
+
+    evArgs m_onrecv_args;
 };
 }
 
