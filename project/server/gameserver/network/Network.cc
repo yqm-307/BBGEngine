@@ -66,7 +66,10 @@ void Network::Init()
         m_io_threads[i]->SetEventBase(ev_base);
     }
 
-    
+    // 设置 loadblance callback    
+    m_acceptor.SetLoadBlance([this](){
+        return NewConnLoadBlance();
+    });
 }
 
 void Network::Destory()
@@ -133,6 +136,18 @@ void Network::WaitForOtherIOThreadStart()
     m_thread_latch->wait();
 }
 
+
+#pragma region "工具函数"
+
+game::util::network::IOThread* Network::NewConnLoadBlance()
+{
+    static std::atomic_int m_current_idx = 0;
+    /* 第一个是acceptor线程，实际的io线程是后面的（m_io_thread_num - 1）个 */
+    int idx = m_current_idx++ % (m_io_thread_num - 1) + 1;
+    DebugAssert(idx != 0 && idx < m_io_threads.size());
+    return m_io_threads[idx];
+}
+
 event_base* Network::OnCreateEventBase()
 {
     auto base = event_base_new();
@@ -150,5 +165,7 @@ void Network::OnDestoryEventBase(event_base* base)
     DebugAssertWithInfo(it != m_ev_bases.end(), "event base is unexpected value!");
     m_ev_bases.erase(it);
 }
+
+#pragma endregion
 
 }// namespace end

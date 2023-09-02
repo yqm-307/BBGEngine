@@ -1,17 +1,12 @@
 #pragma once
+#include <thread>
+#include <functional>
 #include "util/network/IOCallbacks.hpp"
 #include "util/network/libevent/evConnection.hpp"
 
+
 namespace game::util::network
 {
-
-struct evArgs
-{
-    ev::evConnectionSPtr m_conn_ptr;
-    errcode::ErrCode err;
-};
-
-
 
 template<>
 inline void OnAccept<ev::evConnection>(ConnectionSPtr new_conn, const errcode::ErrCode& err)
@@ -34,7 +29,15 @@ void OnAcceptCallback(evutil_socket_t sockfd, short events, void* args);
 
 void OnRecvCallback(evutil_socket_t sockfd, short events, void* args);
 
-evutil_socket_t CreateListen(std::string ip, short port, bool isblock);
+/**
+ * @brief 创建一个监听套接字。
+ * 
+ * @param ip 监听地址
+ * @param port 监听端口
+ * @param noblock 是否设置非阻塞
+ * @return evutil_socket_t 成功返回不小于0的fd，失败返回-1
+ */
+evutil_socket_t CreateListen(std::string ip, short port, bool noblock);
 
 int SetFdNoBlock(int fd);
 

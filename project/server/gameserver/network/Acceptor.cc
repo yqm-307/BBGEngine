@@ -25,30 +25,8 @@ Acceptor::~Acceptor()
 
 void Acceptor::Init()
 {
-    game::util::network::CreateListen(m_listen_ip, m_listen_port, true);
-    sockaddr_in addr;
-    socklen_t len=0;
-    int error=0;
-
-    m_listen_fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    m_listen_fd = game::util::network::CreateListen(m_listen_ip, m_listen_port, true);
     Assert(m_listen_fd >= 0);
-
-    addr.sin_port = ntohs(m_listen_port);
-    addr.sin_family = AF_INET;
-
-    if(m_listen_ip.empty())
-        addr.sin_addr.s_addr = INADDR_ANY;  // 监听任意地址
-    else
-        error = evutil_inet_pton(AF_INET, m_listen_ip.c_str(), &addr.sin_addr.s_addr);   // 监听指定地址
-
-    Assert(error >= 0);
-
-    len = sizeof(addr);
-    error = ::bind(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), len);
-    Assert(error >= 0);
-
-    error = ::listen(m_listen_fd, 5);
-    Assert(error >= 0);
 }
 
 void Acceptor::Destory()
@@ -101,7 +79,7 @@ int Acceptor::Accept()
     game::util::network::Address endpoint;
     endpoint.set(addr);
     if(fd >= 0) {
-        GAME_EXT1_LOG_DEBUG("accept newfd=%d", fd);
+        GAME_EXT1_LOG_DEBUG("[Acceptor::Accept] Acceptor ==> ip:{%s} fd:{%d}", endpoint.GetIPPort().c_str(), fd);
         OnAccept(fd, endpoint);
         return fd;
     }
@@ -128,6 +106,8 @@ void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
     while(1)
     {
         int fd = pthis->Accept();
+        if(fd < 0)
+            break;
     }
     if( !(errno == EINTR ||  errno == EAGAIN || errno == ECONNABORTED) )
         GAME_BASE_LOG_ERROR("accept failed! errno=%d", errno);
