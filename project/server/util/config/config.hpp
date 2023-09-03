@@ -15,6 +15,12 @@ struct AoiConfig
     float m_tower_z;
 };
 
+struct evConnMgrConfig
+{
+    int m_heart_beat_once_ms;       // 多久检测一次心跳
+    int m_heart_beat_timeout_ms;    // 心跳的超时时间是多久
+};
+
 
 
 }

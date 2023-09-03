@@ -17,11 +17,13 @@ enum GameConfigType
 {
     // bbt预留65535位, 我们从10w开始
     Cfg_Aoi         = 100001,   // aoi相关配置
+    Cfg_evConnMgr   = 100002,   // 连接管理器相关配置
 };
 
 static std::unordered_map<GameConfigType, std::string> CfgNameMap = 
 {
     Entry( Cfg_Aoi ),
+    Entry( Cfg_evConnMgr ),
 };
 
 

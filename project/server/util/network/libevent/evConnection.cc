@@ -13,7 +13,8 @@ evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address
     :m_io_thread(thread),
     m_sockfd(newfd),
     m_peer_addr(peer_ip),
-    m_local_addr(local_ip)
+    m_local_addr(local_ip),
+    m_prev_heart_beat_time(bbt::timer::clock::now())
 {
     DebugAssert(thread != nullptr && newfd >= 0);
     Init();
@@ -56,16 +57,13 @@ size_t evConnection::Recv(const char* buffer, size_t len)
 void evConnection::Close()
 {
     // TODO 没有实现逻辑
+    GAME_EXT1_LOG_WARN("[evConnection::Close] 没有实现，速速实现，实现后删掉此日志");
 }
 
 void evConnection::InitEvent()
 {
     int err = 0;
     err = GetIOThread()->Register_OnRecv(m_sockfd, &m_onrecv_args);
-    DebugAssert(err >= 0);
-    err = GetIOThread()->Register_HeartBeat(m_sockfd, [this](const util::errcode::ErrCode& err){
-        this->TimeOutHandler(err);
-    });
     DebugAssert(err >= 0);
 }
 
@@ -220,10 +218,16 @@ void evConnection::NetHandler_OtherErr(const bbt::buffer::Buffer& buffer)
 
 #pragma region "心跳时间发生"
 
-void evConnection::TimeOutHandler(const util::errcode::ErrCode& err)
+
+bbt::timer::clock::Timestamp<bbt::timer::clock::ms> 
+evConnection::GetPrevHeartBeatTimestamp()
 {
-    //TODO 可能把timeout事件抛给上层处理更好(使用回调的方式)
-    GAME_EXT1_LOG_DEBUG("Heart beat! ip{%s}", GetPeerIPAddress().GetIPPort().c_str());
+    return m_prev_heart_beat_time;
+}
+
+void evConnection::OnHeartBeat()
+{
+    m_prev_heart_beat_time = bbt::timer::clock::now();
 }
 
 #pragma endregion
