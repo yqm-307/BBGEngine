@@ -22,7 +22,7 @@ public:
     Acceptor(std::string ip, short port);
     ~Acceptor();
 
-    int Accept(sockaddr* addr, socklen_t* len);
+    int Accept();
     int Close();
 
 

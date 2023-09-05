@@ -6,11 +6,12 @@ namespace game::util::network::ev
 //------------------------------ 局部函数实现 --------------------------------//
 void _EventCallbackTransform(evutil_socket_t fd, short events, void* args)
 {
+    //TODO 需要实现，尚未实现完全
     auto event = reinterpret_cast<evEvent*>(args);
 }
 
 //------------------------------ 类实现 --------------------------------//
-explicit evEvent::evEvent(const EventCallback& cb, evutil_socket_t fd, short events)
+evEvent::evEvent(const EventCallback& cb, evutil_socket_t fd, short events)
     :m_callback(cb),
     m_fd(fd),
     m_events(events)

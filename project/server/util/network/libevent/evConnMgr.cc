@@ -6,7 +6,7 @@ namespace game::util::network::ev
 
 inline ev::evConnectionSPtr SafeToEvConn(ConnectionSPtr raw_conn)
 {
-    auto conn = std::dynamic_pointer_cast<evConnection>(raw_conn);
+    auto conn = std::static_pointer_cast<evConnection>(raw_conn);
     DebugAssertWithInfo(conn != nullptr, "conversion failure!");
     return conn;
 }
@@ -60,7 +60,8 @@ void evConnMgr::InitEvent()
 
 void evConnMgr::InitHeartBeatEvent()
 {
-    m_heartbeat_check_event = event_new();
+    // m_heartbeat_check_event = event_new();
+    Assert(false);
 }
 
 void evConnMgr::DestoryHeartBeatEvent()

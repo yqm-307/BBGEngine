@@ -70,7 +70,7 @@ short Acceptor::Port() const
     return m_listen_port;
 }
 
-int Acceptor::Accept(sockaddr* addr, socklen_t* len)
+int Acceptor::Accept()
 {
     evutil_socket_t fd;
     sockaddr_in addr;
