@@ -90,7 +90,7 @@ int evIOThread::UnRegister_OnRecv(event* ev)
 int evIOThread::RegisterEvent(evutil_socket_t fd, short events, const EventCallback& callback, void* args)
 {
     //TODO 没有实现完毕
-    __attribute_maybe_unused__ event* new_event = nullptr;
+    BBTATTR_COMM_Unused event* new_event = nullptr;
     DebugAssert(fd >= 0 && events > 0 && callback != nullptr);
     return -1;
 }

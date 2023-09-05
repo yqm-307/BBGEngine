@@ -1,5 +1,6 @@
 #pragma once
-#include "bbt/net/IPAddress.hpp"
+#include <bbt/net/IPAddress.hpp>
+#include <bbt/Attribute.hpp>
 
 namespace game::util::network
 {

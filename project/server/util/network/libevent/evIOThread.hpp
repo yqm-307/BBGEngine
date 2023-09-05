@@ -44,7 +44,7 @@ public:
      * @param args callback的参数（大部分情况使用函数对象即可）
      * @return int 成功返回大于等于0的eventid，失败返回-1
      */
-    [[nodiscard("需要做错误处理")]]int RegisterEvent(evutil_socket_t fd, short events, const EventCallback& callback, void* args);
+    int RegisterEvent(evutil_socket_t fd, short events, const EventCallback& callback, void* args) BBTATTR_FUNC_RetVal;
 
     /**
      * @brief 从此线程监听的事件中取消一个事件
@@ -52,7 +52,7 @@ public:
      * @param eventid 事件id
      * @return int 成功返回0，失败返回-1
      */
-    [[nodiscard("需要做错误处理")]]int UnRegisterEvent(int eventid);
+    int UnRegisterEvent(int eventid) BBTATTR_FUNC_RetVal;
 
 
     // TODO 需要用统一的RegisterEvent接口替换掉下面的接口

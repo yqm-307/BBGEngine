@@ -17,8 +17,8 @@ public:
     void OnEvent(evutil_socket_t fd, short events);
 
     /* 将此事件注册到一个 event_base 中，此函数是不可重入的 */
-    [[nodiscard("需要处理错误")]]int RegisterInEvBase(event_base* base, int target_interval_ms);
-    [[nodiscard("需要处理错误")]]int UnRegister();
+    int RegisterInEvBase(event_base* base, int target_interval_ms) BBTATTR_FUNC_RetVal;
+    int UnRegister() BBTATTR_FUNC_RetVal;
 private:
     EventCallback   m_callback{nullptr};
     short   m_events{-1};

@@ -9,22 +9,20 @@ namespace server::init
 std::string ServerConfig::m_server_inifile_path = "config/gameserver.ini";
 
 ServerConfig::ServerConfig()
-    :m_ini_reader(m_server_inifile_path)
+    :ConfigHelper(m_server_inifile_path)
 {
-    AssertWithInfo(m_ini_reader.ParseError() >= 0, "fatal: server config file error! please check server config is ready!");
     Init();
 }
 
 ServerConfig::~ServerConfig()
 {
-    
 }
 
 void ServerConfig::Init()
 {
-    m_config.server_ip = m_ini_reader.GetString("server", "ip", "");
+    m_config.server_ip = m_ini_reader->GetString("server", "ip", "");
     AssertWithInfo(m_config.server_ip != "", "fatal: server ip is null!");
-    m_config.server_port = m_ini_reader.GetInteger("server", "port", 0);
+    m_config.server_port = m_ini_reader->GetInteger("server", "port", 0);
     AssertWithInfo(m_config.server_port > 0, "fatal: server port is bad!");
 }
 

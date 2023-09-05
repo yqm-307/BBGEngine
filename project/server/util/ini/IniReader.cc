@@ -1,5 +1,6 @@
 #include "util/ini/IniReader.hpp"
-#include <inih/ini.h>
+// #include "thirdpath inih/ini.h"
+#include "thirdparty/include/inih/ini.h"
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>

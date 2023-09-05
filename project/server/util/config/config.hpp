@@ -21,6 +21,10 @@ struct evConnMgrConfig
     int m_heart_beat_timeout_ms;    // 心跳的超时时间是多久
 };
 
+// struct 
+// {
+//     /* data */
+// };
 
 
 }

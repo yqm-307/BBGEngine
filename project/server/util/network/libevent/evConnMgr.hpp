@@ -26,7 +26,7 @@ public:
      * @param local_ip 本地的ip、port
      * @return ConnectionSPtr 
      */
-    [[nodiscard("创建后需要保存新连接")]] virtual ConnectionSPtr CreateConn(IOThread* thread, int newfd, Address peer_ip, Address local_ip);
+    virtual ConnectionSPtr CreateConn(IOThread* thread, int newfd, Address peer_ip, Address local_ip) BBTATTR_FUNC_RetVal;
     /*XXX 通过socketfd获取连接，寻求更好的方式，暴露出socket fd可能是不好的，可以加入句柄/id */
     virtual ConnectionWKPtr GetConnBySocket(int sockfd); 
 
