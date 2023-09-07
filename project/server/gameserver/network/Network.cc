@@ -162,8 +162,8 @@ void Network::OnDestoryEventBase(event_base* base)
             return val == base;
         }
     );
-    DebugAssertWithInfo(it != m_ev_bases.end(), "event base is unexpected value!");
-    m_ev_bases.erase(it);
+    DebugAssertWithInfo(it != m_ev_bases.end(), "event base is unexpected value!"); // 出乎意料的结果
+    event_base_free(base);
 }
 
 #pragma endregion
