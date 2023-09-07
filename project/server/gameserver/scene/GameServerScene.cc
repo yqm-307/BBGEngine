@@ -32,8 +32,9 @@ void EventUpdate(evutil_socket_t,short,void* arg)
 }
 
 // SIGINT 信号
-void EventSignal_Sigint(evutil_socket_t, short, void* arg)
+void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg)
 {
+    GAME_BASE_LOG_WARN("signal handle recv SIGINT , events=%d", events);
     auto pthis = (GameServerScene*)arg;
     pthis->StopScene();
 }

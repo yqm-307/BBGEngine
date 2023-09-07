@@ -15,6 +15,13 @@ void DBInit()
 {
 }
 
+//TODO 实现pid文件
+void PidFile()
+{
+    auto pid = ::getpid();
+    GAME_BASE_LOG_INFO("process start! Pid=[ %d ]", pid);
+}
+
 /**
  * 加载全局配置
  */
@@ -42,10 +49,14 @@ int main()
     ConfigLoad();
     // 设置随机数种子
     RandomSeedInit();
+
+    // pid 文件
+    PidFile();
+    // 数据库连接初始化
+    DBInit();
+
     // 初始化游戏场景
     auto scene = new server::scene::GameServerScene();
-
-
     // 开启 World Scene
     scene->StartScene();
     delete scene;
