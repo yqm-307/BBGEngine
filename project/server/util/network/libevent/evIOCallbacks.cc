@@ -45,7 +45,9 @@ namespace game::util::network
         addr.sin_addr.s_addr = INADDR_ANY;  // 监听任意地址
     else
         error = evutil_inet_pton(AF_INET, ip.c_str(), &addr.sin_addr.s_addr);   // 监听指定地址
+    Assert(error >= 0);
 
+    error = SetFdReUseAddr(fd);
     Assert(error >= 0);
 
     len = sizeof(addr);
@@ -89,5 +91,16 @@ int SetFdNoBlock(int fd)
     return 0;
 }
 
+int SetFdReUseAddr(int fd)
+{
+    int opt = 1;
+    int err = 0;
+    err = ::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    DebugAssertWithInfo(err == 0, "setsockopt() call error!");
+    if(err < 0) {
+        GAME_EXT1_LOG_ERROR("[SetFdReUseAddr] setsockopt() call error! fd=%d, errno=%d", fd, errno);
+    }
+    return err;
+}
 
 }// namespace end

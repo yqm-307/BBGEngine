@@ -8,6 +8,7 @@ void _EventCallbackTransform(evutil_socket_t fd, short events, void* args)
 {
     //TODO 需要实现，尚未实现完全
     auto event = reinterpret_cast<evEvent*>(args);
+    event->OnEvent(fd, events);
 }
 
 //------------------------------ 类实现 --------------------------------//
@@ -28,6 +29,7 @@ evEvent::~evEvent()
 
 void evEvent::OnEvent(evutil_socket_t fd, short events)
 {
+    DebugAssert(m_callback != nullptr);
     m_callback(fd, events, nullptr);
 }
 

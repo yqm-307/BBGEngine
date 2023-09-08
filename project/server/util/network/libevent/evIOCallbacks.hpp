@@ -39,7 +39,9 @@ void OnRecvCallback(evutil_socket_t sockfd, short events, void* args);
  */
 evutil_socket_t CreateListen(std::string ip, short port, bool noblock);
 
-int SetFdNoBlock(int fd);
+int SetFdNoBlock(int fd) BBTATTR_FUNC_RetVal;
+
+int SetFdReUseAddr(int fd) BBTATTR_FUNC_RetVal;
 
 void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args);
 

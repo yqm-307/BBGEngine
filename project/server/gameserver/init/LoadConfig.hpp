@@ -1,6 +1,8 @@
 #pragma once
 // #include "util/ini/IniReader.hpp"
 #include "util/config/confighelper.hpp"
+#include <functional>
+#include <set>
 
 namespace server::init
 {
@@ -21,6 +23,7 @@ struct IniConfigList
 class ServerConfig:
     public game::util::config::ConfigHelper
 {
+    typedef std::function<std::pair<bool, std::string>()>   OnCheckCallback;
 public:
     static ServerConfig* GetInstance();
 
@@ -31,10 +34,18 @@ private:
     ~ServerConfig();
 
     void Init();
-
+    std::pair<bool,std::string> CheckConfig();
+private:
+    /*----------- 配置检测函数，加载服务器配置的时候检测 -----------*/
+    std::set<OnCheckCallback> m_oncheck_map{
+        [=](){return ServerConfig::CheckHeartbeat();},  // heartbeat checker
+    };
+    std::pair<bool,std::string> CheckHeartbeat();
 private:
     static std::string  m_server_inifile_path;
     IniConfigList       m_config;
+
+    
 };
 
 }

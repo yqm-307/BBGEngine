@@ -26,10 +26,23 @@ void ServerConfig::Init()
     AssertWithInfo(m_config.server_port > 0, "fatal: server port is bad!");
 
     m_config.m_connmgr_cfg.m_heart_beat_once_ms = m_ini_reader->GetInteger("heartbeat", "interval", 0);
-    AssertWithInfo(m_config.m_connmgr_cfg.m_heart_beat_once_ms > 0, "fatal: heartbeat is invalid!");
     m_config.m_connmgr_cfg.m_heart_beat_timeout_ms = m_ini_reader->GetInteger("heartbeat", "checkonce", 0);
-    AssertWithInfo(m_config.m_connmgr_cfg.m_heart_beat_timeout_ms > 0, "fatal: heartbeat check once invalid!");
     G_SetConfigPtr(game::util::config::evConnMgrConfig, &m_config.m_connmgr_cfg, game::util::config::Cfg_evConnMgr);
+}
+
+std::pair<bool,std::string> ServerConfig::CheckConfig()
+{
+    //TODO 
+}
+
+std::pair<bool,std::string> ServerConfig::CheckHeartbeat()
+{
+    auto timeout = m_config.m_connmgr_cfg.m_heart_beat_timeout_ms;
+    auto heartbeat = m_config.m_connmgr_cfg.m_heart_beat_once_ms;
+    AssertWithInfo(m_config.m_connmgr_cfg.m_heart_beat_once_ms > 0, "fatal: heartbeat is invalid!");
+    AssertWithInfo(m_config.m_connmgr_cfg.m_heart_beat_timeout_ms > 0, "fatal: heartbeat check once invalid!");
+    bool cfg_is_err = !( heartbeat > timeout && heartbeat <= (timeout * 2) );
+    AssertWithInfo(!cfg_is_err, "please check config about of evConnMgr!");
 }
 
 

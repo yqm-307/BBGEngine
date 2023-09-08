@@ -11,16 +11,6 @@ inline ev::evConnectionSPtr SafeToEvConn(ConnectionSPtr raw_conn)
     return conn;
 }
 
-inline void ConfigCheck(const config::evConnMgrConfig* cfg)
-{
-    bool cfg_is_error =
-    (   cfg == nullptr ||
-        cfg->m_heart_beat_once_ms <= 0 ||
-        cfg->m_heart_beat_timeout_ms <= 0 ||
-        cfg->m_heart_beat_timeout_ms >= cfg->m_heart_beat_once_ms);
-    DebugAssertWithInfo( !cfg_is_error, "please check config about of evConnMgr!" );
-}
-
 evConnMgr* evConnMgr::GetInstance()
 {
     static evConnMgr* instance = nullptr;
@@ -44,8 +34,6 @@ evConnMgr::~evConnMgr()
 void evConnMgr::InitCfg()
 {
     auto* cfg_ptr = G_GetConfigPtr(config::evConnMgrConfig, config::Cfg_evConnMgr); 
-    /* config check */
-    ConfigCheck(cfg_ptr);
     m_check_heartbeat_interval_ms = cfg_ptr->m_heart_beat_once_ms;
     m_heartbeat_timeout_duration = bbt::timer::clock::ms(cfg_ptr->m_heart_beat_timeout_ms);
 }
