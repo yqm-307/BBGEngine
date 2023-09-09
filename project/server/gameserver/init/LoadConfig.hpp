@@ -3,6 +3,7 @@
 #include "util/config/confighelper.hpp"
 #include <functional>
 #include <set>
+#include <unordered_set>
 
 namespace server::init
 {
@@ -34,10 +35,10 @@ private:
     ~ServerConfig();
 
     void Init();
-    std::pair<bool,std::string> CheckConfig();
+    void CheckConfig();
 private:
     /*----------- 配置检测函数，加载服务器配置的时候检测 -----------*/
-    std::set<OnCheckCallback> m_oncheck_map{
+    std::vector<OnCheckCallback> m_oncheck_queue{
         [=](){return ServerConfig::CheckHeartbeat();},  // heartbeat checker
     };
     std::pair<bool,std::string> CheckHeartbeat();
