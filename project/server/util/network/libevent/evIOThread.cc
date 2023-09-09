@@ -13,6 +13,7 @@ void OnRecvFunc(evutil_socket_t fd, short event, void* args)
 }
 
 evIOThread::evIOThread()
+    :m_id_pool(INT32_MAX)
 {
     Init();
 }
@@ -92,6 +93,14 @@ int evIOThread::RegisterEvent(evutil_socket_t fd, short events, const EventCallb
     //TODO 没有实现完毕
     BBTATTR_COMM_Unused event* new_event = nullptr;
     DebugAssert(fd >= 0 && events > 0 && callback != nullptr);
+    {
+        std::lock_guard<std::mutex> lock(m_event_map_mutex);
+        auto [bisok, id] = m_id_pool.GetID();
+        if(!bisok){
+            GAME_EXT1_LOG_ERROR("[evIOThread::RegisterEvent] id pool get id failed! pool size:%d", 0 /* id池数量 */);
+        }
+    }
+
     return -1;
 }
 

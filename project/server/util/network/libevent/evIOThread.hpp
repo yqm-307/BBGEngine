@@ -3,6 +3,7 @@
 #include "util/network/IOThread.hpp"
 #include <bbt/timer/Clock.hpp>
 #include <bbt/buffer/Buffer.hpp>
+#include <bbt/poolutil/IDPool.hpp>
 #include <map>
 
 namespace game::util::network
@@ -47,12 +48,31 @@ public:
     int RegisterEvent(evutil_socket_t fd, short events, const EventCallback& callback, void* args) BBTATTR_FUNC_RetVal;
 
     /**
+     * @brief 与 RegisterEvent 相比为线程安全版本
+     * 
+     * @param fd 如果不是fd相关的事件，可以设置为0
+     * @param events 关注事件的类型，参考宏EV_TIMEOUT
+     * @param callback 事件发生时调用的回调函数
+     * @param args callback的参数（大部分情况使用函数对象即可）
+     * @return int 成功返回大于等于0的eventid，失败返回-1
+     */
+    int RegisterEventSafe(evutil_socket_t fd, short events, const EventCallback& callback, void* args) BBTATTR_FUNC_RetVal;
+
+    /**
      * @brief 从此线程监听的事件中取消一个事件
      * 
      * @param eventid 事件id
      * @return int 成功返回0，失败返回-1
      */
     int UnRegisterEvent(int eventid) BBTATTR_FUNC_RetVal;
+
+    /**
+     * @brief 与 UnRegisterEvent 相比为线程安全版本
+     * 
+     * @param eventid 事件id
+     * @return int 成功返回0，失败返回-1
+     */
+    int UnRegisterEventSafe(int eventid) BBTATTR_FUNC_RetVal;
 
 
     // TODO 需要用统一的RegisterEvent接口替换掉下面的接口
@@ -72,6 +92,8 @@ protected:
     IOWorkFunc      m_io_work_func{nullptr};
     // TODO 统一的event事件管理，使用智能指针管理
     std::map<int, Event*>   m_event_map;
+    bbt::pool_util::IDPool<int32_t, false>  m_id_pool;
+    std::mutex      m_event_map_mutex;
 };
 
 struct Event
