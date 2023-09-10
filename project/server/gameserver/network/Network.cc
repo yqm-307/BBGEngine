@@ -110,9 +110,9 @@ void Network::IOWork(int index)
     auto ev_base = m_ev_bases[index];
     GAME_BASE_LOG_INFO("IO thread start!");
 #ifdef Debug
-    Test_AddEvent(ev_base, "io work test timer!");
+    // Test_AddEvent(ev_base, "io work test timer!");
 #endif
-    int error = event_base_dispatch(ev_base);
+    int error = event_base_loop(ev_base, EVLOOP_NO_EXIT_ON_EMPTY);
     AssertWithInfo(error == 0, "libevent error!");
 }
 
@@ -125,9 +125,10 @@ void Network::AcceptWork(int index)
     GAME_BASE_LOG_INFO("Accept thread start!");
     m_acceptor.RegistInEvBase(ev_base);
 #ifdef Debug
-    Test_AddEvent(ev_base, "accept test timer!");
+    // Test_AddEvent(ev_base, "accept test timer!");
 #endif
-    event_base_dispatch(ev_base);
+    int error = event_base_loop(ev_base, EVLOOP_NO_EXIT_ON_EMPTY);
+    AssertWithInfo(error == 0, "libevent error!");
 }
 
 void Network::WaitForOtherIOThreadStart()
