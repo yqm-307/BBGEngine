@@ -4,9 +4,12 @@ namespace game::util::network::ev
 {
 
 //------------------------------ 局部函数实现 --------------------------------//
+
+/**
+ * 作为转发函数，对于 libevent 来说，将 C style函数转发到 C++ style
+*/
 void _EventCallbackTransform(evutil_socket_t fd, short events, void* args)
 {
-    //TODO 需要实现，尚未实现完全
     auto event = reinterpret_cast<evEvent*>(args);
     event->OnEvent(fd, events);
 }
@@ -19,12 +22,13 @@ evEvent::evEvent(const EventCallback& cb, evutil_socket_t fd, short events)
 {
     DebugAssert(m_callback != nullptr);
     DebugAssert(m_events >= 0);
+    OnInit();
 }
 
 
 evEvent::~evEvent()
 {
-
+    OnDestory();
 }
 
 void evEvent::OnEvent(evutil_socket_t fd, short events)
@@ -81,5 +85,28 @@ int evEvent::UnRegister()
 
     return 0;
 }
+
+void evEvent::OnInit()
+{
+    m_event_id = GenerateID();
+}
+
+void evEvent::OnDestory()
+{
+    m_event_id = -1;
+}
+
+EventId evEvent::GenerateID()
+{
+    /**
+     * 这样写的好处是，避免在类内声明静态变量。
+     * 
+     * 类内静态变量的初始化规则比较不好理解，需要初始化在源文件，
+     * 涉及到一些链接相关的知识需要理解。
+    */
+    static std::atomic_int32_t global_id = 1;
+    return global_id++;
+}
+
 
 }// namespace end
