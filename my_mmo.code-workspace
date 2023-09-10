@@ -77,7 +77,12 @@
 			"unordered_set": "cpp",
 			"execution": "cpp",
 			"filesystem": "cpp",
-			"codecvt": "cpp"
+			"codecvt": "cpp",
+			"compare": "cpp",
+			"concepts": "cpp",
+			"numbers": "cpp",
+			"semaphore": "cpp",
+			"stop_token": "cpp"
 		},
 		"C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
 		"C_Cpp.intelliSenseEngineFallback": "enabled",
