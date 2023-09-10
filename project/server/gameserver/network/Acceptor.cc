@@ -99,7 +99,6 @@ int Acceptor::Close()
 
 void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
 {
-    GAME_EXT1_LOG_DEBUG("[_AcceptReadCallback] listenfd=%d event=%d", listenfd, event);
     auto pthis = reinterpret_cast<Acceptor*>(args);
     DebugAssert(pthis != nullptr);
     /* 取出所有新连接 */
@@ -146,7 +145,6 @@ int Acceptor::RegistInEvBase(event_base* ev_base)
 
 void Acceptor::OnAccept(int fd, const game::util::network::Address& peer_addr)
 {
-    GAME_EXT1_LOG_DEBUG("accept success!");
     if(fd >= 0)
     {
         //一、 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。

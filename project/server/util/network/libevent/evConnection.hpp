@@ -3,6 +3,7 @@
 #include "util/network/Connection.hpp"
 #include "util/typedef/NamespaceType.hpp"
 #include "util/network/IOThread.hpp"
+#include "util/network/libevent/evEvent.hpp"
 #include <bbt/buffer/Buffer.hpp>
 #include <bbt/timer/Clock.hpp>
 
@@ -47,17 +48,6 @@ class evConnection:
     friend void game::util::network::OnRecvCallback(int sockfd, short events, void* args);
     friend class evConnMgr;
 
-    const std::map<int, 
-        std::function<void(const bbt::buffer::Buffer&)>> m_errcode_handler
-    {
-        // 使用宏减少一些代码量，而且显而易见的地方使用宏感觉没啥问题
-        // {util::errcode::network::err::Recv_Success, 
-        // [this](const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err){ NetHandler_RecvData(buffer, err); }},
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Success,    this, NetHandler_RecvData),
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Eof,        this, NetHandler_ConnClosed),
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_TryAgain,   this, NetHandler_TryAgain),
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Other_Err,  this, NetHandler_OtherErr),
-    };
     typedef std::function<void(evConnectionSPtr)>   OnDestoryCallback;
     typedef std::function<bool(evConnectionSPtr)>   OnTimeOutCallback;
 public:
@@ -84,10 +74,8 @@ public:
 
     void OnHeartBeat();
 protected:
-
-    
-    void Init();
-    void Destroy();
+    void OnInit();
+    void OnDestroy();
 
     void SetOnDestory(const OnDestoryCallback& cb);
     /* IO事件初始化 */
@@ -106,7 +94,14 @@ private:
     /* read事件派发函数，read事件有很多可能eof、refused等，所以需要通过此函数派发到对应的事件处理函数 */
     void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
     //----------- IO Dispatcher  -------------//
+    /* 连接的总监听事件 */
+    void OnEvent(evutil_socket_t fd, short events, void* args);
+    /* socket 接收事件 */
     void OnRecv(evutil_socket_t fd, short events, void* args);
+    /* socket 超时事件 */
+    void OnSocketTimeOut(evutil_socket_t fd, short events, void* args);
+    /* socket 关闭事件 */
+    void OnClose(evutil_socket_t fd, short events, void* args);
 
     //----------- NetWork Handler -------------//
     void NetHandler_RecvData(const bbt::buffer::Buffer& buffer);
@@ -117,18 +112,29 @@ private:
     //----------- timeout Handler -------------//
     // 心跳的实现修改，由上层解析完心跳协议后，调用到Conenction更新心跳时间
     // void TimeOutHandler(const util::errcode::ErrCode& err);
+    const std::map<int, 
+        std::function<void(const bbt::buffer::Buffer&)>> m_errcode_handler
+    {
+        // 使用宏减少一些代码量，而且显而易见的地方使用宏感觉没啥问题
+        // {util::errcode::network::err::Recv_Success, 
+        // [this](const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err){ NetHandler_RecvData(buffer, err); }},
+        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Success,    this, NetHandler_RecvData),
+        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Eof,        this, NetHandler_ConnClosed),
+        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_TryAgain,   this, NetHandler_TryAgain),
+        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Other_Err,  this, NetHandler_OtherErr),
+    };
 private:
 
     IOThread*   m_io_thread;
     int         m_sockfd;
     ConnStatus  m_status;
-    event*      m_recv_event;   // 接收事件
-    event*      m_timeout_event;// 超时事件
-    // event*      m_ev_send;
+    std::shared_ptr<evEvent>    m_recv_event{nullptr};      // 接收事件    
+    std::shared_ptr<evEvent>    m_socket_timeout{nullptr};      // 接收事件    
     util::network::Address  m_local_addr;
     util::network::Address  m_peer_addr;
 
-    char        m_recv_buffer[4096];    // socket 接收缓存，后续可以接入配置中
+    // char        m_recv_buffer[4096];    
+    bbt::buffer::Buffer     m_recv_buffer;  // socket 接收缓存
 
     /* 在 evConnection 连接被释放时调用。具体由evConnMgr实现 */
     OnDestoryCallback   m_ondestory_cb;

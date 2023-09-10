@@ -10,4 +10,6 @@ namespace game::util::network::ev
 
 typedef std::function<void(evutil_socket_t, short, void*)>  EventCallback;
 
+typedef int32_t EventId;
+
 } // namespace end
