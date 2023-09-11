@@ -73,7 +73,7 @@ public:
     std::pair<char*,size_t> GetRecvBuffer();
 
     void OnHeartBeat();
-protected:
+private:
     void OnInit();
     void OnDestroy();
 
@@ -91,19 +91,18 @@ private:
     bbt::timer::clock::Timestamp<bbt::timer::clock::ms>
         GetPrevHeartBeatTimestamp();
 private:
-    /* read事件派发函数，read事件有很多可能eof、refused等，所以需要通过此函数派发到对应的事件处理函数 */
-    void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
-    //----------- IO Dispatcher  -------------//
+    //----------- OnEvent Dispatcher：监听事件分发  -------------//
     /* 连接的总监听事件 */
     void OnEvent(evutil_socket_t fd, short events, void* args);
-    /* socket 接收事件 */
-    void OnRecv(evutil_socket_t fd, short events, void* args);
-    /* socket 超时事件 */
-    void OnSocketTimeOut(evutil_socket_t fd, short events, void* args);
-    /* socket 关闭事件 */
-    void OnClose(evutil_socket_t fd, short events, void* args);
 
-    //----------- NetWork Handler -------------//
+    void EventHandler_OnRecv(evutil_socket_t fd, short events, void* args);
+    void EventHandler_OnSocketTimeOut(evutil_socket_t fd, short events, void* args);
+    void EventHandler_OnClose(evutil_socket_t fd, short events, void* args);
+
+    //----------- IO Dispatcher：IO事件分发  -------------//
+    /* IO事件总监听事件 */
+    void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
+
     void NetHandler_RecvData(const bbt::buffer::Buffer& buffer);
     void NetHandler_ConnClosed(const bbt::buffer::Buffer& buffer);
     void NetHandler_TryAgain(const bbt::buffer::Buffer& buffer);
@@ -111,7 +110,6 @@ private:
 
     //----------- timeout Handler -------------//
     // 心跳的实现修改，由上层解析完心跳协议后，调用到Conenction更新心跳时间
-    // void TimeOutHandler(const util::errcode::ErrCode& err);
     const std::map<int, 
         std::function<void(const bbt::buffer::Buffer&)>> m_errcode_handler
     {

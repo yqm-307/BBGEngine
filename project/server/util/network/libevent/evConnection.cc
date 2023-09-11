@@ -24,7 +24,6 @@ evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address
 
 evConnection::~evConnection()
 {
-    Close();
     OnDestroy();
 }
 
@@ -58,8 +57,7 @@ size_t evConnection::Recv(const char* buffer, size_t len)
 void evConnection::Close()
 {
     // TODO 没有实现逻辑
-    // OnDestroy();
-    GAME_EXT1_LOG_WARN("[evConnection::Close] 没有实现，速速实现，实现后删掉此日志");
+    OnDestroy();
 }
 
 void evConnection::InitEvent()
@@ -106,6 +104,11 @@ void evConnection::OnInit()
 
 void evConnection::OnDestroy()
 {   
+    if(m_status == ConnStatus::Disconnected)
+        return;
+
+    m_status = ConnStatus::Disconnected;
+
     // 先执行 callback
     if(m_ondestory_cb)
         m_ondestory_cb(shared_from_this());
@@ -118,6 +121,8 @@ void evConnection::OnDestroy()
     }
     DebugAssert(m_recv_event != nullptr);
     DebugAssert(error >= 0);
+
+    ::close(m_sockfd);
 
     m_recv_event = nullptr;
 }
@@ -147,29 +152,29 @@ void evConnection::SetOnDestory(const OnDestoryCallback& cb)
 void evConnection::OnEvent(evutil_socket_t fd, short events, void* args)
 {
     if(events & EV_READ) {
-        OnRecv(fd, events, args);
+        EventHandler_OnRecv(fd, events, args);
     }
     else if (events & EV_TIMEOUT) {
-        OnSocketTimeOut(fd, events, args);
+        EventHandler_OnSocketTimeOut(fd, events, args);
     }
     else {
-        OnClose(fd, events, args);
+        EventHandler_OnClose(fd, events, args);
     }
 }
 
-void evConnection::OnClose(evutil_socket_t fd, short events, void* args)
+void evConnection::EventHandler_OnClose(evutil_socket_t fd, short events, void* args)
 {
     //TODO socket 断开事件
     Close();
 }
 
-void evConnection::OnSocketTimeOut(evutil_socket_t fd, short events, void* args)
+void evConnection::EventHandler_OnSocketTimeOut(evutil_socket_t fd, short events, void* args)
 {
     //TODO 连接超时事件
-    GAME_BASE_LOG_WARN("[evConnection::OnSocketTimeOut] event handler is empty!");  // 没有实现
+    GAME_BASE_LOG_WARN("[evConnection::EventHandler_OnSocketTimeOut] event handler is empty!");  // 没有实现
 }
 
-void evConnection::OnRecv(evutil_socket_t fd, short events, void* args)
+void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* args)
 {
 
     // DebugAssert(ev_cb->m_conn_ptr != nullptr);

@@ -17,9 +17,9 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/share        # util、share等库
     ${PROJECT_SOURCE_DIR}           # gs源文件
     ${THIRD_PARTY_INCLUDE_PATH}
-    )
+)
     
-    # c++待编译的源文件
+# c++待编译的源文件
 file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/share/*.cc
     ${PROJECT_SOURCE_DIR}/util/*.cc
