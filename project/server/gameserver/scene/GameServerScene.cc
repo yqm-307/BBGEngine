@@ -93,7 +93,7 @@ void GameServerScene::AoiDestory()
 
 void GameServerScene::NetWorkInit()
 {
-    auto cfgInst = server::init::ServerConfig::GetInstance();
+    auto& cfgInst = server::init::ServerConfig::GetInstance();
     auto ip     = cfgInst->GetServerIP();
     auto port   = cfgInst->GetServerPort();
 

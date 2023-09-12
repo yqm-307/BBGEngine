@@ -32,7 +32,7 @@ void ConfigLoad()
     BBT_CONFIG_QUICK_SET_DYNAMIC_ENTRY(int, debug_log, bbt::config::_BBTSysCfg::BBT_LOG_STDOUT_OPEN);
     
     // 服务器配置
-    auto cfg = server::init::ServerConfig::GetInstance();
+    auto& cfg = server::init::ServerConfig::GetInstance();
     GAME_BASE_LOG_INFO("IP: %s  Port: %d", cfg->GetInstance()->GetServerIP().c_str(), cfg->GetInstance()->GetServerPort());
 
 

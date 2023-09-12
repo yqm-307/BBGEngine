@@ -11,13 +11,13 @@ inline ev::evConnectionSPtr SafeToEvConn(ConnectionSPtr raw_conn)
     return conn;
 }
 
-evConnMgr* evConnMgr::GetInstance()
+const std::unique_ptr<evConnMgr>& evConnMgr::GetInstance()
 {
-    static evConnMgr* instance = nullptr;
-    if(instance == nullptr)
-        instance = new evConnMgr();
+    static std::unique_ptr<evConnMgr> _instance{nullptr};
+    if(_instance == nullptr)
+        _instance = std::unique_ptr<evConnMgr>(new evConnMgr());
     
-    return instance;
+    return _instance;
 }
 
 evConnMgr::evConnMgr()

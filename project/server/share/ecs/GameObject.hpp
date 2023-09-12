@@ -12,7 +12,8 @@ class GameObject;
 SmartPtrTypeDef(GameObject);
 
 
-class GameObject
+class GameObject:
+    public std::enable_shared_from_this<GameObject>
 {
 public:
     explicit GameObject(GameObjType gobj_type);
@@ -24,9 +25,9 @@ public:
     /* 插入一个组件, 如果组件已经存在，返回false，否则true */
     bool            AddComponent(ComponentSPtr component);
     /* 获取一个组件，如果不存在返回nullptr */
-    ComponentSPtr GetComponent(ComponentTemplateId component_name);
+    ComponentSPtr   GetComponent(ComponentTemplateId component_name);
     /* 删除一个组件，如果不存在返回nullptr */
-    ComponentSPtr DelComponent(ComponentTemplateId component_name);
+    ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
     GameObjType     Type();
 

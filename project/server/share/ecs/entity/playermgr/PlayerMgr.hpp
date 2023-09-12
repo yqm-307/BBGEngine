@@ -2,25 +2,26 @@
 #include <bbt/templateutil/BaseType.hpp>
 #include <bbt/templateutil/Noncopyable.hpp>
 #include "share/ecs/entity/player/Player.hpp"
+#include "util/typedef/NamespaceType.hpp"
 
 namespace game::share::ecs::entity::playermgr
 {
 class PlayerMgr;
+SmartPtrTypeDef(PlayerMgr);
 
 const int Default_Hash_Bucket_Num = 256;
-typedef std::shared_ptr<PlayerMgr> PlayerMgrSPtr;
+
 
 class PlayerMgr:
-    public bbt::templateutil::noncopyable,
-    public share::ecs::GameObject,
-    public std::enable_shared_from_this<PlayerMgr>
+    public bbt::templateutil::noncopyable,  // 无状态
+    protected share::ecs::GameObject
 {
-    // typedef std::shared_ptr<>
     typedef util::hashmap::Hashmap<player::PlayerId, ecs::entity::player::PlayerSPtr, 256> PlayerMap;
 public:
     typedef std::pair<player::PlayerSPtr, bool> Result;
 
-    static PlayerMgrSPtr GetInstance();
+    static PlayerMgrCUQPtr& GetInstance();
+    ~PlayerMgr();
 
     /**
      * @brief 根据玩家id获取在线玩家，如果玩家不在线则返回 nullptr 和 false
@@ -34,8 +35,7 @@ public:
     virtual void OnUpdate() override;
 
 private:
-    PlayerMgr();
-    ~PlayerMgr();
+    explicit PlayerMgr();
     Result KickPlayerEx(player::PlayerId id);
 private:
     PlayerMap       m_all_player;

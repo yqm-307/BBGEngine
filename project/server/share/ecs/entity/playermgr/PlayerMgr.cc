@@ -3,14 +3,19 @@
 namespace game::share::ecs::entity::playermgr
 {
 
-PlayerMgrSPtr PlayerMgr::GetInstance()
+PlayerMgrCUQPtr& PlayerMgr::GetInstance()
 {
-    static PlayerMgr* instance = nullptr;
-    if(instance == nullptr)
+    static std::unique_ptr<PlayerMgr> _instance{nullptr};
+    if(_instance == nullptr)
     {
-        instance = new PlayerMgr();
+        /**
+         * 错误写法：问题原因是对于make_unique来说，PlayerMgr构造函数不可见
+         * 
+         * _instance = std::make_unique<PlayerMgr>();
+         */
+        _instance = PlayerMgrUQPtr(new PlayerMgr()); // 临时值，默认右值引用
     }
-    return instance->shared_from_this();
+    return _instance;
 }
 
 #pragma region "公共接口实现"
