@@ -51,6 +51,22 @@ BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
     }
     );
 
+
+    Hashmap<int,int,8> map3([=](int key){return key%10;}, 0);
+    map3.Insert({
+        {1,2},
+        {1,3},
+        {1,4},
+    });
+
+    map3.Clear();
+    BOOST_ASSERT(map3.Size() == 0);
+    map3.Insert({
+        {1,2},
+        {1,3},
+        {1,4},
+    });
+    BOOST_ASSERT(map3.Size() == 3);
 }
 
 

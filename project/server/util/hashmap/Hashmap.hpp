@@ -22,6 +22,7 @@ class Hashmap
 {
     typedef TKey    KeyType;
     typedef TValue  ValueType;
+    typedef std::pair<KeyType, ValueType>   KVPair;
     typedef std::map<KeyType, ValueType>    HashBucket;
     typedef std::function<size_t(const KeyType&)>  HashFunction;
     typedef std::pair<ValueType, bool>      Result;
@@ -33,19 +34,22 @@ public:
      * @param default_value 值的默认值
      */
     explicit Hashmap(const HashFunction& key_hash, const ValueType& default_value);
-    explicit Hashmap(const HashFunction& key_hash, const ValueType& default_value, std::initializer_list<std::pair<KeyType, ValueType>> args);
+    explicit Hashmap(const HashFunction& key_hash, const ValueType& default_value, std::initializer_list<KVPair> args);
     ~Hashmap();
 
     /* 根据key查找value */
     Result Find(const KeyType& key) const;
     /* 插入一个元素，并返回结果 */
     bool   Insert(const KeyType& key, ValueType value);
+    size_t Insert(std::initializer_list<KVPair> args);
     /* 删除一个元素，并返回 */
     Result Earse(const KeyType& key);
     /* 桶数量 */
     size_t BucketSize() const;
     /* Hashmap中元素数量 */
     size_t Size() const;
+    /* 清除所有桶的所有元素，但是不清除桶，返回删除元素的个数 */
+    size_t Clear();
     /* 遍历所有元素，随机 */
     void Foreach_Random(const ForeachFunction& func) const;
 private:
