@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE aabb box test
+#define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
 #include "share/ecs/entity/aoi/Aoi.hpp"
 #include "share/ecs/entity/player/Player.hpp"
@@ -19,6 +19,8 @@ void Box_Init(AABBBox& box, float xmax, float xmin, float ymax, float ymin, floa
     box.min_z = zmin;
 }
 
+
+BOOST_AUTO_TEST_SUITE(AabbTest)
 
 /**
  * aabb盒碰撞检测 
@@ -52,3 +54,5 @@ BOOST_AUTO_TEST_CASE(t_aabb_check_test)
     bool rlt5 = AABBCheck(a, e);
     BOOST_ASSERT(!rlt5);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

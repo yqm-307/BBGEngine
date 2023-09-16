@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE lockfree test
+#define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
 #include <thread>
 #include <bbt/random/Random.hpp>

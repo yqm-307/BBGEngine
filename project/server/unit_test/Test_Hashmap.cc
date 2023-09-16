@@ -1,10 +1,11 @@
-#define BOOST_TEST_MODULE hashmap test
+#define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
 #include <bbt/random/Random.hpp>
 #include <bbt/timer/Interval.hpp>
 #include "util/hashmap/Hashmap.hpp"
 // #include <hash_map>
 
+BOOST_AUTO_TEST_SUITE(HashMapTest)
 
 BOOST_AUTO_TEST_CASE(t_hashmap_create_test)
 {
@@ -54,17 +55,17 @@ BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
 
     Hashmap<int,int,8> map3([=](int key){return key%10;}, 0);
     map3.Insert({
-        {1,2},
-        {1,3},
-        {1,4},
+        {1,1},
+        {2,1},
+        {3,1},
     });
 
     map3.Clear();
     BOOST_ASSERT(map3.Size() == 0);
     map3.Insert({
-        {1,2},
-        {1,3},
-        {1,4},
+        {1,1},
+        {2,1},
+        {3,1},
     });
     BOOST_ASSERT(map3.Size() == 3);
 }
@@ -120,7 +121,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_random_func)
 
 }
 
-
+BOOST_AUTO_TEST_SUITE_END()
 // BOOST_AUTO_TEST_CASE(t_std_map_rom_test)
 // {
 //     bbt::random::mt_random<int, 1, INT32_MAX> rd1;

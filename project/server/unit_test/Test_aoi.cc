@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE aoi test
+#define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
 #include "share/ecs/entity/aoi/Aoi.hpp"
 #include "share/ecs/entity/player/Player.hpp"
@@ -16,8 +16,8 @@ void print_notify(game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObje
     auto p2 = std::static_pointer_cast<ecs::entity::player::Player>(m);
     auto pos1 = Aoi::GetAoiComponent(p1);
     auto pos2 = Aoi::GetAoiComponent(p2);
-    printf("----------------------------------------------------\n");
-    printf("[%s]对象: %d 看到 对象(%d):\n", str.c_str(), pos1->GetObjId(), pos2->GetObjId());
+    // printf("----------------------------------------------------\n");
+    // printf("[%s]对象: %d 看到 对象(%d):\n", str.c_str(), pos1->GetObjId(), pos2->GetObjId());
     pos2->Debug_PosChange();
 }
 
@@ -41,6 +41,8 @@ void aoiconfig()
     aoi->m_tower_z = 3.0f;
     G_SetConfigPtr(game::util::config::AoiConfig, aoi, game::util::config::Cfg_Aoi);
 }
+
+BOOST_AUTO_TEST_SUITE(AoiTest)
 
 /* aoi 随机降落测试 */
 BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
@@ -171,3 +173,6 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
     }
 
 }
+
+
+BOOST_AUTO_TEST_SUITE_END()
