@@ -17,11 +17,11 @@ AoiComponent::~AoiComponent()
 
 }
 
-void AoiComponent::OnAddComponent(ecs::GameObjectRawPtr)
+void AoiComponent::OnAddComponent(ecs::GameObjectSPtr component)
 {
 }
 
-void AoiComponent::OnDelComponent(ecs::GameObjectRawPtr)
+void AoiComponent::OnDelComponent(ecs::GameObjectSPtr component)
 {
 }
 

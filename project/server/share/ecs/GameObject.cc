@@ -36,7 +36,7 @@ ComponentSPtr GameObject::DelComponent(ComponentTemplateId tid)
         return nullptr;
     
     m_component_map.erase(it);
-    it->second->OnDelComponent(this);
+    it->second->OnDelComponent(shared_from_this());
     return it->second;
 }
 
@@ -48,7 +48,7 @@ bool GameObject::AddComponent(ComponentSPtr component)
 
     ComponentTemplateId tid = component->GetTemplateId();
     auto it = m_component_map.insert(std::make_pair(tid, component));
-    component->OnAddComponent(this);
+    component->OnAddComponent(shared_from_this());
     return it.second;
 }
 

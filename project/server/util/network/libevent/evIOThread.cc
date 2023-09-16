@@ -72,41 +72,33 @@ void evIOThread::SetEventBase(event_base* ev_base)
     m_ev_base = ev_base;
 }
 
-int evIOThread::Register_OnRecv(evutil_socket_t sockfd, evArgs* args)
+EventId evIOThread::RegisterEvent(std::shared_ptr<evEvent> evptr)
 {
-    // XXX 选择什么形式实现参数生命期的管理，1、静态的，event对象保存在evConnection中。2、动态的，需要进行详细的生命期管理
-    // 目前是静态的，保存在evConnetion，由于evConnection释放时UnRegister，倒也不会有啥问题吧
-    DebugAssert(args != nullptr);
-    event* event = event_new(m_ev_base, sockfd, EV_READ | EV_PERSIST, game::util::network::OnRecvCallback, args);
-    return (event != nullptr);
-}
-
-int evIOThread::UnRegister_OnRecv(event* ev)
-{
-    int err = event_del(ev);
-    DebugAssert(err >= 0);
-    return err;
-}
-
-int evIOThread::RegisterEvent(evutil_socket_t fd, short events, const EventCallback& callback, void* args)
-{
-    //TODO 没有实现完毕
-    BBTATTR_COMM_Unused event* new_event = nullptr;
-    DebugAssert(fd >= 0 && events > 0 && callback != nullptr);
-    {
-        std::lock_guard<std::mutex> lock(m_event_map_mutex);
-        auto [bisok, id] = m_id_pool.GetID();
-        if(!bisok){
-            GAME_EXT1_LOG_ERROR("[evIOThread::RegisterEvent] id pool get id failed! pool size:%d", 0 /* id池数量 */);
-        }
+    int err = 0;
+    DebugAssert(evptr != nullptr);
+    err = evptr->RegisterInEvBase(m_ev_base);
+    if(err < 0) {
+        return -1;
+    }
+    // 添加到 event map 中
+    auto [it, isok] = m_event_map.insert(std::make_pair(evptr->GetEventID(), evptr));
+    if(!isok) {
+        /* 这里即使错误仍然是返回错误，不需要处理错误情况，但是可能需要打个日志 */
+        err = evptr->UnRegister();
+        return -1;
     }
 
-    return -1;
+    return 0;
 }
 
-int evIOThread::UnRegisterEvent(int eventid)
+int evIOThread::UnRegisterEvent(EventId eventid)
 {
-    return -1;
+    auto id = m_event_map.erase(eventid);
+    if(id <= 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 }// namespace end

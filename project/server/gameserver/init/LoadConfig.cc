@@ -74,14 +74,14 @@ std::pair<bool,std::string> ServerConfig::CheckHeartbeat()
 }
 
 
-ServerConfig* ServerConfig::GetInstance()
+const std::unique_ptr<ServerConfig>& ServerConfig::GetInstance()
 {
-    ServerConfig* instance = nullptr;
-    if(instance == nullptr)
+    static std::unique_ptr<ServerConfig> _instance{nullptr};
+    if(_instance == nullptr)
     {
-        instance = new ServerConfig();
+        _instance = std::unique_ptr<ServerConfig>(new ServerConfig());
     }
-    return instance;
+    return _instance;
 }
 
 std::string ServerConfig::GetServerIP()

@@ -14,17 +14,17 @@ evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address
     m_sockfd(newfd),
     m_peer_addr(peer_ip),
     m_local_addr(local_ip),
-    m_prev_heart_beat_time(bbt::timer::clock::now())
+    m_prev_heart_beat_time(bbt::timer::clock::now()),
+    m_recv_buffer(4096) // TODO 接入配置
 {
     DebugAssert(thread != nullptr && newfd >= 0);
-    Init();
+    OnInit();
 }
 
 
 evConnection::~evConnection()
 {
-    Close();
-    Destroy();
+    OnDestroy();
 }
 
 bool evConnection::IsClosed()
@@ -69,21 +69,23 @@ void evConnection::SetOnSendCallback(const OnSendCallback& onsend_handler)
 void evConnection::Close()
 {
     // TODO 没有实现逻辑
-    GAME_EXT1_LOG_WARN("[evConnection::Close] 没有实现，速速实现，实现后删掉此日志");
+    OnDestroy();
 }
 
 void evConnection::InitEvent()
 {
     int err = 0;
-    err = GetIOThread()->Register_OnRecv(m_sockfd, &m_onrecv_args);
+    err = GetIOThread()->RegisterEvent(m_recv_event);
+
     DebugAssert(err >= 0);
 }
 
 void evConnection::InitEventArgs()
 {
-    m_onrecv_args.do_io_callback = [this](evutil_socket_t fd, short events, void* args){
-        this->OnRecv(fd, events, args);
-    };
+    /* 设置 Read 事件的监听函数 */
+    m_recv_event = evEvent::Create([this](evutil_socket_t fd, short events, void* args){
+        this->OnEvent(fd, events, args);
+    }, m_sockfd, EV_READ | EV_PERSIST | EV_TIMEOUT | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
 }
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
@@ -108,7 +110,7 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
         m_onrecv(err, len);
 }
 
-void evConnection::Init()
+void evConnection::OnInit()
 {
     /* 初始化 event 事件 args */
     InitEventArgs();
@@ -116,35 +118,34 @@ void evConnection::Init()
     InitEvent();
 }
 
-void evConnection::Destroy()
+void evConnection::OnDestroy()
 {   
+    if(m_status == ConnStatus::Disconnected)
+        return;
+
+    m_status = ConnStatus::Disconnected;
+
     // 先执行 callback
     if(m_ondestory_cb)
         m_ondestory_cb(shared_from_this());
 
-    [[maybe_unused]] int error = 0;
+    int error = 0;
 
-    GetIOThread()->UnRegister_OnRecv(m_recv_event);
-
+    error = GetIOThread()->UnRegisterEvent(m_recv_event->GetEventID());
+    if(error < 0) {
+        GAME_EXT1_LOG_ERROR("event register error! eventid=%d", m_recv_event->GetEventID());
+    }
     DebugAssert(m_recv_event != nullptr);
-
-    error = event_del(m_recv_event);
     DebugAssert(error >= 0);
 
-    error = event_del(m_timeout_event);
-    DebugAssert(error >= 0);
+    ::close(m_sockfd);
 
-    event_free(m_recv_event);
     m_recv_event = nullptr;
-
-    event_free(m_timeout_event);
-    m_timeout_event = nullptr;
-
 }
 
 std::pair<char*,size_t> evConnection::GetRecvBuffer()
 {
-    return {m_recv_buffer, sizeof(m_recv_buffer)};
+    return {m_recv_buffer.Peek(), m_recv_buffer.WriteableBytes()};
 }
 
 evIOThread* evConnection::GetIOThread()
@@ -164,8 +165,34 @@ void evConnection::SetOnDestory(const OnDestoryCallback& cb)
     m_ondestory_cb = cb;
 }
 
-void evConnection::OnRecv(evutil_socket_t fd, short events, void* args)
+void evConnection::OnEvent(evutil_socket_t fd, short events, void* args)
 {
+    if(events & EV_READ) {
+        EventHandler_OnRecv(fd, events, args);
+    }
+    else if (events & EV_TIMEOUT) {
+        EventHandler_OnSocketTimeOut(fd, events, args);
+    }
+    else {
+        EventHandler_OnClose(fd, events, args);
+    }
+}
+
+void evConnection::EventHandler_OnClose(evutil_socket_t fd, short events, void* args)
+{
+    //TODO socket 断开事件
+    Close();
+}
+
+void evConnection::EventHandler_OnSocketTimeOut(evutil_socket_t fd, short events, void* args)
+{
+    //TODO 连接超时事件
+    GAME_BASE_LOG_WARN("[evConnection::EventHandler_OnSocketTimeOut] event handler is empty!");  // 没有实现
+}
+
+void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* args)
+{
+
     // DebugAssert(ev_cb->m_conn_ptr != nullptr);
     if(IsClosed()) {
         GAME_EXT1_LOG_WARN("conn is closed, but the event was not canceled! peer:{%s}", GetPeerIPAddress().GetIPPort().c_str());
@@ -176,11 +203,12 @@ void evConnection::OnRecv(evutil_socket_t fd, short events, void* args)
     auto [recv_buff, buff_len] = GetRecvBuffer();
     util::errcode::ErrCode errcode("nothing", 
         util::errcode::NetWorkErr, 
-        util::errcode::network::err::Default);
+        util::errcode::network::err::Recv_Success);
 
 
     // read系统调用读取数据
     read_len = ::read(fd, recv_buff, buff_len);
+    m_recv_buffer.WriteNull(read_len);
     // 读取后处理errno，将errno处理，并转换为errno
     if(read_len == -1) {
         int err = errno;
@@ -199,13 +227,14 @@ void evConnection::OnRecv(evutil_socket_t fd, short events, void* args)
         errcode.SetCode(util::errcode::network::err::Recv_Other_Err);
     }
     // 处理之后反馈给connection进行数据处理
-    OnRecvEventDispatch(fd, errcode);
+    OnRecvEventDispatch(m_recv_buffer, errcode);
 }
 
 #pragma region "网络事件处理函数的实现"
 
 void evConnection::NetHandler_RecvData(const bbt::buffer::Buffer& buffer)
 {
+    //FIXME 这里的读写并没有对当前连接的接收缓存进行清理操作
     //TODO 测试逻辑
     DebugAssert(buffer.DataSize() > 0);
     auto s_view = buffer.View();

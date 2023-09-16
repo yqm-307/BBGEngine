@@ -16,8 +16,8 @@ public:
     // interface
     //--------------------------------------------
     virtual ~Component() = 0;
-    virtual void OnAddComponent(ecs::GameObjectRawPtr) = 0;
-    virtual void OnDelComponent(ecs::GameObjectRawPtr) = 0;
+    virtual void OnAddComponent(ecs::GameObjectSPtr) = 0;
+    virtual void OnDelComponent(ecs::GameObjectSPtr) = 0;
     virtual void OnUpdate() = 0;
     //--------------------------------------------
 

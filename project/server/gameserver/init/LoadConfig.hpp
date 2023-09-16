@@ -26,13 +26,13 @@ class ServerConfig:
 {
     typedef std::function<std::pair<bool, std::string>()>   OnCheckCallback;
 public:
-    static ServerConfig* GetInstance();
+    static const std::unique_ptr<ServerConfig>& GetInstance();
+    ~ServerConfig();
 
     std::string GetServerIP();
     int         GetServerPort();
 private:
     ServerConfig();
-    ~ServerConfig();
 
     void Init();
     void CheckConfig();

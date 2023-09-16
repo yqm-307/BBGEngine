@@ -15,7 +15,8 @@ class evConnMgr:
     public ConnMgr
 {
 public:
-    static evConnMgr* GetInstance();
+    static const std::unique_ptr<evConnMgr>& GetInstance();
+    virtual ~evConnMgr();
 
     /**
      * @brief 创建一个 evConnection 对象，并返回指针
@@ -34,7 +35,6 @@ public:
     void SetIOThread(IOThread*);
 private:
     evConnMgr();
-    virtual ~evConnMgr();
 
     void InitCfg();
     void InitEvent();
