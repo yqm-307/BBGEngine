@@ -13,7 +13,6 @@ void OnRecvFunc(evutil_socket_t fd, short event, void* args)
 }
 
 evIOThread::evIOThread()
-    :m_id_pool(INT32_MAX)
 {
     Init();
 }
