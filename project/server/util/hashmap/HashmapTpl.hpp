@@ -75,6 +75,7 @@ bool Hashmap<TKey, TValue, BucketNum>::Insert(const KeyType& key, ValueType valu
     if( bbt_unlikely(it != bucket->end()) )
         return false;
 
+    // FIXME insert 重复键仍然是可能的，此时应该返回false
     bucket->insert(std::make_pair(key, value));
     return true;
 }
