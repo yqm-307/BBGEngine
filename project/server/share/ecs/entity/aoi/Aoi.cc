@@ -2,6 +2,7 @@
 #include "share/ecs/entity/aoi/Aoi.hpp"
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
+#include "share/ecs/ComponentMgr.hpp"
 
 namespace game::share::ecs::entity::aoi
 {
@@ -18,7 +19,7 @@ Aoi::Aoi(OnEnterFunc onenter, OnLeaveFunc onleave)
     :GameObject(ecs::GameObjType::Aoi),
     m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
-    m_comp_name(ecs::GetComponentName(ecs::ComponentTemplateId::EM_AoiComponent)),
+    m_comp_name(ecs::ComponentMgr::GetInstance()->GetComponentName(ecs::ComponentTemplateId::EM_AoiComponent)),
     m_enter_func(onenter),
     m_leave_func(onleave),
     m_create_ms(bbt::timer::clock::now())

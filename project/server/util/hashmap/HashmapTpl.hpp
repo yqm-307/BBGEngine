@@ -30,15 +30,16 @@ Hashmap<TKey, TValue, BucketNum>::Hashmap(const HashFunction& key_hash, const Va
     AssertWithInfo(key_hash != nullptr, "hash function not null!");
     AssertWithInfo(m_bucket_size > 0 && m_bucket_size <= MYGAME_HASH_MAX_BUCKET, "bucket num too much!"); /* 桶数量限制 */
     InitHashmap();
-    for([[maybe_unused]]auto arg: args)
-    {
-        AssertWithInfo(Insert(arg.first, arg.second), "Hashmap init failed!");
-    }
+    int args_item_num = args.size();
+    int success_insert_num = Insert(args);
+    AssertWithInfo(args_item_num == success_insert_num, "Hashmap init error!");
 }
 
 template<typename TKey, typename TValue, size_t BucketNum>
 Hashmap<TKey, TValue, BucketNum>::~Hashmap()
 {
+    int size = Size();
+    DebugAssertWithInfo(Clear() == size, "error");
 }
 
 template<typename TKey, typename TValue, size_t BucketNum>
@@ -79,6 +80,19 @@ bool Hashmap<TKey, TValue, BucketNum>::Insert(const KeyType& key, ValueType valu
 }
 
 template<typename TKey, typename TValue, size_t BucketNum>
+size_t Hashmap<TKey, TValue, BucketNum>::Insert(std::initializer_list<KVPair> args)
+{
+    size_t insert_success_num = 0;
+    for(auto arg: args)
+    {
+        if(Insert(arg.first, arg.second))
+            insert_success_num++;
+    }
+    return insert_success_num;
+}
+
+
+template<typename TKey, typename TValue, size_t BucketNum>
 typename Hashmap<TKey, TValue, BucketNum>::Result Hashmap<TKey, TValue, BucketNum>::Earse(const KeyType& key)
 {
     auto [bucket, isok] = GetBucket(key);
@@ -93,7 +107,28 @@ typename Hashmap<TKey, TValue, BucketNum>::Result Hashmap<TKey, TValue, BucketNu
     return {it->second, true};
 }
 
+template<typename TKey, typename TValue, size_t BucketNum>
+size_t Hashmap<TKey, TValue, BucketNum>::Clear()
+{
+    size_t clear_item_num = 0;
+    for(auto && item : m_hash_map)
+    {
+        clear_item_num += item.size();
+        item.clear();
+    }
+    return clear_item_num;
+}
+
+
 #pragma endregion
+
+
+
+
+
+
+
+
 
 template<typename TKey, typename TValue, size_t BucketNum>
 bool Hashmap<TKey, TValue, BucketNum>::CheckIndex(size_t idx) const

@@ -54,6 +54,18 @@ size_t evConnection::Recv(const char* buffer, size_t len)
     return -1;
 }
 
+void evConnection::SetOnRecvCallback(const OnRecvCallback& onrecv_handler)
+{
+    DebugAssert(onrecv_handler != nullptr);
+    m_onrecv = onrecv_handler;
+}
+
+void evConnection::SetOnSendCallback(const OnSendCallback& onsend_handler)
+{
+    DebugAssert(onsend_handler != nullptr);
+    m_onsend = onsend_handler;
+}
+
 void evConnection::Close()
 {
     // TODO 没有实现逻辑
@@ -90,8 +102,12 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
         GAME_EXT1_LOG_ERROR("don`t know errcode. ErrCode:%d", err.GetErrCode());
         return;
     }
+    size_t len = buffer.DataSize();
     /* 找对应的事件处理函数，去处理对应的网络事件 */
     it_handler->second(buffer);
+    /* 观察者存在，通知观察者 */
+    if(m_onrecv)
+        m_onrecv(err, len);
 }
 
 void evConnection::OnInit()

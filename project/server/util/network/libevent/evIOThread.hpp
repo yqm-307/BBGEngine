@@ -4,6 +4,7 @@
 #include "util/network/libevent/evIOThread.hpp"
 #include <bbt/timer/Clock.hpp>
 #include <bbt/buffer/Buffer.hpp>
+#include <bbt/poolutil/IDPool.hpp>
 #include <map>
 
 namespace game::util::network
@@ -43,6 +44,17 @@ public:
      * @return EventId 如果成功返回事件id，失败返回-1
      */
     EventId RegisterEvent(std::shared_ptr<evEvent> event_ptr) BBTATTR_FUNC_RetVal;
+
+    /**
+     * @brief 与 RegisterEvent 相比为线程安全版本
+     * 
+     * @param fd 如果不是fd相关的事件，可以设置为0
+     * @param events 关注事件的类型，参考宏EV_TIMEOUT
+     * @param callback 事件发生时调用的回调函数
+     * @param args callback的参数（大部分情况使用函数对象即可）
+     * @return int 成功返回大于等于0的eventid，失败返回-1
+     */
+    int RegisterEventSafe(evutil_socket_t fd, short events, const EventCallback& callback, void* args) BBTATTR_FUNC_RetVal;
 
     /**
      * @brief 从此线程监听的事件中取消一个事件

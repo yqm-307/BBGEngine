@@ -50,6 +50,8 @@ class evConnection:
 
     typedef std::function<void(evConnectionSPtr)>   OnDestoryCallback;
     typedef std::function<bool(evConnectionSPtr)>   OnTimeOutCallback;
+    typedef std::function<void(const util::errcode::ErrCode&, size_t)>  OnRecvCallback;
+    typedef std::function<void(const util::errcode::ErrCode&, size_t)>  OnSendCallback;
 public:
     /**
      * @deprecated 不允许被随意使用
@@ -65,8 +67,27 @@ public:
 
     virtual bool IsClosed() override;
     virtual void Close() override;
+    /**
+     * @brief 
+     * 
+     * @param buffer 
+     * @param len 
+     * @return size_t 返回写入成功的字节数，如果为0说明连接已经断开
+     */
     virtual size_t Send(const char* buffer, size_t len) override;
+    /**
+     * @brief 从本连接的接收缓存里获取len字节写入到buffer中
+     * 
+     * @param buffer 保存的值
+     * @param len   获取的字节数
+     * @return size_t 写入读取成功的字节数，如果为0说明连接已经断开
+     */
     virtual size_t Recv(const char* buffer, size_t len) override;
+
+    /* 设置一个回调，回调在从socket保存数据到当前连接的缓存后调用 */
+    void SetOnRecvCallback(const OnRecvCallback& onrecv_handler);
+    /* 设置一个回调，回调在通过socket发送到网络上后调用 */
+    void SetOnSendCallback(const OnSendCallback& onsend_handler);
 
     virtual const Address& GetPeerIPAddress() const override;
     virtual const Address& GetLocalIPAddress() const override;
@@ -102,6 +123,11 @@ private:
     //----------- IO Dispatcher：IO事件分发  -------------//
     /* IO事件总监听事件 */
     void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
+
+    //----------- IO Dispatcher  -------------//
+    void OnRecv(evutil_socket_t fd, short events, void* args);
+    // void OnSend(evutil_socket_t fd, short evebts, void* args);
+
 
     void NetHandler_RecvData(const bbt::buffer::Buffer& buffer);
     void NetHandler_ConnClosed(const bbt::buffer::Buffer& buffer);
@@ -149,6 +175,9 @@ private:
      */
     bbt::timer::clock::Timestamp<bbt::timer::clock::ms>    
                 m_prev_heart_beat_time;
+
+    OnRecvCallback  m_onrecv{nullptr};
+    OnSendCallback  m_onsend{nullptr};
 };
 }
 
