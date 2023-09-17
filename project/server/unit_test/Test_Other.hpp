@@ -1,5 +1,6 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
+
 #include <thread>
 #include <bbt/random/Random.hpp>
 #include <bbt/timer/Interval.hpp>

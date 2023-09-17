@@ -1,5 +1,6 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
+
 #include "share/ecs/entity/aoi/Aoi.hpp"
 #include "share/ecs/entity/player/Player.hpp"
 #include <vector>
@@ -40,19 +41,19 @@ BOOST_AUTO_TEST_CASE(t_aabb_check_test)
     Box_Init(d, 2, 1, 1, 0, 1, 0);
     Box_Init(e, 2, 1, 2, 1, 2, 1);
     bool rlt1 = AABBCheck(a, a);
-    BOOST_ASSERT_MSG(rlt1, "重叠测试失败");
+    BOOST_CHECK_MESSAGE(rlt1, "重叠测试失败");
 
     bool rlt2 = AABBCheck(a, b);
-    BOOST_ASSERT(rlt2);
+    BOOST_CHECK(rlt2);
 
     bool rlt3 = AABBCheck(a, c);
-    BOOST_ASSERT(rlt3);
+    BOOST_CHECK(rlt3);
 
     bool rlt4 = AABBCheck(a, d);
-    BOOST_ASSERT(!rlt4);
+    BOOST_CHECK(!rlt4);
 
     bool rlt5 = AABBCheck(a, e);
-    BOOST_ASSERT(!rlt5);
+    BOOST_CHECK(!rlt5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -4,12 +4,11 @@
 #include "share/ecs/ComponentDef.hpp"
 #include <optional>
 
-#define ComponentHashBucketNum 8
-
-
 namespace game::share::ecs
 {
+inline const int ComponentHashBucketNum = 8;
 
+// FIXME 需要测试功能
 class ComponentMgr
 {
 public:

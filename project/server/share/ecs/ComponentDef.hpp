@@ -10,7 +10,16 @@ namespace game::share::ecs
 ///////////////////////////////////////////////////////////////////
 #pragma region "组件名"
 
-inline const std::string component_aoi_name = "AoiComponent";
+struct _Global_Static_ComponentName
+{
+    const std::string component_none_name = "";
+    const std::string component_aoi_name = "AoiComponent";
+};
+
+/* 所有组件的name，生命期是global、static的  */
+static const _Global_Static_ComponentName GSComponentName;
+
+
 
 #pragma endregion
 
@@ -19,7 +28,8 @@ inline const std::string component_aoi_name = "AoiComponent";
 
 enum ComponentTemplateId : int32_t
 {
-    EM_AoiComponent    =   10001,
+    EM_NoneComponent    =   0,
+    EM_AoiComponent     =   10001,
 };
 
 
@@ -28,8 +38,8 @@ struct ComponentInfo:
     public bbt::templateutil::BaseType<ComponentInfo>
 {
     ComponentInfo() = default;
-    ComponentInfo(std::string name):Name(name){}
-    std::string Name{""};
+    ComponentInfo(const std::string& name):Name(name){}
+    const std::string& Name;
 };
 
 }

@@ -67,17 +67,12 @@ typename Hashmap<TKey, TValue, BucketNum>::Result Hashmap<TKey, TValue, BucketNu
 template<typename TKey, typename TValue, size_t BucketNum>
 bool Hashmap<TKey, TValue, BucketNum>::Insert(const KeyType& key, ValueType value)
 {
-    auto [bucket, isok] = GetBucket(key);
-    if( bbt_unlikely(!isok) )
+    auto [bucket, isok_get_bucket] = GetBucket(key);
+    if( bbt_unlikely(!isok_get_bucket) )
         return false;
-        
-    auto it = bucket->find(key);
-    if( bbt_unlikely(it != bucket->end()) )
-        return false;
-
-    // FIXME insert 重复键仍然是可能的，此时应该返回false
-    bucket->insert(std::make_pair(key, value));
-    return true;
+    // FIXME 需要测试
+    auto [it, isok_insert_into_bucket] = bucket->insert(std::make_pair(key, value));
+    return isok_insert_into_bucket;
 }
 
 template<typename TKey, typename TValue, size_t BucketNum>

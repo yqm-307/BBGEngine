@@ -105,7 +105,16 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
     size_t len = buffer.DataSize();
     /* 找对应的事件处理函数，去处理对应的网络事件 */
     it_handler->second(buffer);
-    /* 观察者存在，通知观察者 */
+
+    // FIXME 没有测试，需要测试一下
+    /* TODO  也许需要更多的灵活性，提供一个不清楚缓存的可能，目前认为recv buffer，在上面的handler是被处理完毕的 */
+    /* 通知处理完了，清楚缓存 */
+    if(m_recv_buffer.ReadableBytes() > 0)
+    {
+        m_recv_buffer.Recycle(m_recv_buffer.ReadableBytes());
+    }
+
+    /* 接收事件观察者存在，通知观察者 */
     if(m_onrecv)
         m_onrecv(err, len);
 }
@@ -200,16 +209,19 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
     }
 
     int read_len = 0;
-    auto [recv_buff, buff_len] = GetRecvBuffer();
+    auto recv_buff = m_recv_buffer.Peek();
+    auto buff_len = m_recv_buffer.WriteableBytes();
     util::errcode::ErrCode errcode("nothing", 
         util::errcode::NetWorkErr, 
         util::errcode::network::err::Recv_Success);
 
 
-    // read系统调用读取数据
+    /**
+     * read系统调用读取数据，策略是根据本地缓存，尽量读
+     */
     read_len = ::read(fd, recv_buff, buff_len);
     m_recv_buffer.WriteNull(read_len);
-    // 读取后处理errno，将errno处理，并转换为errno
+    /* 读取后处理errno，将errno处理，并转换为errno */
     if(read_len == -1) {
         int err = errno;
         if(err == EINTR || err == EAGAIN) {
@@ -226,7 +238,7 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
         errcode.SetInfo("please look up errno!");
         errcode.SetCode(util::errcode::network::err::Recv_Other_Err);
     }
-    // 处理之后反馈给connection进行数据处理
+    /* 处理之后反馈给connection进行数据处理 */
     OnRecvEventDispatch(m_recv_buffer, errcode);
 }
 
@@ -235,7 +247,6 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
 void evConnection::NetHandler_RecvData(const bbt::buffer::Buffer& buffer)
 {
     //FIXME 这里的读写并没有对当前连接的接收缓存进行清理操作
-    //TODO 测试逻辑
     DebugAssert(buffer.DataSize() > 0);
     auto s_view = buffer.View();
     std::string s(s_view.begin(), s_view.end());

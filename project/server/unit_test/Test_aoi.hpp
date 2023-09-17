@@ -18,7 +18,7 @@ void print_notify(game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObje
     auto pos2 = Aoi::GetAoiComponent(p2);
     // printf("----------------------------------------------------\n");
     // printf("[%s]对象: %d 看到 对象(%d):\n", str.c_str(), pos1->GetObjId(), pos2->GetObjId());
-    pos2->Debug_PosChange();
+    // pos2->Debug_PosChange();
 }
 
 game::share::ecs::GameObjectSPtr create_player(int aoi_id)
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
     for(int i = 1; i <= num; ++i)
     {
         auto player = create_player(i);
-        BOOST_ASSERT(player != nullptr);
+        BOOST_CHECK(player != nullptr);
         players.push_back(player);
     }
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
     for(int i = 1; i <= 34*34*34; ++i)
     {
         auto player = create_player(i);
-        BOOST_ASSERT(player != nullptr);
+        BOOST_CHECK(player != nullptr);
         players.push_back(player);
     }
 
@@ -167,8 +167,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
     for(auto&& obj : players)
     {
         auto vec = aoi->GetEntitysByGameobj(obj);
-        BOOST_ASSERT(!vec.empty());
-        // BOOST_ASSERT(vec.size() < 9);
+        BOOST_CHECK(!vec.empty());
         stat[vec.size()]++;        
     }
 

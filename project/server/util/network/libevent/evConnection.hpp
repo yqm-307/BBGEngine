@@ -40,6 +40,8 @@ SmartPtrTypeDef(evConnection);
 
 /**
  * @brief 可靠的双向连接，基于Tcp
+ * 
+ * 注意：evConnection的对外接口大多都是来自多线程调用的
  */
 class evConnection:
     public Connection,
