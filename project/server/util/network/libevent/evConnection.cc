@@ -68,7 +68,6 @@ void evConnection::SetOnSendCallback(const OnSendCallback& onsend_handler)
 
 void evConnection::Close()
 {
-    // TODO 没有实现逻辑
     OnDestroy();
 }
 
@@ -85,7 +84,7 @@ void evConnection::InitEventArgs()
     /* 设置 Read 事件的监听函数 */
     m_recv_event = evEvent::Create([this](evutil_socket_t fd, short events, void* args){
         this->OnEvent(fd, events, args);
-    }, m_sockfd, EV_READ | EV_PERSIST | EV_TIMEOUT | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
+    }, m_sockfd, EV_READ | EV_PERSIST | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
 }
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
@@ -106,7 +105,6 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
     /* 找对应的事件处理函数，去处理对应的网络事件 */
     it_handler->second(buffer);
 
-    // FIXME 没有测试，需要测试一下
     /* TODO  也许需要更多的灵活性，提供一个不清楚缓存的可能，目前认为recv buffer，在上面的handler是被处理完毕的 */
     /* 通知处理完了，清楚缓存 */
     if(m_recv_buffer.ReadableBytes() > 0)
@@ -189,14 +187,16 @@ void evConnection::OnEvent(evutil_socket_t fd, short events, void* args)
 
 void evConnection::EventHandler_OnClose(evutil_socket_t fd, short events, void* args)
 {
-    //TODO socket 断开事件
     Close();
 }
 
 void evConnection::EventHandler_OnSocketTimeOut(evutil_socket_t fd, short events, void* args)
 {
-    //TODO 连接超时事件
-    GAME_BASE_LOG_WARN("[evConnection::EventHandler_OnSocketTimeOut] event handler is empty!");  // 没有实现
+    Close();
+    GAME_EXT1_LOG_WARN("[evConnection::EventHandler_OnSocketTimeOut] Timeout ip{%s}", m_peer_addr.GetIPPort().c_str());
+
+    if(m_timeout_cb)
+        m_timeout_cb(shared_from_this());
 }
 
 void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* args)
@@ -246,7 +246,6 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
 
 void evConnection::NetHandler_RecvData(const bbt::buffer::Buffer& buffer)
 {
-    //FIXME 这里的读写并没有对当前连接的接收缓存进行清理操作
     DebugAssert(buffer.DataSize() > 0);
     auto s_view = buffer.View();
     std::string s(s_view.begin(), s_view.end());

@@ -72,6 +72,7 @@ int evEvent::UnRegister()
 {
     int err = 0;
 
+    // XXX 也许这里会反复的释放
     err = event_del(m_event);
     DebugAssert(err == 0);
 
@@ -94,8 +95,9 @@ void evEvent::OnInit(int timeout)
 
 void evEvent::OnDestory()
 {
-    // TODO 也许需要注销事件？应该需要，因为对象释放就说明事件监听者已经死亡了
-    // UnRegister();
+    // XXX 也许这里不需要释放
+    int err = UnRegister();
+    DebugAssert(err >= 0);
     event_free(m_event);
     m_event = nullptr;
     m_event_id = -1;

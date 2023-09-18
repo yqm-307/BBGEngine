@@ -164,7 +164,6 @@ private:
 
     /* 在 evConnection 连接被释放时调用。具体由evConnMgr实现 */
     OnDestoryCallback   m_ondestory_cb;
-    OnTimeOutCallback   m_is_timeout_cb;
 
     evArgs m_onrecv_args;
 
@@ -178,8 +177,9 @@ private:
     bbt::timer::clock::Timestamp<bbt::timer::clock::ms>    
                 m_prev_heart_beat_time;
 
-    OnRecvCallback  m_onrecv{nullptr};
-    OnSendCallback  m_onsend{nullptr};
+    OnRecvCallback      m_onrecv{nullptr};
+    OnSendCallback      m_onsend{nullptr};
+    OnTimeOutCallback   m_timeout_cb{nullptr};
 };
 }
 
