@@ -70,7 +70,6 @@ bool Hashmap<TKey, TValue, BucketNum>::Insert(const KeyType& key, ValueType valu
     auto [bucket, isok_get_bucket] = GetBucket(key);
     if( bbt_unlikely(!isok_get_bucket) )
         return false;
-    // FIXME 需要测试
     auto [it, isok_insert_into_bucket] = bucket->insert(std::make_pair(key, value));
     return isok_insert_into_bucket;
 }

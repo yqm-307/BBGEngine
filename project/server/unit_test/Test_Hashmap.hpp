@@ -68,6 +68,13 @@ BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
         {3,1},
     });
     BOOST_CHECK(map3.Size() == 3);
+    map3.Clear();
+
+    BOOST_CHECK(map3.Insert(1, 1) == true);
+    BOOST_CHECK(map3.Insert(1, 2) == false);
+    BOOST_CHECK(map3.Size() == 1);
+
+
 }
 
 
