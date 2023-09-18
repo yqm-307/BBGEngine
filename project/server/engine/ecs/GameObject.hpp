@@ -2,8 +2,8 @@
 #include <map>
 #include <set>
 #include <string>
-#include "share/ecs/GameObjectDef.hpp"
-#include "share/ecs/Component.hpp"
+#include "engine/ecs/GameObjectDef.hpp"
+#include "engine/ecs/Component.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
 namespace game::share::ecs

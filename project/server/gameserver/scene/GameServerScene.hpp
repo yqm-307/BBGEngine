@@ -1,6 +1,6 @@
 #pragma once
 #include <event2/event.h>
-#include "share/scene/Scene.hpp"
+#include "engine/scene/Scene.hpp"
 // 游戏对象
 #include "share/ecs/entity/aoi/Aoi.hpp"         // 游戏 aoi
 #include "gameserver/network/Network.hpp"

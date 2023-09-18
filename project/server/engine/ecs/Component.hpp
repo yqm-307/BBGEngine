@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <bbt/templateutil/BaseType.hpp>
-#include "share/ecs/ComponentDef.hpp"
-#include "share/ecs/EcsDefine.hpp"
+#include "engine/ecs/ComponentDef.hpp"
+#include "engine/ecs/EcsDefine.hpp"
 
 namespace game::share::ecs
 {

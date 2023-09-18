@@ -17,6 +17,7 @@ set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ./thirdparty/libs)
 include_directories(
     ${PROJECT_SOURCE_DIR}/util        # util、share等库
     ${PROJECT_SOURCE_DIR}/share       # util、share等库
+    ${PROJECT_SOURCE_DIR}/engine      # 引擎
     ${PROJECT_SOURCE_DIR}           # gs源文件
     ${THIRD_PARTY_INCLUDE_PATH}
 )
@@ -28,6 +29,8 @@ file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/gameserver/*.cc
     # share 目录下
     ${PROJECT_SOURCE_DIR}/share/*.cc
+    # engine 目录下
+    ${PROJECT_SOURCE_DIR}/engine/*.cc
     # util 目录下
     ${PROJECT_SOURCE_DIR}/util/*.cc
 )

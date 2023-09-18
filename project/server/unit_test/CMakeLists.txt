@@ -13,15 +13,17 @@ add_definitions(-DDebug)
 
 # include目录
 include_directories(
-    ${PROJECT_SOURCE_DIR}/util        # util、share等库
-    ${PROJECT_SOURCE_DIR}/share        # util、share等库
-    ${PROJECT_SOURCE_DIR}           # gs源文件
+    ${PROJECT_SOURCE_DIR}/util          # util、share等库
+    ${PROJECT_SOURCE_DIR}/share         # util、share等库
+    ${PROJECT_SOURCE_DIR}/engine        # util、share等库
+    ${PROJECT_SOURCE_DIR}               # gs源文件
     ${THIRD_PARTY_INCLUDE_PATH}
 )
     
 # c++待编译的源文件
 file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/share/*.cc
+    ${PROJECT_SOURCE_DIR}/engine/*.cc
     ${PROJECT_SOURCE_DIR}/util/*.cc
     # ${PROJECT_SOURCE_DIR}/unit_test/*.cc
 )
