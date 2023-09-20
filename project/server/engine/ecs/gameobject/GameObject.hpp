@@ -2,8 +2,9 @@
 #include <map>
 #include <set>
 #include <string>
-#include "engine/ecs/GameObjectDef.hpp"
-#include "engine/ecs/Component.hpp"
+#include "engine/ecs/gameobject/GameObjectMgr.hpp"
+#include "engine/ecs/gameobject/GameObjectDef.hpp"
+#include "engine/ecs/component/Component.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
 namespace game::share::ecs
@@ -15,10 +16,11 @@ SmartPtrTypeDef(GameObject);
 class GameObject:
     public std::enable_shared_from_this<GameObject>
 {
+    friend class GameObjectMgr;
 public:
     explicit GameObject(GameObjType gobj_type);
     virtual ~GameObject() = 0;
-    virtual void OnCreate(){};
+    virtual void OnCreate();
     virtual void OnDestory(){};
     virtual void OnUpdate() = 0;
     
@@ -30,6 +32,8 @@ public:
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
     GameObjType     Type();
+
+    GameObjectId    GetId();
 
     /* 根据游戏对象的名字，在当前游戏对象的子游戏对象中找到游戏对象 */
     GameObjectSPtr  GetGameObject(const std::string& gameobj_name);
@@ -45,6 +49,8 @@ private:
 
     bool HasGameobj(const std::string& name) const;
 
+    GameObjectId    m_id;
+
     std::string m_gameobj_name;
 
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */
@@ -53,11 +59,11 @@ private:
     /* 每个游戏对象都可以保存着一些组件 */
     std::map<ComponentTemplateId, ComponentSPtr>  m_component_map;
 
-    /* 游戏对象时递归的，也就是说一个游戏对象可以作为节点来包含一些子对象 */
+    /* 游戏对象是递归的，也就是说一个游戏对象可以作为节点来包含一些子对象 */
     std::map<std::string, GameObjectSPtr>   m_childs;
 
     /* 父游戏对象 */
-    GameObjectWKPtr m_partner;
+    std::map<GameObjectId, GameObjectWKPtr> m_partners;
 };
 
 }

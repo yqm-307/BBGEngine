@@ -1,4 +1,4 @@
-#include "engine/ecs/GameObject.hpp"
+#include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 namespace game::share::ecs
@@ -14,7 +14,19 @@ GameObject::GameObject(GameObjType gobj_type)
 
 GameObject::~GameObject()
 {
+    OnDestory();
 }
+
+void GameObject::OnCreate()
+{
+    GameObjectMgr::GetInstance()->OnInitGameObject(m_id, shared_from_this());
+}
+
+void GameObject::OnDestory()
+{
+    GameObjectMgr::GetInstance()->OnDestoryGameObject(m_id, shared_from_this());
+}
+
 
 ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid)
 {
@@ -55,6 +67,11 @@ bool GameObject::AddComponent(ComponentSPtr component)
 GameObjType GameObject::Type()
 {
     return m_gobj_type;
+}
+
+GameObjectId GameObject::GetId()
+{
+    return m_id;
 }
 
 GameObjectSPtr GameObject::GetGameObject(const std::string& gameobj_name)

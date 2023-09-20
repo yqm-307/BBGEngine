@@ -1,6 +1,6 @@
 #pragma once
 #include <bbt/templateutil/Noncopyable.hpp>
-#include "engine/ecs/GameObject.hpp"
+#include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/hashmap/Hashmap.hpp"
 
 namespace game::share::scene

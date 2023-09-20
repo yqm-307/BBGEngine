@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <set>
 #include <map>
-#include "engine/ecs/GameObject.hpp"
+#include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/vector/Vector2.hpp"
 
 namespace game::share::ecs::entity::aoi

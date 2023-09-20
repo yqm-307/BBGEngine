@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <bbt/templateutil/BaseType.hpp>
-#include "engine/ecs/ComponentDef.hpp"
+#include "engine/ecs/component/ComponentDef.hpp"
 #include "engine/ecs/EcsDefine.hpp"
 
 namespace game::share::ecs

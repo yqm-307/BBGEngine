@@ -2,7 +2,7 @@
 #include "share/ecs/entity/aoi/Aoi.hpp"
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
-#include "engine/ecs/ComponentMgr.hpp"
+#include "engine/ecs/component/ComponentMgr.hpp"
 
 namespace game::share::ecs::entity::aoi
 {
