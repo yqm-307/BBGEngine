@@ -1,6 +1,6 @@
 #include "util/errcode/ErrCode.hpp"
 
-namespace game::util::errcode
+namespace util::errcode
 {
 
 ErrCode::ErrCode(const std::string& err_info,ErrType errtype,int errcode)

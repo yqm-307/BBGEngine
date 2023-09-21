@@ -5,7 +5,7 @@
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 typedef std::function<void(evutil_socket_t, short, void*)>  EventCallback;

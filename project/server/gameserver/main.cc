@@ -7,7 +7,7 @@
 
 void RandomSeedInit()
 {
-    game::util::Random::SetSeed(bbt::timer::clock::now().time_since_epoch().count());
+    util::Random::SetSeed(bbt::timer::clock::now().time_since_epoch().count());
 }
 
 // 数据库初始化
@@ -36,11 +36,11 @@ void ConfigLoad()
     GAME_BASE_LOG_INFO("IP: %s  Port: %d", cfg->GetInstance()->GetServerIP().c_str(), cfg->GetInstance()->GetServerPort());
 
 
-    auto aoi_cfg = new game::util::config::AoiConfig();
+    auto aoi_cfg = new util::config::AoiConfig();
     aoi_cfg->m_map_x = 100; aoi_cfg->m_map_y = 100; aoi_cfg->m_map_z = 1;
     aoi_cfg->m_tower_x = 3; aoi_cfg->m_tower_y = 3; aoi_cfg->m_tower_z = 1;
     
-    G_SetConfigPtr(game::util::config::AoiConfig, aoi_cfg, game::util::config::GameConfigType::Cfg_Aoi);
+    G_SetConfigPtr(util::config::AoiConfig, aoi_cfg, util::config::GameConfigType::Cfg_Aoi);
 }
 
 int main()

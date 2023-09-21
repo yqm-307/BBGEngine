@@ -1,11 +1,11 @@
 #include "AoiComponent.hpp"
 
-namespace game::share::ecs::component
+namespace share::ecs::component
 {
 
 
 AoiComponent::AoiComponent()
-    :Component("AoiComponent", ecs::ComponentTemplateId::EM_AoiComponent),
+    :Component("AoiComponent", engine::ecs::ComponentTemplateId::EM_AoiComponent),
     m_aoi_object_id(-1),
     m_aoi_entity_mode(-1)
 {
@@ -17,11 +17,11 @@ AoiComponent::~AoiComponent()
 
 }
 
-void AoiComponent::OnAddComponent(ecs::GameObjectSPtr component)
+void AoiComponent::OnAddComponent(engine::ecs::GameObjectSPtr component)
 {
 }
 
-void AoiComponent::OnDelComponent(ecs::GameObjectSPtr component)
+void AoiComponent::OnDelComponent(engine::ecs::GameObjectSPtr component)
 {
 }
 

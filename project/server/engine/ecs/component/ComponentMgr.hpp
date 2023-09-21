@@ -4,7 +4,7 @@
 #include "engine/ecs/component/ComponentDef.hpp"
 #include <optional>
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 inline const int ComponentHashBucketNum = 8;
 

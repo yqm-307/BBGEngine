@@ -1,7 +1,7 @@
 #pragma once
 #include <cstring>
 
-namespace game::util::errcode
+namespace util::errcode
 {
 
 

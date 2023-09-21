@@ -3,7 +3,7 @@
 #include "util/errcode/ErrCode.hpp"
 #include <type_traits>
 
-namespace game::util::network
+namespace util::network
 {
 
 template<class ConnectionType>

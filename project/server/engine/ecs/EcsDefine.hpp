@@ -3,7 +3,7 @@
 #include "util/typedef/NamespaceType.hpp"
 #include <bbt/uuid/EasyID.hpp>
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 class ComponentMgr;

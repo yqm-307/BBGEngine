@@ -1,6 +1,6 @@
 #include "engine/ecs/component/ComponentMgr.hpp"
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 ComponentMgr::ComponentMgr()

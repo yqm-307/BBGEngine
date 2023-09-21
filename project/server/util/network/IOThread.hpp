@@ -7,7 +7,7 @@
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 
-namespace game::util::network
+namespace util::network
 {
 
 enum IOThreadRunStatus

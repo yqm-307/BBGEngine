@@ -2,7 +2,7 @@
 #include <bbt/random/Random.hpp>
 #include "util/log/Log.hpp"
 
-namespace game::util
+namespace util
 {
 
 class Random

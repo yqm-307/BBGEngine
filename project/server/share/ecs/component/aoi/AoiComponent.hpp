@@ -5,17 +5,17 @@
 #include "util/vector/Pos3.hpp"
 
 
-namespace game::share::ecs::component
+namespace share::ecs::component
 {
 
 class AoiComponent:
-    public game::share::ecs::Component
+    public engine::ecs::Component
 {
 public:
     explicit AoiComponent();
     virtual ~AoiComponent();
-    virtual void OnAddComponent(ecs::GameObjectSPtr);
-    virtual void OnDelComponent(ecs::GameObjectSPtr);
+    virtual void OnAddComponent(engine::ecs::GameObjectSPtr);
+    virtual void OnDelComponent(engine::ecs::GameObjectSPtr);
     virtual void OnUpdate();
     /* 获取组件的 aoi object id */
     int GetObjId() const;
@@ -27,7 +27,7 @@ public:
     /* 获取aoi当前位置 */
     util::vector::Vector3 GetCurrentPos() const;
     /* 获取所在灯塔 */
-    entity::aoi::Tower* GetTower() const;
+    share::ecs::entity::aoi::Tower* GetTower() const;
     /* 移动至新位置 */
     void Moveto(util::vector::Vector3 new_pos);
     /* 移动至新的灯塔 */

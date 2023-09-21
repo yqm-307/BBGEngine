@@ -1,7 +1,7 @@
 #pragma once
 #include "util/network/Connection.hpp"
 
-namespace game::util::network
+namespace util::network
 {
 
 class ConnMgr

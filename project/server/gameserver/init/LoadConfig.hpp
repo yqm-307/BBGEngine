@@ -13,7 +13,7 @@ struct IniConfigList
     /* 服务器开放地址 */
     std::string server_ip;
     int         server_port;
-    game::util::config::evConnMgrConfig
+    util::config::evConnMgrConfig
                 m_connmgr_cfg;
     
 };
@@ -22,7 +22,7 @@ struct IniConfigList
  * @brief 全局配置加载和配置检测规则
  */
 class ServerConfig:
-    public game::util::config::ConfigHelper
+    public util::config::ConfigHelper
 {
     typedef std::function<std::pair<bool, std::string>()>   OnCheckCallback;
 public:

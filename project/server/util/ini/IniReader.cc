@@ -5,7 +5,7 @@
 #include <cctype>
 #include <cstdlib>
 
-namespace game::util::ini
+namespace util::ini
 {
 
 

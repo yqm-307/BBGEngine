@@ -1,7 +1,7 @@
 #pragma once
 #include "util/network/libevent/Define.hpp"
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 void _EventCallbackTransform(evutil_socket_t fd, short events, void* args);

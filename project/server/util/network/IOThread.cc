@@ -1,6 +1,6 @@
 #include "util/network/IOThread.hpp"
 
-namespace game::util::network
+namespace util::network
 {
 
 static const int io_thread_limit_num = 16;

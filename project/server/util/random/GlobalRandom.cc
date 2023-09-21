@@ -1,7 +1,7 @@
 #include "util/random/GlobalRandom.hpp"
 #include "util/assert/Assert.hpp"
 
-namespace game::util
+namespace util
 {
 
 time_t Random::m_random_seed = 0;

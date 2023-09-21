@@ -5,7 +5,7 @@
 #include "util/typedef/NamespaceType.hpp"
 #include "util/network/IPAddress.hpp"
 
-namespace game::util::network
+namespace util::network
 {
 
 class Connection;

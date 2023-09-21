@@ -4,7 +4,7 @@
 #include <map>
 #include <event2/event.h>
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 //TODO 当前evConnMgr是不完备的，它的职责还没有明确，因此还没有完成编写

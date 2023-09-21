@@ -1,6 +1,6 @@
 #include "util/network/libevent/evEvent.hpp"
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 //------------------------------ 局部函数实现 --------------------------------//

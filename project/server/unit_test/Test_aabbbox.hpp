@@ -6,7 +6,7 @@
 #include <vector>
 #include <bbt/random/Random.hpp>
 
-using namespace game::share::ecs::entity::aoi;
+using namespace share::ecs::entity::aoi;
 
 void Box_Init(AABBBox& box, float xmax, float xmin, float ymax, float ymin, float zmax, float zmin)
 {
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_SUITE(AabbTest)
  */
 BOOST_AUTO_TEST_CASE(t_aabb_check_test)
 {
-    using namespace game::share::ecs::entity::aoi;
+    using namespace share::ecs::entity::aoi;
     // 重叠检测
     AABBBox a;
     AABBBox b;

@@ -25,7 +25,7 @@ Acceptor::~Acceptor()
 
 void Acceptor::Init()
 {
-    m_listen_fd = game::util::network::CreateListen(m_listen_ip, m_listen_port, true);
+    m_listen_fd = util::network::CreateListen(m_listen_ip, m_listen_port, true);
     Assert(m_listen_fd >= 0);
 }
 
@@ -44,7 +44,7 @@ void Acceptor::Clear()
 
 int Acceptor::SetNonBlock()
 {
-    int error = game::util::network::SetFdNoBlock(m_listen_fd);
+    int error = util::network::SetFdNoBlock(m_listen_fd);
     DebugAssert(error >= 0);
     return 0;
 }
@@ -76,7 +76,7 @@ int Acceptor::Accept()
     sockaddr_in addr;
     socklen_t len = sizeof(addr);
     fd = ::accept(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), &len);
-    game::util::network::Address endpoint;
+    util::network::Address endpoint;
     endpoint.set(addr);
     if(fd >= 0) {
         GAME_EXT1_LOG_DEBUG("[Acceptor::Accept] Acceptor ==> ip:{%s} fd:{%d}", endpoint.GetIPPort().c_str(), fd);
@@ -143,7 +143,7 @@ int Acceptor::RegistInEvBase(event_base* ev_base)
     return 0;
 }
 
-void Acceptor::OnAccept(int fd, const game::util::network::Address& peer_addr)
+void Acceptor::OnAccept(int fd, const util::network::Address& peer_addr)
 {
     if(fd >= 0)
     {
@@ -151,7 +151,7 @@ void Acceptor::OnAccept(int fd, const game::util::network::Address& peer_addr)
         DebugAssertWithInfo(m_load_blance_cb != nullptr, "loadblance callback not initialized!");
         auto run_in_target_thread = m_load_blance_cb();
         DebugAssertWithInfo(run_in_target_thread, "loadblance error!");
-        auto new_conn = game::util::network::ev::evConnMgr::GetInstance()->CreateConn(run_in_target_thread, fd, peer_addr, m_listen_addr);
+        auto new_conn = util::network::ev::evConnMgr::GetInstance()->CreateConn(run_in_target_thread, fd, peer_addr, m_listen_addr);
         //TODO 二、初始化游戏对象
         GAME_BASE_LOG_INFO("[Acceptor::OnAccept] Acceptor ==> Client IP:{%s}", peer_addr.GetIPPort().c_str());
     }

@@ -1,7 +1,7 @@
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 

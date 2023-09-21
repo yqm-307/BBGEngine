@@ -2,7 +2,7 @@
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "share/ecs/component/aoi/AoiComponent.hpp"
 
-namespace game::share::ecs::entity::player
+namespace share::ecs::entity::player
 {
 
 class Player;
@@ -20,7 +20,7 @@ enum OnlineStatus {
 
 
 class Player:
-    public GameObject
+    public engine::ecs::GameObject
 {
 public:
     Player();

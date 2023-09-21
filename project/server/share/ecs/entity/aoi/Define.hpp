@@ -5,14 +5,14 @@
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/vector/Vector2.hpp"
 
-namespace game::share::ecs::entity::aoi
+namespace share::ecs::entity::aoi
 {
 
 typedef float       Pos;            // 
 typedef int         AoiObjectId;    // aoi 对象id, aoi中任何 gameobject 都有该id
 typedef int         Index;          // 
 
-typedef std::map<int, share::ecs::GameObjectSPtr> GameObjMap;
+typedef std::map<int, engine::ecs::GameObjectSPtr> GameObjMap;
 
 
 /**
@@ -70,7 +70,7 @@ static inline bool AABBCheck(const AABBBox& a, const AABBBox& b)
     return xover && yover && zover;
 }
 
-static inline void AoiDefaultOnLeave(ecs::GameObjectSPtr )
+static inline void AoiDefaultOnLeave(engine::ecs::GameObjectSPtr )
 {
 
 }

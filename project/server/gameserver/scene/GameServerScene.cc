@@ -78,7 +78,7 @@ void GameServerScene::Init()
 void GameServerScene::AoiInit()
 {
     /* 初始化 aoi */
-    module_aoi = new game::share::ecs::entity::aoi::Aoi(
+    module_aoi = new share::ecs::entity::aoi::Aoi(
     [](GameObjectSPtr p1, GameObjectSPtr p2){
     }, 
     [](GameObjectSPtr, GameObjectSPtr){

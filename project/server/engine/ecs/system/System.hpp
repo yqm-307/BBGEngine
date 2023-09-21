@@ -1,12 +1,14 @@
 #pragma once
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 class System
 {
 public:
-    void OnDispatch();
+    System(){}
+    virtual ~System() = 0;
+    virtual void OnDispatch() = 0;
 private:
     
 };

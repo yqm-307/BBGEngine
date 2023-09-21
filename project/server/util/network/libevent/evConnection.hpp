@@ -11,7 +11,7 @@
  * @brief libevent实现
  * 
  */
-namespace game::util::network
+namespace util::network
 {
 #define NET_HANDLER_ENTRY(errcode_key, capture, lambda_body) {errcode_key, [capture](const bbt::buffer::Buffer& buffer){lambda_body(buffer);}}
 
@@ -47,7 +47,7 @@ class evConnection:
     public Connection,
     public std::enable_shared_from_this<evConnection>
 {
-    friend void game::util::network::OnRecvCallback(int sockfd, short events, void* args);
+    friend void util::network::OnRecvCallback(int sockfd, short events, void* args);
     friend class evConnMgr;
 
     typedef std::function<void(evConnectionSPtr)>   OnDestoryCallback;

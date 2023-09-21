@@ -16,7 +16,7 @@ class Acceptor
     friend void _AcceptReadCallback(evutil_socket_t, short, void*);
 
 public:
-    typedef std::function<game::util::network::IOThread*()> LoadBlanceFunc;
+    typedef std::function<util::network::IOThread*()> LoadBlanceFunc;
 
     /* 创建listen 套接字 */
     Acceptor(std::string ip, short port);
@@ -39,13 +39,13 @@ private:
     void Destory();
     void Clear();
     /* 接收到新连接，处理新连接 */
-    void OnAccept(int fd, const game::util::network::Address& peer_addr);
+    void OnAccept(int fd, const util::network::Address& peer_addr);
 
 private:
     evutil_socket_t m_listen_fd;
     std::string     m_listen_ip;
     short           m_listen_port;
-    game::util::network::Address    m_listen_addr;
+    util::network::Address    m_listen_addr;
     LoadBlanceFunc  m_load_blance_cb;
 };
 

@@ -2,7 +2,7 @@
 #include <string>
 #include <cstdint>
 
-namespace game::util::ini
+namespace util::ini
 {
 
 class IniReader

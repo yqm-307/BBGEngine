@@ -4,7 +4,7 @@
 #include "share/ecs/entity/player/Player.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
-namespace game::share::ecs::entity::playermgr
+namespace share::ecs::entity::playermgr
 {
 class PlayerMgr;
 SmartPtrTypeDef(PlayerMgr);
@@ -14,11 +14,11 @@ const int Default_Hash_Bucket_Num = 256;
 
 class PlayerMgr:
     public bbt::templateutil::noncopyable,  // 无状态
-    protected share::ecs::GameObject
+    protected engine::ecs::GameObject
 {
-    typedef util::hashmap::Hashmap<player::PlayerId, ecs::entity::player::PlayerSPtr, 256> PlayerMap;
+    typedef util::hashmap::Hashmap<share::ecs::entity::player::PlayerId, ecs::entity::player::PlayerSPtr, 256> PlayerMap;
 public:
-    typedef std::pair<player::PlayerSPtr, bool> Result;
+    typedef std::pair<share::ecs::entity::player::PlayerSPtr, bool> Result;
 
     static PlayerMgrCUQPtr& GetInstance();
     ~PlayerMgr();

@@ -33,9 +33,9 @@ const int GameSceneFrame = 20;  // 服务端游戏场景每秒20帧
  * 
  */
 class GameServerScene:
-    public game::share::scene::Scene
+    public engine::scene::Scene
 {
-    typedef game::share::ecs::GameObjectSPtr    GameObjectSPtr;
+    typedef engine::ecs::GameObjectSPtr    GameObjectSPtr;
 public:
     GameServerScene();
     ~GameServerScene();
@@ -67,7 +67,7 @@ private:
     /* 思考了，感觉还是使用静态的方式来存储根场景的游戏对象，这里变动一般非常谨慎，不用做成动态的，而且有需求可以支持 */
 
     /* todo: 放在这里的应该是 aoi mgr */
-    game::share::ecs::entity::aoi::Aoi*     module_aoi{nullptr};
+    share::ecs::entity::aoi::Aoi*     module_aoi{nullptr};
     server::network::Network*               module_network{nullptr};
 };
 

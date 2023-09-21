@@ -1,6 +1,6 @@
 #include "engine/ecs/component/Component.hpp"
 
-using namespace game::share::ecs;
+using namespace engine::ecs;
 
 Component::Component(std::string name, ComponentTemplateId id)
     :m_name(name),

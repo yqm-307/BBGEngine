@@ -140,7 +140,7 @@ void Network::WaitForOtherIOThreadStart()
 
 #pragma region "工具函数"
 
-game::util::network::IOThread* Network::NewConnLoadBlance()
+util::network::IOThread* Network::NewConnLoadBlance()
 {
     static std::atomic_int m_current_idx = 0;
     /* 第一个是acceptor线程，实际的io线程是后面的（m_io_thread_num - 1）个 */

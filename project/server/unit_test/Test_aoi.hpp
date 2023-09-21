@@ -5,11 +5,11 @@
 #include <vector>
 #include <bbt/random/Random.hpp>
 
-using namespace game::share;
-using namespace game::util;
-typedef game::share::ecs::entity::aoi::Aoi Aoi;
+using namespace share;
+using namespace util;
+typedef share::ecs::entity::aoi::Aoi Aoi;
 
-void print_notify(game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m , const std::string str)
+void print_notify(engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m , const std::string str)
 {
 
     auto p1 = std::static_pointer_cast<ecs::entity::player::Player>(w);
@@ -21,7 +21,7 @@ void print_notify(game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObje
     // pos2->Debug_PosChange();
 }
 
-game::share::ecs::GameObjectSPtr create_player(int aoi_id)
+engine::ecs::GameObjectSPtr create_player(int aoi_id)
 {
     auto player = std::make_shared<ecs::entity::player::Player>();
     auto aoi_comp = std::make_shared<ecs::component::AoiComponent>();
@@ -32,14 +32,14 @@ game::share::ecs::GameObjectSPtr create_player(int aoi_id)
 
 void aoiconfig()
 {
-    auto* aoi = new game::util::config::AoiConfig();
+    auto* aoi = new util::config::AoiConfig();
     aoi->m_map_x = 100.0f;
     aoi->m_map_y = 100.0f;
     aoi->m_map_z = 100.0f;
     aoi->m_tower_x = 3.0f;
     aoi->m_tower_y = 3.0f;
     aoi->m_tower_z = 3.0f;
-    G_SetConfigPtr(game::util::config::AoiConfig, aoi, game::util::config::Cfg_Aoi);
+    G_SetConfigPtr(util::config::AoiConfig, aoi, util::config::Cfg_Aoi);
 }
 
 BOOST_AUTO_TEST_SUITE(AoiTest)
@@ -50,16 +50,16 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
     bbt::random::mt_random<int, 1, 12> rd;
     aoiconfig();
     int num = 10;
-    auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
-    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
+    auto aoi = ecs::entity::aoi::Aoi::Create(
+    [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         print_notify(w, m, "进入通知");
     },
-    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
+    [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         print_notify(w, m, "离开通知");
     }
     );
 
-    std::vector<game::share::ecs::GameObjectSPtr> players;
+    std::vector<engine::ecs::GameObjectSPtr> players;
     for(int i = 1; i <= num; ++i)
     {
         auto player = create_player(i);
@@ -85,11 +85,11 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
 {
     system("clear");
     // int num = 10;
-    auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
-    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
+    auto aoi = ecs::entity::aoi::Aoi::Create(
+    [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         print_notify(w, m, "进入通知");
     },
-    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
+    [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         print_notify(w, m, "离开通知");
     }
     );
@@ -133,11 +133,11 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
 {
     // const int num = 100;
     bbt::random::mt_random<int, 0, 100> rd;
-    auto aoi = game::share::ecs::entity::aoi::Aoi::Create(
-    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
+    auto aoi = share::ecs::entity::aoi::Aoi::Create(
+    [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         // print_notify(w, m, "进入通知");
     },
-    [](game::share::ecs::GameObjectSPtr w, game::share::ecs::GameObjectSPtr m){
+    [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         // print_notify(w, m, "离开通知");
     }
     );
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
     auto p1 = create_player(1);
     auto p2 = create_player(2);
     
-    std::vector<game::share::ecs::GameObjectSPtr> players;
+    std::vector<engine::ecs::GameObjectSPtr> players;
     /* 每个灯塔放一个 */
     for(int i = 1; i <= 34*34*34; ++i)
     {

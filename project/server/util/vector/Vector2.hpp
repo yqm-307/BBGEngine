@@ -1,6 +1,6 @@
 #pragma once
 
-namespace game::util::vector
+namespace util::vector
 {
 
 struct Vector2

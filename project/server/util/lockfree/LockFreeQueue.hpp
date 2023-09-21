@@ -8,7 +8,7 @@
 #include <bbt/templateutil/Comparator.hpp>
 #include <bbt/timer/Clock.hpp>
 
-namespace game::util::lockfree
+namespace util::lockfree
 {
 
 /**

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace game::util::pos
+namespace util::pos
 {
 
 struct Index3

@@ -1,7 +1,7 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 const std::unique_ptr<GameObjectMgr>& GameObjectMgr::GetInstance()

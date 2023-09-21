@@ -1,6 +1,6 @@
 #include "util/network/libevent/evIOThread.hpp"
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 

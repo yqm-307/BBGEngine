@@ -9,6 +9,9 @@ set(THIRD_PARTY_INCLUDE_PATH ${THIRD_PARTY_PATH}/include)
 
 link_directories(thirdparty/libs)
 
+include(CTest)
+enable_testing()
 add_subdirectory(unit_test)
+
 
 add_subdirectory(gameserver)

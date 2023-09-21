@@ -12,7 +12,7 @@ namespace server::network
 class Network
 {
 public:
-    typedef game::util::network::ev::evIOThread IOThread;
+    typedef util::network::ev::evIOThread IOThread;
 
     Network(const std::string& ip, short port);
     ~Network();
@@ -42,7 +42,7 @@ private:
     event_base* OnCreateEventBase();
     /* libevent event_base 释放 */
     void OnDestoryEventBase(event_base* base);
-    game::util::network::IOThread* NewConnLoadBlance();
+    util::network::IOThread* NewConnLoadBlance();
 private:
     Acceptor        m_acceptor;
     size_t          m_io_thread_num;

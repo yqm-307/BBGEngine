@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(t_lockfree_test)
     std::vector<std::thread*> threads(nthread, nullptr);
 
     // 无锁队列
-    game::util::lockfree::Queue<int, 1000000> lockfree_queue;
+    util::lockfree::Queue<int, 1000000> lockfree_queue;
     std::atomic_int64_t consume_count{0};
     std::atomic_int64_t produce_count{0};
 

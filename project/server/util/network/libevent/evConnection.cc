@@ -4,7 +4,7 @@
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 

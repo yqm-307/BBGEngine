@@ -1,10 +1,11 @@
 #include "share/ecs/entity/player/Player.hpp"
 
 
-namespace game::share::ecs::entity::player
+namespace share::ecs::entity::player
 {
+
 Player::Player()
-    :GameObject(ecs::GameObjType::Player)
+    :GameObject(engine::ecs::GameObjType::Player)
 {
 }
 

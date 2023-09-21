@@ -9,7 +9,7 @@ BOOST_AUTO_TEST_SUITE(HashMapTest)
 
 BOOST_AUTO_TEST_CASE(t_hashmap_create_test)
 {
-    using namespace game::util::hashmap;
+    using namespace util::hashmap;
     // Hashmap<int, int, -1> map([](int key){return key%4;});   // error
     // Hashmap<int, int, 0> map0([](int key){return key%0;});   // error
     Hashmap<int, int, 4> map4([](int key){return key%4;}, 1);
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_create_test)
 // 功能测试
 BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
 {
-    using namespace game::util::hashmap;
+    using namespace util::hashmap;
     const size_t bucket_num = 6;
     Hashmap<int, std::string, bucket_num> map([=](int key){return key%bucket_num;}, "");
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
 
 BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
 {
-    using namespace game::util::hashmap;
+    using namespace util::hashmap;
     bbt::random::mt_random<int, 1, 1000000> rd1; 
     bbt::random::mt_random<int, 1, INT32_MAX> rd2; 
     Hashmap<int, int, 256> map([](int key){return key%256;}, 1);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
 
 BOOST_AUTO_TEST_CASE(t_hashmap_random_func)
 {
-    using namespace game::util::hashmap;
+    using namespace util::hashmap;
     bbt::random::mt_random<int, 1, 1000000> rd1; 
     bbt::random::mt_random<int, 1, INT32_MAX> rd2; 
     Hashmap<int, int, 256> map([](int key){return key%256;}, 1);

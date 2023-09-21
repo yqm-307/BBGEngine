@@ -6,7 +6,7 @@
 #include <bbt/Define.hpp>
 
 // using namespace
-namespace game::util::hashmap
+namespace util::hashmap
 {
 
 template<typename TKey, typename TValue, size_t BucketNum>

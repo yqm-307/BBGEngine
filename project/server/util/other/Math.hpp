@@ -3,7 +3,7 @@
 #include <vector>
 
 
-namespace game::util::other
+namespace util::other
 {
 
 class Math

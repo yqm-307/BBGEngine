@@ -1,7 +1,7 @@
 #include "util/network/libevent/evConnMgr.hpp"
 #include "util/config/config.hpp"
 
-namespace game::util::network::ev
+namespace util::network::ev
 {
 
 inline ev::evConnectionSPtr SafeToEvConn(ConnectionSPtr raw_conn)

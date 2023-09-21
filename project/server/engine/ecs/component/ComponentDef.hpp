@@ -5,7 +5,7 @@
 
 
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 ///////////////////////////////////////////////////////////////////
 #pragma region "组件名"

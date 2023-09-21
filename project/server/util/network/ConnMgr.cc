@@ -1,7 +1,7 @@
 #include "util/network/ConnMgr.hpp"
 
 
-namespace game::util::network
+namespace util::network
 {
 
 ConnMgr::ConnMgr()

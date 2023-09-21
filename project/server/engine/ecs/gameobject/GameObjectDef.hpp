@@ -1,5 +1,5 @@
 #pragma once
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 /**

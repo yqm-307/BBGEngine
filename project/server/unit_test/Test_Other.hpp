@@ -36,14 +36,14 @@ void CheckDerangeIsOk(const std::vector<T>& initial_vec, const std::vector<T>& r
 
 BOOST_AUTO_TEST_CASE(t_math_random)
 {
-    game::util::Random::SetSeed(bbt::timer::clock::now().time_since_epoch().count());
+    util::Random::SetSeed(bbt::timer::clock::now().time_since_epoch().count());
     std::vector<int> vec{0,1,2,3,4,5,6,7,8,9};
     std::vector<int> vec1 = vec;
-    BOOST_ASSERT(game::util::other::Math::Derange(vec1));
+    BOOST_ASSERT(util::other::Math::Derange(vec1));
     CheckDerangeIsOk<int>(vec, vec1);
 
     std::vector<int> vec2{};
-    BOOST_ASSERT(!game::util::other::Math::Derange(vec2));
+    BOOST_ASSERT(!util::other::Math::Derange(vec2));
 
 
 }

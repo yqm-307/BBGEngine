@@ -2,14 +2,14 @@
 #include <bbt/config/GlobalConfig.hpp>
 
 
-namespace game::util::config
+namespace util::config
 {
 
 #define G_SetConfigPtr(type, value, enum) \
-(BBT_CONFIG()->GetDynamicCfg()->SetEntry<type>(game::util::config::CfgNameMap[enum], value ))
+(BBT_CONFIG()->GetDynamicCfg()->SetEntry<type>(util::config::CfgNameMap[enum], value ))
 
 #define G_GetConfigPtr(type, enum) \
-(BBT_CONFIG()->GetDynamicCfg()->GetEntry<type>(game::util::config::CfgNameMap[enum]))
+(BBT_CONFIG()->GetDynamicCfg()->GetEntry<type>(util::config::CfgNameMap[enum]))
 
 #define Entry(flag) {flag, #flag}
 

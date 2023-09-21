@@ -7,7 +7,7 @@
 #include "engine/ecs/component/Component.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 class GameObject;
 SmartPtrTypeDef(GameObject);

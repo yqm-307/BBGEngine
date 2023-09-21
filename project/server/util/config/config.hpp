@@ -1,7 +1,7 @@
 #pragma once
 #include "util/config/configutil.hpp"
 
-namespace game::util::config
+namespace util::config
 {
 
 struct AoiConfig

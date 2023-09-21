@@ -1,6 +1,6 @@
 #include "util/network/Connection.hpp"
 
-namespace game::util::network
+namespace util::network
 {
 Connection::~Connection(){}
 }

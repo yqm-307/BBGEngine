@@ -6,7 +6,7 @@
 
 #define MYGAME_HASH_MAX_BUCKET 1024
 
-namespace game::util::hashmap
+namespace util::hashmap
 {
 
 /**

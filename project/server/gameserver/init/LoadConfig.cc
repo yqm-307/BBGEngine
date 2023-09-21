@@ -29,7 +29,7 @@ void ServerConfig::Init()
 
     m_config.m_connmgr_cfg.m_heart_beat_once_ms = m_ini_reader->GetInteger("heartbeat", "interval", 0);
     m_config.m_connmgr_cfg.m_heart_beat_timeout_ms = m_ini_reader->GetInteger("heartbeat", "checkonce", 0);
-    G_SetConfigPtr(game::util::config::evConnMgrConfig, &m_config.m_connmgr_cfg, game::util::config::Cfg_evConnMgr);
+    G_SetConfigPtr(util::config::evConnMgrConfig, &m_config.m_connmgr_cfg, util::config::Cfg_evConnMgr);
 }
 
 void ServerConfig::CheckConfig()

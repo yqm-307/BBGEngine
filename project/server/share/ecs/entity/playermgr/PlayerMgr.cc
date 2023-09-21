@@ -1,6 +1,6 @@
 #include "share/ecs/entity/playermgr/PlayerMgr.hpp"
 
-namespace game::share::ecs::entity::playermgr
+namespace share::ecs::entity::playermgr
 {
 
 PlayerMgrCUQPtr& PlayerMgr::GetInstance()
@@ -70,7 +70,7 @@ void PlayerMgr::OnUpdate()
 #pragma region "内部接口实现"
 
 PlayerMgr::PlayerMgr()
-    :GameObject(ecs::GameObjType::PlayerMgr),
+    :engine::ecs::GameObject(engine::ecs::GameObjType::PlayerMgr),
     m_all_player([](const player::PlayerId& key){ return key % Default_Hash_Bucket_Num; }, nullptr)
 {
 }

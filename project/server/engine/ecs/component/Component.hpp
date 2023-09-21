@@ -4,7 +4,7 @@
 #include "engine/ecs/component/ComponentDef.hpp"
 #include "engine/ecs/EcsDefine.hpp"
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 class Component 

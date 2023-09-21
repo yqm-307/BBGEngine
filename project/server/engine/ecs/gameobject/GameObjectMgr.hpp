@@ -1,13 +1,14 @@
+#pragma once
 // #include "engine/ecs/gameobject/GameObject.hpp"
 #include "engine/ecs/EcsDefine.hpp"
 #include "util/managerbase/ManagerBase.hpp"
 #include "util/assert/Assert.hpp"
 
-namespace game::share::ecs
+namespace engine::ecs
 {
 
 class GameObjectMgr:
-    public game::util::managerbase::ManagerBase<GameObjectId, GameObjectSPtr>
+    public util::managerbase::ManagerBase<GameObjectId, GameObjectSPtr>
 {
 public:
     ~GameObjectMgr();

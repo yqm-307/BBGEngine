@@ -1,6 +1,6 @@
 #include "engine/scene/Scene.hpp"
 
-namespace game::share::scene
+namespace engine::scene
 {
 
 Scene::Scene()

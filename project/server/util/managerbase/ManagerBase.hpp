@@ -1,7 +1,7 @@
 #include <bbt/templateutil/Noncopyable.hpp>
 #include <map>
 
-namespace game::util::managerbase
+namespace util::managerbase
 {
 
 

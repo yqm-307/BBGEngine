@@ -3,7 +3,7 @@
 #include "util/ini/IniReader.hpp"
 #include <string>
 
-namespace game::util::config
+namespace util::config
 {
 
 class ConfigHelper
@@ -13,7 +13,7 @@ public:
     virtual ~ConfigHelper();
 protected:
     const std::string           m_config_path;
-    game::util::ini::IniReader* m_ini_reader;
+    util::ini::IniReader* m_ini_reader;
 };
 
 }

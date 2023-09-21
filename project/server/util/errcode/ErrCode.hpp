@@ -5,7 +5,7 @@
 #include <string>
 #include "util/errcode/ErrCodeDef.hpp"
 
-namespace game::util::errcode
+namespace util::errcode
 {
 
 

@@ -2,7 +2,7 @@
 #include "util/config/confighelper.hpp"
 #include "util/assert/Assert.hpp"
 
-namespace game::util::config
+namespace util::config
 {
 
 ConfigHelper::ConfigHelper(const std::string& filename)

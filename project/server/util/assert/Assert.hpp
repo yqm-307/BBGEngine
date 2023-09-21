@@ -23,7 +23,7 @@
 #define AssertWithInfo(expr, info) \
     assert( (expr) && (info) )
 
-namespace game::util::assert
+namespace util::assert
 {
 
 }

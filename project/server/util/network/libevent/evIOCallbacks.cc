@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <evutil.h>
 
-namespace game::util::network
+namespace util::network
 {
 
 [[maybe_unused]] void OnConnectCallback(evutil_socket_t sockfd, short events, void* args)

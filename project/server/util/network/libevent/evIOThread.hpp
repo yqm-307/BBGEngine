@@ -7,7 +7,7 @@
 #include <bbt/poolutil/IDPool.hpp>
 #include <map>
 
-namespace game::util::network
+namespace util::network
 {
 
 namespace ev
@@ -17,7 +17,7 @@ struct Event;
 
 
 class evIOThread:
-    public game::util::network::IOThread
+    public util::network::IOThread
 {
 public:
     typedef std::function<void()> IOWorkFunc;
