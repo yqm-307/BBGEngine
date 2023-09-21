@@ -26,6 +26,9 @@ enum MistKey {
 typedef int64_t GameObjectId;
 typedef int64_t ComponentId;
 
-extern inline GameObjectId GenerateGameObjectID() {  return bbt::uuid::MistID::GetID_Mist<EM_Mist_GameObjectId>(); }
-extern inline ComponentId GenerateComponentID() { return bbt::uuid::MistID::GetID_Mist<EM_Mist_ComponentId>(); }
+extern inline GameObjectId GenerateGameObjectID() 
+{ return bbt::uuid::MistID<false, EM_Mist_GameObjectId>::GenerateID() ; }
+
+extern inline ComponentId GenerateComponentID() 
+{ return bbt::uuid::MistID<false, EM_Mist_ComponentId>::GenerateID(); }
 }

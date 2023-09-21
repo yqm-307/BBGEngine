@@ -24,3 +24,9 @@ ComponentTemplateId Component::GetTemplateId() const
 {
     return m_template_id;
 }
+
+void Component::SetId(ComponentId id)
+{
+    m_id = id;
+}
+

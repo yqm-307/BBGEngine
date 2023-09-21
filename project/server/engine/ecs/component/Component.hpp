@@ -26,8 +26,9 @@ public:
 protected:
     virtual void OnCreate(){}
     virtual void OnDestory(){}
-protected:
+    virtual void SetId(ComponentId) final;
 private:
+    ComponentId             m_id{-1};
     ComponentTemplateId     m_template_id;
     std::string             m_name;
 };

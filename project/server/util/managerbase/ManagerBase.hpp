@@ -1,3 +1,4 @@
+#pragma once
 #include <bbt/templateutil/Noncopyable.hpp>
 #include <map>
 
