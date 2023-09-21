@@ -21,7 +21,7 @@ public:
     explicit GameObject(GameObjType gobj_type);
     virtual ~GameObject() = 0;
     virtual void OnCreate();
-    virtual void OnDestory(){};
+    virtual void OnDestory();
     virtual void OnUpdate() = 0;
     
     /* 插入一个组件, 如果组件已经存在，返回false，否则true */
@@ -46,7 +46,7 @@ public:
 
     const std::string& GetName() const;
 private:
-
+    void SetId(GameObjectId id);
     bool HasGameobj(const std::string& name) const;
 
     GameObjectId    m_id;

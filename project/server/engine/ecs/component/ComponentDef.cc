@@ -1,4 +1,4 @@
-#include "engine/ecs/ComponentDef.hpp"
+#include "engine/ecs/component/ComponentDef.hpp"
 
 namespace game::share::ecs
 {

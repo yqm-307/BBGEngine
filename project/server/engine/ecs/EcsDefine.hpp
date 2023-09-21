@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "util/typedef/NamespaceType.hpp"
-
+#include <bbt/uuid/EasyID.hpp>
 
 namespace game::share::ecs
 {
@@ -18,7 +18,7 @@ SmartPtrTypeDef(Component);
 SmartPtrTypeDef(GameObject);
 SmartPtrTypeDef(System);
 
-typedef int GameObjectId;
+typedef int64_t GameObjectId;
 
-
+extern inline GameObjectId GenerateGameObjectID() {  return bbt::uuid::MistID::GetID_Mist(); }
 }

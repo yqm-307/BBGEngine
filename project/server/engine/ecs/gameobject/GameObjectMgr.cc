@@ -6,7 +6,7 @@ namespace game::share::ecs
 
 const std::unique_ptr<GameObjectMgr>& GameObjectMgr::GetInstance()
 {
-    std::unique_ptr<GameObjectMgr>  _instance{nullptr};
+    static std::unique_ptr<GameObjectMgr> _instance{nullptr};
     if(_instance == nullptr)
         _instance = std::unique_ptr<GameObjectMgr>(new GameObjectMgr());
 
@@ -40,6 +40,19 @@ bool GameObjectMgr::OnInitGameObject(KeyType key, ValueType value)
     auto [_, isok] = m_gameobject_map.insert(std::make_pair(key, value));
     return isok;
 }
+
+bool GameObjectMgr::OnDestoryGameObject(KeyType key, ValueType value)
+{
+    auto it = m_gameobject_map.find(key);
+    if(it == m_gameobject_map.end())
+    {
+        return false;
+    }
+
+    m_gameobject_map.erase(it);
+    return true;
+}
+
 
 
 }

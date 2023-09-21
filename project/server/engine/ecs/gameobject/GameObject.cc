@@ -19,7 +19,6 @@ GameObject::~GameObject()
 
 void GameObject::OnCreate()
 {
-    GameObjectMgr::GetInstance()->OnInitGameObject(m_id, shared_from_this());
 }
 
 void GameObject::OnDestory()
@@ -117,6 +116,11 @@ bool GameObject::HasGameobj(const std::string& name) const
         return false;
 
     return true;
+}
+
+void GameObject::SetId(GameObjectId id)
+{
+    m_id = id;
 }
 
 #pragma endregion

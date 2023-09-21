@@ -10,6 +10,7 @@ class GameObjectMgr:
     public game::util::managerbase::ManagerBase<GameObjectId, GameObjectSPtr>
 {
 public:
+    ~GameObjectMgr();
     static const std::unique_ptr<GameObjectMgr>& GetInstance();
 
     virtual Result      Search(KeyType key) override;
@@ -21,7 +22,6 @@ public:
     GameObjectSPtr Create(InitArgs ...args);
 protected:
     GameObjectMgr();
-    ~GameObjectMgr();
 
 private:
     std::map<GameObjectId, GameObjectSPtr>  m_gameobject_map;
@@ -29,12 +29,21 @@ private:
 
 
 template<typename GameObjectChildType, typename ...InitArgs>
-GameObjectSPtr GameObjectMgr::Create<GameObjectChildType, InitArgs...>(InitArgs ...args)
+GameObjectSPtr GameObjectMgr::Create(InitArgs ...args)
 {
     static_assert( std::is_base_of_v<GameObject, GameObjectChildType> ); // 必须派生自GameObject
+
     auto sptr = std::make_shared<GameObjectChildType>(args...);
+
+    sptr->SetId(GenerateGameObjectID());
     bool isok = OnInitGameObject(sptr->GetId(), sptr);
-    DebugAssert(isok);
+
+    DebugAssertWithInfo(isok, "repeat key, a little probability event!");
+    if(!isok) {
+        sptr = nullptr; // 释放对象
+        return nullptr;
+    }
+
     return sptr;
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "util/hashmap/Hashmap.hpp"
 #include <bbt/templateutil/BaseType.hpp>
-#include "engine/ecs/ComponentDef.hpp"
+#include "engine/ecs/component/ComponentDef.hpp"
 #include <optional>
 
 namespace game::share::ecs
