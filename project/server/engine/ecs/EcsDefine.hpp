@@ -18,7 +18,14 @@ SmartPtrTypeDef(Component);
 SmartPtrTypeDef(GameObject);
 SmartPtrTypeDef(System);
 
-typedef int64_t GameObjectId;
+enum MistKey {
+    EM_Mist_GameObjectId = 1,
+    EM_Mist_ComponentId = 2,
+};
 
-extern inline GameObjectId GenerateGameObjectID() {  return bbt::uuid::MistID::GetID_Mist(); }
+typedef int64_t GameObjectId;
+typedef int64_t ComponentId;
+
+extern inline GameObjectId GenerateGameObjectID() {  return bbt::uuid::MistID::GetID_Mist<EM_Mist_GameObjectId>(); }
+extern inline ComponentId GenerateComponentID() { return bbt::uuid::MistID::GetID_Mist<EM_Mist_ComponentId>(); }
 }

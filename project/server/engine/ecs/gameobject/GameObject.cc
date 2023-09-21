@@ -23,7 +23,7 @@ void GameObject::OnCreate()
 
 void GameObject::OnDestory()
 {
-    GameObjectMgr::GetInstance()->OnDestoryGameObject(m_id, shared_from_this());
+    GameObjectMgr::GetInstance()->OnDestoryGameObject(m_id);
 }
 
 

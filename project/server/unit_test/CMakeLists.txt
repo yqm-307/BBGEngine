@@ -4,10 +4,9 @@ cmake_minimum_required(VERSION 3.1)
 
 enable_language(CXX)
 
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/Test)
-
 set(Wall_Flag "-Wall -Wno-sign-compare -Wno-format -Wno-reorder -Wno-unknown-pragmas")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -std=c++17 ${Wall_Flag}")
+enable_testing()
 
 # debug版本
 add_definitions(-DDebug)
@@ -46,5 +45,4 @@ add_executable(unit_test
 target_link_libraries(unit_test
     ${MY_LINK_LIB}
 )
-
 add_test(NAME unit_test COMMAND unit_test)

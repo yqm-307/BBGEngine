@@ -23,7 +23,8 @@ void print_notify(engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m ,
 
 engine::ecs::GameObjectSPtr create_player(int aoi_id)
 {
-    auto player = std::make_shared<ecs::entity::player::Player>();
+    auto player = engine::ecs::GameObjectMgr::GetInstance()->Create<ecs::entity::player::Player>();
+    // auto player = std::make_shared<ecs::entity::player::Player>();
     auto aoi_comp = std::make_shared<ecs::component::AoiComponent>();
     player->AddComponent(aoi_comp);
     aoi_comp->SetObjId(aoi_id);

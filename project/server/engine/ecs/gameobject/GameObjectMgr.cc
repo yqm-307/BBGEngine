@@ -41,7 +41,7 @@ bool GameObjectMgr::OnInitGameObject(KeyType key, ValueType value)
     return isok;
 }
 
-bool GameObjectMgr::OnDestoryGameObject(KeyType key, ValueType value)
+bool GameObjectMgr::OnDestoryGameObject(KeyType key)
 {
     auto it = m_gameobject_map.find(key);
     if(it == m_gameobject_map.end())

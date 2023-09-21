@@ -17,7 +17,7 @@ public:
     virtual Result      Search(KeyType key) override;
     virtual bool        IsExist(KeyType key) override;
     bool                OnInitGameObject(KeyType key, ValueType value);
-    bool                OnDestoryGameObject(KeyType key, ValueType value);
+    bool                OnDestoryGameObject(KeyType key);
 
     template<typename GameObjectChildType, typename ...InitArgs>
     GameObjectSPtr Create(InitArgs ...args);
