@@ -18,7 +18,7 @@ class GameObject:
 {
     friend class GameObjectMgr;
 public:
-    explicit GameObject(GameObjType gobj_type);
+    explicit GameObject(int gobj_type);
     virtual ~GameObject() = 0;
     virtual void OnCreate();
     virtual void OnDestory();
@@ -31,21 +31,30 @@ public:
     /* 删除一个组件，如果不存在返回nullptr */
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
-    GameObjType     Type();
+    int             Type();
 
     GameObjectId    GetId();
 
     /* 根据游戏对象的名字，在当前游戏对象的子游戏对象中找到游戏对象 */
     GameObjectSPtr  GetGameObject(const std::string& gameobj_name);
 
+    // TODO
     /* 根据游戏对象的名字，递归的在子游戏对象中找到游戏对象 */
     // GameObjectSPtr  RecursionGetGameObject(std::string gameobj_name);
 
     /* 动态的添加一个子游戏对象，成功返回true，失败返回false */
-    bool DynamicAddChild(GameObjectSPtr gameobj);
+    bool MountChild(GameObjectSPtr gameobj);
+
+    // TODO
+    // bool UnMountChild(GameObjectSPtr gameobj);
 
     const std::string& GetName() const;
 private:
+    /**
+     * @brief 此函数被调用时会自上而下的遍历所有的子节点并Update
+     * 同时触发OnUpdate去更新
+     */
+    void Update();
     void SetId(GameObjectId id);
     bool HasGameobj(const std::string& name) const;
 
@@ -54,7 +63,7 @@ private:
     std::string m_gameobj_name;
 
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */
-    GameObjType m_gobj_type;
+    const int m_gobj_type;
 
     /* 每个游戏对象都可以保存着一些组件 */
     std::map<ComponentTemplateId, ComponentSPtr>  m_component_map;

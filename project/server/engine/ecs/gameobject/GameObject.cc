@@ -6,7 +6,7 @@ namespace engine::ecs
 
 
 
-GameObject::GameObject(GameObjType gobj_type)
+GameObject::GameObject(int gobj_type)
     :m_gobj_type(gobj_type)
 {
     AssertWithInfo( gobj_type > 0, "game object type error");
@@ -63,7 +63,7 @@ bool GameObject::AddComponent(ComponentSPtr component)
     return it.second;
 }
 
-GameObjType GameObject::Type()
+int GameObject::Type()
 {
     return m_gobj_type;
 }
@@ -96,7 +96,7 @@ const std::string& GameObject::GetName() const
     return m_gameobj_name;
 }
 
-bool GameObject::DynamicAddChild(GameObjectSPtr gameobj)
+bool GameObject::MountChild(GameObjectSPtr gameobj)
 {
     auto name = gameobj->GetName();
     if(name.empty())
@@ -122,6 +122,22 @@ void GameObject::SetId(GameObjectId id)
 {
     m_id = id;
 }
+
+void GameObject::Update()
+{
+    for(auto child_ptr : m_childs)
+    {
+        auto gobj_ptr = child_ptr.second;
+
+        /* 递归更新子组件 */
+        gobj_ptr->Update();
+
+    }
+
+    /* 通知此组件已经更新了 */
+    OnUpdate();
+}
+
 
 #pragma endregion
 

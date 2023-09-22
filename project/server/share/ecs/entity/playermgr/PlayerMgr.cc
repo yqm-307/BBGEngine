@@ -1,4 +1,5 @@
 #include "share/ecs/entity/playermgr/PlayerMgr.hpp"
+#include "share/ecs/Define.hpp"
 
 namespace share::ecs::entity::playermgr
 {
@@ -70,7 +71,7 @@ void PlayerMgr::OnUpdate()
 #pragma region "内部接口实现"
 
 PlayerMgr::PlayerMgr()
-    :engine::ecs::GameObject(engine::ecs::GameObjType::PlayerMgr),
+    :engine::ecs::GameObject(share::ecs::EM_ENTITY_TYPE_PLAYER),
     m_all_player([](const player::PlayerId& key){ return key % Default_Hash_Bucket_Num; }, nullptr)
 {
 }

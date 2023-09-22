@@ -18,6 +18,8 @@ SmartPtrTypeDef(Component);
 SmartPtrTypeDef(GameObject);
 SmartPtrTypeDef(System);
 
+#pragma region "==> ID和ID生成器的声明 <=="
+
 enum MistKey {
     EM_Mist_GameObjectId = 1,
     EM_Mist_ComponentId = 2,
@@ -31,4 +33,7 @@ extern inline GameObjectId GenerateGameObjectID()
 
 extern inline ComponentId GenerateComponentID() 
 { return bbt::uuid::MistID<false, EM_Mist_ComponentId>::GenerateID(); }
+
+#
+
 }
