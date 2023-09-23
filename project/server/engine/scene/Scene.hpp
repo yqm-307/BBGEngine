@@ -9,12 +9,9 @@ namespace engine::scene
 const int Default_Hash_Bucket_Num = 128;
 
 // FIXME 也许场景也是一个游戏对象
-class Scene:
-    public engine::ecs::GameObject
+class Scene
 {
 public:
-    typedef std::map<std::string, engine::ecs::GameObjectSPtr> GameObjMap;
-    typedef std::pair<engine::ecs::GameObjectSPtr, bool> Result;
     Scene();
     virtual ~Scene() = 0;
 

@@ -39,7 +39,8 @@ GameObjectSPtr GameObjectMgr::Create(InitArgs ...args)
     sptr->SetId(GenerateGameObjectID());
     bool isok = OnInitGameObject(sptr->GetId(), sptr);
 
-    DebugAssertWithInfo(isok, "repeat key, a little probability event!");
+    // XXX 如果GenerateID没有稳定了，可以去除debug断言
+    DebugAssertWithInfo(isok, "repeat key, it is impossible!");
     if(!isok) {
         sptr = nullptr; // 释放对象
         return nullptr;

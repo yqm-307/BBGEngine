@@ -29,11 +29,11 @@ typedef int64_t GameObjectId;
 typedef int64_t ComponentId;
 
 extern inline GameObjectId GenerateGameObjectID() 
-{ return bbt::uuid::MistID<false, EM_Mist_GameObjectId>::GenerateID() ; }
+{ return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }
 
 extern inline ComponentId GenerateComponentID() 
-{ return bbt::uuid::MistID<false, EM_Mist_ComponentId>::GenerateID(); }
+{ return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_ComponentId>::GenerateID(); }
 
-#
+
 
 }

@@ -8,9 +8,14 @@ class TestScene:
     public engine::scene::Scene
 {
 public:
+    explicit TestScene() {}
+    ~TestScene() {}
 
+    int GetUpdateTimes();
 private:
-    engine::ecs::GameObjectSPtr m_root_obj;
+    virtual void OnUpdate() override;
+private:
+    int m_update_times{0};
 };
 
-};
+} // namespace share::scene

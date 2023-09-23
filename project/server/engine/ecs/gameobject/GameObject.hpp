@@ -7,7 +7,14 @@
 #include "engine/ecs/component/Component.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
-namespace engine::ecs
+namespace engine
+{
+namespace scene
+{
+class Scene;
+}
+
+namespace ecs    
 {
 class GameObject;
 SmartPtrTypeDef(GameObject);
@@ -17,6 +24,7 @@ class GameObject:
     public std::enable_shared_from_this<GameObject>
 {
     friend class GameObjectMgr;
+    friend class engine::scene::Scene;
 public:
     explicit GameObject(int gobj_type);
     virtual ~GameObject() = 0;
@@ -58,12 +66,12 @@ private:
     void SetId(GameObjectId id);
     bool HasGameobj(const std::string& name) const;
 
-    GameObjectId    m_id;
+    GameObjectId    m_id{-1};
 
-    std::string m_gameobj_name;
+    std::string m_gameobj_name{""};
 
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */
-    const int m_gobj_type;
+    const int m_gobj_type{-1};
 
     /* 每个游戏对象都可以保存着一些组件 */
     std::map<ComponentTemplateId, ComponentSPtr>  m_component_map;
@@ -75,4 +83,6 @@ private:
     std::map<GameObjectId, GameObjectWKPtr> m_partners;
 };
 
-}
+} // namespace engine::ecs
+
+} // namespace engine

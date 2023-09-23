@@ -38,6 +38,23 @@ set(MY_LINK_LIB
     pthread
 )
 
+##########################################################################
+##############             测试案例编写cmake文件
+##
+##  命名规则：  test_[测试大类]_[测试小类(可选)]_texe
+##
+##  如:  测试 engine 的 scene 的功能命名就是 test_engine_scene_texe
+##  如:  测试 util 的 random 就是 test_util_random_texe
+##  如:  测试 hello world 就是 test_helloworld_texe
+##
+##
+##
+##########################################################################
+
+
+
+
+######################## ==> 单元测试，后续需要拆分 <== ########################
 add_executable(unit_test 
     ${SRC_FILE}
     ./main.cc
@@ -46,3 +63,17 @@ target_link_libraries(unit_test
     ${MY_LINK_LIB}
 )
 add_test(NAME unit_test COMMAND unit_test)
+
+
+
+######################## ==> engine 的 scene 功能测试 <== ########################
+
+add_executable(test_engine_scene_texe
+    ${SRC_FILE}
+    ./engine_test/Test_scene.cc
+)
+
+target_link_libraries(test_engine_scene_texe
+    ${MY_LINK_LIB}
+)
+add_test(NAME engine_scene COMMAND test_engine_scene_texe)
