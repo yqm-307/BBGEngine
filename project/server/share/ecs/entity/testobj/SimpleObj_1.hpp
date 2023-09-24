@@ -5,6 +5,8 @@
 namespace share::ecs::entity::testobj
 {
 
+
+
 class SimpleObj_1:
     public engine::ecs::GameObject
 {
@@ -16,6 +18,8 @@ public:
 
     static int AllUpdateTimes();
     int AloneUpdateTimes();
+
+    static std::shared_ptr<SimpleObj_1> FastCreate();
 private:
     static int create_num;
 

@@ -8,6 +8,14 @@ int SimpleObj_1::create_num = 0;
 int SimpleObj_1::destory_num = 0;
 int SimpleObj_1::update_num = 0;
 
+std::shared_ptr<SimpleObj_1> SimpleObj_1::FastCreate()
+{
+    auto ptr = engine::ecs::GameObjectMgr::GetInstance()->Create<SimpleObj_1>();
+    Assert(ptr != nullptr);
+    return std::static_pointer_cast<SimpleObj_1>(ptr);
+}
+
+
 SimpleObj_1::SimpleObj_1()
     :engine::ecs::GameObject(share::ecs::emEntityType::EM_ENTITY_TYPE_TESTOBJ_1)
 {

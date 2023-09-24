@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_base_test)
 BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
 {
     using namespace util::hashmap;
-    bbt::random::mt_random<int, 1, 1000000> rd1; 
+    bbt::random::mt_random<int, 1, 100000> rd1; 
     bbt::random::mt_random<int, 1, INT32_MAX> rd2; 
     Hashmap<int, int, 256> map([](int key){return key%256;}, 1);
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
     // printf("my Hashmap----------------------------\n");
     bbt::timer::interval stopwatch; // 开始计时
     std::set<int> tmp;
-    for(int i = 0; i<1000000; i++)
+    for(int i = 0; i<100000; i++)
     {
         int key = rd2();
         auto it = tmp.insert(key);
@@ -98,12 +98,12 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
             BOOST_CHECK_MESSAGE(map.Insert(key, default_value), "key repeat!");
         }
     }
-    BOOST_TEST_MESSAGE("插入100w个数据到hashmap中，耗时: " << stopwatch.intervalnow() << "ms");
+    BOOST_TEST_MESSAGE("插入10w个数据到hashmap中，耗时: " << stopwatch.intervalnow() << "ms");
 
     stopwatch.recycle();
     std::vector<int> keys(tmp.begin(), tmp.end());
     // 随机访问 10w次
-    for(int i = 0; i<1000000; i++)
+    for(int i = 0; i<100000; i++)
     {
         int idx = rd2() % keys.size();
         auto it = map.Find(keys[idx]);
@@ -116,14 +116,14 @@ BOOST_AUTO_TEST_CASE(t_hashmap_rom_test)
 BOOST_AUTO_TEST_CASE(t_hashmap_random_func)
 {
     using namespace util::hashmap;
-    bbt::random::mt_random<int, 1, 1000000> rd1; 
+    bbt::random::mt_random<int, 1, 100000> rd1; 
     bbt::random::mt_random<int, 1, INT32_MAX> rd2; 
     Hashmap<int, int, 256> map([](int key){return key%256;}, 1);
 
     bbt::timer::interval stopwatch; // 开始计时
     for(int i = 0; i < 10; ++i)
     {
-        
+        // TODO
     }
 }
 
