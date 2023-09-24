@@ -25,15 +25,21 @@ enum MistKey {
     EM_Mist_ComponentId = 2,
 };
 
+
+
 typedef int64_t GameObjectId;
 typedef int64_t ComponentId;
 
 extern inline GameObjectId GenerateGameObjectID() 
 { return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }
 
+extern inline bool GameObjectIDInvalid(GameObjectId id)
+{ return (id <= 0); }
+
 extern inline ComponentId GenerateComponentID() 
 { return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_ComponentId>::GenerateID(); }
 
-
+extern inline bool ComponentIDInvalid(ComponentId id)
+{ return (id <= 0); }
 
 }

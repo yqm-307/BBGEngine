@@ -32,7 +32,7 @@ GameObjectMgr::~GameObjectMgr()
      * clear 
      *          release node -->    // 删除节点
      *                      release GameObject -->  // 原意是对象释放，从mgr中移除管理
-     *                              release node(成功的) --> // 删除节点 (不走这个)
+     *                              release node(成功的) --> // 删除节点 (double free)
      *          release node -->
      * clear
      */

@@ -44,7 +44,7 @@ public:
     GameObjectId    GetId();
 
     /* 根据游戏对象的名字，在当前游戏对象的子游戏对象中找到游戏对象 */
-    GameObjectSPtr  GetGameObject(const std::string& gameobj_name);
+    GameObjectSPtr  GetGameObject(GameObjectId id);
 
     // TODO
     /* 根据游戏对象的名字，递归的在子游戏对象中找到游戏对象 */
@@ -64,7 +64,7 @@ private:
      */
     void Update();
     void SetId(GameObjectId id);
-    bool HasGameobj(const std::string& name) const;
+    bool HasGameobj(GameObjectId id) const;
 
     GameObjectId    m_id{-1};
 
@@ -77,7 +77,7 @@ private:
     std::map<ComponentTemplateId, ComponentSPtr>  m_component_map;
 
     /* 游戏对象是递归的，也就是说一个游戏对象可以作为节点来包含一些子对象 */
-    std::map<std::string, GameObjectSPtr>   m_childs;
+    std::map<GameObjectId, GameObjectSPtr>   m_childs;
 
     /* 父游戏对象 */
     std::map<GameObjectId, GameObjectWKPtr> m_partners;

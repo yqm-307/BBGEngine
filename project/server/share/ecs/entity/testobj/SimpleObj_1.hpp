@@ -17,6 +17,7 @@ public:
     virtual void OnUpdate() override;
 
     static int AllUpdateTimes();
+    static void ResetAllUpdateTimes();
     int AloneUpdateTimes();
 
     static std::shared_ptr<SimpleObj_1> FastCreate();

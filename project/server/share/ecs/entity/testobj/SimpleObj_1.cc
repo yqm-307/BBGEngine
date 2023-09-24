@@ -38,6 +38,12 @@ int SimpleObj_1::AllUpdateTimes()
     return update_num;
 }
 
+void SimpleObj_1::ResetAllUpdateTimes()
+{
+    update_num = 0;
+}
+
+
 int SimpleObj_1::AloneUpdateTimes()
 {
     return m_owner_update_num;

@@ -73,12 +73,12 @@ GameObjectId GameObject::GetId()
     return m_id;
 }
 
-GameObjectSPtr GameObject::GetGameObject(const std::string& gameobj_name)
+GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
 {
-    if(m_childs.size() == 0)
+    if(m_childs.size() == 0 || GameObjectIDInvalid(id))
         return nullptr;
 
-    auto it = m_childs.find(gameobj_name);
+    auto it = m_childs.find(id);
     if(it == m_childs.end())
         return nullptr;
 
@@ -98,20 +98,23 @@ const std::string& GameObject::GetName() const
 
 bool GameObject::MountChild(GameObjectSPtr gameobj)
 {
-    auto name = gameobj->GetName();
-    if(name.empty())
+    auto objid = gameobj->GetId();
+    if(GameObjectIDInvalid(objid))
         return false;
 
-    auto [_, isok] = m_childs.insert(std::make_pair(name, gameobj));
+    auto [_, isok] = m_childs.insert(std::make_pair(objid, gameobj));
     
     return isok;
 }
 
 #pragma region "私有函数"
 
-bool GameObject::HasGameobj(const std::string& name) const
+bool GameObject::HasGameobj(GameObjectId id) const
 {
-    auto it = m_childs.find(name);
+    if(GameObjectIDInvalid(id))
+        return false;
+
+    auto it = m_childs.find(id);
     if(it == m_childs.end())
         return false;
 
