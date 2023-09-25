@@ -5,6 +5,7 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 #include "engine/ecs/gameobject/GameObjectDef.hpp"
 #include "engine/ecs/component/Component.hpp"
+// #include "engine/scene/Scene.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
 namespace engine
@@ -12,12 +13,13 @@ namespace engine
 namespace scene
 {
 class Scene;
+SharedWithUniqueDef(Scene);
 }
 
 namespace ecs    
 {
 class GameObject;
-SmartPtrTypeDef(GameObject);
+// SmartPtrTypeDef(GameObject);
 
 
 class GameObject:
@@ -28,10 +30,8 @@ class GameObject:
 public:
     explicit GameObject(int gobj_type);
     virtual ~GameObject() = 0;
-    virtual void OnCreate();
-    virtual void OnDestory();
-    virtual void OnUpdate() = 0;
-    
+
+
     /* 插入一个组件, 如果组件已经存在，返回false，否则true */
     bool            AddComponent(ComponentSPtr component);
     /* 获取一个组件，如果不存在返回nullptr */
@@ -57,6 +57,15 @@ public:
     // bool UnMountChild(GameObjectSPtr gameobj);
 
     const std::string& GetName() const;
+protected:
+    virtual void OnCreate() = 0;
+    virtual void OnDestory() = 0;
+    virtual void OnUpdate() = 0;
+    virtual void OnFatherDead() = 0;
+    
+    virtual void OnBaseCreate() final;
+    virtual void OnBaseDestory() final;
+
 private:
     /**
      * @brief 此函数被调用时会自上而下的遍历所有的子节点并Update
@@ -77,10 +86,12 @@ private:
     std::map<ComponentTemplateId, ComponentSPtr>  m_component_map;
 
     /* 游戏对象是递归的，也就是说一个游戏对象可以作为节点来包含一些子对象 */
-    std::map<GameObjectId, GameObjectSPtr>   m_childs;
+    std::map<GameObjectId, GameObjectSPtr> m_childs;
 
     /* 父游戏对象 */
-    std::map<GameObjectId, GameObjectWKPtr> m_partners;
+    std::map<GameObjectId, GameObjectWKPtr> m_fathers;
+
+    engine::scene::SceneWKPtr m_scene;
 };
 
 } // namespace engine::ecs

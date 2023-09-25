@@ -123,10 +123,7 @@ public:
      */
     engine::ecs::GameObjectSPtr GetEntityByAoiObjectId(AoiObjectId aoiobj_id);
     
-    /**
-     * @brief Aoi 驱动
-     */
-    virtual void OnUpdate() override;
+
 private:
 
     void Init();
@@ -138,8 +135,16 @@ private:
     
     void OnMove(engine::ecs::GameObjectSPtr player);
     
-private:
+protected:
     bool CheckConfig(const util::config::AoiConfig*) const;
+    /**
+     * @brief Aoi 驱动
+     */
+    virtual void OnUpdate() override;
+
+    virtual void OnCreate() {}
+    virtual void OnDestory() {}
+    virtual void OnFatherDead() {}
 private:
     /**
      * AOI 相关

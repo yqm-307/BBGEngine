@@ -7,7 +7,7 @@
 namespace share::ecs::entity::playermgr
 {
 class PlayerMgr;
-SmartPtrTypeDef(PlayerMgr);
+OnlyUniqueDef(PlayerMgr);
 
 const int Default_Hash_Bucket_Num = 256;
 

@@ -9,7 +9,7 @@ namespace util::network
 {
 
 class Connection;
-SmartPtrTypeDef(Connection);
+OnlySharedDef(Connection);
 
 enum ConnStatus
 {

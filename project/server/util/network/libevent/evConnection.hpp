@@ -36,7 +36,7 @@ struct evArgs
 class evIOThread;
 class evConnection;
 class evConnMgr;
-SmartPtrTypeDef(evConnection);
+OnlySharedDef(evConnection);
 
 /**
  * @brief 可靠的双向连接，基于Tcp

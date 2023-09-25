@@ -14,9 +14,9 @@ class Component;
 class GameObject;
 class System;
 
-SmartPtrTypeDef(Component);
-SmartPtrTypeDef(GameObject);
-SmartPtrTypeDef(System);
+OnlySharedDef(Component);
+SharedWithUniqueDef(GameObject);
+OnlySharedDef(System);
 
 #pragma region "==> ID和ID生成器的声明 <=="
 
