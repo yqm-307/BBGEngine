@@ -98,25 +98,25 @@ int ChildObjNum(int level, int sub)
     return ( pow(sub, level) - 1)/(sub - 1) - 1;
 }
 
-// 场景下有一些 GameObject 且 GameObject 也有一些子GameObject 一起 Update
-BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update, SceneFixture)
+void TreeUpdate(int update_times, int sub, int level)
 {
     using namespace share::ecs::entity;
-
-    const int SCENE_MAX = 100;  // 
-    const int MAX_LEVEL = 2;    // 4 层
-    const int SUB_GAMEOBJ_NUM = 3;  // 每个子节点有多少个对象
+    const int SCENE_MAX = update_times;  // 
+    const int MAX_LEVEL = sub;    // 4 层
+    const int SUB_GAMEOBJ_NUM = level;  // 每个子节点有多少个对象
 
     share::scene::TestScene scene;
 
-
-    for(int i = 0; i < SUB_GAMEOBJ_NUM; ++i)
+    if(MAX_LEVEL >= 1) 
     {
-        auto obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::testobj::SimpleObj_1>();
-        auto isok = scene.MountGameObject(obj);
-        BOOST_CHECK(isok);
-        MountObj(obj, SUB_GAMEOBJ_NUM, MAX_LEVEL - 1);
-    }
+        for(int i = 0; i < SUB_GAMEOBJ_NUM; ++i)
+        {
+            auto obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::testobj::SimpleObj_1>();
+            auto isok = scene.MountGameObject(obj);
+            BOOST_CHECK(isok);
+            MountObj(obj, SUB_GAMEOBJ_NUM, MAX_LEVEL - 1);
+        }
+    } 
 
     for(int i = 0; i < SCENE_MAX; ++i)
     {
@@ -124,10 +124,47 @@ BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update, SceneFixture)
     }
 
     BOOST_CHECK_MESSAGE( share::ecs::entity::testobj::SimpleObj_1::AllUpdateTimes() == (SCENE_MAX * ChildObjNum(MAX_LEVEL + 1, SUB_GAMEOBJ_NUM)) ,
-        "SimpleObj_1 num=" << (int64_t)ChildObjNum(MAX_LEVEL + 1, SUB_GAMEOBJ_NUM) << 
-        "\ttotal update times=" << share::ecs::entity::testobj::SimpleObj_1::AllUpdateTimes() << 
-        "\tscene update times=" << SCENE_MAX);
+        "\n" << SCENE_MAX << "\t" << MAX_LEVEL << "\t" << SUB_GAMEOBJ_NUM <<
+        "\nSimpleObj_1 num=" << (int64_t)ChildObjNum(MAX_LEVEL + 1, SUB_GAMEOBJ_NUM) <<
+        "\nexpect num=" << SCENE_MAX * ChildObjNum(MAX_LEVEL + 1, SUB_GAMEOBJ_NUM) <<
+        "\ntotal update times=" << share::ecs::entity::testobj::SimpleObj_1::AllUpdateTimes() << 
+        "\nscene update times=" << SCENE_MAX);
+}
 
+// 场景下有一些 GameObject 且 GameObject 也有一些子GameObject 一起 Update
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_1, SceneFixture)
+{
+    TreeUpdate(100, 2, 8);
+}
+
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_2, SceneFixture)
+{
+    TreeUpdate(100, 4, 4);
+}
+
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_3, SceneFixture)
+{
+    TreeUpdate(1000, 2, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_4, SceneFixture)
+{
+    TreeUpdate(1000, 0, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_5, SceneFixture)
+{
+    TreeUpdate(1000, 0, 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_6, SceneFixture)
+{
+    TreeUpdate(1000, 5, 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(t_scene_has_gameobj_tree_update_7, SceneFixture)
+{
+    TreeUpdate(1000, 1, 100);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
