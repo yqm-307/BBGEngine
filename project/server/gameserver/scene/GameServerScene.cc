@@ -20,6 +20,7 @@ GameServerScene::~GameServerScene()
 void GameServerScene::OnUpdate()
 {
     DebugAssert(module_aoi != nullptr);
+    // FIXME 修改为调用 Update
     module_aoi->OnUpdate();  // 更新aoi
 }
 

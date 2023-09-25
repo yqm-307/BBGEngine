@@ -1,4 +1,5 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
+#include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/log/Log.hpp"
 
 
@@ -38,7 +39,15 @@ GameObjectMgr::~GameObjectMgr()
      */
     while(!m_gameobject_map.empty())
     {
-        m_gameobject_map.begin()->second = nullptr;
+        // XXX 这里可能还有被持有的指针，那么意味着进程退出的不够优雅
+        auto&& ptr = m_gameobject_map.begin()->second;
+        if(ptr.use_count() > 1)
+        {
+            GAME_BASE_LOG_WARN("[GameObjectMgr::~GameObjectMgr] type=%d use_count=%d", 
+                ptr->Type(),
+                ptr.use_count());
+        }
+        ptr = nullptr;
     }
     GAME_EXT1_LOG_INFO("release all item. remain item num=%d", m_gameobject_map.size());
     DebugAssert(m_gameobject_map.size() == 0);

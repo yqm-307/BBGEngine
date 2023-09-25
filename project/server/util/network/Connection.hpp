@@ -9,7 +9,8 @@ namespace util::network
 {
 
 class Connection;
-OnlySharedDef(Connection);
+SharedWithUniqueDef(Connection);
+
 
 enum ConnStatus
 {

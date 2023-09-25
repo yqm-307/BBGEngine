@@ -10,19 +10,19 @@ GameObject::GameObject(int gobj_type)
     :m_gobj_type(gobj_type)
 {
     AssertWithInfo( gobj_type > 0, "game object type error");
-    OnBaseCreate();
+    OnCreate();
 }
 
 GameObject::~GameObject()
 {
-    OnBaseDestory();
+    OnDestory();
 }
 
-void GameObject::OnBaseCreate()
+void GameObject::OnCreate()
 {
 }
 
-void GameObject::OnBaseDestory()
+void GameObject::OnDestory()
 {
     GameObjectMgr::GetInstance()->OnDestoryGameObject(m_id);
 }

@@ -14,8 +14,8 @@ public:
     explicit NoneObj();
     ~NoneObj();
 
-    virtual void OnCreate() override;
-    virtual void OnDestory() override;
+    virtual void OnCreate();
+    virtual void OnDestory();
     virtual void OnUpdate() override;
 private:
 

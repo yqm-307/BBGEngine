@@ -58,13 +58,9 @@ public:
 
     const std::string& GetName() const;
 protected:
-    virtual void OnCreate() = 0;
-    virtual void OnDestory() = 0;
     virtual void OnUpdate() = 0;
     virtual void OnFatherDead() = 0;
     
-    virtual void OnBaseCreate() final;
-    virtual void OnBaseDestory() final;
 
 private:
     /**
@@ -74,6 +70,8 @@ private:
     void Update();
     void SetId(GameObjectId id);
     bool HasGameobj(GameObjectId id) const;
+    void OnCreate();
+    void OnDestory();
 
     GameObjectId    m_id{-1};
 

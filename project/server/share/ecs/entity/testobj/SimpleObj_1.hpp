@@ -21,6 +21,8 @@ public:
     int AloneUpdateTimes();
 
     static std::shared_ptr<SimpleObj_1> FastCreate();
+protected:
+    virtual void OnFatherDead() {}
 private:
     static int create_num;
 
