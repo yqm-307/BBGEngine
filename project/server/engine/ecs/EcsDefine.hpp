@@ -3,6 +3,13 @@
 #include "util/typedef/NamespaceType.hpp"
 #include <bbt/uuid/EasyID.hpp>
 
+#pragma region "==> 宏声明 <=="
+
+#define GameObjectDeriveClassDef \
+    friend engine::ecs::GameObjectMgr
+
+#pragma endregion
+
 namespace engine::ecs
 {
 
@@ -41,5 +48,10 @@ extern inline ComponentId GenerateComponentID()
 
 extern inline bool ComponentIDInvalid(ComponentId id)
 { return (id <= 0); }
+
+#pragma endregion
+
+
+
 
 }

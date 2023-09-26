@@ -1,11 +1,11 @@
 #pragma once
-#include <map>
-#include <vector>
 #include "share/ecs/entity/aoi/Define.hpp"
 #include "util/config/config.hpp"
 #include "util/hashmap/Hashmap.hpp"
 #include "util/vector/Pos3.hpp"
 #include "share/ecs/component/aoi/AoiComponent.hpp"
+#include <map>
+#include <vector>
 
 namespace share::ecs::entity::aoi
 {
@@ -34,8 +34,8 @@ enum AoiEntityFlag
 class Aoi:
     public engine::ecs::GameObject
 {
-    template<typename T>
-    using Timestamp = bbt::timer::clock::Timestamp<T>;
+    GameObjectDeriveClassDef;
+    template<typename T> using Timestamp = bbt::timer::clock::Timestamp<T>;
     typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */
     typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
@@ -43,16 +43,6 @@ class Aoi:
     typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
 public:
     typedef std::vector<engine::ecs::GameObjectSPtr>     EntityResult;
-
-    static std::shared_ptr<Aoi> Create(OnEnterFunc onenter, OnLeaveFunc onleave);
-    
-    /**
-     * @brief 构造一个Aoi对象
-     * 
-     * @param onenter 有实体进入时通知
-     * @param onleave 有实体离开时通知
-     */
-    explicit Aoi(OnEnterFunc onenter, OnLeaveFunc onleave);
 
     ~Aoi();
     /**
@@ -125,6 +115,13 @@ public:
     
 
 private:
+    /**
+     * @brief 构造一个Aoi对象
+     * 
+     * @param onenter 有实体进入时通知
+     * @param onleave 有实体离开时通知
+     */
+    explicit Aoi(OnEnterFunc onenter, OnLeaveFunc onleave);
 
     void Init();
     

@@ -10,14 +10,15 @@ namespace share::ecs::entity::none
 class NoneObj:
     public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
-    explicit NoneObj();
     ~NoneObj();
 
     virtual void OnCreate();
     virtual void OnDestory();
     virtual void OnUpdate() override;
 private:
+    explicit NoneObj();
 
 };
 

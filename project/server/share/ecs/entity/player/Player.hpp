@@ -22,10 +22,9 @@ enum OnlineStatus {
 class Player:
     public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
-    Player();
     ~Player();
-    virtual void OnUpdate() override;
     /**
      * @brief 玩家是否在线
      * 
@@ -40,6 +39,10 @@ public:
      * @return PlayerId 
      */
     PlayerId GetPlayerId();
+private:
+    Player();
+    virtual void OnUpdate() override;
+    virtual void OnFatherDead() {}; 
 private:
     PlayerId            m_player_id{-1};
     OnlineStatus        m_online_status{OnlineStatus::Online};

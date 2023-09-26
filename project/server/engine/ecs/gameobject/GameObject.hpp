@@ -5,7 +5,6 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 #include "engine/ecs/gameobject/GameObjectDef.hpp"
 #include "engine/ecs/component/Component.hpp"
-// #include "engine/scene/Scene.hpp"
 #include "util/typedef/NamespaceType.hpp"
 
 namespace engine

@@ -1,5 +1,5 @@
 #include "gameserver/init/LoadConfig.hpp"
-#include "gameserver/network/Network.hpp"
+#include "share/ecs/entity/network/Network.hpp"
 #include "gameserver/scene/GameServerScene.hpp"
 #include "util/random/GlobalRandom.hpp"
 

@@ -19,7 +19,6 @@ GameServerScene::~GameServerScene()
 
 void GameServerScene::OnUpdate()
 {
-    DebugAssert(module_aoi != nullptr);
 }
 
 #pragma region "事件函数"
@@ -129,8 +128,11 @@ void GameServerScene::OnDestory()
 
 void GameServerScene::StartScene()
 {
-
-    module_network->SyncStart();
+    auto [obj, isok] = GetGameobjectById(m_network_id);
+    DebugAssert(isok);
+    auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
+    network_ptr->SyncStart();
+    // module_network->SyncStart();
     event_base_dispatch(m_ev_base);
 }
 

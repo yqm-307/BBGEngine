@@ -10,8 +10,8 @@ namespace share::ecs::entity::testobj
 class SimpleObj_1:
     public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
-    explicit SimpleObj_1();
     ~SimpleObj_1();
 
     virtual void OnUpdate() override;
@@ -22,6 +22,7 @@ public:
 
     static std::shared_ptr<SimpleObj_1> FastCreate();
 protected:
+    explicit SimpleObj_1();
     virtual void OnFatherDead() {}
 private:
     static int create_num;

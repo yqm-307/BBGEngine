@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
     bbt::random::mt_random<int, 1, 12> rd;
     aoiconfig();
     int num = 10;
-    auto aoi = ecs::entity::aoi::Aoi::Create(
+    auto aoi = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::aoi::Aoi>(
     [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         print_notify(w, m, "进入通知");
     },
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
 {
     system("clear");
     // int num = 10;
-    auto aoi = ecs::entity::aoi::Aoi::Create(
+    auto aoi = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::aoi::Aoi>(
     [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         print_notify(w, m, "进入通知");
     },
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_api_test)
 {
     // const int num = 100;
     bbt::random::mt_random<int, 0, 100> rd;
-    auto aoi = share::ecs::entity::aoi::Aoi::Create(
+    auto aoi = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::aoi::Aoi>(
     [](engine::ecs::GameObjectSPtr w, engine::ecs::GameObjectSPtr m){
         // print_notify(w, m, "进入通知");
     },

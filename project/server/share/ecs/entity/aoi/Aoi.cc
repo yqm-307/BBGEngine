@@ -10,12 +10,6 @@ namespace share::ecs::entity::aoi
 
 const engine::ecs::ComponentTemplateId Aoi::m_comp_template_id = engine::ecs::ComponentTemplateId::EM_AoiComponent;
 
-std::shared_ptr<Aoi> Aoi::Create(OnEnterFunc onenter, OnLeaveFunc onleave)
-{
-    return std::make_shared<Aoi>(onenter, onleave);
-}
-
-
 Aoi::Aoi(OnEnterFunc onenter, OnLeaveFunc onleave)
     :GameObject(share::ecs::EM_ENTITY_TYPE_AOI),
     m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),

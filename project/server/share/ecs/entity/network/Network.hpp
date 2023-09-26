@@ -12,16 +12,19 @@ namespace share::ecs::entity::network
 
 // FIXME 修改为gameobject实现，此模块目前实现错误，修复后删除
 class Network:
-    engine::ecs::GameObject
+    public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
     typedef util::network::ev::evIOThread IOThread;
 
     ~Network();
     /* 同步的启动所有线程，等所有IO线程全部启动返回 */
     void SyncStart();
-    /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
+    /* 异步的停止所有IO线程，立即返回 */
     void AsyncStop();
+    /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
+    void SyncStop();
 private:
     Network(const std::string& ip, short port);
     /* 对象内部数据申请 */

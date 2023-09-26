@@ -1,5 +1,4 @@
 #pragma once
-// #include "engine/ecs/gameobject/GameObject.hpp"
 #include "engine/ecs/EcsDefine.hpp"
 #include "util/managerbase/ManagerBase.hpp"
 #include "util/assert/Assert.hpp"
@@ -22,7 +21,7 @@ public:
     bool                OnDestoryGameObject(KeyType key);
 
     template<typename GameObjectChildType, typename ...InitArgs>
-    GameObjectSPtr Create(InitArgs ...args);
+    std::shared_ptr<GameObjectChildType> Create(InitArgs ...args);
 protected:
     GameObjectMgr();
 
@@ -32,11 +31,11 @@ private:
 
 
 template<typename GameObjectChildType, typename ...InitArgs>
-GameObjectSPtr GameObjectMgr::Create(InitArgs ...args)
+typename std::shared_ptr<GameObjectChildType> GameObjectMgr::Create(InitArgs ...args)
 {
     static_assert( std::is_base_of_v<GameObject, GameObjectChildType> ); // 必须派生自GameObject
 
-    auto sptr = std::make_shared<GameObjectChildType>(args...);
+    auto sptr = std::shared_ptr<GameObjectChildType>(new GameObjectChildType(args...));
 
     sptr->SetId(GenerateGameObjectID());
     bool isok = OnInitGameObject(sptr->GetId(), sptr);
