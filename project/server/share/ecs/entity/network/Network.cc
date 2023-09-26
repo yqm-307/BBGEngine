@@ -1,7 +1,8 @@
-#include "gameserver/network/Network.hpp"
+#include "share/ecs/entity/network/Network.hpp"
 #include "util/network/libevent/evIOCallbacks.hpp"
+#include "share/ecs/Define.hpp"
 
-namespace server::network
+namespace share::ecs::entity::network
 {
 // #define Debug
 #ifdef Debug
@@ -32,7 +33,8 @@ void Test_AddEvent(event_base* base, const std::string& info_str)
 #endif
 
 Network::Network(const std::string& ip, short port)
-    :m_acceptor(ip, port),
+    :engine::ecs::GameObject(share::ecs::EM_ENTITY_TYPE_GAMESERVER_NETWORK),
+    m_acceptor(ip, port),
     m_io_thread_num(3)
 {
     Init();
@@ -98,10 +100,9 @@ void Network::SyncStart()
     WaitForOtherIOThreadStart();
 }
 
-void Network::SyncStop()
+void Network::AsyncStop()
 {
-    for(int i = 0; i < m_io_thread_num; ++i)
-        m_io_threads[i]->Stop();
+    m_is_need_stop = true;
 }
 
 void Network::IOWork(int index)
@@ -137,6 +138,18 @@ void Network::WaitForOtherIOThreadStart()
     m_thread_latch->wait();
 }
 
+void Network::OnUpdate()
+{
+    if(!m_is_in_loop)
+        return;
+    
+    if(m_is_need_stop)  {
+        for(int i = 0; i < m_io_thread_num; ++i) {
+            m_io_threads[i]->Stop();
+        }
+        return;
+    }
+}
 
 #pragma region "工具函数"
 

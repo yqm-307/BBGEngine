@@ -3,7 +3,7 @@
 #include "util/network/IPAddress.hpp"
 #include <functional>
 
-namespace server::network
+namespace share::ecs::entity::network::__detail
 {
 static const int ListenCallback_Min_MS = 1000; // 如果没有事件，多久触发一次
 

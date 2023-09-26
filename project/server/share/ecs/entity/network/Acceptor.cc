@@ -1,12 +1,12 @@
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/libevent/evConnMgr.hpp"
-#include "gameserver/network/Acceptor.hpp"
+#include "share/ecs/entity/network/Acceptor.hpp"
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 #include <fcntl.h>
 #include <evutil.h>
 
-namespace server::network
+namespace share::ecs::entity::network::__detail
 {
 
 Acceptor::Acceptor(std::string ip, short port)

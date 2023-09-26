@@ -10,6 +10,7 @@ enum emEntityType: int {
     EM_ENTITY_TYPE_AOI                      = 1,    // aoi
     EM_ENTITY_TYPE_PLAYER_MGR               = 2,    // 玩家管理器
     EM_ENTITY_TYPE_COMM_SCENE               = 3,    // 通用空场景
+    EM_ENTITY_TYPE_GAMESERVER_NETWORK       = 4,    // gs 网络层
 
 
 //------------------------> 实体对象 <------------------------//

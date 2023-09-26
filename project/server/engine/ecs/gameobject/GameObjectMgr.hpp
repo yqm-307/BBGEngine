@@ -4,6 +4,8 @@
 #include "util/managerbase/ManagerBase.hpp"
 #include "util/assert/Assert.hpp"
 
+#define GetGameobjectById(id) engine::ecs::GameObjectMgr::GetInstance()->Search(id)
+
 namespace engine::ecs
 {
 

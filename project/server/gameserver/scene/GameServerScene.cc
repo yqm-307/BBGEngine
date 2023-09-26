@@ -1,6 +1,6 @@
 #include "gameserver/scene/GameServerScene.hpp"
 #include "gameserver/init/LoadConfig.hpp"
-#include "gameserver/network/Network.hpp"
+#include "share/ecs/entity/network/Network.hpp"
 #include "util/log/Log.hpp"
 #include <signal.h>
 
@@ -9,19 +9,17 @@ namespace server::scene
 
 GameServerScene::GameServerScene()
 {
-    Init();
+    OnCreate();
 }
 
 GameServerScene::~GameServerScene()
 {
-    Destory();
+    OnDestory();
 }
 
 void GameServerScene::OnUpdate()
 {
     DebugAssert(module_aoi != nullptr);
-    // FIXME 修改为调用 Update
-    module_aoi->OnUpdate();  // 更新aoi
 }
 
 #pragma region "事件函数"
@@ -29,7 +27,7 @@ void GameServerScene::OnUpdate()
 void EventUpdate(evutil_socket_t,short,void* arg)
 {
     auto pthis = (GameServerScene*)arg;
-    pthis->OnUpdate();
+    pthis->Update();
 }
 
 // SIGINT 信号
@@ -46,7 +44,7 @@ void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg)
 
 
 
-void GameServerScene::Init()
+void GameServerScene::OnCreate()
 {
 
 
@@ -68,31 +66,31 @@ void GameServerScene::Init()
     }
 
     {
-        AoiInit();
+        auto aoi = AoiInit();
+        bool isok = MountGameObject(aoi);
+        DebugAssert(isok);
+        m_aoi_id = aoi->GetId();
     }
 
     {// network 初始化
-        NetWorkInit();
+        auto network = NetWorkInit();
+        bool isok = MountGameObject(network);
+        DebugAssert(isok);
+        m_network_id = network->GetId();
     }
 }
 
-void GameServerScene::AoiInit()
+engine::ecs::GameObjectSPtr GameServerScene::AoiInit()
 {
     /* 初始化 aoi */
-    module_aoi = new share::ecs::entity::aoi::Aoi(
-    [](GameObjectSPtr p1, GameObjectSPtr p2){
-    }, 
-    [](GameObjectSPtr, GameObjectSPtr){
-    });
+    auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::aoi::Aoi>(
+    /*enter scene*/ [](GameObjectSPtr p1, GameObjectSPtr p2){}, 
+    /*leave scene*/ [](GameObjectSPtr p1, GameObjectSPtr p2){});    
+
+    return aoi_obj;
 }
 
-void GameServerScene::AoiDestory()
-{
-    delete module_aoi;
-    module_aoi = nullptr;
-}
-
-void GameServerScene::NetWorkInit()
+engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
 {
     auto& cfgInst = server::init::ServerConfig::GetInstance();
     auto ip     = cfgInst->GetServerIP();
@@ -100,20 +98,23 @@ void GameServerScene::NetWorkInit()
 
     GAME_BASE_LOG_INFO("World Server! IP: %s  Port: %d", ip.c_str(), port);
 
-    module_network = new server::network::Network(ip, port);
+    auto network_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::network::Network>(ip, port);
+
+    return network_obj;
+    // module_network = new server::network::Network(ip, port);
 }
 
 void GameServerScene::NetWorkDestory()
 {
-    module_network->SyncStop();
-
-    delete module_network;
-    module_network = nullptr;
+    auto [obj, isok] =  GetGameobjectById(m_network_id);
+    DebugAssert(isok);
+    auto network = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
+    // FIXME 同步关闭
+    network->AsyncStop();
 }
 
-void GameServerScene::Destory()
+void GameServerScene::OnDestory()
 {
-    AoiDestory();
     NetWorkDestory();
 
     event_free(m_update_event);
@@ -128,6 +129,7 @@ void GameServerScene::Destory()
 
 void GameServerScene::StartScene()
 {
+
     module_network->SyncStart();
     event_base_dispatch(m_ev_base);
 }
