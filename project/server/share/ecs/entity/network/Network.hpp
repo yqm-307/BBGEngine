@@ -23,8 +23,10 @@ public:
     void SyncStart();
     /* 异步的停止所有IO线程，立即返回 */
     void AsyncStop();
-    /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
+    // /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
     void SyncStop();
+    /* 是否还有io线程是否在运行中 */
+    bool IsRunning();
 private:
     Network(const std::string& ip, short port);
     /* 对象内部数据申请 */

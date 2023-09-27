@@ -11,13 +11,16 @@ const int Default_Hash_Bucket_Num = 128;
 // FIXME 也许场景也是一个游戏对象
 class Scene
 {
+    typedef std::pair<engine::ecs::GameObjectSPtr, bool> Result;
 public:
     Scene();
     virtual ~Scene() = 0;
 
     virtual void Update() final;
     virtual bool MountGameObject(engine::ecs::GameObjectSPtr) final;
-    virtual bool UnMountGameObject(engine::ecs::GameObjectSPtr) final; 
+    virtual Result UnMountGameObject(engine::ecs::GameObjectSPtr) final; 
+    virtual Result UnMountGameObject(engine::ecs::GameObjectId) final;
+    virtual size_t GetChildNum() final;
 protected:
     virtual void OnUpdate() = 0;
 

@@ -26,6 +26,7 @@
 namespace server::scene
 {
 
+void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg);
 const int GameSceneFrame = 20;  // 服务端游戏场景每秒20帧
 
 /**
@@ -36,6 +37,7 @@ class GameServerScene:
     public engine::scene::Scene
 {
     typedef engine::ecs::GameObjectSPtr    GameObjectSPtr;
+    friend void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg);
 public:
     GameServerScene();
     ~GameServerScene();
@@ -44,7 +46,7 @@ public:
     /* 启动场景，开启游戏 */
     void StartScene();
 
-    /* 关闭场景 */
+    /* TODO 优雅退出 关闭场景 */
     void StopScene();
 private:
     void OnCreate();
@@ -56,11 +58,18 @@ private:
 
     engine::ecs::GameObjectSPtr AoiInit();
     engine::ecs::GameObjectSPtr NetWorkInit();
-    void NetWorkDestory();
+    /* 阻塞的等待IO线程退出 */
+    void IOThreadExit();
+
+    /* 场景中实例全部卸载后调用 */
+    // void OnSceneEmpty();
+    void OnStopScene();
 private:
     event_base*     m_ev_base;
     event*          m_update_event;     // 场景update函数
     event*          m_signal_sigint;    // SIGINT 信号捕获处理
+
+    volatile bool   m_is_stop{false};          // 是否停止            
 
     engine::ecs::GameObjectId   m_aoi_id;
     engine::ecs::GameObjectId   m_network_id;

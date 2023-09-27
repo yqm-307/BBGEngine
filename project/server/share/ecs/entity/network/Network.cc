@@ -81,9 +81,9 @@ void Network::Destory()
 
     for (int i = 0; i < m_io_thread_num; i++)
     {
-        DebugAssert( !m_io_threads[i]->IsRunning() );
-        if(m_io_threads[i]->IsRunning())
-           GAME_BASE_LOG_WARN("io thread status abnormal!");
+        auto thread = m_io_threads[i]; 
+        if(thread->IsRunning())
+            thread->Stop();
 
         delete m_io_threads[i];
         OnDestoryEventBase(m_ev_bases[i]);
@@ -103,6 +103,28 @@ void Network::SyncStart()
 void Network::AsyncStop()
 {
     m_is_need_stop = true;
+}
+
+void Network::SyncStop()
+{
+    for (int i = 0; i < m_io_thread_num; i++)
+    {
+        if(!m_io_threads[i]->IsRunning())
+            continue;
+
+        m_io_threads[i]->Stop();
+    }
+}
+
+bool Network::IsRunning()
+{
+    for (auto thread : m_io_threads)
+    {
+        if(thread->IsRunning())
+            return true;
+    }
+
+    return false;
 }
 
 void Network::IOWork(int index)

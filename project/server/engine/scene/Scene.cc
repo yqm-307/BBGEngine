@@ -36,20 +36,31 @@ bool Scene::MountGameObject(engine::ecs::GameObjectSPtr gameobj)
     return true;
 }
 
-bool Scene::UnMountGameObject(engine::ecs::GameObjectSPtr gameobj)
+Scene::Result Scene::UnMountGameObject(engine::ecs::GameObjectSPtr gameobj)
 {
     auto obj_id = gameobj->GetId();
+    return UnMountGameObject(obj_id);
+}
+
+Scene::Result Scene::UnMountGameObject(engine::ecs::GameObjectId id)
+{
     auto it = std::find_if(m_root_gobjs.begin(), m_root_gobjs.end(),
-        [obj_id](const engine::ecs::GameObjectSPtr value){
-            return value->GetId() == obj_id;
+        [id](const engine::ecs::GameObjectSPtr value){
+            return value->GetId() == id;
         }
     );
 
     if(it == m_root_gobjs.end())
-        return false;
+        return {nullptr, false};
     
     m_root_gobjs.erase(it);
-    return true;
+    return {*it, true};
+}
+
+
+size_t Scene::GetChildNum()
+{
+    return m_root_gobjs.size();
 }
 
 }

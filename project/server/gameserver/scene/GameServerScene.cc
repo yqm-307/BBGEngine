@@ -19,12 +19,19 @@ GameServerScene::~GameServerScene()
 
 void GameServerScene::OnUpdate()
 {
+    if(m_is_stop) {
+        auto [ptr, isok] = UnMountGameObject(m_network_id);
+        DebugAssert(isok);
+        // FIXME 是否通知IO线程需要退出？
+        OnStopScene();
+    }
 }
 
 #pragma region "事件函数"
 
 void EventUpdate(evutil_socket_t,short,void* arg)
 {
+    /* 优雅关闭， */
     auto pthis = (GameServerScene*)arg;
     pthis->Update();
 }
@@ -32,8 +39,10 @@ void EventUpdate(evutil_socket_t,short,void* arg)
 // SIGINT 信号
 void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg)
 {
-    GAME_BASE_LOG_WARN("signal handle recv SIGINT , events=%d", events);
+    GAME_BASE_LOG_INFO("[EventSignal_Sigint] signal handle recv SIGINT , events=%d", events);
     auto pthis = (GameServerScene*)arg;
+    
+    /* 下达停止循环的指令 */
     pthis->StopScene();
 }
 
@@ -103,19 +112,8 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
     // module_network = new server::network::Network(ip, port);
 }
 
-void GameServerScene::NetWorkDestory()
-{
-    auto [obj, isok] =  GetGameobjectById(m_network_id);
-    DebugAssert(isok);
-    auto network = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
-    // FIXME 同步关闭
-    network->AsyncStop();
-}
-
 void GameServerScene::OnDestory()
 {
-    NetWorkDestory();
-
     event_free(m_update_event);
     event_free(m_signal_sigint);
     event_base_free(m_ev_base);
@@ -123,7 +121,6 @@ void GameServerScene::OnDestory()
     m_ev_base = nullptr;
     m_update_event = nullptr;
     m_signal_sigint = nullptr;
-
 }
 
 void GameServerScene::StartScene()
@@ -138,8 +135,36 @@ void GameServerScene::StartScene()
 
 void GameServerScene::StopScene()
 {
-    event_base_loopbreak(m_ev_base);
-    BBT_BASE_LOG_INFO("SIGINT exist loop!");
+    if(m_is_stop)
+    {
+        GAME_BASE_LOG_WARN("[GameServerScene::StopScene] repeat call!");
+        return;
+    }
+
+    m_is_stop = true;
+}
+
+void GameServerScene::OnStopScene()
+{
+    // 让io线程退出
+    {
+        IOThreadExit();
+    }
+
+    // 循环延时退出
+    {
+        event_base_loopbreak(m_ev_base);
+    }
+    BBT_BASE_LOG_INFO("[GameServerScene::OnStopScene] exist loop!");
+
+}
+
+void GameServerScene::IOThreadExit()
+{
+    auto [obj, isok] = GetGameobjectById(m_network_id);
+    DebugAssert(isok);
+    auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
+    network_ptr->AsyncStop();
 }
 
 #pragma endregion
