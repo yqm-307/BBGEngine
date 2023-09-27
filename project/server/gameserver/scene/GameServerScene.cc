@@ -20,10 +20,19 @@ GameServerScene::~GameServerScene()
 void GameServerScene::OnUpdate()
 {
     if(m_is_stop) {
-        auto [ptr, isok] = UnMountGameObject(m_network_id);
-        DebugAssert(isok);
-        // FIXME 是否通知IO线程需要退出？
+        // 释放场景内的所有游戏对象
+        // auto [_aoi,isok_aoi] = UnMountGameObject(m_aoi_id);        
+        // DebugAssert(isok_aoi);
+        // auto [_network,isok2] = UnMountGameObject(m_network_id);
+        // DebugAssert(isok2);
+        
         OnStopScene();
+    }
+    static auto prev_time = bbt::timer::clock::now();
+    if((bbt::timer::clock::now() - prev_time) >= bbt::timer::clock::ms(5000))
+    {
+        GAME_EXT1_LOG_DEBUG("[GameServerScene::OnUpdate] is_stop=%d gameobj size=%d", m_is_stop, GetChildNum());
+        prev_time = bbt::timer::clock::now();
     }
 }
 
@@ -155,7 +164,7 @@ void GameServerScene::OnStopScene()
     {
         event_base_loopbreak(m_ev_base);
     }
-    BBT_BASE_LOG_INFO("[GameServerScene::OnStopScene] exist loop!");
+    BBT_BASE_LOG_INFO("[GameServerScene::OnStopScene] exit loop!");
 
 }
 
@@ -164,7 +173,7 @@ void GameServerScene::IOThreadExit()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
     auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
-    network_ptr->AsyncStop();
+    network_ptr->SyncStop();
 }
 
 #pragma endregion

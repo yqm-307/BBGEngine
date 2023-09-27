@@ -11,6 +11,7 @@
 //-------------------------------------------------------------------------------------
 // Begin
 
+#define GAME_BASE_LOG_DEBUG(fmt, ...)   BBT_BASE_LOG_DEBUG(fmt,  ##__VA_ARGS__)
 #define GAME_BASE_LOG_WARN(fmt,  ...)   BBT_BASE_LOG_WARN(fmt,  ##__VA_ARGS__)
 #define GAME_BASE_LOG_INFO(fmt,  ...)   BBT_BASE_LOG_INFO(fmt,  ##__VA_ARGS__)
 #define GAME_BASE_LOG_ERROR(fmt, ...)   BBT_BASE_LOG_ERROR(fmt, ##__VA_ARGS__)

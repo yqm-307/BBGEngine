@@ -10,10 +10,13 @@
 namespace share::ecs::entity::network
 {
 
+void OnFixUpdate(evutil_socket_t,short,void*);
+
 // FIXME 修改为gameobject实现，此模块目前实现错误，修复后删除
 class Network:
     public engine::ecs::GameObject
 {
+    friend void OnFixUpdate(evutil_socket_t,short,void*);
     GameObjectDeriveClassDef;
 public:
     typedef util::network::ev::evIOThread IOThread;

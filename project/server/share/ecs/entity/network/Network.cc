@@ -4,33 +4,33 @@
 
 namespace share::ecs::entity::network
 {
-// #define Debug
-#ifdef Debug
 
-struct TestInfo
+struct IOThreadInfo
 {
     std::string info;
+    int tid;
 };
 
 
-void Test_Timer(evutil_socket_t , short, void* arg)
+void OnFixUpdate(evutil_socket_t,short,void* info)
 {
-    auto info = (TestInfo*)arg;
-    GAME_BASE_LOG_INFO("Test Timer Info: %s", info->info.c_str());
+    if(info == nullptr)
+        return;
+    auto thread_info = reinterpret_cast<IOThreadInfo*>(info);
+    GAME_BASE_LOG_DEBUG("[OnFixUpdate] thread=[%d] info=[%s]", thread_info->tid, thread_info->info.c_str());
 }
 
-void Test_AddEvent(event_base* base, const std::string& info_str)
+void RegisterFixUpdate(event_base* base)
 {
-    timeval tv;
-    evutil_timerclear(&tv);
-	tv.tv_sec = 2;
-    TestInfo* info = new TestInfo();
-    info->info = info_str;
-    event* test_timer = event_new(base, -1, EV_PERSIST, Test_Timer, info);
-    event_add(test_timer, &tv);
-}
+    timeval tm;
+    evutil_timerclear(&tm);
+    // TODO 50毫秒更新一次，写死
+    tm.tv_usec = 1000 * 50;
 
-#endif
+    event* test_timer = event_new(base, -1, EV_PERSIST, OnFixUpdate, nullptr);
+    int err = event_add(test_timer, &tm);
+    DebugAssert(err == 0);
+}
 
 Network::Network(const std::string& ip, short port)
     :engine::ecs::GameObject(share::ecs::EM_ENTITY_TYPE_GAMESERVER_NETWORK),
@@ -132,9 +132,8 @@ void Network::IOWork(int index)
     WaitForOtherIOThreadStart();
     auto ev_base = m_ev_bases[index];
     GAME_BASE_LOG_INFO("IO thread start!");
-#ifdef Debug
-    // Test_AddEvent(ev_base, "io work test timer!");
-#endif
+    RegisterFixUpdate(ev_base);
+
     int error = event_base_loop(ev_base, EVLOOP_NO_EXIT_ON_EMPTY);
     AssertWithInfo(error == 0, "libevent error!");
 }
@@ -146,10 +145,11 @@ void Network::AcceptWork(int index)
     auto ev_base = m_ev_bases[index];
 
     GAME_BASE_LOG_INFO("Accept thread start!");
+    /* Acceptor 事件 */
     m_acceptor.RegistInEvBase(ev_base);
-#ifdef Debug
-    // Test_AddEvent(ev_base, "accept test timer!");
-#endif
+    /* 固定更新事件 */
+    RegisterFixUpdate(ev_base);
+
     int error = event_base_loop(ev_base, EVLOOP_NO_EXIT_ON_EMPTY);
     AssertWithInfo(error == 0, "libevent error!");
 }
@@ -165,12 +165,7 @@ void Network::OnUpdate()
     if(!m_is_in_loop)
         return;
     
-    if(m_is_need_stop)  {
-        for(int i = 0; i < m_io_thread_num; ++i) {
-            m_io_threads[i]->Stop();
-        }
-        return;
-    }
+    SyncStop();
 }
 
 #pragma region "工具函数"
