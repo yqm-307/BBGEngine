@@ -79,34 +79,46 @@ void Network::Destory()
     delete m_thread_latch;
     m_thread_latch = nullptr;
 
+    /* 同步等待线程结束 */
+    TryStopAllThread();
+    
+    /* 释放内存 */
     for (int i = 0; i < m_io_thread_num; i++)
     {
         auto thread = m_io_threads[i]; 
-        if(thread->IsRunning())
-            thread->Stop();
-
-        delete m_io_threads[i];
+        delete thread;
         OnDestoryEventBase(m_ev_bases[i]);
         m_ev_bases[i] = nullptr;
     }
 }
 
-void Network::SyncStart()
+bool Network::SyncStart()
 {
+    if(m_status != emNetworkRunStatus::Default)
+        return false;
+
+    m_status = emNetworkRunStatus::Starting;
+
     for(int i = 0; i < m_io_thread_num; ++i)
     {
         m_io_threads[i]->Start();
     }
     WaitForOtherIOThreadStart();
-}
 
-void Network::AsyncStop()
-{
-    m_is_need_stop = true;
+    m_status = emNetworkRunStatus::Active;
+    return true;
 }
 
 void Network::SyncStop()
 {
+    TryStopAllThread();
+}
+
+void Network::TryStopAllThread()
+{
+    if(m_status != emNetworkRunStatus::Active)
+        return;
+    
     for (int i = 0; i < m_io_thread_num; i++)
     {
         if(!m_io_threads[i]->IsRunning())
@@ -114,17 +126,13 @@ void Network::SyncStop()
 
         m_io_threads[i]->Stop();
     }
+
+    m_status = emNetworkRunStatus::Stopping;
 }
 
-bool Network::IsRunning()
+bool Network::IsStoped()
 {
-    for (auto thread : m_io_threads)
-    {
-        if(thread->IsRunning())
-            return true;
-    }
-
-    return false;
+    return (m_status == emNetworkRunStatus::Inactive);
 }
 
 void Network::IOWork(int index)

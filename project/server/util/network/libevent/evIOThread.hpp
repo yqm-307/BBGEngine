@@ -75,7 +75,6 @@ private:
 protected:
     event_base*     m_ev_base{nullptr};
     IOWorkFunc      m_io_work_func{nullptr};
-    // TODO 统一的event事件管理，使用智能指针管理
     std::map<EventId, std::shared_ptr<evEvent>>   m_event_map;
 };
 

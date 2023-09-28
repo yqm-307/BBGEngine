@@ -31,7 +31,7 @@ void GameServerScene::OnUpdate()
     static auto prev_time = bbt::timer::clock::now();
     if((bbt::timer::clock::now() - prev_time) >= bbt::timer::clock::ms(5000))
     {
-        GAME_EXT1_LOG_DEBUG("[GameServerScene::OnUpdate] is_stop=%d gameobj size=%d", m_is_stop, GetChildNum());
+        GAME_BASE_LOG_DEBUG("[GameServerScene::OnUpdate] is_stop=%d gameobj size=%d", m_is_stop, GetChildNum());
         prev_time = bbt::timer::clock::now();
     }
 }
@@ -137,8 +137,9 @@ void GameServerScene::StartScene()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
     auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
-    network_ptr->SyncStart();
-    // module_network->SyncStart();
+    /* 阻塞等待网络层启动 */
+    isok = network_ptr->SyncStart();
+    DebugAssertWithInfo(isok, "SyncStart() is not reentrant!");
     event_base_dispatch(m_ev_base);
 }
 

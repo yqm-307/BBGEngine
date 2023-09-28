@@ -49,7 +49,7 @@ GameObjectMgr::~GameObjectMgr()
         }
         ptr = nullptr;
     }
-    GAME_EXT1_LOG_INFO("release all item. remain item num=%d", m_gameobject_map.size());
+    GAME_BASE_LOG_DEBUG("[GameObjectMgr::~GameObjectMgr] release all item. remain item num=%d", m_gameobject_map.size());
     DebugAssert(m_gameobject_map.size() == 0);
 }
 
