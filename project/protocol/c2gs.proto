@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message C2GS_Test_Echo_Req 
+{
+    int32 Field_HandleID = 1;
+    string Field_Message = 2;
+
+};

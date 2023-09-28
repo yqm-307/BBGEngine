@@ -47,4 +47,5 @@ target_link_libraries(gameserver
     pthread
     ybbt
     inih
+    protobuf
 )
