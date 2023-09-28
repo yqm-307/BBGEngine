@@ -45,6 +45,9 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+
+# my define
 build
 .vscode/settings.json
 .VSCodeCounter
+project/server/protoc
