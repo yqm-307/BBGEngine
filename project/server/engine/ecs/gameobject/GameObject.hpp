@@ -57,8 +57,17 @@ public:
 
     const std::string& GetName() const;
 protected:
-    virtual void OnUpdate() = 0;
     virtual void OnFatherDead() = 0;
+
+    /**
+     * @brief 游戏对象调用 Update 前调用
+     */
+    virtual void OnPreUpdate() {}
+
+    /**
+     * @brief 游戏对象调用 Update 之后调用
+     */
+    virtual void OnUpdate() = 0;
     
 
 private:

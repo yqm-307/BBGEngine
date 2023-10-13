@@ -129,6 +129,9 @@ void GameObject::SetId(GameObjectId id)
 
 void GameObject::Update()
 {
+    /* 组件预更新 */
+    OnPreUpdate();
+
     for(auto child_ptr : m_childs)
     {
         auto gobj_ptr = child_ptr.second;
@@ -138,7 +141,7 @@ void GameObject::Update()
 
     }
 
-    /* 通知此组件已经更新了 */
+    /* 此组件已更新 */
     OnUpdate();
 }
 
