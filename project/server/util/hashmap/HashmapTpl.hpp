@@ -10,7 +10,7 @@ namespace util::hashmap
 {
 
 template<typename TKey, typename TValue, size_t BucketNum>
-Hashmap<TKey, TValue, BucketNum>::Hashmap(const HashFunction& key_hash, const ValueType& default_value)
+Hashmap<TKey, TValue, BucketNum>::Hashmap(const HashFunction& key_hash, const ValueType&& default_value)
     :m_key_hash_func(key_hash),
     m_default_value(default_value),
     m_hash_map(m_bucket_size)
