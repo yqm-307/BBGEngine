@@ -1,10 +1,9 @@
-#include "engine/ecs/component/Component.hpp"
+#include "engine/ecs/component/ComponentMgr.hpp"
 
 using namespace engine::ecs;
 
-Component::Component(std::string name, ComponentTemplateId id)
-    :m_name(name),
-    m_template_id(id)
+Component::Component(ComponentTemplateId id)
+    :m_template_id(id)
 {
     OnCreate();
 }
@@ -17,7 +16,7 @@ Component::~Component()
 
 const std::string& Component::GetName() const
 {
-    return m_name;
+    return G_ComponentMgr()->GetComponentName(m_template_id);
 }
 
 ComponentTemplateId Component::GetTemplateId() const

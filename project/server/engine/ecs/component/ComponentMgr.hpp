@@ -14,6 +14,8 @@ class ComponentMgr:
     public util::managerbase::ManagerBase<ComponentId, ComponentSPtr>
 {
 public:
+    typedef std::tuple<std::string, ComponentTemplateId> ComponentInfo;
+
     ~ComponentMgr();
     static const std::unique_ptr<ComponentMgr>& GetInstance();
     
@@ -26,11 +28,24 @@ public:
     bool OnInitComponent(KeyType key, ValueType value);                
     bool OnDestoryComponent(KeyType key);
 
+public:
+    // Component模板管理
+
+    /**
+     * @brief 初始化所有模板的信息
+     * 
+     * @param list 初始化列表
+     * @return true 
+     * @return false 已经初始化过了，不可以重复初始化
+     */
+    bool InitTemplateInfo(std::initializer_list<ComponentInfo> list);
+
+
 protected:
     ComponentMgr();
 
 private:
-    util::hashmap::Hashmap<ComponentTemplateId, ComponentInfo::SPtr, ComponentHashBucketNum> m_component_info_map;
+    util::hashmap::Hashmap<ComponentTemplateId, ComponentInfo, ComponentHashBucketNum> m_component_info_map;
     std::map<ComponentId, ComponentSPtr>    m_component_map;
 };
 

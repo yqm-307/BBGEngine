@@ -3,6 +3,7 @@
 #include <bbt/templateutil/Noncopyable.hpp>
 #include "share/ecs/entity/player/Player.hpp"
 #include "util/typedef/NamespaceType.hpp"
+#include "util/hashmap/Hashmap.hpp"
 
 namespace share::ecs::entity::playermgr
 {

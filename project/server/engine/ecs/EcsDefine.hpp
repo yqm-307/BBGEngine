@@ -8,6 +8,9 @@
 #define GameObjectDeriveClassDef \
     friend engine::ecs::GameObjectMgr
 
+#define G_ComponentMgr \
+    engine::ecs::ComponentMgr::GetInstance
+
 #pragma endregion
 
 namespace engine::ecs
@@ -36,6 +39,7 @@ enum MistKey {
 
 typedef int64_t GameObjectId;
 typedef int64_t ComponentId;
+typedef int32_t ComponentTemplateId; // 模板id
 
 extern inline GameObjectId GenerateGameObjectID() 
 { return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }

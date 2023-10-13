@@ -8,13 +8,13 @@
 namespace share::ecs::entity::aoi
 {
 
-const engine::ecs::ComponentTemplateId Aoi::m_comp_template_id = engine::ecs::ComponentTemplateId::EM_AoiComponent;
+const engine::ecs::ComponentTemplateId Aoi::m_comp_template_id = share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI;
 
 Aoi::Aoi(OnEnterFunc onenter, OnLeaveFunc onleave)
     :GameObject(share::ecs::EM_ENTITY_TYPE_AOI),
     m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
-    m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(engine::ecs::ComponentTemplateId::EM_AoiComponent)),
+    m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(m_comp_template_id)),
     m_enter_func(onenter),
     m_leave_func(onleave),
     m_create_ms(bbt::timer::clock::now())

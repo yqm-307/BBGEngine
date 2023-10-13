@@ -3,7 +3,6 @@
 #include <set>
 #include <string>
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
-#include "engine/ecs/gameobject/GameObjectDef.hpp"
 #include "engine/ecs/component/Component.hpp"
 #include "util/typedef/NamespaceType.hpp"
 

@@ -1,4 +1,7 @@
 #pragma once
+#include <bbt/Attribute.hpp>
+#include "engine/ecs/component/ComponentMgr.hpp"
+
 
 namespace share::ecs
 {
@@ -22,5 +25,35 @@ enum emEntityType: int {
     EM_ENTITY_TYPE_TESTOBJ_1                = 1001001,  // 测试对象1
 
 };
+
+
+enum emComponentType: int {
+//------------------------> 特殊组件 <------------------------//
+    EM_COMPONENT_TYPE_INVALID               = -1,   // 非法组件
+    EM_COMPONENT_TYPE_NONE                  = 0,    // 空组件
+
+//------------------------> 常规组件 <------------------------//
+    EM_COMPONENT_TYPE_AOI                   = 1,    // aoi组件
+
+//------------------------> 测试组件 <------------------------//
+    EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
+};
+
+class EcsInitHelper
+{
+public:
+    EcsInitHelper(){
+        G_ComponentMgr()->InitTemplateInfo(
+            {
+                {"Aoi", emComponentType::EM_COMPONENT_TYPE_AOI},
+                {"test1", emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
+            }
+        );
+    }
+};
+
+
+BBTATTR_FUNC_DeprecatedMsg("内部变量，不可以调用") 
+static EcsInitHelper* __InitHelper = new EcsInitHelper();
 
 } // namespace share::ecs

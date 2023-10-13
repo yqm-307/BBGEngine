@@ -1,20 +1,19 @@
-#include "AoiComponent.hpp"
+#include "./AoiComponent.hpp"
+#include "share/ecs/Define.hpp"
 
 namespace share::ecs::component
 {
 
 
 AoiComponent::AoiComponent()
-    :Component("AoiComponent", engine::ecs::ComponentTemplateId::EM_AoiComponent),
+    :Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI),
     m_aoi_object_id(-1),
     m_aoi_entity_mode(-1)
 {
-
 }
 
 AoiComponent::~AoiComponent()
 {
-
 }
 
 void AoiComponent::OnAddComponent(engine::ecs::GameObjectSPtr component)
@@ -26,8 +25,7 @@ void AoiComponent::OnDelComponent(engine::ecs::GameObjectSPtr component)
 }
 
 void AoiComponent::OnUpdate()
-{
-    
+{   
 }
 
 int AoiComponent::GetObjId() const

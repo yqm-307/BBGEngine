@@ -1,15 +1,14 @@
 #include "engine/ecs/component/ComponentMgr.hpp"
+#include "util/other/ConstString.hpp"
 
 namespace engine::ecs
 {
 
 ComponentMgr::ComponentMgr()
-    :m_component_info_map([](const ComponentTemplateId& key)->size_t{ return (size_t)(key%ComponentHashBucketNum);},nullptr)
+    :m_component_info_map(
+        [](const ComponentTemplateId& key){ return (size_t)(key%ComponentHashBucketNum);},
+        ComponentInfo("", -1))
 {
-    m_component_info_map.Insert({
-        std::make_pair(EM_NoneComponent,    std::make_shared<ComponentInfo>(GSComponentName.component_none_name)),
-        std::make_pair(EM_AoiComponent,     std::make_shared<ComponentInfo>(GSComponentName.component_aoi_name)),
-    });
 }
 
 ComponentMgr::~ComponentMgr()
@@ -30,8 +29,10 @@ const std::string& ComponentMgr::GetComponentName(ComponentTemplateId id)
 {
     auto [obj, isok] = m_component_info_map.Find(id);
     if(!isok)
-        return GSComponentName.component_none_name;
-    return obj->Name;
+        return util::other::string::EmptyString;
+
+    auto& name = std::get<0>(obj);
+    return name;
 }
 
 bool ComponentMgr::OnInitComponent(KeyType key, ValueType value)
@@ -64,6 +65,24 @@ ComponentMgr::Result ComponentMgr::Search(KeyType key)
 bool ComponentMgr::IsExist(KeyType key)
 {
     return !(m_component_map.find(key) == m_component_map.end());
+}
+
+bool ComponentMgr::InitTemplateInfo(std::initializer_list<ComponentInfo> list)
+{
+    static bool is_inited = false;
+    if( is_inited )
+        return false;
+
+    is_inited = true;
+
+    for(auto&& it : list)
+    {
+        std::string info = std::get<0>(it);
+        ComponentId id = std::get<1>(it);
+        AssertWithInfo(m_component_info_map.Insert(id, it), "check component info register is right!"); // 请检查组件注册时是否正确
+    }
+
+    return true;
 }
 
 }

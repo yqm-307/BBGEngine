@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <bbt/templateutil/BaseType.hpp>
-#include "engine/ecs/component/ComponentDef.hpp"
 #include "engine/ecs/EcsDefine.hpp"
 
 namespace engine::ecs
@@ -10,7 +9,7 @@ namespace engine::ecs
 class Component 
 {
 public:
-    explicit Component(std::string name, ComponentTemplateId id);
+    explicit Component(ComponentTemplateId id);
 
 
     // interface
@@ -30,7 +29,6 @@ protected:
 private:
     ComponentId             m_id{-1};
     ComponentTemplateId     m_template_id;
-    std::string             m_name;
 };
 
 }
