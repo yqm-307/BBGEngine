@@ -23,7 +23,7 @@ public:
     static std::shared_ptr<SimpleObj_1> FastCreate();
 protected:
     explicit SimpleObj_1();
-    virtual void OnFatherDead() {}
+    virtual void OnFatherDead() override {}
 private:
     static int create_num;
 

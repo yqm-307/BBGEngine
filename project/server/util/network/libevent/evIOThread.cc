@@ -51,7 +51,7 @@ void evIOThread::evWorkFunc()
 void evIOThread::Stop()
 {
     DebugAssert(m_ev_base != nullptr);
-    int error = event_base_loopbreak(m_ev_base);
+    BBTATTR_COMM_Unused int error = event_base_loopbreak(m_ev_base);
     
     /* 阻塞式的等待 */
     SyncWaitThreadExit();

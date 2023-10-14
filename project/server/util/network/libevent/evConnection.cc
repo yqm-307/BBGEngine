@@ -73,7 +73,7 @@ void evConnection::Close()
 
 void evConnection::InitEvent()
 {
-    int err = 0;
+    BBTATTR_COMM_Unused int err = 0;
     err = GetIOThread()->RegisterEvent(m_recv_event);
 
     DebugAssert(err >= 0);

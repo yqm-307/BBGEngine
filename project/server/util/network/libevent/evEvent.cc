@@ -96,7 +96,7 @@ void evEvent::OnInit(int timeout)
 void evEvent::OnDestory()
 {
     // XXX 也许这里不需要释放
-    int err = UnRegister();
+    BBTATTR_COMM_Unused int err = UnRegister();
     DebugAssert(err >= 0);
     event_free(m_event);
     m_event = nullptr;

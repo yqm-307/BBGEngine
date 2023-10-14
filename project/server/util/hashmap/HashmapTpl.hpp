@@ -163,7 +163,7 @@ void Hashmap<TKey, TValue, BucketNum>::Foreach_Random(const ForeachFunction& fun
 {
     std::vector<int> idxs(m_bucket_size);
     int i = 0;
-    std::for_each_n(idxs.begin(), m_bucket_size, [&](const int& val){ val = i++; });
+    std::for_each_n(idxs.begin(), m_bucket_size, [&](int& val){ val = i++; });
     [[maybe_unused]] bool isok = other::Math::Derange(idxs);
     DebugAssertWithInfo(isok, "game::other::Math::Derange error!");
 

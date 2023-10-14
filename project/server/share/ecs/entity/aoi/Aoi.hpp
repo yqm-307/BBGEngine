@@ -141,7 +141,7 @@ protected:
 
     virtual void OnCreate() {}
     virtual void OnDestory() {}
-    virtual void OnFatherDead() {}
+    virtual void OnFatherDead() override {}
 private:
     /**
      * AOI 相关

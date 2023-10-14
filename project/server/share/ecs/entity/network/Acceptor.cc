@@ -44,7 +44,7 @@ void Acceptor::Clear()
 
 int Acceptor::SetNonBlock()
 {
-    int error = util::network::SetFdNoBlock(m_listen_fd);
+    BBTATTR_COMM_Unused int error = util::network::SetFdNoBlock(m_listen_fd);
     DebugAssert(error >= 0);
     return 0;
 }

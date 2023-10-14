@@ -42,7 +42,7 @@ public:
 private:
     Player();
     virtual void OnUpdate() override;
-    virtual void OnFatherDead() {}; 
+    virtual void OnFatherDead() override {}; 
 private:
     PlayerId            m_player_id{-1};
     OnlineStatus        m_online_status{OnlineStatus::Online};
