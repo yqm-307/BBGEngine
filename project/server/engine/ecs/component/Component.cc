@@ -1,6 +1,8 @@
-#include "engine/ecs/component/ComponentMgr.hpp"
+#include "engine/ecs/component/Component.hpp"
 
-using namespace engine::ecs;
+namespace engine::ecs
+{
+
 
 Component::Component(ComponentTemplateId id)
     :m_template_id(id)
@@ -28,4 +30,13 @@ void Component::SetId(ComponentId id)
 {
     m_id = id;
 }
+
+ComponentId Component::GetId() const
+{
+    return GetMemberId();
+}
+
+}
+
+
 

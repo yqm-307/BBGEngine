@@ -39,15 +39,15 @@ GameObjectMgr::~GameObjectMgr()
      */
     while(!m_gameobject_map.empty())
     {
-        // XXX 这里可能还有被持有的指针，那么意味着进程退出的不够优雅
-        auto&& ptr = m_gameobject_map.begin()->second;
-        if(ptr.use_count() > 1)
+        auto&& wkptr = m_gameobject_map.begin()->second;
+        auto sptr = wkptr.lock();
+        if(sptr && sptr.use_count() > 1)
         {
             GAME_BASE_LOG_WARN("[GameObjectMgr::~GameObjectMgr] type=%d use_count=%d", 
-                ptr->Type(),
-                ptr.use_count());
+                sptr->Type(),
+                sptr.use_count());
         }
-        ptr = nullptr;
+        sptr = nullptr;
     }
     GAME_BASE_LOG_DEBUG("[GameObjectMgr::~GameObjectMgr] release all item. remain item num=%d", m_gameobject_map.size());
     DebugAssert(m_gameobject_map.size() == 0);
@@ -59,7 +59,7 @@ typename GameObjectMgr::Result GameObjectMgr::Search(KeyType key)
     if(it_obj == m_gameobject_map.end())
         return {nullptr, false};
 
-    return {it_obj->second, true};
+    return {(it_obj->second).lock(), true};
 }
 
 bool GameObjectMgr::IsExist(KeyType key)
@@ -67,7 +67,7 @@ bool GameObjectMgr::IsExist(KeyType key)
     return !(m_gameobject_map.find(key) == m_gameobject_map.end());
 }
 
-bool GameObjectMgr::OnInitGameObject(KeyType key, ValueType value)
+bool GameObjectMgr::OnInitGameObject(KeyType key, MemberPtr value)
 {
     auto [_, isok] = m_gameobject_map.insert(std::make_pair(key, value));
     return isok;
@@ -85,6 +85,33 @@ bool GameObjectMgr::OnDestoryGameObject(KeyType key)
     return true;
 }
 
+
+bool GameObjectMgr::OnMemberCreate(MemberPtr member_base)
+{
+    auto gid = member_base->GetMemberId();
+    auto it = m_gameobject_map.find(gid);
+    if(it != m_gameobject_map.end())
+        return false;
+
+    auto [_, isok] = m_gameobject_map.insert(std::make_pair(gid, member_base));
+    return isok;
+}
+
+bool GameObjectMgr::OnMemberDestory(KeyType key)
+{
+    auto it = m_gameobject_map.find(key);
+    if(it == m_gameobject_map.end())
+        return false;
+
+    auto idx = m_gameobject_map.erase(key);
+    return (idx > 0);
+}
+
+GameObjectMgr::KeyType 
+GameObjectMgr::GenerateKey(MemberPtr member_base)
+{
+    return engine::ecs::GenerateGameObjectID();
+}
 
 
 }

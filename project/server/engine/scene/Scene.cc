@@ -13,7 +13,7 @@ Scene::~Scene()
 {
 }
 
-// FIXME 尚未完成的逻辑
+
 void Scene::Update()
 {
     for(auto obj_ptr : m_root_gobjs)

@@ -1,12 +1,13 @@
 #pragma once
 #include <string>
 #include <bbt/templateutil/BaseType.hpp>
-#include "engine/ecs/EcsDefine.hpp"
+#include "./ComponentMgr.hpp"
 
 namespace engine::ecs
 {
 
-class Component 
+class Component:
+    public util::managerbase::MemberBase<ComponentId, Component>
 {
 public:
     explicit Component(ComponentTemplateId id);
@@ -22,6 +23,7 @@ public:
 
     const std::string& GetName() const;
     ComponentTemplateId GetTemplateId() const;
+    ComponentId GetId() const;
 protected:
     virtual void OnCreate(){}
     virtual void OnDestory(){}

@@ -1,3 +1,4 @@
+#include "engine/ecs/component/Component.hpp"
 #include "engine/ecs/component/ComponentMgr.hpp"
 #include "util/other/ConstString.hpp"
 
@@ -35,7 +36,7 @@ const std::string& ComponentMgr::GetComponentName(ComponentTemplateId id)
     return name;
 }
 
-bool ComponentMgr::OnInitComponent(KeyType key, ValueType value)
+bool ComponentMgr::OnInitComponent(KeyType key, MemberPtr value)
 {
     auto [_,isok] = m_component_map.insert(std::make_pair(key, value));
     return isok;
@@ -83,6 +84,32 @@ bool ComponentMgr::InitTemplateInfo(std::initializer_list<ComponentInfo> list)
     }
 
     return true;
+}
+
+bool ComponentMgr::OnMemberCreate(MemberPtr member_base)
+{
+    auto comp_id = member_base->GetMemberId();
+    auto it = m_component_map.find(comp_id);
+    if(it != m_component_map.end())
+        return false;
+    
+    auto [_, isok] = m_component_map.insert(std::make_pair(comp_id, member_base));
+    return isok;
+}
+
+bool ComponentMgr::OnMemberDestory(KeyType key)
+{
+    auto it = m_component_map.find(key);
+    if(it == m_component_map.end())
+        return false;
+    
+    auto idx = m_component_map.erase(key);
+    return (idx > 0);
+}
+
+ComponentMgr::KeyType ComponentMgr::GenerateKey(MemberPtr member)
+{
+    return engine::ecs::GenerateComponentID();
 }
 
 }

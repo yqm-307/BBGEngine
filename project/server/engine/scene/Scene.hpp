@@ -8,7 +8,7 @@ namespace engine::scene
 
 const int Default_Hash_Bucket_Num = 128;
 
-// FIXME 也许场景也是一个游戏对象
+
 class Scene
 {
     typedef std::pair<engine::ecs::GameObjectSPtr, bool> Result;

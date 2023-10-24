@@ -5,6 +5,7 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 #include "engine/ecs/component/Component.hpp"
 #include "util/typedef/NamespaceType.hpp"
+#include "util/managerbase/ManagerBase.hpp"
 
 namespace engine
 {
@@ -21,7 +22,8 @@ class GameObject;
 
 
 class GameObject:
-    public std::enable_shared_from_this<GameObject>
+    public std::enable_shared_from_this<GameObject>,
+    public util::managerbase::MemberBase<GameObjectId, GameObject>
 {
     friend class GameObjectMgr;
     friend class engine::scene::Scene;

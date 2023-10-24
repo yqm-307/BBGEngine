@@ -1,12 +1,15 @@
 #pragma once
 #include <memory>
 #include "util/typedef/NamespaceType.hpp"
+#include "util/managerbase/ManagerBase.hpp"
 #include <bbt/uuid/EasyID.hpp>
 
 #pragma region "==> 宏声明 <=="
 
+#define Managed
+
 #define GameObjectDeriveClassDef \
-    friend engine::ecs::GameObjectMgr
+    FlagManagedByManagerBase(engine::ecs::GameObjectId, engine::ecs::GameObject)
 
 #define G_ComponentMgr \
     engine::ecs::ComponentMgr::GetInstance
@@ -24,9 +27,9 @@ class Component;
 class GameObject;
 class System;
 
-OnlySharedDef(Component);
+SharedWithUniqueDef(Component);
 SharedWithUniqueDef(GameObject);
-OnlySharedDef(System);
+SharedWithUniqueDef(System);
 
 #pragma region "==> ID和ID生成器的声明 <=="
 

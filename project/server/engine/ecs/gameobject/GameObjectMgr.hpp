@@ -1,6 +1,5 @@
 #pragma once
 #include "engine/ecs/EcsDefine.hpp"
-#include "util/managerbase/ManagerBase.hpp"
 #include "util/assert/Assert.hpp"
 
 #define GetGameobjectById(id) engine::ecs::GameObjectMgr::GetInstance()->Search(id)
@@ -9,7 +8,7 @@ namespace engine::ecs
 {
 
 class GameObjectMgr:
-    public util::managerbase::ManagerBase<GameObjectId, GameObjectSPtr>
+    public util::managerbase::ManagerBase<GameObjectId, GameObject>
 {
 public:
     ~GameObjectMgr();
@@ -17,37 +16,19 @@ public:
 
     virtual Result      Search(KeyType key) override;
     virtual bool        IsExist(KeyType key) override;
-    bool                OnInitGameObject(KeyType key, ValueType value);
+    bool                OnInitGameObject(KeyType key, MemberPtr value);
     bool                OnDestoryGameObject(KeyType key);
-
-    template<typename GameObjectChildType, typename ...InitArgs>
-    std::shared_ptr<GameObjectChildType> Create(InitArgs ...args);
 protected:
     GameObjectMgr();
 
+    virtual bool OnMemberCreate(MemberPtr member_base) override;
+
+    virtual bool OnMemberDestory(KeyType key) override;
+
+    virtual KeyType GenerateKey(MemberPtr member_base) override;
+
 private:
-    std::map<GameObjectId, GameObjectSPtr>  m_gameobject_map;
+    std::map<GameObjectId, GameObjectWKPtr>  m_gameobject_map;
 };
-
-
-template<typename GameObjectChildType, typename ...InitArgs>
-typename std::shared_ptr<GameObjectChildType> GameObjectMgr::Create(InitArgs ...args)
-{
-    static_assert( std::is_base_of_v<GameObject, GameObjectChildType> ); // 必须派生自GameObject
-
-    auto sptr = std::shared_ptr<GameObjectChildType>(new GameObjectChildType(args...));
-
-    sptr->SetId(GenerateGameObjectID());
-    bool isok = OnInitGameObject(sptr->GetId(), sptr);
-
-    // XXX 如果GenerateID没有稳定了，可以去除debug断言
-    DebugAssertWithInfo(isok, "repeat key, it is impossible!");
-    if(!isok) {
-        sptr = nullptr; // 释放对象
-        return nullptr;
-    }
-
-    return sptr;
-}
 
 }
