@@ -21,9 +21,6 @@ public:
 
     virtual Result Search(KeyType key);
     virtual bool IsExist(KeyType key);
-    bool OnInitComponent(KeyType key, MemberPtr value);
-    bool OnDestoryComponent(KeyType key);
-
 public:
     // Component模板管理
 
@@ -49,7 +46,7 @@ protected:
 
 private:
     util::hashmap::Hashmap<ComponentTemplateId, ComponentInfo, ComponentHashBucketNum> m_component_info_map;
-    std::map<ComponentId, ComponentSPtr>    m_component_map;
+    std::map<ComponentId, ComponentWKPtr>    m_component_map;
 };
 
 }

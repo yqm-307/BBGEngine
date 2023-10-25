@@ -81,9 +81,6 @@ private:
     bool HasGameobj(GameObjectId id) const;
     void OnCreate();
     void OnDestory();
-
-    GameObjectId    m_id{-1};
-
     std::string m_gameobj_name{""};
 
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */

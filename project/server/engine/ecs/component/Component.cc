@@ -16,6 +16,10 @@ Component::~Component()
     OnDestory();
 }
 
+void Component::OnCreate()
+{
+}
+
 const std::string& Component::GetName() const
 {
     return G_ComponentMgr()->GetComponentName(m_template_id);
@@ -24,11 +28,6 @@ const std::string& Component::GetName() const
 ComponentTemplateId Component::GetTemplateId() const
 {
     return m_template_id;
-}
-
-void Component::SetId(ComponentId id)
-{
-    m_id = id;
 }
 
 ComponentId Component::GetId() const

@@ -10,9 +10,9 @@ int SimpleObj_1::update_num = 0;
 
 std::shared_ptr<SimpleObj_1> SimpleObj_1::FastCreate()
 {
-    auto ptr = engine::ecs::GameObjectMgr::GetInstance()->Create<SimpleObj_1>();
+    auto ptr = G_GameObjectMgr()->Create<SimpleObj_1>();
     Assert(ptr != nullptr);
-    return std::static_pointer_cast<SimpleObj_1>(ptr);
+    return ptr;
 }
 
 

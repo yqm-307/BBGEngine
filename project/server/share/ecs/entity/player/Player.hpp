@@ -39,8 +39,9 @@ public:
      * @return PlayerId 
      */
     PlayerId GetPlayerId();
-private:
+protected:
     Player();
+private:
     virtual void OnUpdate() override;
     virtual void OnFatherDead() override {}; 
 private:

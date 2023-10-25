@@ -8,11 +8,13 @@ namespace share::ecs::component
 class TestComponent:
     engine::ecs::Component
 {
+    ComponentDeriveClassDef;
 public:
     typedef std::function<void(engine::ecs::GameObjectSPtr)> MyCallback; 
 
-    TestComponent(const MyCallback& OnAdd, const MyCallback& OnDel);
     ~TestComponent();    
+protected:
+    TestComponent(const MyCallback& OnAdd, const MyCallback& OnDel);
 private:
 
 };

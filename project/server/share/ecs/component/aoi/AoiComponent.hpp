@@ -11,8 +11,8 @@ namespace share::ecs::component
 class AoiComponent:
     public engine::ecs::Component
 {
+    ComponentDeriveClassDef;
 public:
-    explicit AoiComponent();
     virtual ~AoiComponent();
     virtual void OnAddComponent(engine::ecs::GameObjectSPtr);
     virtual void OnDelComponent(engine::ecs::GameObjectSPtr);
@@ -36,6 +36,8 @@ public:
 
 public:
     void Debug_PosChange();
+protected:
+    explicit AoiComponent();
 private:
     int     m_aoi_object_id;    // aoi 对象id
     int     m_aoi_entity_mode;  // aoi 实体身份      

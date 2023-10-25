@@ -24,7 +24,7 @@ public:
 
     typedef ManagerBase<_KeyType, _MemType> ManagerType;
 
-    virtual ~MemberBase() {m_mgr->OnMemberDestory(m_key);}
+    virtual ~MemberBase() = 0;
     virtual _KeyType GetMemberId() const final;
 
 private:

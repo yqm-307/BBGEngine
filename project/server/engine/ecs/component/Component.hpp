@@ -25,11 +25,9 @@ public:
     ComponentTemplateId GetTemplateId() const;
     ComponentId GetId() const;
 protected:
-    virtual void OnCreate(){}
+    virtual void OnCreate();
     virtual void OnDestory(){}
-    virtual void SetId(ComponentId) final;
 private:
-    ComponentId             m_id{-1};
     ComponentTemplateId     m_template_id;
 };
 

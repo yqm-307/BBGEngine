@@ -17,7 +17,7 @@ public:
     virtual void OnCreate();
     virtual void OnDestory();
     virtual void OnUpdate() override;
-private:
+protected:
     explicit NoneObj();
 
 };

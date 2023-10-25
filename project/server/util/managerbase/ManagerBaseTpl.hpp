@@ -28,9 +28,10 @@ std::shared_ptr<MemberBaseChildType> ManagerBase<_KeyType, _MemType>::Create(Ini
     auto sptr = std::shared_ptr<MemberBaseChildType>(new MemberBaseChildType(args...));
     DebugAssertWithInfo(sptr != nullptr, "managerbase create child type error!");
 
+    
+    DebugAssert(this != nullptr);
     sptr->OnInit(this, GenerateKey(sptr));
     bool isok = OnMemberCreate(sptr);
-
     // XXX 如果GenerateID没有稳定了，可以去除debug断言
     DebugAssertWithInfo(isok, "managerbase OnMemberCreate() failed!");
     if(!isok) {
@@ -40,5 +41,13 @@ std::shared_ptr<MemberBaseChildType> ManagerBase<_KeyType, _MemType>::Create(Ini
 
     return sptr;
 }
+
+
+template<typename _KeyType, typename _MemType>
+MemberBase<_KeyType, _MemType>::~MemberBase()
+{
+    m_mgr->OnMemberDestory(m_key);
+}
+
 
 }// namespace util::managerbase

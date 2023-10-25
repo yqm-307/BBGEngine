@@ -36,31 +36,13 @@ const std::string& ComponentMgr::GetComponentName(ComponentTemplateId id)
     return name;
 }
 
-bool ComponentMgr::OnInitComponent(KeyType key, MemberPtr value)
-{
-    auto [_,isok] = m_component_map.insert(std::make_pair(key, value));
-    return isok;
-}
-
-bool ComponentMgr::OnDestoryComponent(KeyType key)
-{
-    auto it = m_component_map.find(key);
-    if(it == m_component_map.end())
-    {
-        return false;
-    }
-
-    m_component_map.erase(it);
-    return true;
-}
-
 ComponentMgr::Result ComponentMgr::Search(KeyType key)
 {
     auto it_obj = m_component_map.find(key);
     if(it_obj == m_component_map.end())
         return {nullptr, false};
     
-    return {it_obj->second, true};
+    return {(it_obj->second).lock(), true};
 }
 
 bool ComponentMgr::IsExist(KeyType key)

@@ -11,8 +11,14 @@
 #define GameObjectDeriveClassDef \
     FlagManagedByManagerBase(engine::ecs::GameObjectId, engine::ecs::GameObject)
 
+#define ComponentDeriveClassDef \
+    FlagManagedByManagerBase(engine::ecs::ComponentId, engine::ecs::Component)
+
 #define G_ComponentMgr \
     engine::ecs::ComponentMgr::GetInstance
+
+#define G_GameObjectMgr\
+    engine::ecs::GameObjectMgr::GetInstance
 
 #pragma endregion
 

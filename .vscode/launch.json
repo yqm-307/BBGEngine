@@ -77,5 +77,29 @@
                 }
             ]
         },
+        {
+            "name": "engine component mgr test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_engine_componentmgr_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
     ]
 }

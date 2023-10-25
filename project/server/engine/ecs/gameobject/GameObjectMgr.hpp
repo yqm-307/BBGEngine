@@ -16,8 +16,6 @@ public:
 
     virtual Result      Search(KeyType key) override;
     virtual bool        IsExist(KeyType key) override;
-    bool                OnInitGameObject(KeyType key, MemberPtr value);
-    bool                OnDestoryGameObject(KeyType key);
 protected:
     GameObjectMgr();
 

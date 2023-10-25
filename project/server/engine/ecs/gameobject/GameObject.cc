@@ -24,7 +24,6 @@ void GameObject::OnCreate()
 
 void GameObject::OnDestory()
 {
-    GameObjectMgr::GetInstance()->OnDestoryGameObject(m_id);
 }
 
 
@@ -71,7 +70,7 @@ int GameObject::Type()
 
 GameObjectId GameObject::GetId()
 {
-    return m_id;
+    return GetMemberId();
 }
 
 GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
@@ -120,11 +119,6 @@ bool GameObject::HasGameobj(GameObjectId id) const
         return false;
 
     return true;
-}
-
-void GameObject::SetId(GameObjectId id)
-{
-    m_id = id;
 }
 
 void GameObject::Update()
