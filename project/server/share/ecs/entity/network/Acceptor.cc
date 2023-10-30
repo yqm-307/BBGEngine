@@ -152,9 +152,17 @@ void Acceptor::OnAccept(int fd, const util::network::Address& peer_addr)
         auto run_in_target_thread = m_load_blance_cb();
         DebugAssertWithInfo(run_in_target_thread, "loadblance error!");
         auto new_conn = util::network::ev::evConnMgr::GetInstance()->CreateConn(run_in_target_thread, fd, peer_addr, m_listen_addr);
-        //TODO 二、初始化游戏对象
+        //TODO 回调连接对象
         GAME_BASE_LOG_INFO("[Acceptor::OnAccept] Acceptor ==> Client IP:{%s}", peer_addr.GetIPPort().c_str());
+        DebugAssertWithInfo(m_onconnect_cb == nullptr , "onconnect callback is null!");
+        m_onconnect_cb(new_conn);
     }
+}
+
+void Acceptor::SetOnConnect(const OnAcceptCallback& cb)
+{
+    DebugAssertWithInfo(m_onconnect_cb == nullptr, "repeat regist event!");
+    m_onconnect_cb = cb;
 }
 
 }
