@@ -51,13 +51,13 @@ typedef int64_t ComponentId;
 typedef int32_t ComponentTemplateId; // 模板id
 
 extern inline GameObjectId GenerateGameObjectID() 
-{ return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }
+{ return bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }
 
 extern inline bool GameObjectIDInvalid(GameObjectId id)
 { return (id <= 0); }
 
 extern inline ComponentId GenerateComponentID() 
-{ return bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, EM_Mist_ComponentId>::GenerateID(); }
+{ return bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, EM_Mist_ComponentId>::GenerateID(); }
 
 extern inline bool ComponentIDInvalid(ComponentId id)
 { return (id <= 0); }
