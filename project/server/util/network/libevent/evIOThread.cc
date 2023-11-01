@@ -92,12 +92,17 @@ EventId evIOThread::RegisterEvent(std::shared_ptr<evEvent> evptr)
 
 int evIOThread::UnRegisterEvent(EventId eventid)
 {
-    auto id = m_event_map.erase(eventid);
-    if(id <= 0) {
+    auto it = m_event_map.find(eventid);
+    if(it == m_event_map.end())
+    {
         return -1;
     }
+    
+    m_event_map.erase(it);
 
-    return 0;
+    auto isok = (it->second)->UnRegister();
+
+    return isok;
 }
 
 }// namespace end

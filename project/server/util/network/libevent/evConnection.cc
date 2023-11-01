@@ -10,21 +10,29 @@ namespace util::network::ev
 
 
 evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip)
-    :m_io_thread(thread),
-    m_sockfd(newfd),
-    m_peer_addr(peer_ip),
-    m_local_addr(local_ip),
+    :Connection(newfd, peer_ip, local_ip),
+    m_io_thread(thread),
     m_prev_heart_beat_time(bbt::timer::clock::now()),
     m_recv_buffer(4096) // TODO 接入配置
 {
     DebugAssert(thread != nullptr && newfd >= 0);
-    OnInit();
+    /* 初始化 event 事件 args */
+    InitEventArgs();
+    /* 初始化心跳、读事件 */
+    InitEvent();
+    GAME_EXT1_LOG_DEBUG("evconnection is created!");
 }
 
 
 evConnection::~evConnection()
 {
     OnDestroy();
+    GAME_EXT1_LOG_DEBUG("evconnection is released!");
+}
+
+evConnectionSPtr evConnection::SPtr()
+{
+    return std::static_pointer_cast<evConnection>(shared_from_this());
 }
 
 bool evConnection::IsClosed()
@@ -81,10 +89,17 @@ void evConnection::InitEvent()
 
 void evConnection::InitEventArgs()
 {
-    /* 设置 Read 事件的监听函数 */
+    // auto weak_this = weak_from_this();
+    // /* 设置 Read 事件的监听函数 */
+    // m_recv_event = evEvent::Create([weak_this](evutil_socket_t fd, short events, void* args){
+    //     auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
+    //     if(share_this)
+    //         share_this->OnEvent(fd, events, args);
+    // }, m_sockfd, EV_READ | EV_PERSIST | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
     m_recv_event = evEvent::Create([this](evutil_socket_t fd, short events, void* args){
         this->OnEvent(fd, events, args);
     }, m_sockfd, EV_READ | EV_PERSIST | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
+
 }
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
@@ -117,32 +132,24 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
         m_onrecv(err, len);
 }
 
-void evConnection::OnInit()
-{
-    /* 初始化 event 事件 args */
-    InitEventArgs();
-    /* 初始化心跳、读事件 */
-    InitEvent();
-}
-
 void evConnection::OnDestroy()
 {   
-    if(m_status == ConnStatus::Disconnected)
-        return;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if(m_status == ConnStatus::Disconnected) {
+            GAME_EXT1_LOG_WARN("repeat destory!");
+            return;
+        }
 
-    m_status = ConnStatus::Disconnected;
-
-    // 先执行 callback
-    if(m_ondestory_cb)
-        m_ondestory_cb(shared_from_this());
+        m_status = ConnStatus::Disconnected;
+    }
 
     int error = 0;
 
     error = GetIOThread()->UnRegisterEvent(m_recv_event->GetEventID());
     if(error < 0) {
-        GAME_EXT1_LOG_ERROR("event register error! eventid=%d", m_recv_event->GetEventID());
+        GAME_EXT1_LOG_ERROR("event unregister error! eventid=%d", m_recv_event->GetEventID());
     }
-    DebugAssert(m_recv_event != nullptr);
     DebugAssert(error >= 0);
 
     ::close(m_sockfd);
@@ -163,13 +170,6 @@ evIOThread* evConnection::GetIOThread()
 evutil_socket_t evConnection::GetSocket()
 {
     return m_sockfd;
-}
-
-
-void evConnection::SetOnDestory(const OnDestoryCallback& cb)
-{
-    DebugAssert(cb != nullptr);
-    m_ondestory_cb = cb;
 }
 
 void evConnection::OnEvent(evutil_socket_t fd, short events, void* args)
@@ -196,7 +196,7 @@ void evConnection::EventHandler_OnSocketTimeOut(evutil_socket_t fd, short events
     GAME_EXT1_LOG_WARN("[evConnection::EventHandler_OnSocketTimeOut] Timeout ip{%s}", m_peer_addr.GetIPPort().c_str());
 
     if(m_timeout_cb)
-        m_timeout_cb(shared_from_this());
+        m_timeout_cb(SPtr());
 }
 
 void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* args)

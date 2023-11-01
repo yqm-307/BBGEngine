@@ -1,5 +1,6 @@
 #pragma once
 #include "./ManagerBase.hpp"
+#include "util/log/Log.hpp"
 
 
 namespace util::managerbase
@@ -46,7 +47,10 @@ std::shared_ptr<MemberBaseChildType> ManagerBase<_KeyType, _MemType>::Create(Ini
 template<typename _KeyType, typename _MemType>
 MemberBase<_KeyType, _MemType>::~MemberBase()
 {
-    m_mgr->OnMemberDestory(m_key);
+    bool isok = m_mgr->OnMemberDestory(m_key);
+    DebugAssertWithInfo(isok, "destory a member failed!");
+    if(!isok)
+        BBT_BASE_LOG_ERROR("[MemberBase::~MemberBase] destory a member failed!");
 }
 
 

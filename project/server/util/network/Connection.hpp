@@ -4,6 +4,7 @@
 #include <optional>
 #include "util/typedef/NamespaceType.hpp"
 #include "util/network/IPAddress.hpp"
+#include "./Define.hpp"
 
 namespace util::network
 {
@@ -20,10 +21,12 @@ enum ConnStatus
     Disconnected = 3,       // 连接已断开
 };
 
-class Connection
+class Connection:
+    public util::managerbase::MemberBase<ConnectId, Connection>,
+    public std::enable_shared_from_this<Connection>
 {
 public:
-    Connection(){}
+    Connection(int sockfd, const Address& peer, const Address& local);
     virtual ~Connection() = 0;
 
     /**
@@ -66,17 +69,24 @@ public:
      * @brief 获取对端的ip地址
      * @return Address 
      */
-    virtual const Address& GetPeerIPAddress() const = 0;
+    virtual const Address& GetPeerIPAddress() const;
 
     /**
      * @brief 获取本地的ip地址
      * 
      * @return Address 
      */
-    virtual const Address& GetLocalIPAddress() const = 0;
+    virtual const Address& GetLocalIPAddress() const;
 
-private:
+    int GetSocket();
 
+protected:
+
+    int         m_sockfd{-1};
+    volatile ConnStatus  m_status{ConnStatus::Done};
+    util::network::Address  m_local_addr;
+    util::network::Address  m_peer_addr;
+    std::mutex  m_mutex;
 };
 
 

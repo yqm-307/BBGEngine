@@ -4,6 +4,7 @@
 #include "util/typedef/NamespaceType.hpp"
 #include "util/network/IOThread.hpp"
 #include "util/network/libevent/evEvent.hpp"
+#include "util/network/libevent/evConnMgr.hpp"
 #include <bbt/buffer/Buffer.hpp>
 #include <bbt/timer/Clock.hpp>
 
@@ -44,9 +45,9 @@ OnlySharedDef(evConnection);
  * 注意：evConnection的对外接口大多都是来自多线程调用的
  */
 class evConnection:
-    public Connection,
-    public std::enable_shared_from_this<evConnection>
+    public Connection
 {
+    evConnectionDeriveClassDef;
     friend void util::network::OnRecvCallback(int sockfd, short events, void* args);
     friend class evConnMgr;
 
@@ -55,16 +56,7 @@ class evConnection:
     typedef std::function<void(const util::errcode::ErrCode&, size_t)>  OnRecvCallback;
     typedef std::function<void(const util::errcode::ErrCode&, size_t)>  OnSendCallback;
 public:
-    /**
-     * @deprecated 不允许被随意使用
-     * @brief 构造一个新连接
-     * 
-     * @param thread 运行在的io线程上
-     * @param newfd 套接字
-     * @param peer_ip 对端socket地址
-     * @param local_ip 本地socket地址
-     */
-    evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip);
+
     virtual ~evConnection();
 
     virtual bool IsClosed() override;
@@ -97,13 +89,22 @@ public:
 
     void OnHeartBeat();
 private:
-    void OnInit();
+    /**
+     * @deprecated 不允许被随意使用
+     * @brief 构造一个新连接
+     * 
+     * @param thread 运行在的io线程上
+     * @param newfd 套接字
+     * @param peer_ip 对端socket地址
+     * @param local_ip 本地socket地址
+     */
+    evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip);
     void OnDestroy();
 
-    void SetOnDestory(const OnDestoryCallback& cb);
     /* IO事件初始化 */
     void InitEvent();
     void InitEventArgs();
+    evConnectionSPtr SPtr();
 private:
     //----------------- Read Only -------------------//
     /* 获取当前连接所在的IO线程 */
@@ -152,18 +153,11 @@ private:
 private:
 
     IOThread*   m_io_thread;
-    int         m_sockfd;
-    ConnStatus  m_status;
     std::shared_ptr<evEvent>    m_recv_event{nullptr};      // 接收事件    
     std::shared_ptr<evEvent>    m_socket_timeout{nullptr};      // 接收事件    
-    util::network::Address  m_local_addr;
-    util::network::Address  m_peer_addr;
 
     // char        m_recv_buffer[4096];    
     bbt::buffer::Buffer     m_recv_buffer;  // socket 接收缓存
-
-    /* 在 evConnection 连接被释放时调用。具体由evConnMgr实现 */
-    OnDestoryCallback   m_ondestory_cb;
 
     evArgs m_onrecv_args;
 
