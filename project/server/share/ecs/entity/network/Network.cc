@@ -176,6 +176,31 @@ void Network::OnUpdate()
     SyncStop();
 }
 
+void Network::SetOnConnect(const OnConnectCallback& cb)
+{
+    DebugAssertWithInfo(m_onconnect_event == nullptr, "repeat register event!");
+    m_onconnect_event = cb;
+}
+
+void Network::SetOnAccept(const OnAcceptCallback& cb)
+{
+    DebugAssertWithInfo(m_onaccept_event == nullptr, "repeat register event!");
+    m_onaccept_event = cb;
+    m_acceptor.SetOnConnect([this](const util::network::ConnectionSPtr& conn){ this->m_onconnect_event(conn); });
+}
+
+void Network::SetOnClose(const OnCloseCallback& cb)
+{
+    DebugAssertWithInfo(m_onclose_event == nullptr, "repeat register event!");
+    m_onclose_event = cb;
+}
+
+void Network::SetOnTimeOut(const OnTimeOutCallback& cb)
+{
+    DebugAssertWithInfo(m_ontimeout_event == nullptr, "repeat register event!");
+    m_ontimeout_event = cb;
+}
+
 #pragma region "工具函数"
 
 util::network::IOThread* Network::NewConnLoadBlance()

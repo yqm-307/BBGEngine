@@ -21,7 +21,22 @@ enum emNetworkRunStatus{
     Inactive,       // io线程不活跃
 };
 
-// XXX 对于network的实现并不是很好
+/**
+ * @brief 网络层（转接器）
+ * 
+ * ps: 推荐使用方式为组合使用，不使用继承，性能更佳
+ * 
+ * 提供用户层的IO回调的封装，自定义的提供下列回调事件：
+ *  1、OnConnect，新链接到达时触发；
+ *  2、OnClose，连接关闭时触发；
+ *  3、OnTimeOut，连接超时时触发；
+ * 
+ * 提供的接口：
+ *  1、SyncStart，同步启动所有io线程；
+ *  2、SyncStop，同步的停止所有io线程；
+ *  3、IsStoped，io线程是否全部停止；
+ *
+ */
 class Network:
     public engine::ecs::GameObject
 {
@@ -29,14 +44,23 @@ class Network:
     GameObjectDeriveClassDef;
 public:
     typedef util::network::ev::evIOThread IOThread;
+    typedef std::function<void(util::network::ConnectionSPtr)> OnConnectCallback;
+    typedef std::function<void(util::network::ConnectionSPtr)> OnAcceptCallback;
+    typedef std::function<void(util::network::ConnectionSPtr)> OnCloseCallback;
+    typedef std::function<void(util::network::ConnectionSPtr, time_t)> OnTimeOutCallback;
 
     ~Network();
     /* 同步的启动所有线程，等所有IO线程全部启动返回 */
     bool SyncStart();
     // /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
     void SyncStop();
-    /* 是否还有io线程是否在运行中 */
+    /* 是否还有io线程在运行中 */
     bool IsStoped();
+    BBTATTR_FUNC_Deprecated void SetOnConnect(const OnConnectCallback& cb);
+    void SetOnAccept(const OnAcceptCallback& cb);
+    
+    BBTATTR_FUNC_Deprecated void SetOnClose(const OnCloseCallback& cb);
+    BBTATTR_FUNC_Deprecated void SetOnTimeOut(const OnTimeOutCallback& cb);
 private:
     Network(const std::string& ip, short port);
     /* 对象内部数据申请 */
@@ -71,6 +95,11 @@ private:
     bool            m_is_in_loop{false};    // 运行状态
     bool            m_is_need_stop{false};  // 停止flag
     emNetworkRunStatus m_status{emNetworkRunStatus::Default};   // 运行时状态
+
+    OnConnectCallback   m_onconnect_event{nullptr};
+    OnAcceptCallback    m_onaccept_event{nullptr};
+    OnCloseCallback     m_onclose_event{nullptr};
+    OnTimeOutCallback   m_ontimeout_event{nullptr};
 };
 
 }
