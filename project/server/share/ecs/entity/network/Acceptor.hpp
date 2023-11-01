@@ -17,6 +17,7 @@ class Acceptor
 
 public:
     typedef std::function<util::network::IOThread*()> LoadBlanceFunc;
+    typedef std::function<void(util::network::ConnectionSPtr)> OnAcceptCallback;
 
     /* 创建listen 套接字 */
     Acceptor(std::string ip, short port);
@@ -33,7 +34,20 @@ public:
     int SetNonBlock();
     /* 将accept事件注册到event base中 */
     int RegistInEvBase(event_base*);
+
+    /**
+     * @brief 设置连接到达时负载均衡回调
+     * 
+     * @param cb 
+     */
     void SetLoadBlance(const LoadBlanceFunc& cb);
+
+    /**
+     * @brief 设置新连接建立时的回调
+     * 
+     * @param cb 
+     */
+    void SetOnConnect(const OnAcceptCallback& cb);
 private:
     void Init();
     void Destory();
@@ -46,7 +60,8 @@ private:
     std::string     m_listen_ip;
     short           m_listen_port;
     util::network::Address    m_listen_addr;
-    LoadBlanceFunc  m_load_blance_cb;
+    LoadBlanceFunc      m_load_blance_cb{nullptr};
+    OnAcceptCallback    m_onconnect_cb{nullptr};
 };
 
 }// namespace end
