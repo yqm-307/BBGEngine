@@ -61,7 +61,7 @@ private:
     short           m_listen_port;
     util::network::Address    m_listen_addr;
     LoadBlanceFunc      m_load_blance_cb{nullptr};
-    OnAcceptCallback   m_onconnect_cb{nullptr};
+    OnAcceptCallback    m_onconnect_cb{nullptr};
 };
 
 }// namespace end
