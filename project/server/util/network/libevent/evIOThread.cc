@@ -90,6 +90,29 @@ EventId evIOThread::RegisterEvent(std::shared_ptr<evEvent> evptr)
     return 0;
 }
 
+EventId evIOThread::RegisterEventSafe(std::shared_ptr<evEvent> evptr)
+{
+    int err = 0;
+    DebugAssert(evptr != nullptr);
+
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        err = evptr->RegisterInEvBase(m_ev_base);
+        if(err < 0) {
+            return -1;
+        }
+
+        auto [it, isok] = m_event_map.insert(std::make_pair(evptr->GetEventID(), evptr));
+        if(!isok) {
+            err = evptr->UnRegister();
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
 int evIOThread::UnRegisterEvent(EventId eventid)
 {
     auto it = m_event_map.find(eventid);

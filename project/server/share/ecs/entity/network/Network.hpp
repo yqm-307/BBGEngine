@@ -43,7 +43,7 @@ class Network:
     friend void OnFixUpdate(evutil_socket_t,short,void*);
     GameObjectDeriveClassDef;
 public:
-    typedef util::network::ev::evIOThread IOThread;
+    typedef util::network::ev::evIOThreadSPtr evIOThreadSPtr;
     typedef std::function<void(util::network::ConnectionSPtr)> OnConnectCallback;
     typedef std::function<void(util::network::ConnectionSPtr)> OnAcceptCallback;
     typedef std::function<void(util::network::ConnectionSPtr)> OnCloseCallback;
@@ -76,7 +76,7 @@ private:
     /* io 工作线程 */
     void IOWork(int index);
     /* accept 线程 */
-    void AcceptWork(int index);
+    void AcceptWork(int index, evIOThreadSPtr this_thread);
 private:
     /**
      * utils
@@ -85,11 +85,11 @@ private:
     event_base* OnCreateEventBase() BBTATTR_FUNC_RetVal;
     /* libevent event_base 释放 */
     void OnDestoryEventBase(event_base* base);
-    util::network::IOThread* NewConnLoadBlance() BBTATTR_FUNC_RetVal;
+    evIOThreadSPtr NewConnLoadBlance() BBTATTR_FUNC_RetVal;
 private:
     __detail::Acceptor m_acceptor;
     size_t          m_io_thread_num;
-    std::vector<IOThread*> m_io_threads;    // 下标0是acceptor线程
+    std::vector<evIOThreadSPtr> m_io_threads;    // 下标0是acceptor线程
     std::vector<event_base*> m_ev_bases;    // 每个线程一个 event_base
     bbt::thread::lock::CountDownLatch* m_thread_latch;
     bool            m_is_in_loop{false};    // 运行状态

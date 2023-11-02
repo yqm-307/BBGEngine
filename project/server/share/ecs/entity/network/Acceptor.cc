@@ -1,8 +1,6 @@
-#include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/libevent/evConnMgr.hpp"
 #include "share/ecs/entity/network/Acceptor.hpp"
-#include "util/assert/Assert.hpp"
-#include "util/log/Log.hpp"
+#include "util/network/libevent/evIOThread.hpp"
 #include <fcntl.h>
 #include <evutil.h>
 
@@ -27,6 +25,10 @@ void Acceptor::Init()
 {
     m_listen_fd = util::network::CreateListen(m_listen_ip, m_listen_port, true);
     Assert(m_listen_fd >= 0);
+
+    m_event = util::network::ev::evEvent::Create([this](ev_socklen_t fd, short event, void* args){
+        AcceptEvent(fd, event, args); 
+    }, m_listen_fd, EV_READ | EV_PERSIST, m_accept_once_timeval);
 }
 
 void Acceptor::Destory()
@@ -40,13 +42,6 @@ void Acceptor::Clear()
     m_listen_fd = -1;
     m_listen_ip = "";
     m_listen_port = -1;
-}
-
-int Acceptor::SetNonBlock()
-{
-    BBTATTR_COMM_Unused int error = util::network::SetFdNoBlock(m_listen_fd);
-    DebugAssert(error >= 0);
-    return 0;
 }
 
 void Acceptor::SetLoadBlance(const LoadBlanceFunc& cb)
@@ -70,94 +65,84 @@ short Acceptor::Port() const
     return m_listen_port;
 }
 
-int Acceptor::Accept()
+int Acceptor::DoAccept()
 {
     evutil_socket_t fd;
     sockaddr_in addr;
     socklen_t len = sizeof(addr);
+
     fd = ::accept(m_listen_fd, reinterpret_cast<sockaddr*>(&addr), &len);
+
     util::network::Address endpoint;
     endpoint.set(addr);
+
     if(fd >= 0) {
-        GAME_EXT1_LOG_DEBUG("[Acceptor::Accept] Acceptor ==> ip:{%s} fd:{%d}", endpoint.GetIPPort().c_str(), fd);
         OnAccept(fd, endpoint);
         return fd;
     }
     return -1;
 }
 
-int Acceptor::Close()
+int Acceptor::Stop()
 {
-    int error = ::close(m_listen_fd);
+    /* 注销事件，并释放资源 */
+    auto thread = m_master_thread.lock();
+    if(!thread)
+        return -1;
+    
+    int error = thread->UnRegisterEvent(m_event->GetEventID());
+
     if(error < 0)
-    {
-        GAME_BASE_LOG_WARN("::close() fatal!", error);
-    }
+        return -1;
+
+    error = ::close(m_listen_fd);
+    if(error < 0)
+        return -1;
+
     Clear();
     return error;
 }
 
-void _AcceptReadCallback(evutil_socket_t listenfd, short event, void* args)
+void Acceptor::AcceptEvent(ev_socklen_t fd, short event, void* args)
 {
-    auto pthis = reinterpret_cast<Acceptor*>(args);
-    DebugAssert(pthis != nullptr);
-    /* 取出所有新连接 */
-    while(1)
+    while(true)
     {
-        int fd = pthis->Accept();
+        int fd = DoAccept();
         if(fd < 0)
             break;
     }
+
     if( !(errno == EINTR ||  errno == EAGAIN || errno == ECONNABORTED) )
-        GAME_BASE_LOG_ERROR("accept failed! errno=%d", errno);
+        GAME_EXT1_LOG_ERROR("accept() failed! errno=%d", errno);
+    
 }
 
-int Acceptor::RegistInEvBase(event_base* ev_base)
+int Acceptor::Start(util::network::ev::evIOThreadSPtr thread)
 {
-    int error = 0;
-    event* ev = nullptr;
-    timeval target_interval;
-
-    DebugAssert(ev_base);
-    if(ev_base == nullptr)
+    DebugAssert(thread != nullptr);
+    if(thread == nullptr)
         return -1;
 
-    /* 构造event */
-    ev = event_new(ev_base, m_listen_fd, EV_READ | EV_PERSIST, _AcceptReadCallback, this);
-    DebugAssert(ev != nullptr);
-    if(ev == nullptr) {
-        GAME_BASE_LOG_WARN("call event_new() failed!");
-        return -1;
-    }
+    m_master_thread = thread;
 
-    evutil_timerclear(&target_interval);
-    target_interval.tv_usec = ListenCallback_Min_MS * 1000;
+    int err = thread->RegisterEventSafe(m_event);
+    DebugAssert(err >= 0);
 
-    error = event_add(ev, NULL);
-    DebugAssert(error >= 0);
-    if(error < 0) {
-        GAME_BASE_LOG_WARN("call event_add() failed!");
-        return -1;
-    }
-    
-    return 0;
+    return err;
 }
 
 void Acceptor::OnAccept(int fd, const util::network::Address& peer_addr)
 {
-    if(fd >= 0)
-    {
-        //一、 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。
-        DebugAssertWithInfo(m_load_blance_cb != nullptr, "loadblance callback not initialized!");
-        auto run_in_target_thread = m_load_blance_cb();
-        DebugAssertWithInfo(run_in_target_thread, "loadblance error!");
-        auto new_conn = util::network::ev::evConnMgr::GetInstance()->Create<util::network::ev::evConnection>(run_in_target_thread, fd, peer_addr, m_listen_addr);
-        //TODO 回调连接对象
-        GAME_BASE_LOG_INFO("[Acceptor::OnAccept] Acceptor ==> Client IP:{%s}", peer_addr.GetIPPort().c_str());
-        DebugAssertWithInfo(m_onconnect_cb == nullptr , "onconnect callback is null!");
-        if(m_onconnect_cb)
-            m_onconnect_cb(new_conn);
-    }
+    //一、 创建新连接，并初始化IO事件。此后Connection的状态应该是自完备的，和Acceptor完全无关。
+    DebugAssertWithInfo(m_load_blance_cb != nullptr, "loadblance callback not initialized!");
+    auto run_in_target_thread = m_load_blance_cb();
+    DebugAssertWithInfo(run_in_target_thread, "loadblance error!");
+    auto new_conn = util::network::ev::evConnMgr::GetInstance()->Create<util::network::ev::evConnection>(run_in_target_thread, fd, peer_addr, m_listen_addr);
+    //TODO 回调连接对象
+    GAME_BASE_LOG_INFO("[Acceptor::OnAccept] Acceptor ==> Client IP:{%s}", peer_addr.GetIPPort().c_str());
+    DebugAssertWithInfo(m_onconnect_cb == nullptr , "onconnect callback is null!");
+    if(m_onconnect_cb)
+        m_onconnect_cb(new_conn);
 }
 
 void Acceptor::SetOnConnect(const OnAcceptCallback& cb)

@@ -58,10 +58,12 @@ void Network::Init()
         /* 初始化libevent */
         auto ev_base = OnCreateEventBase();
         Assert(ev_base != nullptr);
+
+        auto io_thread = std::make_shared<util::network::ev::evIOThread>();
         /* 初始化io线程的回调 */
-        m_io_threads.push_back(new IOThread());
+        m_io_threads.push_back(io_thread);
         if(i == 0)
-            m_io_threads[i]->SetWorkFunc([=](){ AcceptWork(i); });
+            m_io_threads[i]->SetWorkFunc([=](){ AcceptWork(i, io_thread); });
         else        
             m_io_threads[i]->SetWorkFunc([=](){ IOWork(i); });
 
@@ -86,7 +88,7 @@ void Network::Destory()
     for (int i = 0; i < m_io_thread_num; i++)
     {
         auto thread = m_io_threads[i]; 
-        delete thread;
+        thread = nullptr;
         OnDestoryEventBase(m_ev_bases[i]);
         m_ev_bases[i] = nullptr;
     }
@@ -146,7 +148,7 @@ void Network::IOWork(int index)
     AssertWithInfo(error == 0, "libevent error!");
 }
 
-void Network::AcceptWork(int index)
+void Network::AcceptWork(int index, evIOThreadSPtr this_thread)
 {
     /* 等待所有IO线程初始化完毕 */
     WaitForOtherIOThreadStart();
@@ -154,7 +156,7 @@ void Network::AcceptWork(int index)
 
     GAME_BASE_LOG_INFO("Accept thread start!");
     /* Acceptor 事件 */
-    m_acceptor.RegistInEvBase(ev_base);
+    m_acceptor.Start(this_thread);
     /* 固定更新事件 */
     RegisterFixUpdate(ev_base);
 
@@ -203,7 +205,7 @@ void Network::SetOnTimeOut(const OnTimeOutCallback& cb)
 
 #pragma region "工具函数"
 
-util::network::IOThread* Network::NewConnLoadBlance()
+Network::evIOThreadSPtr Network::NewConnLoadBlance()
 {
     static std::atomic_int m_current_idx = 0;
     /* 第一个是acceptor线程，实际的io线程是后面的（m_io_thread_num - 1）个 */
