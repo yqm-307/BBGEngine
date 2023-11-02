@@ -1,7 +1,6 @@
 #pragma once
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/IOThread.hpp"
-#include "util/network/libevent/evIOThread.hpp"
 #include <bbt/timer/Clock.hpp>
 #include <bbt/buffer/Buffer.hpp>
 #include <bbt/poolutil/IDPool.hpp>
@@ -54,7 +53,7 @@ public:
      * @param args callback的参数（大部分情况使用函数对象即可）
      * @return int 成功返回大于等于0的eventid，失败返回-1
      */
-    int RegisterEventSafe(evutil_socket_t fd, short events, const EventCallback& callback, void* args) BBTATTR_FUNC_RetVal;
+    EventId RegisterEventSafe(std::shared_ptr<evEvent> event_ptr) BBTATTR_FUNC_RetVal;
 
     /**
      * @brief 从此线程监听的事件中取消一个事件
@@ -76,6 +75,7 @@ protected:
     event_base*     m_ev_base{nullptr};
     IOWorkFunc      m_io_work_func{nullptr};
     std::map<EventId, std::shared_ptr<evEvent>>   m_event_map;
+    std::mutex      m_mutex;
 };
 
 struct Event

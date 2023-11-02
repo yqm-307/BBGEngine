@@ -7,6 +7,7 @@ namespace util::network::ev
 void _EventCallbackTransform(evutil_socket_t fd, short events, void* args);
 
 
+
 /** //XXX 
  * 1、是否需要可复用或者event池，如果足够频繁的变动是可以减少内存消耗和cpu消耗。
  * 2、是否需要将事件系统和libevent的事件系统结合起来做一个统一的事件通知机制。

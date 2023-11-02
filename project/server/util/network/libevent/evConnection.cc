@@ -9,7 +9,7 @@ namespace util::network::ev
 
 
 
-evConnection::evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip)
+evConnection::evConnection(evIOThreadSPtr thread, int newfd, Address peer_ip, Address local_ip)
     :Connection(newfd, peer_ip, local_ip),
     m_io_thread(thread),
     m_prev_heart_beat_time(bbt::timer::clock::now()),
@@ -82,6 +82,13 @@ void evConnection::Close()
 void evConnection::InitEvent()
 {
     BBTATTR_COMM_Unused int err = 0;
+
+    auto thread = GetIOThread();
+    if(thread == nullptr) {
+        GAME_EXT1_LOG_WARN("thread is already released!");
+        return;
+    }
+
     err = GetIOThread()->RegisterEvent(m_recv_event);
 
     DebugAssert(err >= 0);
@@ -145,8 +152,14 @@ void evConnection::OnDestroy()
     }
 
     int error = 0;
+    
+    auto thread = GetIOThread();
+    if(thread == nullptr) {
+        GAME_EXT1_LOG_WARN("thread is already released!");
+        return;
+    }
 
-    error = GetIOThread()->UnRegisterEvent(m_recv_event->GetEventID());
+    error = thread->UnRegisterEvent(m_recv_event->GetEventID());
     if(error < 0) {
         GAME_EXT1_LOG_ERROR("event unregister error! eventid=%d", m_recv_event->GetEventID());
     }
@@ -162,9 +175,9 @@ std::pair<char*,size_t> evConnection::GetRecvBuffer()
     return {m_recv_buffer.Peek(), m_recv_buffer.WriteableBytes()};
 }
 
-evIOThread* evConnection::GetIOThread()
+evIOThreadSPtr evConnection::GetIOThread()
 {
-    return reinterpret_cast<evIOThread*>(m_io_thread);
+    return m_io_thread.lock();
 }
 
 evutil_socket_t evConnection::GetSocket()

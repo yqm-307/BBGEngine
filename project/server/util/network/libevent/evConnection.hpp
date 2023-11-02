@@ -98,7 +98,7 @@ private:
      * @param peer_ip 对端socket地址
      * @param local_ip 本地socket地址
      */
-    evConnection(IOThread* thread, int newfd, Address peer_ip, Address local_ip);
+    evConnection(evIOThreadSPtr thread, int newfd, Address peer_ip, Address local_ip);
     void OnDestroy();
 
     /* IO事件初始化 */
@@ -108,7 +108,7 @@ private:
 private:
     //----------------- Read Only -------------------//
     /* 获取当前连接所在的IO线程 */
-    evIOThread* GetIOThread();
+    evIOThreadSPtr GetIOThread();
     /* 获取当前连接的套接字 */
     evutil_socket_t GetSocket();
     /* 获取当前连接上次心跳包的时间 */
@@ -152,7 +152,7 @@ private:
     };
 private:
 
-    IOThread*   m_io_thread;
+    evIOThreadWKPtr   m_io_thread;
     std::shared_ptr<evEvent>    m_recv_event{nullptr};      // 接收事件    
     std::shared_ptr<evEvent>    m_socket_timeout{nullptr};      // 接收事件    
 
