@@ -11,31 +11,16 @@ struct IOThreadInfo
     int tid;
 };
 
-
-void OnFixUpdate(evutil_socket_t,short,void* info)
-{
-    if(info == nullptr)
-        return;
-    auto thread_info = reinterpret_cast<IOThreadInfo*>(info);
-    GAME_BASE_LOG_DEBUG("[OnFixUpdate] thread=[%d] info=[%s]", thread_info->tid, thread_info->info.c_str());
-}
-
 void Network::OnFixUpdate(int index)
 {
+    auto& thread = m_io_threads[index];
+    if(thread == nullptr) {
+        return;
+    }
 
+    GAME_BASE_LOG_DEBUG("[OnFixUpdate] thread=[%d] status=[%d]", thread->GetTid(), thread->IsRunning());
 }
 
-// void RegisterFixUpdate(event_base* base)
-// {
-//     timeval tm;
-//     evutil_timerclear(&tm);
-//     // TODO 50毫秒更新一次，写死
-//     tm.tv_usec = 1000 * 50;
-
-//     event* test_timer = event_new(base, -1, EV_PERSIST, OnFixUpdate, nullptr);
-//     int err = event_add(test_timer, &tm);
-//     DebugAssert(err == 0);
-// }
 void Network::RegistFixUpdate(int index)
 {
     auto weak_this = weak_from_this();
@@ -46,8 +31,13 @@ void Network::RegistFixUpdate(int index)
             return;
         }
 
-        
-    });
+        shared_this->OnFixUpdate(index);
+    }, -1, EV_PERSIST, 50);
+
+    auto err = m_io_threads[index]->RegisterEventSafe(event);
+    if(err < 0) {
+        GAME_EXT1_LOG_ERROR("thread regist evEvent failed! eventid=%d", event->GetEventID());
+    }
 }
 
 Network::Network(const std::string& ip, short port)
@@ -160,7 +150,7 @@ void Network::IOWork(int index)
     WaitForOtherIOThreadStart();
     auto ev_base = m_ev_bases[index];
     GAME_BASE_LOG_INFO("IO thread start!");
-    // RegisterFixUpdate(ev_base);
+    RegistFixUpdate(index);
 
     int error = event_base_loop(ev_base, EVLOOP_NO_EXIT_ON_EMPTY);
     AssertWithInfo(error == 0, "libevent error!");
@@ -173,10 +163,8 @@ void Network::AcceptWork(int index, evIOThreadSPtr this_thread)
     auto ev_base = m_ev_bases[index];
 
     GAME_BASE_LOG_INFO("Accept thread start!");
-    /* Acceptor 事件 */
     m_acceptor.Start(this_thread);
-    /* 固定更新事件 */
-    // RegisterFixUpdate(index, ev_base);
+    RegistFixUpdate(index);
 
     int error = event_base_loop(ev_base, EVLOOP_NO_EXIT_ON_EMPTY);
     AssertWithInfo(error == 0, "libevent error!");

@@ -27,8 +27,9 @@ public:
      * @brief 创建evEvent对象，系统中很多这种接口设计，本意是想让这个类不会被创建裸指针
      * 
      * @param cb    监听事件，当监听的事件发生时触发。
-     * @param fd    文件描述符，当监听的事件和文件描述符相关
+     * @param fd    文件描述符，当监听的事件和文件描述符相关。如果不关心，设置为-1
      * @param events    监听的事件类型，当前只包含libevent的事件类型
+     * @param target_interval_ms 超时时间
      * @return std::shared_ptr<evEvent> 创建后的智能指针
      */
     static std::shared_ptr<evEvent> Create(const EventCallback& cb, evutil_socket_t fd, short events, int target_interval_ms = -1);

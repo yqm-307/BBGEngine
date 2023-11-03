@@ -94,7 +94,6 @@ private:
     __detail::Acceptor m_acceptor;
     size_t          m_io_thread_num;
     std::vector<evIOThreadSPtr> m_io_threads;    // 下标0是acceptor线程
-    std::vector<util::network::ev::evEvent>  m_thread_fix_update_events;
     std::vector<event_base*> m_ev_bases;    // 每个线程一个 event_base
     bbt::thread::lock::CountDownLatch* m_thread_latch;
     bool                m_is_in_loop{false};    // 运行状态
