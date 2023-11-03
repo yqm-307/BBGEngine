@@ -77,6 +77,10 @@ private:
     void IOWork(int index);
     /* accept 线程 */
     void AcceptWork(int index, evIOThreadSPtr this_thread);
+
+
+    void RegistFixUpdate(int index);
+    void OnFixUpdate(int index);
 private:
     /**
      * utils
@@ -90,12 +94,14 @@ private:
     __detail::Acceptor m_acceptor;
     size_t          m_io_thread_num;
     std::vector<evIOThreadSPtr> m_io_threads;    // 下标0是acceptor线程
+    std::vector<util::network::ev::evEvent>  m_thread_fix_update_events;
     std::vector<event_base*> m_ev_bases;    // 每个线程一个 event_base
     bbt::thread::lock::CountDownLatch* m_thread_latch;
-    bool            m_is_in_loop{false};    // 运行状态
-    bool            m_is_need_stop{false};  // 停止flag
-    emNetworkRunStatus m_status{emNetworkRunStatus::Default};   // 运行时状态
+    bool                m_is_in_loop{false};    // 运行状态
+    bool                m_is_need_stop{false};  // 停止flag
+    emNetworkRunStatus  m_status{emNetworkRunStatus::Default};   // 运行时状态
 
+    /* io 回调 */
     OnConnectCallback   m_onconnect_event{nullptr};
     OnAcceptCallback    m_onaccept_event{nullptr};
     OnCloseCallback     m_onclose_event{nullptr};
