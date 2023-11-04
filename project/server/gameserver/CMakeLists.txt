@@ -48,4 +48,5 @@ target_link_libraries(gameserver
     ybbt
     inih
     protobuf
+    tcmalloc
 )

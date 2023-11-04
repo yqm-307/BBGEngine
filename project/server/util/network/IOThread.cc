@@ -32,6 +32,8 @@ void IOThread::Destory()
 
     m_thread_start_before_callback = nullptr;
     m_thread_stop_after_callback = nullptr;
+    delete m_thread;
+    m_thread = nullptr;
 }
 
 void IOThread::SetWorkTask(const WorkCallback& cb)
