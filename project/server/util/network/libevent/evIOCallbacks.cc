@@ -15,12 +15,6 @@ namespace util::network
 {
 }
 
-[[maybe_unused]] void OnRecvCallback(evutil_socket_t sockfd, short events, void* args)
-{
-    DebugAssert(args != nullptr);
-    ev::evArgs* ev_cb = static_cast<ev::evArgs*>(args);
-    ev_cb->do_io_callback(sockfd, events, args);
-}
 
 [[maybe_unused]] void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args)
 {

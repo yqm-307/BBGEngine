@@ -27,7 +27,6 @@ void OnConnectCallback(evutil_socket_t sockfd, short events, void* args);
 
 void OnAcceptCallback(evutil_socket_t sockfd, short events, void* args);
 
-void OnRecvCallback(evutil_socket_t sockfd, short events, void* args);
 
 /**
  * @brief 创建一个监听套接字。

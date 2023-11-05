@@ -13,7 +13,7 @@ evConnection::evConnection(evIOThreadSPtr thread, int newfd, Address peer_ip, Ad
     :Connection(newfd, peer_ip, local_ip),
     m_io_thread(thread),
     m_prev_heart_beat_time(bbt::timer::clock::now()),
-    m_recv_buffer(4096) // TODO 接入配置
+    m_output_buffer(4096) // TODO 接入配置
 {
     DebugAssert(thread != nullptr && newfd >= 0);
     /* 初始化 event 事件 args */
@@ -94,17 +94,16 @@ void evConnection::InitEvent()
 
 void evConnection::InitEventArgs()
 {
-
     auto weak_this = weak_from_this();
     /* 设置 Read 事件的监听函数 */
     m_recv_event = evEvent::Create([weak_this](evutil_socket_t fd, short events, void* args){
         auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
         if(share_this == nullptr) {
-            GAME_EXT1_LOG_WARN("connect is delete, but event is unregisted! fd=%d, fd=%d", fd, events);
+            GAME_EXT1_LOG_WARN("connect is delete, but event is unregisted! fd=%d, event=%d", fd, events);
             return;
         }
         share_this->OnEvent(fd, events, args);
-    }, GetSocket(), EV_READ | EV_PERSIST | EV_CLOSED | EV_WRITE, 5000);
+    }, GetSocket(), EV_READ | EV_PERSIST | EV_CLOSED, 5000);
 }
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
@@ -128,9 +127,9 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
 
     /* TODO  也许需要更多的灵活性，提供一个不清楚缓存的可能，目前认为recv buffer，在上面的handler是被处理完毕的 */
     /* 通知处理完了，清楚缓存 */
-    if(m_recv_buffer.ReadableBytes() > 0)
+    if(m_output_buffer.ReadableBytes() > 0)
     {
-        m_recv_buffer.Recycle(m_recv_buffer.ReadableBytes());
+        m_output_buffer.Recycle(m_output_buffer.ReadableBytes());
     }
 
     /* 接收事件观察者存在，通知观察者 */
@@ -171,7 +170,7 @@ void evConnection::OnDestroy()
 
 std::pair<char*,size_t> evConnection::GetRecvBuffer()
 {
-    return {m_recv_buffer.Peek(), m_recv_buffer.WriteableBytes()};
+    return {m_output_buffer.Peek(), m_output_buffer.WriteableBytes()};
 }
 
 evIOThreadSPtr evConnection::GetIOThread()
@@ -216,8 +215,8 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
     }
 
     int read_len = 0;
-    auto recv_buff = m_recv_buffer.Peek();
-    auto buff_len = m_recv_buffer.WriteableBytes();
+    auto recv_buff = m_output_buffer.Peek();
+    auto buff_len = m_output_buffer.WriteableBytes();
     util::errcode::ErrCode errcode("nothing", 
         util::errcode::NetWorkErr, 
         util::errcode::network::err::Recv_Success);
@@ -227,7 +226,7 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
      * read系统调用读取数据，策略是根据本地缓存，尽量读
      */
     read_len = ::read(fd, recv_buff, buff_len);
-    m_recv_buffer.WriteNull(read_len);
+    m_output_buffer.WriteNull(read_len);
     /* 读取后处理errno，将errno处理，并转换为errno */
     if(read_len == -1) {
         int err = errno;
@@ -246,7 +245,7 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
         errcode.SetCode(util::errcode::network::err::Recv_Other_Err);
     }
     /* 处理之后反馈给connection进行数据处理 */
-    OnRecvEventDispatch(m_recv_buffer, errcode);
+    OnRecvEventDispatch(m_output_buffer, errcode);
 }
 
 #pragma region "网络事件处理函数的实现"
@@ -293,9 +292,126 @@ void evConnection::OnHeartBeat()
 
 #pragma endregion
 
+size_t evConnection::AppendOutput(const char* buf, size_t len)
+{
+    auto before_size = m_output_buffer.DataSize();
+    m_output_buffer.WriteString(buf, len);
+    auto after_size = m_output_buffer.DataSize();
+
+    return (after_size - before_size) > 0 ? (after_size - before_size) : 0;
+}
+
+int evConnection::Send(const bbt::buffer::Buffer& buf)
+{
+    int remain = buf.DataSize();
+    int len = remain;
+    while (remain > 0)
+    {
+        int n = ::write(GetSocket(), buf.Peek() + (len - remain), remain);
+        if(n < 0)
+        {
+            if(errno == EPIPE) {
+                Close();
+                GAME_EXT1_LOG_ERROR("send failed! peer disconnect! sockfd=%d", GetSocket());
+                return -1;
+            }
+            remain -= n;
+        }
+    }
+
+    return (len - remain);
+    
+}
+
+
+int evConnection::AsyncSendInThread()
+{
+    bbt::buffer::Buffer buffer;
+    m_output_buffer.Swap(buffer);
+
+    m_output_prev_size = buffer.DataSize();
+
+    auto io_ctx = m_io_thread.lock();
+    if(io_ctx == nullptr) {
+        GAME_EXT1_LOG_ERROR("io thread not existed! sockfd=%d, connid=%d", GetSocket(), GetMemberId());
+        return -1;
+    }
+
+    auto weak_this = weak_from_this();
+    auto connid = GetMemberId();
+    m_send_event = evEvent::Create([weak_this, connid, buffer](evutil_socket_t fd, short events, void* args){
+        auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
+        if(share_this == nullptr) {
+            GAME_EXT1_LOG_ERROR("connection is destory, event can`t exec! sockfd=%d, connid=%d", fd, connid);
+            return;
+        }
+
+        share_this->Send(buffer);
+        share_this->OnSend(fd, events, args);
+    }, GetSocket(), EV_WRITE, 5000);
+
+    m_output_status = OutputStatus::Working;
+    
+    return io_ctx->RegisterEventSafe(m_send_event);
+}
+
+
+void evConnection::OnSend(evutil_socket_t fd, short events, void* args)
+{
+    util::errcode::ErrCode err;
+    err.SetType(util::errcode::ErrType::NetWorkErr);
+
+    if((events & EV_TIMEOUT) == 1) {
+        err.SetCode(util::errcode::network::TimeOut);
+        // 发送超时，发送失败
+        GAME_EXT1_LOG_ERROR("send failed! timeout! sockfd=%d");
+        return;
+    }
+    
+    if((events & EV_WRITE) == 0) {
+        err.SetCode(util::errcode::network::Default);
+        GAME_EXT1_LOG_ERROR("event invalid!, sockfd=%d, event=%d", fd, events);
+        return;
+    }
+
+    m_onsend(err, 0);
+
+    {
+        bbt::thread::lock::lock_guard<bbt::thread::lock::Mutex> _(m_output_mutex);
+        DebugAssert(m_output_status == OutputStatus::Working);
+        
+        if(m_output_buffer.DataSize() > 0) {
+            AsyncSendInThread();
+        }
+        else
+            m_output_status = OutputStatus::Free;
+    }
+
+}
+
+
 size_t evConnection::Send(const char* buffer, size_t len)
 {
-    return -1;
+    if(m_status == ConnStatus::Connected) {
+        bbt::thread::lock::lock_guard<bbt::thread::lock::Mutex> _(m_output_mutex);
+        if(m_output_status == OutputStatus::Free) {
+            AsyncSendInThread();
+        }
+        else {
+            auto send_size = AppendOutput(buffer, len);
+            if( (send_size == 0) || (len > send_size) )
+            {
+                GAME_EXT1_LOG_ERROR("append to output buffer error! len=%d", len);
+                return -1;
+            }
+            GAME_EXT1_LOG_DEBUG("send %d bytes! len=%d", send_size, len);
+        }
+    } else {
+        GAME_EXT1_LOG_ERROR("send error! connection is disconnect! sockfd=%d, status=%d", GetSocket(), m_status);
+        return -1;
+    }
+
+    return 0;
 }
 
 size_t evConnection::Recv(const char* buffer, size_t len)

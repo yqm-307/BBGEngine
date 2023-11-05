@@ -7,6 +7,7 @@
 #include "util/network/libevent/evConnMgr.hpp"
 #include <bbt/buffer/Buffer.hpp>
 #include <bbt/timer/Clock.hpp>
+#include <bbt/thread/Lock.hpp>
 
 /**
  * @brief libevent实现
@@ -18,26 +19,17 @@ namespace util::network
 
 static const int evConnection_Timeout_MS = 3000;
 
-void OnRecvCallback(int sockfd, short events, void* args);
 void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args);
 
 namespace ev
 {
 
-/* libevent 到 C++闭包对象中间层，希望使用函数对象统一io操作 */
-typedef std::function<void(evutil_socket_t, short, void*)> IOCommCallback;
-
-struct evArgs
+enum OutputStatus
 {
-    IOCommCallback  do_io_callback{nullptr};
+    Free    = 0,    // 空闲中
+    Working = 1,    // 发送中
 };
 
-
-
-class evIOThread;
-class evConnection;
-class evConnMgr;
-OnlySharedDef(evConnection);
 
 /**
  * @brief 可靠的双向连接，基于Tcp
@@ -48,7 +40,6 @@ class evConnection:
     public Connection
 {
     evConnectionDeriveClassDef;
-    friend void util::network::OnRecvCallback(int sockfd, short events, void* args);
     friend class evConnMgr;
 
     typedef std::function<void(evConnectionSPtr)>   OnDestoryCallback;
@@ -110,6 +101,7 @@ private:
     void InitEvent();
     void InitEventArgs();
     evConnectionSPtr SPtr();
+    size_t AppendOutput(const char* buf, size_t len);
 private:
     //----------------- Read Only -------------------//
     /* 获取当前连接所在的IO线程 */
@@ -132,7 +124,9 @@ private:
 
     //----------- IO Dispatcher  -------------//
     void OnRecv(evutil_socket_t fd, short events, void* args);
-    // void OnSend(evutil_socket_t fd, short evebts, void* args);
+    void OnSend(evutil_socket_t fd, short evebts, void* args);
+    int  AsyncSendInThread();
+    int  Send(const bbt::buffer::Buffer& buf);
 
 
     void NetHandler_RecvData(const bbt::buffer::Buffer& buffer);
@@ -140,8 +134,6 @@ private:
     void NetHandler_TryAgain(const bbt::buffer::Buffer& buffer);
     void NetHandler_OtherErr(const bbt::buffer::Buffer& buffer);
 
-    //----------- timeout Handler -------------//
-    // 心跳的实现修改，由上层解析完心跳协议后，调用到Conenction更新心跳时间
     const std::map<int, 
         std::function<void(const bbt::buffer::Buffer&)>> m_errcode_handler
     {
@@ -158,11 +150,14 @@ private:
     evIOThreadWKPtr   m_io_thread;
     std::shared_ptr<evEvent>    m_recv_event{nullptr};      // 接收事件    
     std::shared_ptr<evEvent>    m_socket_timeout{nullptr};      // 接收事件    
+    std::shared_ptr<evEvent>    m_send_event{nullptr};      // 发送事件
 
-    // char        m_recv_buffer[4096];    
-    bbt::buffer::Buffer     m_recv_buffer;  // socket 接收缓存
-
-    evArgs m_onrecv_args;
+    //-------------------- IO缓存 -------------------//
+    bbt::buffer::Buffer     m_input_buffer;
+    bbt::buffer::Buffer     m_output_buffer;
+    OutputStatus            m_output_status{OutputStatus::Free};
+    bbt::thread::lock::Mutex    m_output_mutex;
+    size_t                  m_output_prev_size{0};      // 上次发送数据的长度
 
     /** 
      * 上次接收到心跳包的时间戳，默认为连接建立的时间。 

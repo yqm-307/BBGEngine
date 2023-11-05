@@ -12,8 +12,11 @@ namespace util::network::ev
 
 class evEvent;
 class evIOThread;
+class evConnection;
+class evConnMgr;
 
 
+OnlySharedDef(evConnection);
 OnlySharedDef(evEvent);
 SharedWithUniqueDef(evIOThread);
 

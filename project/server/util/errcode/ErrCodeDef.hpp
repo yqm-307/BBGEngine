@@ -15,7 +15,8 @@ enum ErrType
 namespace network { 
 enum err
 {
-    Default                         = 0,
+    Default                         = 0,    // 未知，如果遇到，需要确定err原因并完善err枚举表
+    TimeOut                         = 1,    // 操作超时
     //--------- network recv ---------//     
 
     //--------- network recv ---------//     
