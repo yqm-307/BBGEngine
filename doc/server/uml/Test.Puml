@@ -1,0 +1,21 @@
+@startuml 会话uml 
+
+class SessionBase {
+    - {field} SessionId
+    - {field} Token
+    - {field} Type
+}
+
+class GMSession {
+}
+
+SessionBase <|-- UserSession
+SessionBase <|-- ServerSession
+
+UserSession <|-- PlayerSession
+
+ServerSession <|-- LoginSession
+ServerSession <|-- RelaySession
+ServerSession <|-- GMSession
+
+@enduml

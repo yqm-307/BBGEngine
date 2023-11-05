@@ -50,32 +50,30 @@ const Address& evConnection::GetLocalIPAddress() const
     return m_local_addr;
 }
 
-size_t evConnection::Send(const char* buffer, size_t len)
-{
-    // TODO 没有实现逻辑
-    return 0;
-}
-
-size_t evConnection::Recv(const char* buffer, size_t len)
-{
-    // TODO 没有实现逻辑
-    return -1;
-}
-
-void evConnection::SetOnRecvCallback(const OnRecvCallback& onrecv_handler)
+void evConnection::SetOnRecv(const OnRecvCallback& onrecv_handler)
 {
     DebugAssert(onrecv_handler != nullptr);
     m_onrecv = onrecv_handler;
 }
 
-void evConnection::SetOnSendCallback(const OnSendCallback& onsend_handler)
+void evConnection::SetOnSend(const OnSendCallback& onsend_handler)
 {
     DebugAssert(onsend_handler != nullptr);
     m_onsend = onsend_handler;
 }
 
+void evConnection::SetOnClose(const OnCloseCallback& onclose_handler)
+{
+    DebugAssert(onclose_handler != nullptr);
+    m_onclose = onclose_handler;
+}
+
+
 void evConnection::Close()
 {
+    if(m_onclose)
+        m_onclose(util::errcode::ErrCode("", util::errcode::ErrType::NetWorkErr, util::errcode::network::Recv_Eof), SPtr());
+
     OnDestroy();
 }
 
@@ -96,17 +94,17 @@ void evConnection::InitEvent()
 
 void evConnection::InitEventArgs()
 {
-    // auto weak_this = weak_from_this();
-    // /* 设置 Read 事件的监听函数 */
-    // m_recv_event = evEvent::Create([weak_this](evutil_socket_t fd, short events, void* args){
-    //     auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
-    //     if(share_this)
-    //         share_this->OnEvent(fd, events, args);
-    // }, m_sockfd, EV_READ | EV_PERSIST | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
-    m_recv_event = evEvent::Create([this](evutil_socket_t fd, short events, void* args){
-        this->OnEvent(fd, events, args);
-    }, m_sockfd, EV_READ | EV_PERSIST | EV_CLOSED, 5000);  // TODO 配置socket空闲超时事件
 
+    auto weak_this = weak_from_this();
+    /* 设置 Read 事件的监听函数 */
+    m_recv_event = evEvent::Create([weak_this](evutil_socket_t fd, short events, void* args){
+        auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
+        if(share_this == nullptr) {
+            GAME_EXT1_LOG_WARN("connect is delete, but event is unregisted! fd=%d, fd=%d", fd, events);
+            return;
+        }
+        share_this->OnEvent(fd, events, args);
+    }, GetSocket(), EV_READ | EV_PERSIST | EV_CLOSED | EV_WRITE, 5000);
 }
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
@@ -123,6 +121,7 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
         GAME_EXT1_LOG_ERROR("don`t know errcode. ErrCode:%d", err.GetErrCode());
         return;
     }
+
     size_t len = buffer.DataSize();
     /* 找对应的事件处理函数，去处理对应的网络事件 */
     it_handler->second(buffer);
@@ -165,7 +164,7 @@ void evConnection::OnDestroy()
     }
     DebugAssert(error >= 0);
 
-    ::close(m_sockfd);
+    ::close(GetSocket());
 
     m_recv_event = nullptr;
 }
@@ -178,11 +177,6 @@ std::pair<char*,size_t> evConnection::GetRecvBuffer()
 evIOThreadSPtr evConnection::GetIOThread()
 {
     return m_io_thread.lock();
-}
-
-evutil_socket_t evConnection::GetSocket()
-{
-    return m_sockfd;
 }
 
 void evConnection::OnEvent(evutil_socket_t fd, short events, void* args)
@@ -298,4 +292,16 @@ void evConnection::OnHeartBeat()
 }
 
 #pragma endregion
+
+size_t evConnection::Send(const char* buffer, size_t len)
+{
+    return -1;
+}
+
+size_t evConnection::Recv(const char* buffer, size_t len)
+{
+    return -1;
+}
+
+
 }

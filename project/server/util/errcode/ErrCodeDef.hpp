@@ -24,6 +24,7 @@ enum err
     Recv_Connect_Refused            = 2002, // 连接被拒绝
     Recv_TryAgain                   = 2003, // 当前繁忙，重试
     Recv_Other_Err                  = 2004, // 其他错误，查看errno
+    Send_Success                    = 2005, // 发送完毕
 
 };
 

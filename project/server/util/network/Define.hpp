@@ -6,6 +6,12 @@
 namespace util::network
 {
 
+class IOThread;
+SharedWithUniqueDef(IOThread);
+
+class Connection;
+SharedWithUniqueDef(Connection);
+
 typedef int64_t ConnectId;
 
 enum GenerateKey {

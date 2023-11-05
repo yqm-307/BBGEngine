@@ -55,6 +55,7 @@ class evConnection:
     typedef std::function<bool(evConnectionSPtr)>   OnTimeOutCallback;
     typedef std::function<void(const util::errcode::ErrCode&, size_t)>  OnRecvCallback;
     typedef std::function<void(const util::errcode::ErrCode&, size_t)>  OnSendCallback;
+    typedef std::function<void(const util::errcode::ErrCode&, evConnectionSPtr)>          OnCloseCallback;
 public:
 
     virtual ~evConnection();
@@ -79,9 +80,13 @@ public:
     virtual size_t Recv(const char* buffer, size_t len) override;
 
     /* 设置一个回调，回调在从socket保存数据到当前连接的缓存后调用 */
-    void SetOnRecvCallback(const OnRecvCallback& onrecv_handler);
+    void SetOnRecv(const OnRecvCallback& onrecv_handler);
+
     /* 设置一个回调，回调在通过socket发送到网络上后调用 */
-    void SetOnSendCallback(const OnSendCallback& onsend_handler);
+    void SetOnSend(const OnSendCallback& onsend_handler);
+
+    /* 设置一个回调，回调会在连接关闭前调用 */
+    void SetOnClose(const OnCloseCallback& onclose_handler);
 
     virtual const Address& GetPeerIPAddress() const override;
     virtual const Address& GetLocalIPAddress() const override;
@@ -109,8 +114,6 @@ private:
     //----------------- Read Only -------------------//
     /* 获取当前连接所在的IO线程 */
     evIOThreadSPtr GetIOThread();
-    /* 获取当前连接的套接字 */
-    evutil_socket_t GetSocket();
     /* 获取当前连接上次心跳包的时间 */
     bbt::timer::clock::Timestamp<bbt::timer::clock::ms>
         GetPrevHeartBeatTimestamp();
@@ -174,6 +177,7 @@ private:
     OnRecvCallback      m_onrecv{nullptr};
     OnSendCallback      m_onsend{nullptr};
     OnTimeOutCallback   m_timeout_cb{nullptr};
+    OnCloseCallback     m_onclose{nullptr};
 };
 }
 
