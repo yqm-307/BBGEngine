@@ -3,7 +3,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 
-#include <share/scene/TestScene.hpp>
+#include <share/scene/testscene/TestScene.hpp>
 #include <share/ecs/entity/testobj/SimpleObj_1.hpp>
 #include <cmath>
 

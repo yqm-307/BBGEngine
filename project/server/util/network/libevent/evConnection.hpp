@@ -123,7 +123,6 @@ private:
     void OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err);
 
     //----------- IO Dispatcher  -------------//
-    void OnRecv(evutil_socket_t fd, short events, void* args);
     void OnSend(evutil_socket_t fd, short evebts, void* args);
     int  AsyncSendInThread();
     int  Send(const bbt::buffer::Buffer& buf);
