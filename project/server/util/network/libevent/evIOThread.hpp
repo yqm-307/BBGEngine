@@ -12,8 +12,6 @@ namespace util::network
 namespace ev
 {
 
-struct Event;
-
 
 class evIOThread:
     public util::network::IOThread
@@ -78,12 +76,6 @@ protected:
     std::mutex      m_mutex;
 };
 
-struct Event
-{
-    event* m_event;
-    evIOThread::EventCallback m_callback;
-    void* args;
-};
 
 }// namespace end
 }// namespace end

@@ -28,7 +28,6 @@ evIOThread::~evIOThread()
 
 void evIOThread::Init()
 {
-
     SetOnThreadBegin_Hook([](IOThreadID tid){
         GAME_BASE_LOG_INFO("IOThread Start! tid = %d", tid);
     });

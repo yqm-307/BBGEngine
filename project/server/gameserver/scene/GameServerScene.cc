@@ -174,7 +174,9 @@ void GameServerScene::IOThreadExit()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
     auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
+    GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exitting!");
     network_ptr->SyncStop();
+    GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 
 #pragma endregion
