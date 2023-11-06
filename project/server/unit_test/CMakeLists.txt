@@ -90,3 +90,18 @@ target_link_libraries(test_engine_componentmgr_texe
 )
 
 add_test(NAME engine_scene_component_mgr COMMAND test_engine_componentmgr_texe)
+
+
+######################## ==> yqm 的 cpp with lua 测试 <== ########################
+
+add_executable(test_cpp2lua_texe
+    ${SRC_FILE}
+    ./lua_test/cpp2lua.cc
+)
+
+target_link_libraries(test_cpp2lua_texe
+    ${MY_LINK_LIB}
+    lua
+)
+
+add_test(NAME test_cpp2lua_texe COMMAND test_cpp2lua_texe)
