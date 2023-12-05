@@ -18,7 +18,7 @@ void Network::OnFixUpdate(int index)
         return;
     }
 
-    GAME_BASE_LOG_DEBUG("[OnFixUpdate] thread=[%d] status=[%d]", thread->GetTid(), thread->IsRunning());
+    // GAME_BASE_LOG_DEBUG("[OnFixUpdate] thread=[%d] status=[%d]", thread->GetTid(), thread->IsRunning());
 }
 
 void Network::RegistFixUpdate(int index)
