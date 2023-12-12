@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/ecs/gameobject/GameObject.hpp"
-#include "share/ecs/component/aoi/AoiComponent.hpp"
+#include "share/ecs/aoi/component/AoiComponent.hpp"
 
 namespace share::ecs::entity::player
 {

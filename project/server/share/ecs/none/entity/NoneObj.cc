@@ -1,4 +1,4 @@
-#include "share/ecs/entity/none/NoneObj.hpp"
+#include "share/ecs/none/entity/NoneObj.hpp"
 #include "share/ecs/Define.hpp"
 
 namespace share::ecs::entity::none

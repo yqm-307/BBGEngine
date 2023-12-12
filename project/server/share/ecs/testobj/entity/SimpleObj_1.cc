@@ -1,4 +1,4 @@
-#include "share/ecs/entity/testobj/SimpleObj_1.hpp"
+#include "share/ecs/testobj/entity/SimpleObj_1.hpp"
 #include "share/ecs/Define.hpp"
 
 namespace share::ecs::entity::testobj

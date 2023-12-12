@@ -1,5 +1,5 @@
 #include <cmath>
-#include "share/ecs/entity/aoi/Aoi.hpp"
+#include "share/ecs/aoi/entity/Aoi.hpp"
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
 #include "engine/ecs/component/ComponentMgr.hpp"

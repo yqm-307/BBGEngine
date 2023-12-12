@@ -1,4 +1,4 @@
-#include "share/ecs/entity/playermgr/PlayerMgr.hpp"
+#include "share/ecs/playermgr/entity/PlayerMgr.hpp"
 #include "share/ecs/Define.hpp"
 
 namespace share::ecs::entity::playermgr

@@ -1,9 +1,9 @@
 #pragma once
-#include "share/ecs/entity/aoi/Define.hpp"
+#include "share/ecs/aoi/entity/Define.hpp"
 #include "util/config/config.hpp"
 #include "util/hashmap/Hashmap.hpp"
 #include "util/vector/Pos3.hpp"
-#include "share/ecs/component/aoi/AoiComponent.hpp"
+#include "share/ecs/aoi/component/AoiComponent.hpp"
 #include <map>
 #include <vector>
 

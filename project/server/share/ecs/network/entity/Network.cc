@@ -1,4 +1,4 @@
-#include "share/ecs/entity/network/Network.hpp"
+#include "share/ecs/network/entity/Network.hpp"
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "share/ecs/Define.hpp"
 

@@ -4,7 +4,7 @@
 #include <bbt/thread/Lock.hpp>
 #include <bbt/Attribute.hpp>
 #include "util/network/libevent/evIOThread.hpp"
-#include "share/ecs/entity/network/Acceptor.hpp"
+#include "share/ecs/network/entity/Acceptor.hpp"
 #include "engine/ecs/gameobject/GameObject.hpp"
 
 

@@ -1,5 +1,5 @@
 #include "util/network/libevent/evConnMgr.hpp"
-#include "share/ecs/entity/network/Acceptor.hpp"
+#include "share/ecs/network/entity/Acceptor.hpp"
 #include "util/network/libevent/evIOThread.hpp"
 #include <fcntl.h>
 #include <evutil.h>

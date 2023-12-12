@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/ecs/component/Component.hpp"
-#include "share/ecs/entity/aoi/Define.hpp"
+#include "share/ecs/aoi/entity/Define.hpp"
 #include "util/vector/Vector3.hpp"
 #include "util/vector/Pos3.hpp"
 

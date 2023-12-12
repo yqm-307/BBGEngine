@@ -1,6 +1,6 @@
 #include "gameserver/scene/GameServerScene.hpp"
 #include "gameserver/init/LoadConfig.hpp"
-#include "share/ecs/entity/network/Network.hpp"
+#include "share/ecs/network/entity/Network.hpp"
 #include "util/log/Log.hpp"
 #include <signal.h>
 

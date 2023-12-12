@@ -2,7 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
-#include <share/ecs/entity/player/Player.hpp>
+#include <share/ecs/player/entity/Player.hpp>
 #include <engine/ecs/component/ComponentMgr.hpp>
 using namespace share::ecs::entity;
 

@@ -1,4 +1,4 @@
-#include "share/ecs/entity/player/Player.hpp"
+#include "share/ecs/player/entity/Player.hpp"
 #include "share/ecs/Define.hpp"
 
 
