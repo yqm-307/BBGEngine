@@ -1,5 +1,5 @@
 #include <filesystem>
-#include "util/config/confighelper.hpp"
+#include "util/config/ConfigHelper.hpp"
 #include "util/assert/Assert.hpp"
 
 namespace util::config

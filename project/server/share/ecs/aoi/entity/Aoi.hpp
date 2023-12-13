@@ -1,6 +1,6 @@
 #pragma once
 #include "share/ecs/aoi/entity/Define.hpp"
-#include "util/config/config.hpp"
+#include "util/config/Config.hpp"
 #include "util/hashmap/Hashmap.hpp"
 #include "util/vector/Pos3.hpp"
 #include "share/ecs/aoi/component/AoiComponent.hpp"

@@ -108,16 +108,16 @@ void evConnection::InitEventArgs()
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
 {
-    if(err.GetErrType() != util::errcode::ErrType::NetWorkErr)
+    if(err.GetType() != util::errcode::ErrType::NetWorkErr)
     {
-        GAME_EXT1_LOG_ERROR("recv fatal! ErrType:%d\tErrCode:%d", err.GetErrType(), err.GetErrCode());
+        GAME_EXT1_LOG_ERROR("recv fatal! ErrType:%d\tErrCode:%d", err.GetType(), err.GetCode());
         return;
     }
 
-    auto it_handler = m_errcode_handler.find(err.GetErrCode());
+    auto it_handler = m_errcode_handler.find(err.GetCode());
     if(it_handler == m_errcode_handler.end())
     {
-        GAME_EXT1_LOG_ERROR("don`t know errcode. ErrCode:%d", err.GetErrCode());
+        GAME_EXT1_LOG_ERROR("don`t know errcode. ErrCode:%d", err.GetCode());
         return;
     }
 

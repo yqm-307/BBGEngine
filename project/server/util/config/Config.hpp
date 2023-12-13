@@ -1,5 +1,5 @@
 #pragma once
-#include "util/config/configutil.hpp"
+#include "util/config/ConfigUtil.hpp"
 
 namespace util::config
 {

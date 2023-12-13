@@ -1,5 +1,5 @@
 #pragma once
-#include "util/config/config.hpp"
+#include "util/config/Config.hpp"
 #include "util/ini/IniReader.hpp"
 #include <string>
 

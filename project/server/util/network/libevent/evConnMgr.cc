@@ -1,5 +1,5 @@
 #include "util/network/libevent/evConnMgr.hpp"
-#include "util/config/config.hpp"
+#include "util/config/Config.hpp"
 
 namespace util::network::ev
 {
