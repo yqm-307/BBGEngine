@@ -4,20 +4,16 @@ namespace util::errcode
 {
 
 ErrCode::ErrCode(const std::string& err_info,ErrType errtype,int errcode)
-    :m_err_info(err_info),
-    m_err_type(errtype),
-    m_errcode(errcode)
+    :BaseClassType(err_info, {errtype, errcode})
 {}
 
 ErrCode::ErrCode()
-    :m_err_info("nothing"),
-    m_err_type(ErrType::Nothing),
-    m_errcode(0)
+    :BaseClassType("nothing", {ErrType::Nothing, 0})
 {}
 
 void ErrCode::SetInfo(const std::string& errinfo)
 {
-    m_err_info = errinfo;
+    SetMsg(errinfo);
 }
 
 
@@ -30,42 +26,45 @@ void ErrCode::SetInfo(const char* fmt,...)
     va_start(ap, fmt);
     vsnprintf(data + i, 128 - i, fmt, ap);
     va_end(ap);
-    m_err_info = data;
+    SetMsg(std::string(data));
 }
 
 void ErrCode::SetCode(int code)
 { 
-    m_errcode = code; 
+    auto pair = GetErrType();
+    pair.second = code;
+    SetErrType(pair);
 }
 
 
 void ErrCode::SetType(ErrType type)
 { 
-    m_err_type = type; 
+    auto pair = GetErrType();
+    pair.first = type;
+    SetErrType(pair); 
 }
 
 
 void ErrCode::Set(const std::string& err_info,ErrType errtype,int errcode)
 {
-    m_err_info = err_info;
-    m_err_type = errtype;
-    m_errcode = errcode;
+    SetMsg(err_info);
+    SetErrType({errtype, errcode});
 }
 
 
 const std::string& ErrCode::What() const
 { 
-    return m_err_info; 
+    return GetMsg(); 
 } 
 
-int ErrCode::GetErrCode() const
+int ErrCode::GetCode() const
 { 
-    return m_errcode; 
+    return GetErrType().second; 
 }
 
-ErrType ErrCode::GetErrType() const
+ErrType ErrCode::GetType() const
 {
-    return m_err_type;
+    return GetErrType().first;
 }
 
 }

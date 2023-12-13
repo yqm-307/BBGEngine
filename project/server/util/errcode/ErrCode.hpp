@@ -5,13 +5,18 @@
 #include <string>
 #include "util/errcode/ErrCodeDef.hpp"
 
+
 namespace util::errcode
 {
 
+typedef std::pair<util::errcode::ErrType, int> ErrTypePair;
 
-class ErrCode
+class ErrCode:
+    public bbt::errcode::Errcode<ErrTypePair>
 {
+    typedef bbt::errcode::Errcode<ErrTypePair> BaseClassType;
 public:
+
     explicit ErrCode(const std::string& err_info,ErrType errtype,int errcode);
 
     ErrCode();
@@ -31,15 +36,10 @@ public:
 
     const std::string& What() const;
 
-    int GetErrCode() const;
+    int GetCode() const;
 
-    ErrType GetErrType() const;
-
-
-private:
-    std::string     m_err_info;
-    ErrType         m_err_type;
-    int             m_errcode;
+    ErrType GetType() const;
+protected:
 
 };
 
