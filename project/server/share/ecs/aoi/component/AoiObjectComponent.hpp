@@ -1,6 +1,7 @@
 #pragma once
 #include "share/ecs/Define.hpp"
 #include "share/ecs/aoi/entity/Define.hpp"
+#include "util/vector/Vector3.hpp"
 
 namespace share::ecs::aoi
 {
@@ -8,10 +9,11 @@ namespace share::ecs::aoi
 /**
  * 在aoi中时保存位置信息
  */
-class AoiObjectComponent
+class AoiObjectComponent: 
+    public engine::ecs::Component
 {
+    ComponentDeriveClassDef;
 public:
-    ~AoiObjectComponent();
     AoiObjectComponent();
 
     ecs::aoi::AoiEntityFlag GetMode();
@@ -21,6 +23,7 @@ public:
     void OnMove(Tower* tower);
     util::vector::Vector3 GetCurrentPos();
 private:
+    ~AoiObjectComponent();
 
 private:
     util::vector::Vector3 m_prev_pos;

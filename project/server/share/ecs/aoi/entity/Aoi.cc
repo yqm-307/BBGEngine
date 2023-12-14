@@ -5,7 +5,7 @@
 #include "engine/ecs/component/ComponentMgr.hpp"
 #include "share/ecs/Define.hpp"
 
-namespace share::ecs::entity::aoi
+namespace share::ecs::aoi
 {
 
 

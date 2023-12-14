@@ -49,7 +49,6 @@ private:
     int         m_tower_max_x;  // x 轴上灯塔数量
     int         m_tower_max_y;  // y 轴上灯塔数量
     int         m_tower_max_z;  // z 轴上灯塔数量
-    static const engine::ecs::ComponentTemplateId    m_comp_template_id;    // 组件模板id
     Timestamp<bbt::timer::clock::ms>m_create_ms;    // Aoi创建时间 
     Timestamp<bbt::timer::clock::ms>m_prev_info_ms; // aoi定时输出当前信息，这个表示上次输出时间
     const std::string               m_comp_name;    // 组件名

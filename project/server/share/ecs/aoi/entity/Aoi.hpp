@@ -7,15 +7,8 @@
 #include <map>
 #include <vector>
 
-namespace share::ecs::entity::aoi
+namespace share::ecs::aoi
 {
-
-#pragma region "宏定义"
-
-static const int AoiHashBucketNum = 16;
-static const int AoiInfoIntervalMS = 5000;
-
-#pragma endregion
 
 /**
  * @brief Aoi是基于笛卡尔坐标系. 九宫格实现的

@@ -9,7 +9,7 @@ AoiComponent::AoiComponent(OnEnterFunc onenter, OnLeaveFunc onleave)
     :Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI),
     m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
-    m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(m_comp_template_id)),
+    m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(emComponentType::EM_COMPONENT_TYPE_AOI)),
     m_enter_func(onenter),
     m_leave_func(onleave),
     m_create_ms(bbt::timer::clock::now())

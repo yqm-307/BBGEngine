@@ -100,9 +100,7 @@ void GameServerScene::OnCreate()
 engine::ecs::GameObjectSPtr GameServerScene::AoiInit()
 {
     /* 初始化 aoi */
-    auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::aoi::Aoi>(
-    /*enter scene*/ [](GameObjectSPtr p1, GameObjectSPtr p2){}, 
-    /*leave scene*/ [](GameObjectSPtr p1, GameObjectSPtr p2){});    
+    auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::aoi::Aoi>();    
 
     return aoi_obj;
 }
