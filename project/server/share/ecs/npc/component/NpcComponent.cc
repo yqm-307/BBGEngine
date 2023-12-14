@@ -1,0 +1,2 @@
+#include "NpcComponent.hpp"
+

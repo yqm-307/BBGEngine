@@ -3,50 +3,62 @@
 #include "share/ecs/aoi/entity/Define.hpp"
 #include "util/vector/Vector3.hpp"
 #include "util/vector/Pos3.hpp"
+#include "util/config/Config.hpp"
 
 
-namespace share::ecs::component
+namespace share::ecs::aoi
 {
 
+class AoiSystem;
+/**
+ * 地图的aoi组件，保存地图中的玩家并维持兴趣列表
+ */
 class AoiComponent:
     public engine::ecs::Component
 {
+    friend class AoiSystem;
     ComponentDeriveClassDef;
+    template<typename T> using Timestamp = bbt::timer::clock::Timestamp<T>;
+    typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
+    /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */
+    typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
+    typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnEnterFunc;    /* 通知p1，p2进入了他的九宫格视野 */
+    typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
 public:
     virtual ~AoiComponent();
+    bool CheckConfig(const util::config::AoiConfig*) const;
     virtual void OnAddComponent(engine::ecs::GameObjectSPtr);
     virtual void OnDelComponent(engine::ecs::GameObjectSPtr);
     virtual void OnUpdate();
-    /* 获取组件的 aoi object id */
-    int GetObjId() const;
-    /* 设置组件的 aoi object id */
-    void SetObjId(int);
 
-    /* 获取实体的身份 */
-    int GetEntityMode() const;
-    /* 获取aoi当前位置 */
-    util::vector::Vector3 GetCurrentPos() const;
-    /* 获取所在灯塔 */
-    share::ecs::entity::aoi::Tower* GetTower() const;
-    /* 移动至新位置 */
-    void Moveto(util::vector::Vector3 new_pos);
-    /* 移动至新的灯塔 */
-    void Moveto(entity::aoi::Tower* new_tower);
-    void Clean();
-
-public:
-    void Debug_PosChange();
-protected:
-    explicit AoiComponent();
 private:
-    int     m_aoi_object_id;    // aoi 对象id
-    int     m_aoi_entity_mode;  // aoi 实体身份      
-    entity::aoi::Tower*  m_tower;    // 所处的灯塔
-    /* 实体大小 */
-    entity::aoi::AABBBox  m_aabb_box;
-    util::vector::Vector3 m_prev_pos;  // 上一帧位置
-    util::vector::Vector3 m_current_pos;   // 当前帧位置
-    /* 位移请求队列: 缓存客户端发来的位移请求，并在World Update时执行 */
+    Tower* GetTowerByPos3(util::vector::Vector3 pos3);
+    Tower* GetTowerByIndex3(util::pos::Index3 index3);
+    util::pos::Index3   GetIndex3ByPos3(util::vector::Vector3 pos3) const;
+    util::pos::Index3   GetIndex3ByIndex(int tower_index) const;
+    engine::ecs::GameObjectSPtr GetGameObj(AoiObjectId id);
+    void                ScanTowerAround(Tower* center_tower, AroundFunc dofunc);
+    std::vector<engine::ecs::GameObjectSPtr>  GetEntitysEx(util::vector::Vector3 pos);
+    bool                Move(engine::ecs::GameObjectSPtr player, util::vector::Vector3 moveto);
+    void Init();
+
+protected:
+    explicit AoiComponent(OnEnterFunc onenter, OnLeaveFunc onleave);
+private:
+    /////////////////////////////////////////////////////////////////////////////
+    int         m_tower_max_x;  // x 轴上灯塔数量
+    int         m_tower_max_y;  // y 轴上灯塔数量
+    int         m_tower_max_z;  // z 轴上灯塔数量
+    static const engine::ecs::ComponentTemplateId    m_comp_template_id;    // 组件模板id
+    Timestamp<bbt::timer::clock::ms>m_create_ms;    // Aoi创建时间 
+    Timestamp<bbt::timer::clock::ms>m_prev_info_ms; // aoi定时输出当前信息，这个表示上次输出时间
+    const std::string               m_comp_name;    // 组件名
+    OnEnterFunc                     m_enter_func;
+    OnLeaveFunc                     m_leave_func;
+    GameObjHashmap                  m_gameobj_map; // AOI中所有游戏对象 hashmap
+    std::vector<Tower>              m_towers;   // AOI中所有灯塔
+    std::vector<MapSlot>            m_slots;    // AOI中所有Slot
+    const util::config::AoiConfig*  m_config;   // AOI配置
 };
 
 }

@@ -34,6 +34,7 @@ enum emComponentType: int {
 
 //------------------------> 常规组件 <------------------------//
     EM_COMPONENT_TYPE_AOI                   = 1,    // aoi组件
+    EM_COMPONENT_TYPE_AOI_OBJECT            = 2,    // aoi object组件
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
