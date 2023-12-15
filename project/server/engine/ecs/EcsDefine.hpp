@@ -39,15 +39,19 @@ SharedWithUniqueDef(System);
 
 #pragma region "==> ID和ID生成器的声明 <=="
 
-enum MistKey {
+enum EasyIdType {
     EM_Mist_GameObjectId = 1,
     EM_Mist_ComponentId = 2,
+    EM_Mist_AoiObjectId = 3,
 };
 
 
 
 typedef int64_t GameObjectId;
+static const GameObjectId InvalidGameObjectId = -1;
 typedef int64_t ComponentId;
+static const GameObjectId InvalidComponentId = -1;
+
 typedef int32_t ComponentTemplateId; // 模板id
 
 extern inline GameObjectId GenerateGameObjectID() 

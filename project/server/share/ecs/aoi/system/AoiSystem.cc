@@ -9,9 +9,9 @@
 
 namespace share::ecs::aoi
 {
-std::unique_ptr<AoiSystem> AoiSystem::GetInstance()
+std::unique_ptr<AoiSystem>& AoiSystem::GetInstance()
 {
-    std::unique_ptr<AoiSystem> _inst = nullptr;
+    static std::unique_ptr<AoiSystem> _inst = nullptr;
     if (_inst == nullptr) {
         _inst = std::unique_ptr<AoiSystem>(new AoiSystem());
     }
@@ -45,18 +45,19 @@ bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::Ga
         if(id < 0)
             break;
 
-        engine::ecs::GameObjectSPtr old_obj = GetGameObj(aoi_entity, id);
-        if(bbt_unlikely(old_obj == nullptr))
+        engine::ecs::GameObjectSPtr old_obj = GetGameObjByAoi(aoi_entity, id);
+        if(bbt_unlikely(old_obj != nullptr))
             LeaveAoi(aoi_entity, npc);
         
         /* 获取灯塔下标 */
-        auto tower = GetTowerByPos3(drop_point);
+        auto tower = aoi->GetTowerByPos3(drop_point);
         if(bbt_unlikely(tower == nullptr))
             break;
 
         /* 移动aoi obj */
         aoi_comp->OnMove(drop_point);
         aoi_comp->OnMove(tower);
+        aoi_comp->OnEnterAoi(aoi_entity->GetId());
 
         /* 将player加入aoi中管理 */
         auto isok = aoi->m_gameobj_map.Insert(id, npc);
@@ -69,9 +70,9 @@ bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::Ga
             break;
 
         success = true;
-        /* 通知九宫格所有人 */
+        /* 进入成功后通知九宫格所有人（此时包括自己） */
         aoi->ScanTowerAround(tower, [this, npc, aoi_entity](Tower* tower, int n){
-            EnterTowerBroadCast(aoi_entity, npc, tower, n);
+            EnterTowerBroadcast(aoi_entity, npc, tower, n);
         });
 
         OnEnter(npc);
@@ -97,11 +98,11 @@ bool AoiSystem::LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player)
         if(bbt_unlikely(id < 0))
             break;
 
-        engine::ecs::GameObjectSPtr old_obj = GetGameObj(aoi_entity, id);
+        engine::ecs::GameObjectSPtr old_obj = GetGameObjByAoi(aoi_entity, id);
         if(bbt_unlikely(old_obj == nullptr))
             break;
 
-        auto tower = GetTowerByPos3(aoi_comp->GetCurrentPos());
+        auto tower = aoi->GetTowerByPos3(aoi_comp->GetCurrentPos());
         if(bbt_unlikely(tower == nullptr))
             break;
         
@@ -115,10 +116,12 @@ bool AoiSystem::LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player)
         if(bbt_unlikely(a == nullptr))
             break;            
 
+        aoi_comp->OnLeaveAoi(aoi_entity->GetId());
+
         success = true;
-        /* 通知灯塔范围内的所有人 */
+        /* 离开成功后通知灯塔范围内的所有人 */
         aoi->ScanTowerAround(tower, [this, player, aoi_entity](Tower* tower, int n){
-            LeaveTowerBroadCast(aoi_entity, player, tower, n);
+            LeaveTowerBroadcast(aoi_entity, player, tower, n);
         });
 
         OnLeave(player);
@@ -148,11 +151,11 @@ bool AoiSystem::Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::vec
 
         auto old_pos = aoi_comp->GetCurrentPos();        
         /* 是否为aoi中对象，debug检测 */
-        DebugAssertWithInfo(GetGameObj(aoi_entity, id) != nullptr , "aoi object not found");
+        DebugAssertWithInfo(GetGameObjByAoi(aoi_entity, id) != nullptr , "aoi object not found");
 
         /* 新灯塔插入，旧灯塔删除 */
-        auto new_tower = GetTowerByPos3(moveto);
-        auto old_tower = GetTowerByPos3(old_pos);
+        auto new_tower = aoi->GetTowerByPos3(moveto);
+        auto old_tower = aoi->GetTowerByPos3(old_pos);
 
         /* 从旧灯塔中删除 */
         auto oldobj = RemoveObjFromTowerById(old_tower, id);
@@ -175,12 +178,12 @@ bool AoiSystem::Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::vec
         success = true;
         /* 广播新灯塔九宫格 */
         aoi->ScanTowerAround(new_tower, [this, player, aoi_entity](Tower* tower, int n){
-            this->EnterTowerBroadCast(aoi_entity, player, tower, n);
+            EnterTowerBroadcast(aoi_entity, player, tower, n);
         });
 
         /* 广播旧灯塔九宫格 */
         aoi->ScanTowerAround(old_tower, [this, player, aoi_entity](Tower* tower, int n){
-            this->LeaveTowerBroadCast(aoi_entity, player, tower, n);
+            LeaveTowerBroadcast(aoi_entity, player, tower, n);
         });
     }while(0);
     
@@ -194,12 +197,6 @@ void AoiSystem::OnEnter(GameObjectSPtr player)
 
 void AoiSystem::OnLeave(GameObjectSPtr player)
 {
-}
-
-
-Tower* AoiSystem::GetTowerByPos3(util::vector::Vector3 pos3)
-{
-
 }
 
 engine::ecs::GameObjectSPtr AoiSystem::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
@@ -271,7 +268,7 @@ std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiSystem::GetAoiObjectComponent(e
     return std::static_pointer_cast<ecs::aoi::AoiObjectComponent>(component);
 }
 
-engine::ecs::GameObjectSPtr AoiSystem::GetGameObj(engine::ecs::GameObjectCSPtr aoi, AoiObjectId id)
+engine::ecs::GameObjectSPtr AoiSystem::GetGameObjByAoi(engine::ecs::GameObjectCSPtr aoi, AoiObjectId id)
 {
     auto aoi_component = GetAoiComponent(aoi);
     if (!aoi_component)
@@ -284,37 +281,89 @@ engine::ecs::GameObjectSPtr AoiSystem::GetGameObj(engine::ecs::GameObjectCSPtr a
     return gameobj;
 }
 
-void AoiSystem::EnterTowerBroadCast(GameObjectSPtr aoi, GameObjectSPtr player, Tower* tower, int n)
+void AoiSystem::EnterTowerBroadcast(GameObjectSPtr aoi_entity, GameObjectSPtr player, Tower* tower, int n)
 {
     /**
      * 当一个实体进入灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
      * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
      */
-    auto aoi_obj_component = GetAoiObjectComponent(player);
-    auto aoi_comp = GetAoiComponent(aoi);
-    if(bbt_unlikely(aoi_obj_component == nullptr))
+    auto aoi_obj = GetAoiObjectComponent(player);
+    auto aoi = GetAoiComponent(aoi_entity);
+    if (bbt_unlikely(aoi_obj == nullptr))
         return;
 
     for (auto it_tplayer : tower->m_players)
     {
-        if(it_tplayer.first == aoi_obj_component->GetObjId())
+        if(it_tplayer.first == aoi_obj->GetObjId())
             return;
             
         auto it_comp = GetAoiObjectComponent(it_tplayer.second);
-        if(it_comp == nullptr)
+        if (it_comp == nullptr)
             return;
             
-        if( aoi_obj_component->GetMode() & AoiEntityFlag::Watcher )
-            aoi_comp->m_enter_func(player, it_tplayer.second);
+        if (aoi_obj->GetMode() & AoiEntityFlag::Watcher)
+            OnEnterAoi(aoi_entity, player, it_tplayer.second);
             
-        if( it_comp->GetMode() & AoiEntityFlag::Watcher )
-            aoi_comp->m_enter_func(it_tplayer.second, player);
+        if (it_comp->GetMode() & AoiEntityFlag::Watcher)
+            OnEnterAoi(aoi_entity, it_tplayer.second, player);
     }
 }
 
-void AoiSystem::LeaveTowerBroadCast(GameObjectSPtr aoi, GameObjectSPtr player, Tower* tower, int n)
+void AoiSystem::LeaveTowerBroadcast(GameObjectSPtr aoi_entity, GameObjectSPtr player, Tower* tower, int n)
 {
+    /**
+     * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
+     * 并通知实体自己，这样才能做到实体移动过程中可以被移动前后区域感知
+     */
 
+    auto aoi_obj = GetAoiObjectComponent(player);
+    if (bbt_unlikely(aoi_obj == nullptr))
+        return;
+
+    auto aoi = GetAoiComponent(aoi_entity);
+    if (bbt_unlikely(aoi == nullptr))
+        return;
+        
+    for (auto it_tplayer : tower->m_players)
+    {
+        /* 跳过自己？是否通知自己呢，感觉还是需要通知自己的 */
+        // if( it_tplayer.first == aoi_comp->GetObjId())
+        //     return;
+        
+        auto it_comp = GetAoiObjectComponent(it_tplayer.second);
+        if (bbt_unlikely(it_comp == nullptr))
+            return;
+            
+        if (aoi_obj->GetMode() & ecs::aoi::AoiEntityFlag::Watcher)
+            OnLeaveAoi(aoi_entity, player, it_tplayer.second);
+
+        if (aoi_obj->GetMode() & ecs::aoi::AoiEntityFlag::Watcher)
+            OnLeaveAoi(aoi_entity, it_tplayer.second, player);
+    }
+}
+
+void AoiSystem::OnLeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr p1, GameObjectSPtr p2)
+{
+    if (m_onleave_aoi_notify_event)
+        m_onleave_aoi_notify_event(aoi_entity, p1, p2);
+}
+
+void AoiSystem::OnEnterAoi(GameObjectSPtr aoi_entity, GameObjectSPtr p1, GameObjectSPtr p2)
+{
+    if (m_onenter_aoi_notify_event)
+        m_onenter_aoi_notify_event(aoi_entity, p1, p2);
+}
+
+void AoiSystem::SetOnEnterAoiEvent(const OnEnterFunc& func)
+{
+    DebugAssert(func != nullptr);
+    m_onenter_aoi_notify_event = func;
+}
+
+void AoiSystem::SetOnLeaveAoiEvent(const OnLeaveFunc& func)
+{
+    DebugAssert(func != nullptr);
+    m_onleave_aoi_notify_event = func;
 }
 
 } // namespace share::ecs::aoi

@@ -65,6 +65,16 @@ target_link_libraries(unit_test
 add_test(NAME unit_test COMMAND unit_test)
 
 
+######################## ==> game 的 aoi 功能测试 <== ########################
+add_executable(test_game_aoi_texe
+    ${SRC_FILE}
+    ./game/aoi/Test_aoi.cc
+)
+
+target_link_libraries(test_game_aoi_texe
+    ${MY_LINK_LIB}
+)
+add_test(NAME game_aoi COMMAND test_game_aoi_texe)
 
 ######################## ==> engine 的 scene 功能测试 <== ########################
 

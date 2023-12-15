@@ -9,7 +9,7 @@ namespace engine::ecs
 GameObject::GameObject(int gobj_type)
     :m_gobj_type(gobj_type)
 {
-    AssertWithInfo( gobj_type > 0, "game object type error");
+    AssertWithInfo( gobj_type >= 0, "game object type error");
     OnCreate();
 }
 

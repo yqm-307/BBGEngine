@@ -5,13 +5,11 @@ namespace share::ecs::aoi
 {
 
 
-AoiComponent::AoiComponent(OnEnterFunc onenter, OnLeaveFunc onleave)
+AoiComponent::AoiComponent()
     :Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI),
     m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
     m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(emComponentType::EM_COMPONENT_TYPE_AOI)),
-    m_enter_func(onenter),
-    m_leave_func(onleave),
     m_create_ms(bbt::timer::clock::now())
 {
     Init();
@@ -89,9 +87,9 @@ util::pos::Index3 AoiComponent::GetIndex3ByIndex(int tower_index) const
 Tower* AoiComponent::GetTowerByPos3(util::vector::Vector3 pos3)
 {
     util::pos::Index3 index3 = GetIndex3ByPos3(pos3);
-    if( pos3.m_x < 0 || index3.x >= m_tower_max_x ||
-        pos3.m_y < 0 || index3.y >= m_tower_max_y ||
-        pos3.m_z < 0 || index3.z >= m_tower_max_z )
+    if( pos3.m_x < 0 || index3.x >= m_tower_max_x || index3.x < 0 ||
+        pos3.m_y < 0 || index3.y >= m_tower_max_y || index3.y < 0 ||
+        pos3.m_z < 0 || index3.z >= m_tower_max_z || index3.z < 0)
         return nullptr;
     
     int index = index3.z * (m_tower_max_x * m_tower_max_y) + 

@@ -3,6 +3,7 @@
 #include <set>
 #include <map>
 #include "engine/ecs/gameobject/GameObject.hpp"
+#include "engine/ecs/EcsDefine.hpp"
 #include "util/vector/Vector2.hpp"
 
 namespace share::ecs::aoi
@@ -81,9 +82,7 @@ static inline bool AABBCheck(const AABBBox& a, const AABBBox& b)
     return xover && yover && zover;
 }
 
-static inline void AoiDefaultOnLeave(engine::ecs::GameObjectSPtr )
-{
+static inline int64_t GenAoiObjectId()
+{ return bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, engine::ecs::EasyIdType::EM_Mist_AoiObjectId>::GenerateID(); }
 
-}
-
-}
+} // namespace share::ecs::aoi

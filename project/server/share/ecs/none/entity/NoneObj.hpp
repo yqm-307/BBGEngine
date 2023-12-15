@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/ecs/gameobject/GameObject.hpp>
 
-namespace share::ecs::entity::none
+namespace share::ecs::noneobj
 {
 
 /**
@@ -17,6 +17,7 @@ public:
     virtual void OnCreate();
     virtual void OnDestory();
     virtual void OnUpdate() override;
+    virtual void OnFatherDead() {};
 protected:
     explicit NoneObj();
 

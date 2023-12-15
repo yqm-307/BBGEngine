@@ -1,7 +1,8 @@
 #pragma once
 #include "share/ecs/Define.hpp"
-#include "share/ecs/aoi/entity/Define.hpp"
+#include "share/ecs/aoi/AoiDefine.hpp"
 #include "util/vector/Vector3.hpp"
+#include <stack>
 
 namespace share::ecs::aoi
 {
@@ -14,18 +15,29 @@ class AoiObjectComponent:
 {
     ComponentDeriveClassDef;
 public:
-    AoiObjectComponent();
+    ~AoiObjectComponent();
 
     ecs::aoi::AoiEntityFlag GetMode();
     AoiObjectId GetObjId();
+    engine::ecs::GameObjectSPtr GetCurrentAoi();
     
     void OnMove(util::vector::Vector3 vec);
     void OnMove(Tower* tower);
+    void OnEnterAoi(engine::ecs::GameObjectId aoi_gameobject_id);
+    void OnLeaveAoi(engine::ecs::GameObjectId aoi_gameobject_id);
     util::vector::Vector3 GetCurrentPos();
+    
 private:
-    ~AoiObjectComponent();
+    AoiObjectComponent(ecs::aoi::AoiEntityFlag mode);
+    virtual void OnUpdate() override {}
+    virtual void OnFatherDead() {};
+    virtual void OnAddComponent(engine::ecs::GameObjectSPtr) {};
+    virtual void OnDelComponent(engine::ecs::GameObjectSPtr) {};
 
 private:
+    engine::ecs::GameObjectId m_prev_aoi_gameobj_id{engine::ecs::InvalidGameObjectId};
+    engine::ecs::GameObjectId m_curr_aoi_gameobj_id{engine::ecs::InvalidGameObjectId};
+    Tower* m_curr_tower;
     util::vector::Vector3 m_prev_pos;
     util::vector::Vector3 m_curr_pos;
     AoiObjectId m_id;   // aoi 对象id

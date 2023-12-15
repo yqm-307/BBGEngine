@@ -12,6 +12,7 @@ namespace share::ecs::aoi
 Aoi::Aoi()
     :GameObject(share::ecs::EM_ENTITY_TYPE_AOI)
 {
+    AddComponent(G_ComponentMgr()->Create<AoiComponent>());
 }
 
 Aoi::~Aoi()

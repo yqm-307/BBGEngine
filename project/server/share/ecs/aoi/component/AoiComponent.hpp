@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/ecs/component/Component.hpp"
-#include "share/ecs/aoi/entity/Define.hpp"
+#include "share/ecs/aoi/AoiDefine.hpp"
 #include "util/vector/Vector3.hpp"
 #include "util/vector/Pos3.hpp"
 #include "util/config/Config.hpp"
@@ -22,8 +22,8 @@ class AoiComponent:
     typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */
     typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
-    typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnEnterFunc;    /* 通知p1，p2进入了他的九宫格视野 */
-    typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
+    // typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnEnterFunc;    /* 通知p1，p2进入了他的九宫格视野 */
+    // typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
 public:
     virtual ~AoiComponent();
     bool CheckConfig(const util::config::AoiConfig*) const;
@@ -43,7 +43,7 @@ private:
     void Init();
 
 protected:
-    explicit AoiComponent(OnEnterFunc onenter, OnLeaveFunc onleave);
+    explicit AoiComponent();
 private:
     /////////////////////////////////////////////////////////////////////////////
     int         m_tower_max_x;  // x 轴上灯塔数量
@@ -52,8 +52,6 @@ private:
     Timestamp<bbt::timer::clock::ms>m_create_ms;    // Aoi创建时间 
     Timestamp<bbt::timer::clock::ms>m_prev_info_ms; // aoi定时输出当前信息，这个表示上次输出时间
     const std::string               m_comp_name;    // 组件名
-    OnEnterFunc                     m_enter_func;
-    OnLeaveFunc                     m_leave_func;
     GameObjHashmap                  m_gameobj_map; // AOI中所有游戏对象 hashmap
     std::vector<Tower>              m_towers;   // AOI中所有灯塔
     std::vector<MapSlot>            m_slots;    // AOI中所有Slot

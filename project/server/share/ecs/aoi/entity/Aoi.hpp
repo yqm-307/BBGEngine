@@ -1,5 +1,5 @@
 #pragma once
-#include "share/ecs/aoi/entity/Define.hpp"
+#include "share/ecs/aoi/AoiDefine.hpp"
 #include "util/config/Config.hpp"
 #include "util/hashmap/Hashmap.hpp"
 #include "util/vector/Pos3.hpp"
@@ -35,8 +35,8 @@ protected:
 
 public:
 
-    
 private:
+    
 };
 
 }// namespace share

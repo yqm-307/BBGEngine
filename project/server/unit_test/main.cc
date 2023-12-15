@@ -12,10 +12,6 @@
 
 // 测试套件1
 #include "unit_test/Test_aabbbox.hpp"
-
-// 测试套件2
-#include "unit_test/Test_aoi.hpp"
-
 // 测试套件3
 #include "unit_test/Test_Hashmap.hpp"
 

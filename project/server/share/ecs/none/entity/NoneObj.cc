@@ -1,7 +1,7 @@
 #include "share/ecs/none/entity/NoneObj.hpp"
 #include "share/ecs/Define.hpp"
 
-namespace share::ecs::entity::none
+namespace share::ecs::noneobj
 {
 
 NoneObj::NoneObj()
