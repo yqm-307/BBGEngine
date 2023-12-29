@@ -164,4 +164,61 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
     }
 }
 
+
+//TODO aoi move 接口测试
+
+/**
+ * 令地图上任意两个点，以相向的方向步进。步进速率小于灯塔视野半径，保证不会错过。
+ * 
+ * 接触到地图边缘停止
+ * 
+ * 测试原理：保证运动过程中双方都会触发一次进入和离开各自的关注列表
+ */
+BOOST_AUTO_TEST_CASE(t_aoi_move_test)
+{
+    bbt::random::mt_random<int, 200, 800> rd;   // 初始降落点保证会错过
+    GenAoiConfig();
+    auto aoi = CreateAoiMap();
+    float step_rate = 0.2f;
+
+    const int max_times = 1000000;
+    int count = 0;
+    int meet_count = 0;
+
+    share::ecs::aoi::AoiSystem::GetInstance()->SetOnEnterAoiEvent(
+    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){
+        count++;
+        meet_count++;
+    });
+    share::ecs::aoi::AoiSystem::GetInstance()->SetOnLeaveAoiEvent(
+    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){
+        count--;
+    });
+
+    for (int i = 0; i < max_times; ++i) {
+        bool out_of_bound = false; // 是否有玩家出界的标志
+        auto p1 = CreateAoiObj();
+        auto p2 = CreateAoiObj();
+        
+        util::vector::Vector3 pos1;
+        pos1.m_x = ((float)rd()) / 100;
+        pos1.m_y = ((float)rd()) / 100;
+        pos1.m_z = ((float)rd()) / 100;
+
+        util::vector::Vector3 pos2;
+        pos2.m_x = ((float)rd()) / 100;
+        pos2.m_y = ((float)rd()) / 100;
+        pos2.m_z = ((float)rd()) / 100;
+
+        while (!out_of_bound) {
+            // 相向而行
+            out_of_bound |= !share::ecs::aoi::AoiSystem::GetInstance()->Move(
+                aoi, p1, {});
+            out_of_bound |= !share::ecs::aoi::AoiSystem::GetInstance()->Move(
+                aoi, p1, {});
+        }
+    }
+    
+}
+
 BOOST_AUTO_TEST_SUITE_END()
