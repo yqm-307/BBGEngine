@@ -59,7 +59,7 @@ public:
     typedef std::function<SampleType(int32_t)> SampleGeneratorFunc; 
     typedef ResultType TestResultType;
 
-    explicit Helper(uint32_t max_round, std::unordered_set<TestResultType> level_set, TestResultType default_type);
+    explicit Helper(uint32_t max_round, std::unordered_map<TestResultType, std::string> level_map, TestResultType default_type);
     ~Helper();
 
     void SetTestHandler(const OnTestCallback& cb);
@@ -67,20 +67,21 @@ public:
 
     virtual void Start();
 protected:
-    virtual void Process() final;
-    virtual void SetFixedSamples(std::vector<SampleType>&& vec) final;
-    virtual void SetSampleGenerator(const SampleGeneratorFunc& generator) final;
+    virtual void __Process() final;
+    virtual void __SetFixedSamples(std::vector<SampleType>&& vec) final;
+    virtual void __SetSampleGenerator(const SampleGeneratorFunc& generator) final;
+    virtual void __PrintHelperInfo() final;
 
 private:
-    const SampleType& GetASample();
-    void OnResult(SampleType& sample, const TestResultType& result);
+    SampleType  __GetASample();
+    void        __OnResult(SampleType& sample, const TestResultType& result);
 private:
     OnTestCallback  m_test_handler{nullptr};
     int             m_cur_round{1};
     const int       m_max_round{0};
     
     TestResultType  m_default_type; /* 一个未知的测试结果，会被认为是default类型的 */
-    std::unordered_set<TestResultType> m_result_level_set;
+    std::unordered_map<TestResultType, std::string> m_result_level_map;
     std::map<TestResultType, std::map<SampleId, SampleType>> m_result_map;
 
     /* 样本集:(1)固定样本；(2)样本生成器; */
@@ -101,6 +102,7 @@ public:
     void Start();
     void SetSample(std::vector<TestSample<SampleType>>&& vec, const typename BaseClassType::SampleGeneratorFunc& generator);
     void SetHandler(const typename BaseClassType::OnTestCallback& cb);
+    void PrintResult();
 private:
 
 

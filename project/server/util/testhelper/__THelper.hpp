@@ -1,6 +1,7 @@
 #pragma once
 #include "Helper.hpp"
 #include "util/assert/Assert.hpp"
+#include <bbt/Logger/Logger.hpp>
 
 namespace util::test
 {
@@ -8,27 +9,33 @@ namespace util::test
 
 template<typename SampleType>
 EasyHelper<SampleType>::EasyHelper(uint32_t max_round):
-    Helper<SampleType, EasyHelperResult>(max_round, g_easyhelper_level_info, EasyHelperResult::emFailed)
+    Helper<SampleType, EasyHelperResult>(max_round, g_easyhelper_level_map, EasyHelperResult::emFailed)
 {
 }
 
 template<typename SampleType>
 void EasyHelper<SampleType>::Start()
 {
-    BaseClassType::Process();
+    BaseClassType::__Process();
 }
 
 template<typename SampleType>
 void EasyHelper<SampleType>::SetSample(std::vector<TestSample<SampleType>>&& vec, const typename BaseClassType::SampleGeneratorFunc& generator)
 {
-    BaseClassType::SetFixedSamples(std::move(vec));
-    BaseClassType::SetSampleGenerator(generator);
+    BaseClassType::__SetFixedSamples(std::move(vec));
+    BaseClassType::__SetSampleGenerator(generator);
 }
 
 template<typename SampleType>
 void EasyHelper<SampleType>::SetHandler(const typename BaseClassType::OnTestCallback& cb)
 {
     BaseClassType::SetTestHandler(cb);
+}
+
+template<typename SampleType>
+void EasyHelper<SampleType>::PrintResult()
+{
+    BaseClassType::__PrintHelperInfo();
 }
 
 
@@ -44,54 +51,68 @@ void Helper<SmplType, ResultType>::SetTestHandler(const OnTestCallback& cb)
 template<typename SmplType, typename ResultType>
 void Helper<SmplType, ResultType>::Start()
 {
-    Process();
+    __Process();
 }
 
 template<typename SmplType, typename ResultType>
-void Helper<SmplType, ResultType>::SetFixedSamples(std::vector<SampleType>&& vec)
+void Helper<SmplType, ResultType>::__SetFixedSamples(std::vector<SampleType>&& vec)
 {
     m_fixed_sample_arr = std::move(vec);
 }
 
 template<typename SmplType, typename ResultType>
-void Helper<SmplType, ResultType>::SetSampleGenerator(const SampleGeneratorFunc& generator)
+void Helper<SmplType, ResultType>::__SetSampleGenerator(const SampleGeneratorFunc& generator)
 {
     m_generate_sample_func = generator;
 }
 
 template<typename SmplType, typename ResultType>
-void Helper<SmplType, ResultType>::Process()
+void Helper<SmplType, ResultType>::__PrintHelperInfo()
+{
+    std::string str = "";
+    str = str + "total sample: " + std::to_string(m_max_round) + "\n"; 
+    for (auto && set : m_result_map)
+    {
+        str = str + "sample type: " + m_result_level_map[set.first] + "\tnum: " + std::to_string(set.second.size()) + "\n";
+    }
+    
+    printf("%s\n", bbt::log::format_green(str.c_str(), str.size()).c_str());
+}
+
+template<typename SmplType, typename ResultType>
+void Helper<SmplType, ResultType>::__Process()
 {
     AssertWithInfo(m_test_handler != nullptr, "please check and make sure test handler not empty!");
 
     for (int cur_round = 0; cur_round < m_max_round; ++cur_round) 
     {
-        auto sample = GetASample();
-        auto result = m_test_handler(GetASample());
-        OnResult(sample, result);
+        auto sample = __GetASample();
+        auto result = m_test_handler(__GetASample());
+        __OnResult(sample, result);
     }
 }
 
 template<typename SmplType, typename ResultType>
-const typename Helper<SmplType, ResultType>::SampleType& Helper<SmplType, ResultType>::GetASample()
+typename Helper<SmplType, ResultType>::SampleType Helper<SmplType, ResultType>::__GetASample()
 {
-    if (m_cur_round <= m_fixed_sample_arr.size()) {
-        return m_fixed_sample_arr[m_cur_round];
+    if (m_cur_round > 0 && m_cur_round <= m_fixed_sample_arr.size()) {
+        return m_fixed_sample_arr[m_cur_round - 1];
     }
 
     return m_generate_sample_func(m_cur_round);
 }
 
 template<typename SmplType, typename ResultType>
-void Helper<SmplType, ResultType>::OnResult(SampleType& sample, const TestResultType& result)
+void Helper<SmplType, ResultType>::__OnResult(SampleType& sample, const TestResultType& result)
 {
     TestResultType type = result;
 
     // 未知的结果，视为失败
-    if (m_result_level_set.find(result) != m_result_level_set.end()) {
+    if (m_result_level_map.find(result) == m_result_level_map.end()) {
         type = m_default_type;
     }
 
+    // 结果集不存在，则创建新的集合
     if (m_result_map.find(type) == m_result_map.end()) {
         m_result_map.insert(std::make_pair(type, std::map<SampleId, SampleType>()));
     }
@@ -101,9 +122,12 @@ void Helper<SmplType, ResultType>::OnResult(SampleType& sample, const TestResult
 }
 
 template<typename SmplType, typename ResultType>
-Helper<SmplType, ResultType>::Helper(uint32_t max_round, std::unordered_set<TestResultType> level_set, TestResultType default_type)
+Helper<SmplType, ResultType>::Helper(
+    uint32_t max_round,
+    std::unordered_map<TestResultType, std::string> level_map,
+    TestResultType default_type)
     :m_max_round(max_round),
-    m_result_level_set(std::move(level_set)),
+    m_result_level_map(std::move(level_map)),
     m_default_type(default_type)
 {
 }

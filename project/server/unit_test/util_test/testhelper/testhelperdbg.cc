@@ -45,6 +45,7 @@ BOOST_AUTO_TEST_CASE(t_helper_debug_1)
 
     helper.Start();
 
+    helper.PrintResult();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
