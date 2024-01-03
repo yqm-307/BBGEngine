@@ -4,7 +4,7 @@ namespace util::pos
 {
 
 
-Point3 Point3::operator-(Point3 other)
+Point3 Point3::operator-(const Point3& other)
 {
     return {
         m_x - other.m_x,
@@ -13,7 +13,7 @@ Point3 Point3::operator-(Point3 other)
     };
 }
 
-Point3 Point3::operator+(Point3 other)
+Point3 Point3::operator+(const Point3& other)
 {
     return {
         m_x + other.m_x,

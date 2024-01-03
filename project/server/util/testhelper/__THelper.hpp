@@ -5,31 +5,32 @@
 namespace util::test
 {
 
-template<typename SampleType>
-std::unordered_map<DoTestResult, std::string> EasyHelper<SampleType>::m_level_map = {
-    {DoTestResult::emOk, "success"},
-    {DoTestResult::emFailed, "failed"},
-    {DoTestResult::emWarning, "warning"},
-};
-
-template<typename SampleType>
-std::unordered_set<std::string> EasyHelper<SampleType>::m_level_info = {
-    m_level_map[DoTestResult::emOk],
-    m_level_map[DoTestResult::emFailed],
-    m_level_map[DoTestResult::emWarning],
-};
 
 template<typename SampleType>
 EasyHelper<SampleType>::EasyHelper(uint32_t max_round):
-    Helper<std::string>(max_round, m_level_info, DoTestResult::emFailed)
+    Helper<SampleType, EasyHelperResult>(max_round, g_easyhelper_level_info, EasyHelperResult::emFailed)
 {
 }
 
 template<typename SampleType>
 void EasyHelper<SampleType>::Start()
 {
-    Helper::Start();
+    BaseClassType::Process();
 }
+
+template<typename SampleType>
+void EasyHelper<SampleType>::SetSample(std::vector<TestSample<SampleType>>&& vec, const typename BaseClassType::SampleGeneratorFunc& generator)
+{
+    BaseClassType::SetFixedSamples(std::move(vec));
+    BaseClassType::SetSampleGenerator(generator);
+}
+
+template<typename SampleType>
+void EasyHelper<SampleType>::SetHandler(const typename BaseClassType::OnTestCallback& cb)
+{
+    BaseClassType::SetTestHandler(cb);
+}
+
 
 //-------------------------------------------------------------------------
 
@@ -72,7 +73,7 @@ void Helper<SmplType, ResultType>::Process()
 }
 
 template<typename SmplType, typename ResultType>
-const Helper<SmplType, ResultType>::SampleType& Helper<SmplType, ResultType>::GetASample()
+const typename Helper<SmplType, ResultType>::SampleType& Helper<SmplType, ResultType>::GetASample()
 {
     if (m_cur_round <= m_fixed_sample_arr.size()) {
         return m_fixed_sample_arr[m_cur_round];
@@ -95,12 +96,12 @@ void Helper<SmplType, ResultType>::OnResult(SampleType& sample, const TestResult
         m_result_map.insert(std::make_pair(type, std::map<SampleId, SampleType>()));
     }
 
-    m_result_map[type].insert(std::make_pair(sample.m_sample_id, sample));
+    m_result_map[type].insert(std::make_pair(sample.GetID(), sample));
     m_cur_round++;
 }
 
 template<typename SmplType, typename ResultType>
-Helper<SmplType, ResultType>::Helper(int max_round, std::unordered_set<TestResultType> level_set, TestResultType default_type)
+Helper<SmplType, ResultType>::Helper(uint32_t max_round, std::unordered_set<TestResultType> level_set, TestResultType default_type)
     :m_max_round(max_round),
     m_result_level_set(std::move(level_set)),
     m_default_type(default_type)

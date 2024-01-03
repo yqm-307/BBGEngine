@@ -4,11 +4,12 @@
 #include <string>
 #include <unordered_set>
 
+#include <bbt/uuid/EasyID.hpp>
 
 namespace util::test
 {
 
-enum DoTestResult
+enum EasyHelperResult
 {
     emOk = 0,
     emFailed = 1,
@@ -17,30 +18,34 @@ enum DoTestResult
 
 typedef int32_t SampleId;
 
+static const std::unordered_set<EasyHelperResult> g_easyhelper_level_info = {
+    EasyHelperResult::emOk,
+    EasyHelperResult::emFailed,
+    EasyHelperResult::emWarning,
+};
+static const std::unordered_map<EasyHelperResult, std::string> g_easyhelper_level_map = {
+    {EasyHelperResult::emOk, "success"},
+    {EasyHelperResult::emFailed, "failed"},
+    {EasyHelperResult::emWarning, "warning"},
+};
+
 /**
  * @brief 测试样本
  */
 template<typename T>
-struct TestSample
-{ 
-    SampleId m_sample_id;
-    T m_sample;
-};
-
-template<typename SampleType>
-class EasyHelper:
-    public Helper
+class TestSample
 {
 public:
-    EasyHelper(uint32_t max_round); 
-    ~EasyHelper() {}
-
-    void Start();
+    TestSample(T value):m_sample(value),m_sample_id(m_id_generate.GenerateID())  {}
+    ~TestSample() {}
+    
+    SampleId GetID() { return m_sample_id; }
+    T m_sample;
 private:
-    static std::unordered_set<std::string> m_level_info;
-    static std::unordered_map<DoTestResult, std::string> m_level_map;
-
+    SampleId m_sample_id;
+    static bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, 100> m_id_generate;
 };
+
 
 /**
  * @brief 批量测试类
@@ -50,11 +55,11 @@ class Helper
 {
 public:
     typedef TestSample<SmplType> SampleType; /* 测试样本类型 */
-    typedef std::function<DoTestResult(const SampleType&)> OnTestCallback;
+    typedef std::function<EasyHelperResult(const SampleType&)> OnTestCallback;
     typedef std::function<SampleType(int32_t)> SampleGeneratorFunc; 
     typedef ResultType TestResultType;
 
-    Helper(int max_round, std::unordered_set<TestResultType> level_set, TestResultType default_type);
+    explicit Helper(uint32_t max_round, std::unordered_set<TestResultType> level_set, TestResultType default_type);
     ~Helper();
 
     void SetTestHandler(const OnTestCallback& cb);
@@ -83,6 +88,24 @@ private:
     SampleGeneratorFunc         m_generate_sample_func{nullptr};
 
 };
+
+template<typename SampleType>
+class EasyHelper:
+    public Helper<SampleType, EasyHelperResult>
+{
+    typedef Helper<SampleType, EasyHelperResult> BaseClassType;
+public:
+    EasyHelper(uint32_t max_round); 
+    ~EasyHelper() {}
+
+    void Start();
+    void SetSample(std::vector<TestSample<SampleType>>&& vec, const typename BaseClassType::SampleGeneratorFunc& generator);
+    void SetHandler(const typename BaseClassType::OnTestCallback& cb);
+private:
+
+
+};
+
 
 } // namespace util::test
 
