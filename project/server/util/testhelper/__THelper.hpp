@@ -20,9 +20,9 @@ void EasyHelper<SampleType>::Start()
 }
 
 template<typename SampleType>
-void EasyHelper<SampleType>::SetSample(std::vector<TestSample<SampleType>>&& vec, const typename BaseClassType::SampleGeneratorFunc& generator)
+void EasyHelper<SampleType>::SetSample(const std::vector<TestSample<SampleType>>& vec, const typename BaseClassType::SampleGeneratorFunc& generator)
 {
-    BaseClassType::__SetFixedSamples(std::move(vec));
+    BaseClassType::__SetFixedSamples(vec);
     BaseClassType::__SetSampleGenerator(generator);
 }
 
@@ -36,6 +36,12 @@ template<typename SampleType>
 void EasyHelper<SampleType>::PrintResult()
 {
     BaseClassType::__PrintHelperInfo();
+}
+
+template<typename SampleType>
+int32_t EasyHelper<SampleType>::GetCountByResultType(EasyHelperResult type)
+{
+    return BaseClassType::__GetNumByResultType(type);
 }
 
 
@@ -55,9 +61,9 @@ void Helper<SmplType, ResultType>::Start()
 }
 
 template<typename SmplType, typename ResultType>
-void Helper<SmplType, ResultType>::__SetFixedSamples(std::vector<SampleType>&& vec)
+void Helper<SmplType, ResultType>::__SetFixedSamples(const std::vector<SampleType>& vec)
 {
-    m_fixed_sample_arr = std::move(vec);
+    m_fixed_sample_arr = vec;
 }
 
 template<typename SmplType, typename ResultType>
@@ -87,7 +93,7 @@ void Helper<SmplType, ResultType>::__Process()
     for (int cur_round = 0; cur_round < m_max_round; ++cur_round) 
     {
         auto sample = __GetASample();
-        auto result = m_test_handler(__GetASample());
+        auto result = m_test_handler(sample, m_cur_round);
         __OnResult(sample, result);
     }
 }
@@ -133,9 +139,17 @@ Helper<SmplType, ResultType>::Helper(
 }
 
 template<typename SmplType, typename ResultType>
-Helper<SmplType, ResultType>::~Helper()
-{
+Helper<SmplType, ResultType>::~Helper(){}
 
+template<typename SmplType, typename ResultType>
+int32_t Helper<SmplType, ResultType>::__GetNumByResultType(EasyHelperResult type)
+{
+    auto it = m_result_map.find(type);
+    if (it == m_result_map.end()) {
+        return -1;
+    }
+
+    return it->second.size();
 }
 
 }

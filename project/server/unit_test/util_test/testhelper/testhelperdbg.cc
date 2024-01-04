@@ -15,11 +15,9 @@ BOOST_AUTO_TEST_CASE(t_helper_debug_1)
     bbt::uuid::EasyID<bbt::uuid::EM_AUTO_INCREMENT, 1> IDGenerator;
     bbt::random::mt_random myrd;
 
-    util::test::EasyHelper<int> helper(100);
+    util::test::EasyHelper<int> helper(99);
 
     std::vector<util::test::TestSample<int>> fixed_sample;
-    // fixed_sample.insert(INIT_SAMPLE(5, int));
-    // util::test::TestSample<int>{.m_sample = 1, .m_sample_id = 1};
     fixed_sample.push_back(util::test::TestSample<int>(1));
     fixed_sample.push_back(util::test::TestSample<int>(2));
     fixed_sample.push_back(util::test::TestSample<int>(3));
@@ -31,7 +29,7 @@ BOOST_AUTO_TEST_CASE(t_helper_debug_1)
         return sample;
     });
 
-    helper.SetHandler([](const util::test::TestSample<int>& sample){
+    helper.SetHandler([](const util::test::TestSample<int>& sample, uint32_t round){
         int rlt = sample.m_sample % 3;
         if (rlt == 0) {
             return util::test::EasyHelperResult::emOk;
@@ -46,6 +44,10 @@ BOOST_AUTO_TEST_CASE(t_helper_debug_1)
     helper.Start();
 
     helper.PrintResult();
+
+    BOOST_ASSERT(helper.GetCountByResultType(util::test::EasyHelperResult::emOk) == 33);
+    BOOST_ASSERT(helper.GetCountByResultType(util::test::EasyHelperResult::emFailed) == 33);
+    BOOST_ASSERT(helper.GetCountByResultType(util::test::EasyHelperResult::emWarning) == 33);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

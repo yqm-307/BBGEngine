@@ -11,3 +11,7 @@
  */
 #pragma once
 #include <bbt/Attribute.hpp>
+
+
+#define FLOAT_EQUAL_DIFF_VALUE      0.00001f
+#define DOUBLE_EQUAL_DIFF_VALUE     0.00001f

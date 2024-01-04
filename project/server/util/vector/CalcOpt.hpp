@@ -28,7 +28,7 @@ namespace util::vector
  * @param len 
  * @return 
  */
-inline static pos::Index3 CalcPos3ByVector(pos::Point3 pos, Vector3 vec)
+inline static pos::Point3 CalcPos3ByVector(pos::Point3 pos, Vector3 vec)
 {
     return {
         pos.m_x + vec.m_x,
@@ -56,6 +56,17 @@ inline static vector::Vector3 CalcVectorByPos(pos::Point3 head, pos::Point3 tail
 }
 
 /**
+ * @brief 返回向量 vector 的模长
+ */
+inline static float CalcNormOfVector(vector::Vector3 vector)
+{
+    return std::abs(std::sqrt( 
+        vector.m_x * vector.m_x +
+        vector.m_y * vector.m_y + 
+        vector.m_z * vector.m_z)); 
+};
+
+/**
  * @brief 根据 vector 和新的模长 norm 计算出新的 vector 并返回
  * 
  * @param vector 
@@ -68,9 +79,9 @@ inline static vector::Vector3 ChangeVectorNorm(vector::Vector3 vector, float nor
     rate = CalcNormOfVector(vector) / norm;
 
     return {
-        vector.m_x * norm,
-        vector.m_y * norm,
-        vector.m_z * norm
+        vector.m_x * rate,
+        vector.m_y * rate,
+        vector.m_z * rate
     };
 }
 
@@ -83,21 +94,14 @@ inline static vector::Vector3 ChangeVectorNorm(vector::Vector3 vector, float nor
  * @param dist_z 
  * @return pos::Index3 
  */
-inline static pos::Index3 PointTranslate(pos::Index3 pos, float dist_x, float dist_y, float dist_z)
+inline static pos::Point3 PointTranslate(pos::Point3 pos, float dist_x, float dist_y, float dist_z)
 { 
     return {  
-        pos.x + dist_x, 
-        pos.y + dist_y, 
-        pos.z + dist_z}; 
+        pos.m_x + dist_x, 
+        pos.m_y + dist_y, 
+        pos.m_z + dist_z}; 
 }
 
-/**
- * @brief 返回向量 vector 的模长
- */
-inline static float CalcNormOfVector(vector::Vector3 vector)
-{
-    return std::abs(std::sqrt( 
-        vector.m_x * vector.m_x +
-        vector.m_y * vector.m_y + 
-        vector.m_z * vector.m_z)); };
+
+
 } // namespace util::vector

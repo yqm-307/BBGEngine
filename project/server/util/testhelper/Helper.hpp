@@ -55,7 +55,7 @@ class Helper
 {
 public:
     typedef TestSample<SmplType> SampleType; /* 测试样本类型 */
-    typedef std::function<EasyHelperResult(const SampleType&)> OnTestCallback;
+    typedef std::function<EasyHelperResult(const SampleType&, uint32_t)> OnTestCallback;
     typedef std::function<SampleType(int32_t)> SampleGeneratorFunc; 
     typedef ResultType TestResultType;
 
@@ -64,13 +64,13 @@ public:
 
     void SetTestHandler(const OnTestCallback& cb);
 
-
     virtual void Start();
 protected:
     virtual void __Process() final;
-    virtual void __SetFixedSamples(std::vector<SampleType>&& vec) final;
+    virtual void __SetFixedSamples(const std::vector<SampleType>& vec) final;
     virtual void __SetSampleGenerator(const SampleGeneratorFunc& generator) final;
     virtual void __PrintHelperInfo() final;
+    virtual int32_t __GetNumByResultType(EasyHelperResult type) final;
 
 private:
     SampleType  __GetASample();
@@ -99,10 +99,16 @@ public:
     EasyHelper(uint32_t max_round); 
     ~EasyHelper() {}
 
+    /* 开始测试 */
     void Start();
-    void SetSample(std::vector<TestSample<SampleType>>&& vec, const typename BaseClassType::SampleGeneratorFunc& generator);
+    /* 设置样例 */
+    void SetSample(const std::vector<TestSample<SampleType>>& vec, const typename BaseClassType::SampleGeneratorFunc& generator);
+    /* 设置测试程序 */
     void SetHandler(const typename BaseClassType::OnTestCallback& cb);
+    /* 输出测试结果 */
     void PrintResult();
+
+    int32_t GetCountByResultType(EasyHelperResult type);
 private:
 
 

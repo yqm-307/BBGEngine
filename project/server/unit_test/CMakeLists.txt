@@ -128,3 +128,16 @@ target_link_libraries(test_testhelperdebug_texe
 )
 
 add_test(NAME test_testhelperdebug_texe COMMAND test_testhelperdebug_texe)
+
+######################## ==> yqm 的 test helper debug 测试 <== ########################
+
+add_executable(test_PointAndVector_texe
+    ${SRC_FILE}
+    ./util_test/vector/PointAndVectorTest.cc
+)
+
+target_link_libraries(test_PointAndVector_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_PointAndVector_texe COMMAND test_PointAndVector_texe)
