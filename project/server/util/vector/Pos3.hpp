@@ -1,4 +1,5 @@
 #pragma once
+#include "util/Define.hpp"
 
 namespace util::pos
 {
@@ -20,6 +21,8 @@ struct Point3
 {
     Point3 operator-(const Point3& other);
     Point3 operator+(const Point3& other);
+    bool   operator==(const Point3& other) const;
+    bool   operator!=(const Point3& other) const;
 
     float m_x{-1.0f};
     float m_y{-1.0f};

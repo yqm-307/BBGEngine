@@ -9,9 +9,9 @@ struct Vector3
 {
     Vector3 operator-(const Vector3& other);
     Vector3 operator+(const Vector3& other);
-    /* 精度在 1e-5 */
+    /* 以模长判等，精度在 1e-5 */
     bool    operator==(const Vector3& other) const;
-    /* 精度在 1e-5 */
+    /* 以模长判等，精度在 1e-5 */
     bool    operator!=(const Vector3& other) const;
     /* 逐比特比较，完全相等 */
     bool    Equals(const Vector3& other) const;
