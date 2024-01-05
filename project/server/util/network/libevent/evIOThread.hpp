@@ -25,7 +25,7 @@ public:
     evIOThread();
     virtual ~evIOThread();
 
-    /* 阻塞的停止thread（实现有问题，需要阻塞） */
+    /* 阻塞的停止thread */
     virtual void Stop() override;
 
     /* 线程启动前需要初始化（必选） */

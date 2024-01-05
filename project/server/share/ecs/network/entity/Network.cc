@@ -90,7 +90,7 @@ void Network::Destory()
     m_thread_latch = nullptr;
 
     /* 同步等待线程结束 */
-    TryStopAllThread();
+    SyncStopAllThread();
     
     /* 释放内存 */
     for (int i = 0; i < m_io_thread_num; i++)
@@ -121,17 +121,17 @@ bool Network::SyncStart()
 
 void Network::SyncStop()
 {
-    TryStopAllThread();
+    SyncStopAllThread();
 }
 
-void Network::TryStopAllThread()
+void Network::SyncStopAllThread()
 {
-    if(m_status != emNetworkRunStatus::Active)
+    if (m_status != emNetworkRunStatus::Active)
         return;
     
     for (int i = 0; i < m_io_thread_num; i++)
     {
-        if(!m_io_threads[i]->IsRunning())
+        if (!m_io_threads[i]->IsRunning())
             continue;
 
         m_io_threads[i]->Stop();
@@ -181,7 +181,7 @@ void Network::OnUpdate()
     if(!m_is_in_loop)
         return;
     
-    SyncStop();
+    SyncStopAllThread();
 }
 
 void Network::SetOnConnect(const OnConnectCallback& cb)
