@@ -72,7 +72,7 @@ void evConnection::SetOnClose(const OnCloseCallback& onclose_handler)
 void evConnection::Close()
 {
     if(m_onclose)
-        m_onclose(util::errcode::ErrCode("", util::errcode::ErrType::NetWorkErr, util::errcode::network::Recv_Eof), SPtr());
+        m_onclose(util::errcode::ErrCode("", util::errcode::ErrType::NetWorkErr, util::errcode::errenum::Recv_Eof), SPtr());
 
     OnDestroy();
 }
@@ -219,7 +219,7 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
     auto buff_len = m_output_buffer.WriteableBytes();
     util::errcode::ErrCode errcode("nothing", 
         util::errcode::NetWorkErr, 
-        util::errcode::network::err::Recv_Success);
+        util::errcode::errenum::MODULE_NETWORK::Recv_Success);
 
 
     /**
@@ -232,17 +232,17 @@ void evConnection::EventHandler_OnRecv(evutil_socket_t fd, short events, void* a
         int err = errno;
         if(err == EINTR || err == EAGAIN) {
             errcode.SetInfo("please try again!");
-            errcode.SetCode(util::errcode::network::err::Recv_TryAgain);
+            errcode.SetCode(util::errcode::errenum::MODULE_NETWORK::Recv_TryAgain);
         } else if (err == ECONNREFUSED) {
             errcode.SetInfo("connect refused!");
-            errcode.SetCode(util::errcode::network::err::Recv_Connect_Refused);
+            errcode.SetCode(util::errcode::errenum::MODULE_NETWORK::Recv_Connect_Refused);
         }
     }else if (read_len == 0) {
         errcode.SetInfo("connect refused!");
-        errcode.SetCode(util::errcode::network::err::Recv_Eof);
+        errcode.SetCode(util::errcode::errenum::MODULE_NETWORK::Recv_Eof);
     }else if (read_len < -1){
         errcode.SetInfo("please look up errno!");
-        errcode.SetCode(util::errcode::network::err::Recv_Other_Err);
+        errcode.SetCode(util::errcode::errenum::MODULE_NETWORK::Recv_Other_Err);
     }
     /* 处理之后反馈给connection进行数据处理 */
     OnRecvEventDispatch(m_output_buffer, errcode);
@@ -362,14 +362,14 @@ void evConnection::OnSend(evutil_socket_t fd, short events, void* args)
     err.SetType(util::errcode::ErrType::NetWorkErr);
 
     if((events & EV_TIMEOUT) == 1) {
-        err.SetCode(util::errcode::network::TimeOut);
+        err.SetCode(util::errcode::errenum::TimeOut);
         // 发送超时，发送失败
         GAME_EXT1_LOG_ERROR("send failed! timeout! sockfd=%d");
         return;
     }
     
     if((events & EV_WRITE) == 0) {
-        err.SetCode(util::errcode::network::Default);
+        err.SetCode(util::errcode::errenum::Default);
         GAME_EXT1_LOG_ERROR("event invalid!, sockfd=%d, event=%d", fd, events);
         return;
     }
