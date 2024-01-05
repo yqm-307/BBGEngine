@@ -20,22 +20,7 @@
 namespace util::vector
 {
 
-/**
- * @brief 根据向量 vec 和原坐标点 pos，计算出 pos 在根据 vec 平移后的结果
- * 
- * @param pos 
- * @param vec 
- * @param len 
- * @return 
- */
-inline static pos::Point3 CalcPos3ByVector(pos::Point3 pos, Vector3 vec)
-{
-    return {
-        pos.m_x + vec.m_x,
-        pos.m_y + vec.m_y,
-        pos.m_z + vec.m_z
-    };
-}
+
 
 /**
  * @brief 计算从 head 到 tail 的向量
@@ -102,6 +87,37 @@ inline static pos::Point3 PointTranslate(pos::Point3 pos, float dist_x, float di
         pos.m_z + dist_z}; 
 }
 
+/**
+ * @brief 根据向量 vec 和原坐标点 pos，计算出 pos 在根据 vec 平移后的结果
+ * 
+ * @param pos 
+ * @param vec 
+ * @param len 
+ * @return 
+ */
+inline static pos::Point3 MoveTo(pos::Point3 pos, Vector3 vec)
+{
+    return {
+        pos.m_x + vec.m_x,
+        pos.m_y + vec.m_y,
+        pos.m_z + vec.m_z
+    };
+}
 
+/**
+ * @brief 计算 pos 向 dest 移动 norm 长度后的坐标
+ * 
+ * @param pos 
+ * @param dest 
+ * @param norm 
+ * @return pos::Point3 
+ */
+inline static pos::Point3 MoveTo(pos::Point3 pos, pos::Point3 dest, float norm)
+{
+    pos::Point3 pos_dest;
+    Vector3 vec = CalcVectorByPos(pos, dest);
+    vec = ChangeVectorNorm(vec, norm);
+    return MoveTo(pos, vec);
+}
 
 } // namespace util::vector
