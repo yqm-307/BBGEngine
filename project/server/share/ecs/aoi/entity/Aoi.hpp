@@ -23,7 +23,6 @@ public:
     ~Aoi();
 protected:
     Aoi();
-    bool CheckConfig(const util::config::AoiConfig*) const;
     /**
      * @brief Aoi 驱动
      */

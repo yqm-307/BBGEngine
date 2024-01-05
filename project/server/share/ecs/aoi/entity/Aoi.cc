@@ -16,21 +16,6 @@ Aoi::Aoi()
 
 Aoi::~Aoi()
 {
-
-}
-
-bool Aoi::CheckConfig(const util::config::AoiConfig* cfg) const
-{
-    AssertWithInfo(cfg != nullptr, " config not found!");
-    AssertWithInfo(
-        cfg->m_tower_x > 0 && 
-        cfg->m_tower_y > 0 && 
-        cfg->m_tower_z > 0 &&
-        cfg->m_map_x >= cfg->m_tower_x && 
-        cfg->m_map_y >= cfg->m_tower_y && 
-        cfg->m_map_z >= cfg->m_tower_z,
-        "aoi config invalid!");
-    return true;
 }
 
 void Aoi::OnUpdate()
