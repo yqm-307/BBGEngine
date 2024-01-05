@@ -101,6 +101,7 @@ engine::ecs::GameObjectSPtr GameServerScene::AoiInit()
 {
     /* 初始化 aoi */
     auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::aoi::Aoi>();    
+    aoi_obj->AddComponent(G_ComponentMgr()->Create<share::ecs::aoi::AoiComponent>());
 
     return aoi_obj;
 }
