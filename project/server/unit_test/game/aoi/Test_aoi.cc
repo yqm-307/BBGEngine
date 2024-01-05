@@ -7,6 +7,7 @@
 #include "share/ecs/aoi/component/AoiObjectComponent.hpp"
 #include "share/ecs/none/entity/NoneObj.hpp"
 #include "share/ecs/aoi/system/AoiSystem.hpp"
+#include "util/vector/CalcOpt.hpp"
 
 using namespace share;
 using namespace util;
@@ -70,12 +71,12 @@ BOOST_AUTO_TEST_SUITE(AoiTest)
 /* 测试两个对象相遇在一个aoi中 */
 BOOST_AUTO_TEST_CASE(t_aoi_2_object_meet)
 {
-    std::vector<util::vector::Vector3> pos_set1 = {
+    std::vector<util::pos::Point3> pos_set1 = {
         {0.9f, 0.9f, 0.9f},
         {0.001f ,0.001f, 0.001f},
         {3.0f, 3.0f, 3.0f},
     };
-    std::vector<util::vector::Vector3> pos_set2 = {
+    std::vector<util::pos::Point3> pos_set2 = {
         {1.9f, 1.9f, 1.9f},
         {1.999f, 1.999f, 1.999f},
         {3.0f, 3.0f, 3.0f},
@@ -96,8 +97,8 @@ BOOST_AUTO_TEST_CASE(t_aoi_2_object_meet)
         meet_count--;
     });
 
-    util::vector::Vector3 pos1;
-    util::vector::Vector3 pos2;
+    util::pos::Point3 pos1;
+    util::pos::Point3 pos2;
     for (int i = 0; i< 10000; i++) {
         auto p1 = CreateAoiObj();
         auto p2 = CreateAoiObj();
@@ -176,7 +177,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
  */
 BOOST_AUTO_TEST_CASE(t_aoi_move_test)
 {
-    bbt::random::mt_random<int, 200, 800> rd;   // 初始降落点保证会错过
+    bbt::random::mt_random<int, 200, 800> rd;   // 初始降落点范围超过1来保证会错过
     GenAoiConfig();
     auto aoi = CreateAoiMap();
     float step_rate = 0.2f;
@@ -200,23 +201,35 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
         auto p1 = CreateAoiObj();
         auto p2 = CreateAoiObj();
         
-        util::vector::Vector3 pos1;
+        util::pos::Point3 pos1;
         pos1.m_x = ((float)rd()) / 100;
         pos1.m_y = ((float)rd()) / 100;
         pos1.m_z = ((float)rd()) / 100;
 
-        util::vector::Vector3 pos2;
+        util::pos::Point3 pos2;
         pos2.m_x = ((float)rd()) / 100;
         pos2.m_y = ((float)rd()) / 100;
         pos2.m_z = ((float)rd()) / 100;
 
+        vector::Vector3 pos1_direction = vector::ChangeVectorNorm(vector::CalcVectorByPos(pos1, pos2), step_rate);
+        vector::Vector3 pos2_direction = vector::ChangeVectorNorm(vector::CalcVectorByPos(pos2, pos1), step_rate);
+
+        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->EnterAoi(aoi, p1, pos1));
+        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->EnterAoi(aoi, p2, pos2));
+
         while (!out_of_bound) {
+            pos1 = vector::MoveTo(pos1, pos1_direction);
+            pos2 = vector::MoveTo(pos2, pos2_direction);
+
             // 相向而行
             out_of_bound |= !share::ecs::aoi::AoiSystem::GetInstance()->Move(
-                aoi, p1, {});
+                aoi, p1, pos1);
             out_of_bound |= !share::ecs::aoi::AoiSystem::GetInstance()->Move(
-                aoi, p1, {});
+                aoi, p1, pos2);
         }
+
+        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->LeaveAoi(aoi, p1));
+        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->LeaveAoi(aoi, p2));
     }
     
 }

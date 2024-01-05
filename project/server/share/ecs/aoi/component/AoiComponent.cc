@@ -58,7 +58,7 @@ void AoiComponent::OnUpdate()
     }
 }
 
-util::pos::Index3 AoiComponent::GetIndex3ByPos3(util::vector::Vector3 pos3) const
+util::pos::Index3 AoiComponent::GetIndex3ByPos3(util::pos::Point3 pos3) const
 {
     util::pos::Index3 index;
     if( pos3.m_x < 0 || pos3.m_y < 0 || pos3.m_z < 0 )
@@ -84,7 +84,7 @@ util::pos::Index3 AoiComponent::GetIndex3ByIndex(int tower_index) const
     return {x, y, z};
 }
 
-Tower* AoiComponent::GetTowerByPos3(util::vector::Vector3 pos3)
+Tower* AoiComponent::GetTowerByPos3(util::pos::Point3 pos3)
 {
     util::pos::Index3 index3 = GetIndex3ByPos3(pos3);
     if( pos3.m_x < 0 || index3.x >= m_tower_max_x || index3.x < 0 ||
@@ -155,7 +155,7 @@ bool AoiComponent::CheckConfig(const util::config::AoiConfig* cfg) const
     return true;
 }
 
-std::vector<engine::ecs::GameObjectSPtr> AoiComponent::GetEntitysEx(util::vector::Vector3 pos)
+std::vector<engine::ecs::GameObjectSPtr> AoiComponent::GetEntitysEx(util::pos::Point3 pos)
 {
     std::vector<engine::ecs::GameObjectSPtr> rlts;
     do{

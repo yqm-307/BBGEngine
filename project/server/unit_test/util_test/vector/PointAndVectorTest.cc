@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(t_point_offset_by_vector)
     EasyHelper<PointAndVector> helper(samples.size());
     helper.SetSample(samples, nullptr);
     helper.SetHandler([&](const TSample& sample, uint32_t round){
-        Point3 end = CalcPos3ByVector(std::get<0>(sample.m_sample), std::get<1>(sample.m_sample));
+        Point3 end = MoveTo(std::get<0>(sample.m_sample), std::get<1>(sample.m_sample));
         if (end != results[round - 1]) {
             return EasyHelperResult::emFailed;
         }

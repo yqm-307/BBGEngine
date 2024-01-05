@@ -32,13 +32,13 @@ public:
     virtual void OnUpdate();
 
 private:
-    Tower* GetTowerByPos3(util::vector::Vector3 pos3);
+    Tower* GetTowerByPos3(util::pos::Point3 pos3);
     Tower* GetTowerByIndex3(util::pos::Index3 index3);
-    util::pos::Index3   GetIndex3ByPos3(util::vector::Vector3 pos3) const;
+    util::pos::Index3   GetIndex3ByPos3(util::pos::Point3 pos3) const;
     util::pos::Index3   GetIndex3ByIndex(int tower_index) const;
     engine::ecs::GameObjectSPtr GetGameObj(AoiObjectId id);
     void                ScanTowerAround(Tower* center_tower, AroundFunc dofunc);
-    std::vector<engine::ecs::GameObjectSPtr>  GetEntitysEx(util::vector::Vector3 pos);
+    std::vector<engine::ecs::GameObjectSPtr>  GetEntitysEx(util::pos::Point3 pos);
     bool                Move(engine::ecs::GameObjectSPtr player, util::vector::Vector3 moveto);
     void Init();
 

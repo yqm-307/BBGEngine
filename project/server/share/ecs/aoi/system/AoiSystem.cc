@@ -28,7 +28,7 @@ AoiSystem::AoiSystem()
 }
 
 
-bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::GameObjectSPtr npc, util::vector::Vector3 drop_point)
+bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::GameObjectSPtr npc, util::pos::Point3 drop_point)
 {
     bool success = false;
     do
@@ -130,7 +130,7 @@ bool AoiSystem::LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player)
     return success;
 }
 
-bool AoiSystem::Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::vector::Vector3 moveto)
+bool AoiSystem::Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::pos::Point3 moveto)
 {
     bool success = false;
     do

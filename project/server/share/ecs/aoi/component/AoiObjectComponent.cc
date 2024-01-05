@@ -21,7 +21,7 @@ ecs::aoi::AoiEntityFlag AoiObjectComponent::GetMode()
     return m_mode;
 }
 
-void AoiObjectComponent::OnMove(util::vector::Vector3 vec)
+void AoiObjectComponent::OnMove(util::pos::Point3 vec)
 {
     m_prev_pos = m_curr_pos;
     m_curr_pos = vec;
@@ -32,7 +32,7 @@ void AoiObjectComponent::OnMove(Tower* tower)
     m_curr_tower = tower;
 }
 
-util::vector::Vector3 AoiObjectComponent::GetCurrentPos()
+util::pos::Point3 AoiObjectComponent::GetCurrentPos()
 {
     return m_curr_pos;
 }

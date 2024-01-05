@@ -22,11 +22,11 @@ public:
     static std::unique_ptr<AoiSystem>& GetInstance();
 
     /* 实体进入aoi */
-    bool EnterAoi(GameObjectSPtr aoi_entity, GameObjectSPtr entity, util::vector::Vector3 drop_point);
+    bool EnterAoi(GameObjectSPtr aoi_entity, GameObjectSPtr entity, util::pos::Point3 drop_point);
     /* 实体离开aoi */
     bool LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player);
     /* 实体在aoi中移动 */
-    bool Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::vector::Vector3 moveto);
+    bool Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::pos::Point3 moveto);
 
     GameObjectSPtr GetGameObjByAoi(engine::ecs::GameObjectCSPtr aoi, AoiObjectId id);
 
