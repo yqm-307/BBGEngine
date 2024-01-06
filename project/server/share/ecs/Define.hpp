@@ -1,6 +1,7 @@
 #pragma once
 #include <bbt/Attribute.hpp>
 #include "engine/ecs/component/ComponentMgr.hpp"
+#include "engine/ecs/gameobject/GameObjectMgr.hpp"
 
 
 namespace share::ecs
@@ -9,7 +10,7 @@ namespace share::ecs
 enum emEntityType: int {
 
 //------------------------> 无实体对象 <------------------------//
-    EM_ENTIRY_TYPE_NONE                     = 0,    // 空对象
+    EM_ENTITY_TYPE_GAMEOBJECT               = 0,    // 空对象
     EM_ENTITY_TYPE_AOI                      = 1,    // aoi
     EM_ENTITY_TYPE_PLAYER_MGR               = 2,    // 玩家管理器
     EM_ENTITY_TYPE_COMM_SCENE               = 3,    // 通用空场景
@@ -46,8 +47,16 @@ public:
     EcsInitHelper(){
         G_ComponentMgr()->InitTemplateInfo(
             {
-                {"Aoi", emComponentType::EM_COMPONENT_TYPE_AOI},
-                {"test1", emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
+                {"Aoi",                             emComponentType::EM_COMPONENT_TYPE_AOI},
+                {"test1",                           emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
+            }
+        );
+
+        G_GameObjectMgr()->InitTemplateInfo(
+            {
+                {"Gameobject",                      emEntityType::EM_ENTITY_TYPE_GAMEOBJECT},
+                {"Aoi",                             emEntityType::EM_ENTITY_TYPE_AOI},
+                {"gameserver_network",              emEntityType::EM_ENTITY_TYPE_GAMESERVER_NETWORK},
             }
         );
     }

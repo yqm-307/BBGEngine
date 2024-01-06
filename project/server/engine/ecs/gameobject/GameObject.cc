@@ -73,6 +73,11 @@ GameObjectId GameObject::GetId()
     return GetMemberId();
 }
 
+std::string GameObject::GetName() const
+{
+    return G_GameObjectMgr()->GetName(m_gobj_type);
+}
+
 GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
 {
     if(m_childs.size() == 0 || GameObjectIDInvalid(id))
@@ -91,11 +96,6 @@ GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
     return it->second;
 }
 
-const std::string& GameObject::GetName() const
-{
-    return m_gameobj_name;
-}
-
 bool GameObject::MountChild(GameObjectSPtr gameobj)
 {
     auto objid = gameobj->GetId();
@@ -107,7 +107,63 @@ bool GameObject::MountChild(GameObjectSPtr gameobj)
     return isok;
 }
 
+std::pair<bool, GameObjectSPtr> GameObject::UnMountChild(GameObjectId gameobj_id)
+{
+    if (GameObjectIDInvalid(gameobj_id))
+        return {false, nullptr};
+
+    auto it = m_childs.find(gameobj_id);
+    if (it == m_childs.end()) {
+        return {false, nullptr};
+    }
+
+    m_childs.erase(it);
+    return {true, it->second};
+}
+
+void GameObject::OnFatherDead() const
+{
+}
+
+void GameObject::OnUpdate()
+{
+}
+
+
+
+std::string GameObject::Dbg_GameObjectTree() const
+{
+    /*
+    |---@type1(11)
+    |---@type2(22)
+        |---@type3(33)
+        |---@type4(33)    
+            |---@type3(33)
+            |---@type4(33)
+    */
+    return __DbgTree(0);
+}
+
+
 #pragma region "私有函数"
+
+std::string GameObject::__DbgTree(int level) const
+{
+    std::string info_tree = "";
+    std::string prefix_str(level, '\t');
+    info_tree = prefix_str + "|--@" + GetName() + "(type:" + std::to_string(m_gobj_type) + " | gid:" +std::to_string(GetMemberId()) + ")" + '\n';
+
+    for (auto&& object_pair : m_childs )
+    {
+        auto gameobj = object_pair.second;
+        if (gameobj) {
+            info_tree += gameobj->__DbgTree(level + 1);
+        }
+    }
+
+    return info_tree;
+}
+
 
 bool GameObject::HasGameobj(GameObjectId id) const
 {
@@ -123,22 +179,33 @@ bool GameObject::HasGameobj(GameObjectId id) const
 
 void GameObject::Update()
 {
-    /* 组件预更新 */
+    /* 预更新 */
     OnPreUpdate();
 
-    for(auto child_ptr : m_childs)
-    {
-        auto gobj_ptr = child_ptr.second;
+    /* 更新组件 */
+    UpdateComponent();
 
+    for(auto child_ptr : m_childs) {
+        auto gobj_ptr = child_ptr.second;
         /* 递归更新子组件 */
         gobj_ptr->Update();
-
     }
 
-    /* 此组件已更新 */
+    /* 更新完毕 */
     OnUpdate();
 }
 
+void GameObject::UpdateComponent()
+{
+    for (auto&& pair : m_component_map) {
+        auto comp = pair.second;
+        if (comp == nullptr) {
+            continue;
+        }
+
+        comp->Update();
+    }
+}
 
 #pragma endregion
 

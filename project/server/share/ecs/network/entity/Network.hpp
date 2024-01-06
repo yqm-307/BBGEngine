@@ -43,11 +43,11 @@ class Network:
     friend void OnFixUpdate(evutil_socket_t,short,void*);
     GameObjectDeriveClassDef;
 public:
-    typedef util::network::ev::evIOThreadSPtr evIOThreadSPtr;
-    typedef std::function<void(util::network::ConnectionSPtr)> OnConnectCallback;
-    typedef std::function<void(util::network::ConnectionSPtr)> OnAcceptCallback;
-    typedef std::function<void(util::network::ConnectionSPtr)> OnCloseCallback;
-    typedef std::function<void(util::network::ConnectionSPtr, time_t)> OnTimeOutCallback;
+    typedef util::network::ev::evIOThreadSPtr                           evIOThreadSPtr;
+    typedef std::function<void(util::network::ConnectionSPtr)>          OnConnectCallback;
+    typedef std::function<void(util::network::ConnectionSPtr)>          OnAcceptCallback;
+    typedef std::function<void(util::network::ConnectionSPtr)>          OnCloseCallback;
+    typedef std::function<void(util::network::ConnectionSPtr, time_t)>  OnTimeOutCallback;
 
     ~Network();
     /* 同步的启动所有线程，等所有IO线程全部启动返回 */

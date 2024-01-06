@@ -30,7 +30,7 @@ protected:
 
     virtual void OnCreate() {}
     virtual void OnDestory() {}
-    virtual void OnFatherDead() override {}
+    virtual void OnFatherDead() const override {}
 
 public:
 

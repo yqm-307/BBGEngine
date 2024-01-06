@@ -13,11 +13,6 @@ class NoneObj:
     GameObjectDeriveClassDef;
 public:
     ~NoneObj();
-
-    virtual void OnCreate();
-    virtual void OnDestory();
-    virtual void OnUpdate() override;
-    virtual void OnFatherDead() {};
 protected:
     explicit NoneObj();
 

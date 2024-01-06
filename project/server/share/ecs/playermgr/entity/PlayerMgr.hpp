@@ -38,7 +38,7 @@ public:
 private:
     explicit PlayerMgr();
     Result KickPlayerEx(player::PlayerId id);
-    virtual void OnFatherDead() override {};
+    virtual void OnFatherDead() const override {};
 private:
     PlayerMap       m_all_player;
 };

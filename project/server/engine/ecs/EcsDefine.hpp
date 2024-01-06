@@ -53,6 +53,7 @@ typedef int64_t ComponentId;
 static const GameObjectId InvalidComponentId = -1;
 
 typedef int32_t ComponentTemplateId; // 模板id
+typedef int32_t GameObjectTemplateId; // 模板id
 
 extern inline GameObjectId GenerateGameObjectID() 
 { return bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }

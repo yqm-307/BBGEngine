@@ -43,7 +43,7 @@ protected:
     Player();
 private:
     virtual void OnUpdate() override;
-    virtual void OnFatherDead() override {}; 
+    virtual void OnFatherDead() const override {}; 
 private:
     PlayerId            m_player_id{-1};
     OnlineStatus        m_online_status{OnlineStatus::Online};

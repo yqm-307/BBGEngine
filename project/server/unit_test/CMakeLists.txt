@@ -141,3 +141,16 @@ target_link_libraries(test_PointAndVector_texe
 )
 
 add_test(NAME test_PointAndVector_texe COMMAND test_PointAndVector_texe)
+
+######################## ==> engine 的 gameobject debug 测试 <== ########################
+
+add_executable(test_ecs_gameobjmgr_texe
+    ${SRC_FILE}
+    ./engine_test/Test_ecs_gameobjmgr.cc
+)
+
+target_link_libraries(test_ecs_gameobjmgr_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_ecs_gameobjmgr_texe COMMAND test_ecs_gameobjmgr_texe)
