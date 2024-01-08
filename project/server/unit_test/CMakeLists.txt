@@ -74,7 +74,7 @@ add_executable(test_game_aoi_texe
 target_link_libraries(test_game_aoi_texe
     ${MY_LINK_LIB}
 )
-add_test(NAME game_aoi COMMAND test_game_aoi_texe)
+add_test(NAME test_game_aoi_texe COMMAND test_game_aoi_texe)
 
 ######################## ==> engine 的 scene 功能测试 <== ########################
 

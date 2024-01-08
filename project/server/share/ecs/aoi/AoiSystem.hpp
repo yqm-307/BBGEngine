@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
-#include "share/ecs/aoi/component/AoiComponent.hpp"
-#include "share/ecs/aoi/component/AoiObjectComponent.hpp"
+#include "share/ecs/aoi/AoiComponent.hpp"
+#include "share/ecs/aoi/AoiObjectComponent.hpp"
 #include "share/ecs/Define.hpp"
 
 namespace share::ecs::aoi

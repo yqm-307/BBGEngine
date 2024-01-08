@@ -1,8 +1,8 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
 
-#include "share/ecs/aoi/entity/Aoi.hpp"
-#include "share/ecs/player/entity/Player.hpp"
+// #include "share/ecs/aoi/Aoi.hpp"
+#include "share/ecs/aoi/AoiComponent.hpp"
 #include <vector>
 #include <bbt/random/Random.hpp>
 

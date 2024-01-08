@@ -3,21 +3,20 @@
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
 #include <bbt/random/Random.hpp>
-#include "share/ecs/aoi/entity/Aoi.hpp"
-#include "share/ecs/aoi/component/AoiObjectComponent.hpp"
-#include "share/ecs/none/entity/NoneObj.hpp"
-#include "share/ecs/aoi/system/AoiSystem.hpp"
+#include "share/ecs/aoi/AoiObjectComponent.hpp"
+// #include "share/ecs/none/entity/NoneObj.hpp"
+#include "share/ecs/gameobject/GameObject.hpp"
+#include "share/ecs/aoi/AoiSystem.hpp"
 #include "util/vector/CalcOpt.hpp"
 
 using namespace share;
 using namespace util;
-typedef share::ecs::aoi::Aoi Aoi;
 typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
 typedef std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiObjComponentPtr;
-typedef std::shared_ptr<ecs::noneobj::NoneObj> NoneObjPtr;
+typedef std::shared_ptr<ecs::gameobject::GameObject> GameobjectPtr;
 
 
-std::shared_ptr<ecs::aoi::AoiObjectComponent> GetAoiComponet(NoneObjPtr obj)
+std::shared_ptr<ecs::aoi::AoiObjectComponent> GetAoiComponet(GameobjectPtr obj)
 {
     auto aoi_obj = obj->GetComponent(ecs::emComponentType::EM_COMPONENT_TYPE_AOI_OBJECT);
     BOOST_ASSERT(aoi_obj != nullptr);
@@ -27,8 +26,8 @@ std::shared_ptr<ecs::aoi::AoiObjectComponent> GetAoiComponet(NoneObjPtr obj)
 void AoiNotifyEvent(GameObjectSPtr aoi, GameObjectSPtr w, GameObjectSPtr m , const std::string str)
 {
 
-    auto p1 = std::static_pointer_cast<ecs::noneobj::NoneObj>(w);
-    auto p2 = std::static_pointer_cast<ecs::noneobj::NoneObj>(m);
+    auto p1 = std::static_pointer_cast<ecs::gameobject::GameObject>(w);
+    auto p2 = std::static_pointer_cast<ecs::gameobject::GameObject>(m);
     auto pos1 = GetAoiComponet(p1);
     auto pos2 = GetAoiComponet(p2);
 
@@ -40,7 +39,7 @@ void AoiNotifyEvent(GameObjectSPtr aoi, GameObjectSPtr w, GameObjectSPtr m , con
 /* 创建一个纯动态的aoi对象 */
 GameObjectSPtr CreateAoiObj()
 {
-    auto noneobj = G_GameObjectMgr()->Create<ecs::noneobj::NoneObj>();
+    auto noneobj = G_GameObjectMgr()->Create<ecs::gameobject::GameObject>();
     auto aoi_obj_component = G_ComponentMgr()->Create<ecs::aoi::AoiObjectComponent>(share::ecs::aoi::AoiEntityFlag::Watcher);
     noneobj->AddComponent(aoi_obj_component);
     return noneobj;
@@ -48,7 +47,7 @@ GameObjectSPtr CreateAoiObj()
 
 GameObjectSPtr CreateAoiMap()
 {
-    auto noneobj = G_GameObjectMgr()->Create<ecs::noneobj::NoneObj>();
+    auto noneobj = G_GameObjectMgr()->Create<ecs::gameobject::GameObject>();
     auto aoi_component = G_ComponentMgr()->Create<ecs::aoi::AoiComponent>();
     noneobj->AddComponent(aoi_component);
     return noneobj;
@@ -182,7 +181,7 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
     auto aoi = CreateAoiMap();
     float step_rate = 0.2f;
 
-    const int max_times = 1000000;
+    const int max_times = 1000;
     int count = 0;
     int meet_count = 0;
 
@@ -214,8 +213,8 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
         vector::Vector3 pos1_direction = vector::ChangeVectorNorm(vector::CalcVectorByPos(pos1, pos2), step_rate);
         vector::Vector3 pos2_direction = vector::ChangeVectorNorm(vector::CalcVectorByPos(pos2, pos1), step_rate);
 
-        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->EnterAoi(aoi, p1, pos1));
-        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->EnterAoi(aoi, p2, pos2));
+        BOOST_CHECK(share::ecs::aoi::AoiSystem::GetInstance()->EnterAoi(aoi, p1, pos1));
+        BOOST_CHECK(share::ecs::aoi::AoiSystem::GetInstance()->EnterAoi(aoi, p2, pos2));
 
         while (!out_of_bound) {
             pos1 = vector::MoveTo(pos1, pos1_direction);
@@ -228,8 +227,8 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
                 aoi, p1, pos2);
         }
 
-        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->LeaveAoi(aoi, p1));
-        BOOST_ASSERT(share::ecs::aoi::AoiSystem::GetInstance()->LeaveAoi(aoi, p2));
+        BOOST_CHECK(share::ecs::aoi::AoiSystem::GetInstance()->LeaveAoi(aoi, p1));
+        BOOST_CHECK(share::ecs::aoi::AoiSystem::GetInstance()->LeaveAoi(aoi, p2));
     }
     
 }

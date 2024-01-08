@@ -2,7 +2,6 @@
 #include <event2/event.h>
 #include "engine/scene/Scene.hpp"
 // 游戏对象
-#include "share/ecs/aoi/entity/Aoi.hpp"         // 游戏 aoi
 #include "share/ecs/network/entity/Network.hpp"
 
 /**

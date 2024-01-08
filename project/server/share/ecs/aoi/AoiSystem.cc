@@ -1,8 +1,7 @@
 #include <memory>
 #include "AoiSystem.hpp"
 #include "engine/ecs/component/ComponentMgr.hpp"
-#include "share/ecs/aoi/entity/Aoi.hpp"
-#include "share/ecs/aoi/component/AoiComponent.hpp"
+#include "share/ecs/aoi/AoiComponent.hpp"
 #include "share/ecs/Define.hpp"
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"

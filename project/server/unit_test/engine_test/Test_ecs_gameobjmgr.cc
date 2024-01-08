@@ -4,7 +4,7 @@
 
 #include <engine/scene/Scene.hpp>
 #include <engine/ecs/gameobject/GameObject.hpp>
-#include <share/ecs/gameobject/entity/GameObject.hpp>
+#include <share/ecs/gameobject/GameObject.hpp>
 #include <share/ecs/Define.hpp>
 
 BOOST_AUTO_TEST_SUITE(GameObjMgrTest)
