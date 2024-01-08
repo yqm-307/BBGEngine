@@ -30,7 +30,6 @@ public:
     EatFoodTree();
     ~EatFoodTree();
 private:
-
 };
 
 EatFoodTree::EatFoodTree(/* args */)

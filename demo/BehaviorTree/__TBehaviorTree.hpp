@@ -20,8 +20,5 @@ void BehaviorTree<TShareData>::SetTree(TNode* tree_root)
 template<typename TShareData>
 emProcessResult BehaviorTree<TShareData>::Tick()
 {
-    while ()
-    {
-    }
     
 }
