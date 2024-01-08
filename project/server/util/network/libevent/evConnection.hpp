@@ -139,10 +139,10 @@ private:
         // 使用宏减少一些代码量，而且显而易见的地方使用宏感觉没啥问题
         // {util::errcode::network::err::Recv_Success, 
         // [this](const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err){ NetHandler_RecvData(buffer, err); }},
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Success,    this, NetHandler_RecvData),
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Eof,        this, NetHandler_ConnClosed),
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_TryAgain,   this, NetHandler_TryAgain),
-        NET_HANDLER_ENTRY(util::errcode::network::err::Recv_Other_Err,  this, NetHandler_OtherErr),
+        NET_HANDLER_ENTRY(util::errcode::errenum::MODULE_NETWORK::Recv_Success,    this, NetHandler_RecvData),
+        NET_HANDLER_ENTRY(util::errcode::errenum::MODULE_NETWORK::Recv_Eof,        this, NetHandler_ConnClosed),
+        NET_HANDLER_ENTRY(util::errcode::errenum::MODULE_NETWORK::Recv_TryAgain,   this, NetHandler_TryAgain),
+        NET_HANDLER_ENTRY(util::errcode::errenum::MODULE_NETWORK::Recv_Other_Err,  this, NetHandler_OtherErr),
     };
 private:
 

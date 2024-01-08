@@ -1,6 +1,8 @@
 #include "gameserver/scene/GameServerScene.hpp"
 #include "gameserver/init/LoadConfig.hpp"
 #include "share/ecs/network/entity/Network.hpp"
+#include "share/ecs/gameobject/GameObject.hpp"
+#include "share/ecs/aoi/AoiComponent.hpp"
 #include "util/log/Log.hpp"
 #include <signal.h>
 
@@ -100,11 +102,11 @@ void GameServerScene::OnCreate()
 engine::ecs::GameObjectSPtr GameServerScene::AoiInit()
 {
     /* 初始化 aoi */
-    auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::aoi::Aoi>(
-    /*enter scene*/ [](GameObjectSPtr p1, GameObjectSPtr p2){}, 
-    /*leave scene*/ [](GameObjectSPtr p1, GameObjectSPtr p2){});    
+    auto gameobj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::gameobject::GameObject>();
+    // auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::aoi::Aoi>();
+    gameobj->AddComponent(G_ComponentMgr()->Create<share::ecs::aoi::AoiComponent>());
 
-    return aoi_obj;
+    return gameobj;
 }
 
 engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
@@ -113,7 +115,7 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
     auto ip     = cfgInst->GetServerIP();
     auto port   = cfgInst->GetServerPort();
 
-    GAME_BASE_LOG_INFO("World Server! IP: %s  Port: %d", ip.c_str(), port);
+    GAME_BASE_LOG_INFO("gameserver! IP: %s  Port: %d", ip.c_str(), port);
 
     auto network_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::network::Network>(ip, port);
 

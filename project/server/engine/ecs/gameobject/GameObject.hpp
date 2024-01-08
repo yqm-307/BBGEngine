@@ -42,6 +42,7 @@ public:
     int             Type();
 
     GameObjectId    GetId();
+    std::string     GetName() const;
 
     /* 根据游戏对象的名字，在当前游戏对象的子游戏对象中找到游戏对象 */
     GameObjectSPtr  GetGameObject(GameObjectId id);
@@ -51,14 +52,13 @@ public:
     // GameObjectSPtr  RecursionGetGameObject(std::string gameobj_name);
 
     /* 动态的添加一个子游戏对象，成功返回true，失败返回false */
-    bool MountChild(GameObjectSPtr gameobj);
+    bool            MountChild(GameObjectSPtr gameobj);
 
     // TODO
-    // bool UnMountChild(GameObjectSPtr gameobj);
-
-    const std::string& GetName() const;
+    std::pair<bool, GameObjectSPtr> UnMountChild(GameObjectId gameobj_id);
+    std::string Dbg_GameObjectTree() const;
 protected:
-    virtual void OnFatherDead() = 0;
+    virtual void OnFatherDead() const;
 
     /**
      * @brief 游戏对象调用 Update 前调用
@@ -68,21 +68,21 @@ protected:
     /**
      * @brief 游戏对象调用 Update 之后调用
      */
-    virtual void OnUpdate() = 0;
-    
+    virtual void OnUpdate();
 
 private:
     /**
      * @brief 此函数被调用时会自上而下的遍历所有的子节点并Update
      * 同时触发OnUpdate去更新
      */
-    void Update();
-    void SetId(GameObjectId id);
-    bool HasGameobj(GameObjectId id) const;
-    void OnCreate();
-    void OnDestory();
-    std::string m_gameobj_name{""};
+    virtual void Update() final;
+    virtual void UpdateComponent() final;
+    virtual bool HasGameobj(GameObjectId id) const final;
+    virtual void OnCreate();
+    virtual void OnDestory();
+    std::string __DbgTree(int level) const;
 
+private:
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */
     const int m_gobj_type{-1};
 

@@ -5,7 +5,8 @@ namespace engine::ecs
 
 
 Component::Component(ComponentTemplateId id)
-    :m_template_id(id)
+    :m_template_id(id),
+    m_is_active(true)
 {
     OnCreate();
 }
@@ -17,6 +18,10 @@ Component::~Component()
 }
 
 void Component::OnCreate()
+{
+}
+
+void Component::OnDestory()
 {
 }
 
@@ -34,6 +39,48 @@ ComponentId Component::GetId() const
 {
     return GetMemberId();
 }
+
+void Component::OnAddComponent(ecs::GameObjectSPtr)
+{
+}
+
+void Component::OnDelComponent(ecs::GameObjectSPtr)
+{
+}
+
+void Component::OnEnable()
+{
+}
+
+void Component::OnDisable()
+{
+}
+
+void Component::SetActive(bool is_active)
+{
+    if (m_is_active == is_active)
+        return;
+
+    if (is_active)
+        OnEnable();
+    else
+        OnDisable();
+
+    m_is_active = is_active;
+}
+
+bool Component::IsActive()
+{
+    return m_is_active;
+}
+
+void Component::Update()
+{
+    if (IsActive())
+        OnUpdate();
+}
+
+
 
 }
 

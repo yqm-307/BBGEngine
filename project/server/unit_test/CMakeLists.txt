@@ -65,6 +65,16 @@ target_link_libraries(unit_test
 add_test(NAME unit_test COMMAND unit_test)
 
 
+######################## ==> game 的 aoi 功能测试 <== ########################
+add_executable(test_game_aoi_texe
+    ${SRC_FILE}
+    ./game/aoi/Test_aoi.cc
+)
+
+target_link_libraries(test_game_aoi_texe
+    ${MY_LINK_LIB}
+)
+add_test(NAME test_game_aoi_texe COMMAND test_game_aoi_texe)
 
 ######################## ==> engine 的 scene 功能测试 <== ########################
 
@@ -105,3 +115,42 @@ target_link_libraries(test_cpp2lua_texe
 )
 
 add_test(NAME test_cpp2lua_texe COMMAND test_cpp2lua_texe)
+
+######################## ==> yqm 的 test helper debug 测试 <== ########################
+
+add_executable(test_testhelperdebug_texe
+    ${SRC_FILE}
+    ./util_test/testhelper/testhelperdbg.cc
+)
+
+target_link_libraries(test_testhelperdebug_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_testhelperdebug_texe COMMAND test_testhelperdebug_texe)
+
+######################## ==> yqm 的 test helper debug 测试 <== ########################
+
+add_executable(test_PointAndVector_texe
+    ${SRC_FILE}
+    ./util_test/vector/PointAndVectorTest.cc
+)
+
+target_link_libraries(test_PointAndVector_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_PointAndVector_texe COMMAND test_PointAndVector_texe)
+
+######################## ==> engine 的 gameobject debug 测试 <== ########################
+
+add_executable(test_ecs_gameobjmgr_texe
+    ${SRC_FILE}
+    ./engine_test/Test_ecs_gameobjmgr.cc
+)
+
+target_link_libraries(test_ecs_gameobjmgr_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_ecs_gameobjmgr_texe COMMAND test_ecs_gameobjmgr_texe)

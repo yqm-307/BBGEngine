@@ -43,19 +43,20 @@ class Network:
     friend void OnFixUpdate(evutil_socket_t,short,void*);
     GameObjectDeriveClassDef;
 public:
-    typedef util::network::ev::evIOThreadSPtr evIOThreadSPtr;
-    typedef std::function<void(util::network::ConnectionSPtr)> OnConnectCallback;
-    typedef std::function<void(util::network::ConnectionSPtr)> OnAcceptCallback;
-    typedef std::function<void(util::network::ConnectionSPtr)> OnCloseCallback;
-    typedef std::function<void(util::network::ConnectionSPtr, time_t)> OnTimeOutCallback;
+    typedef util::network::ev::evIOThreadSPtr                           evIOThreadSPtr;
+    typedef std::function<void(util::network::ConnectionSPtr)>          OnConnectCallback;
+    typedef std::function<void(util::network::ConnectionSPtr)>          OnAcceptCallback;
+    typedef std::function<void(util::network::ConnectionSPtr)>          OnCloseCallback;
+    typedef std::function<void(util::network::ConnectionSPtr, time_t)>  OnTimeOutCallback;
 
     ~Network();
     /* 同步的启动所有线程，等所有IO线程全部启动返回 */
     bool SyncStart();
-    // /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
+    /* 同步的停止所有IO线程，等所有IO线程全部停止后返回 */
     void SyncStop();
     /* 是否还有io线程在运行中 */
     bool IsStoped();
+
     BBTATTR_FUNC_Deprecated void SetOnConnect(const OnConnectCallback& cb);
     void SetOnAccept(const OnAcceptCallback& cb);
     
@@ -67,7 +68,8 @@ private:
     void Init();
     /* 对象内部数据释放 */
     void Destory();
-    void TryStopAllThread();
+    /* 阻塞等待所有线程停止 */
+    void SyncStopAllThread();
     /* 等待所有IO线程，启动完成 */
     void WaitForOtherIOThreadStart();
 private:

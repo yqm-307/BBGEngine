@@ -1,7 +1,7 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/log/Log.hpp"
-
+#include <tuple>
 
 namespace engine::ecs
 {
@@ -15,13 +15,15 @@ const std::unique_ptr<GameObjectMgr>& GameObjectMgr::GetInstance()
     return _instance;
 }
 
-GameObjectMgr::GameObjectMgr() 
+GameObjectMgr::GameObjectMgr()
+    :m_gameobject_info_map(
+        [](const ComponentTemplateId& key){ return (size_t)(key%8);},
+        GameObjectInfo("", -1))
 {
 }
 
 GameObjectMgr::~GameObjectMgr() 
 {
-    // FIXME 
     /**
      * 需要主动触发残留对象的释放
      * 
@@ -67,6 +69,17 @@ bool GameObjectMgr::IsExist(KeyType key)
     return !(m_gameobject_map.find(key) == m_gameobject_map.end());
 }
 
+std::string GameObjectMgr::GetName(GameObjectTemplateId tid) const
+{
+    auto [info, isok] = m_gameobject_info_map.Find(tid);
+    
+    if (isok) {
+        return std::get<0>(info);
+    }
+
+    return "";
+}
+
 bool GameObjectMgr::OnMemberCreate(MemberPtr member_base)
 {
     auto gid = member_base->GetMemberId();
@@ -92,6 +105,23 @@ GameObjectMgr::KeyType
 GameObjectMgr::GenerateKey(MemberPtr member_base)
 {
     return engine::ecs::GenerateGameObjectID();
+}
+
+bool GameObjectMgr::InitTemplateInfo(std::initializer_list<GameObjectInfo> list)
+{
+    static bool is_inited = false;
+    if( is_inited )
+        return false;
+
+    is_inited = true;
+
+    for (auto&& item : list)
+    {
+        GameObjectTemplateId id = std::get<1>(item);
+        AssertWithInfo(m_gameobject_info_map.Insert(id, item), "check gameobject info register is right!");
+    }
+
+    return true;    
 }
 
 

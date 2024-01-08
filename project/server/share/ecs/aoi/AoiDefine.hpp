@@ -3,9 +3,10 @@
 #include <set>
 #include <map>
 #include "engine/ecs/gameobject/GameObject.hpp"
+#include "engine/ecs/EcsDefine.hpp"
 #include "util/vector/Vector2.hpp"
 
-namespace share::ecs::entity::aoi
+namespace share::ecs::aoi
 {
 
 typedef float       Pos;            // 
@@ -14,6 +15,17 @@ typedef int         Index;          //
 
 typedef std::map<int, engine::ecs::GameObjectSPtr> GameObjMap;
 
+static const int AoiHashBucketNum = 16;
+static const int AoiInfoIntervalMS = 5000;
+
+/**
+ * @brief aoi中实体对象的身份标识
+ */
+enum AoiEntityFlag 
+{
+    Watcher     = 1,    // 观察者
+    Marker      = 1 << 1,     // 被观察者
+};
 
 /**
  * 灯塔：在aoi中即为关注连接，在灯塔范围内的处于一个aoi区域
@@ -70,9 +82,7 @@ static inline bool AABBCheck(const AABBBox& a, const AABBBox& b)
     return xover && yover && zover;
 }
 
-static inline void AoiDefaultOnLeave(engine::ecs::GameObjectSPtr )
-{
+static inline int64_t GenAoiObjectId()
+{ return bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, engine::ecs::EasyIdType::EM_Mist_AoiObjectId>::GenerateID(); }
 
-}
-
-}
+} // namespace share::ecs::aoi
