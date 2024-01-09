@@ -18,7 +18,7 @@ void BehaviorTree<TShareData>::SetTree(TNode* tree_root)
 }
 
 template<typename TShareData>
-emProcessResult BehaviorTree<TShareData>::Tick()
+emNodeStatus BehaviorTree<TShareData>::Tick(TShareData& data)
 {
-    
+    return m_root->Process(data);
 }

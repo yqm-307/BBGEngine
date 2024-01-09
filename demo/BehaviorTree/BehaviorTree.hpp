@@ -16,7 +16,7 @@ public:
      * 
      * @return ProcessResult 
      */
-    virtual emProcessResult Tick() final;
+    virtual emNodeStatus Tick(TShareData& data) final;
 protected:
     virtual void SetTree(TNode* tree_root) final;
 private:
