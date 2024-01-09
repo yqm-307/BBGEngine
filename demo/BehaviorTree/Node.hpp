@@ -22,20 +22,21 @@ enum emProcessResult
     UnInited    = 4,
 };
 
-template<typename TShareData>
+template<typename TShareData, emNodeType NodeType>
 class Node
 {
 public:
     typedef std::function<emProcessResult(TShareData&)> OnActiveCallback;
     typedef std::function<void()> OnInitCallback;
+    typedef Node<TShareData, NodeType> NodeBase;
 
-    Node(emNodeType type, Node* parent):m_type(type),m_parent(parent) {}
-    ~Node() {}
+    Node(emNodeType type, NodeBase* parent):m_type(type),m_parent(parent) {}
+    virtual ~Node() = 0
     
-    emNodeType Type() { return m_type; }
-    Node* Parent() { return m_parent; }
+    emNodeType Type() { return NodeType; }
+    NodeBase* Parent() { return m_parent; }
 
-    bool Init(std::map<int, Node*> nodes) { m_sub_nodes = nodes; }
+    bool Init(std::map<int, NodeBase*> nodes) { m_sub_nodes = nodes; }
 
     /**
      * @brief 执行以本节点为根的子行为树的行为，并返回执行结果
@@ -43,16 +44,14 @@ public:
      * @param share_data 整个行为树的共享数据 //XXX 不算优雅的实现方式
      * @return emProcessResult 
      */
-    emProcessResult Process(TShareData& share_data);
+    virtual emProcessResult Process(TShareData& share_data) = 0;
 
-private:
+protected:
     /* 检查nodes对于本节点是否为合法的子节点集合（比如逆变节点的子节点只能有一个之类的限制） */
-    bool __CheckCanSetNodes(std::map<int, Node*> nodes);
-private:
-    emNodeType              m_type;
-    Node*                   m_parent;
-    std::map<int, Node*>    m_sub_nodes;
-    emProcessResult         m_cur_result{true};
+    virtual bool __CheckCanSetNodes(std::map<int, typename Node<TShareData, emNodeType::Sequences>::NodeBase*> nodes) = 0;
+
+    NodeBase*                   m_parent;
+    std::map<int, NodeBase*>    m_sub_nodes;
 
     OnActiveCallback        m_active_callback;
     OnInitCallback          m_init_callback;
@@ -60,36 +59,25 @@ private:
 
 
 template<typename TShareData>
-emProcessResult Node<TShareData>::Process(TShareData& share_data)
+class SequencesNode:
+    public Node<TShareData, emNodeType::Sequences>
 {
+public:
+    virtual emProcessResult Process(TShareData& share_data) override;
+protected:
+    virtual bool __CheckCanSetNodes(std::map<int, NodeBase*> nodes) override;
 
-    for (auto&& it : m_sub_nodes) {
-        /* 第一次、Running状态下可以active */
-        if (it->second.Type() == emProcessResult::Success || it->second.Type() == emProcessResult::Failed)
-            continue;
+};
 
-        emProcessResult active_result = m_active_callback(share_data);
+template<typename TShareData>
+class SelectorNode:
+    public Node<TShareData, emNodeType::Selector>
+{
+public:
+    virtual emProcessResult Process(TShareData& share_data) override;
+protected:
+    virtual bool __CheckCanSetNodes(std::map<int, Node*> nodes) override;
+};
 
-        /* 根据子行为树的执行结果，计算本节点的执行结果 */
-        switch (m_type) {
-            case emNodeType::Inverter:
-                m_cur_result = !active_result;
-                break;
-            case emNodeType::Repeater:
-                m_cur_result |= active_result;
-                break;
-            case emNodeType::Selector:
-                m_cur_result |= active_result;
-                break;
-            case emNodeType::Sequences:
-                m_cur_result &= active_result;
-                break;
-            case emNodeType::Successder:
-                break;
-            default:
-                break;
-        }
-    }
-}
 
 #include "__TNode.hpp"

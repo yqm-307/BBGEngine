@@ -49,4 +49,5 @@ target_link_libraries(gameserver
     inih
     protobuf
     tcmalloc
+    dl
 )
