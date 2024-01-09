@@ -16,7 +16,7 @@ Connection::~Connection()
     GAME_EXT1_LOG_INFO("[Connection::~Connection] release connection! sockfd=%d", GetSocket());
 }
 
-int Connection::GetSocket()
+int Connection::GetSocket() const
 {
     return m_sockfd;
 }

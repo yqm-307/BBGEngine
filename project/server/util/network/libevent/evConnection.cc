@@ -139,15 +139,12 @@ void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const 
 
 void evConnection::OnDestroy()
 {   
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        if(m_status == ConnStatus::Disconnected) {
-            GAME_EXT1_LOG_WARN("repeat destory!");
-            return;
-        }
-
-        m_status = ConnStatus::Disconnected;
+    if(m_status == ConnStatus::Disconnected) {
+        GAME_EXT1_LOG_WARN("repeat destory!");
+        return;
     }
+
+    m_status = ConnStatus::Disconnected;
 
     int error = 0;
     

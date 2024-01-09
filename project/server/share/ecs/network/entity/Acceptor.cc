@@ -137,7 +137,8 @@ void Acceptor::OnAccept(int fd, const util::network::Address& peer_addr)
     DebugAssertWithInfo(m_load_blance_cb != nullptr, "loadblance callback not initialized!");
     auto run_in_target_thread = m_load_blance_cb();
     DebugAssertWithInfo(run_in_target_thread, "loadblance error!");
-    auto new_conn = util::network::ev::evConnMgr::GetInstance()->Create<util::network::ev::evConnection>(run_in_target_thread, fd, peer_addr, m_listen_addr);
+    auto new_conn = util::network::ev::evConnMgr::GetInstance()->
+        Create<util::network::ev::evConnection>(run_in_target_thread, fd, peer_addr, m_listen_addr);
     //TODO 回调连接对象
     GAME_BASE_LOG_INFO("[Acceptor::OnAccept] Acceptor ==> Client IP:{%s}", peer_addr.GetIPPort().c_str());
     DebugAssertWithInfo(m_onconnect_cb == nullptr , "onconnect callback is null!");

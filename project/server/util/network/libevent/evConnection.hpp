@@ -5,6 +5,7 @@
 #include "util/network/IOThread.hpp"
 #include "util/network/libevent/evEvent.hpp"
 #include "util/network/libevent/evConnMgr.hpp"
+#include "util/errcode/ErrCode.hpp"
 #include <bbt/buffer/Buffer.hpp>
 #include <bbt/timer/Clock.hpp>
 #include <bbt/thread/Lock.hpp>

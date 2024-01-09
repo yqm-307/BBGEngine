@@ -78,15 +78,23 @@ public:
      */
     virtual const Address& GetLocalIPAddress() const;
 
-    int GetSocket();
+    /**
+     * @brief 获取原始套接字
+     * 
+     * @return int 
+     */
+    int GetSocket() const;
 
 protected:
 
-    int         m_sockfd{-1};
-    volatile ConnStatus  m_status{ConnStatus::Done};
+    int                     m_sockfd{-1};
     util::network::Address  m_local_addr;
     util::network::Address  m_peer_addr;
-    std::mutex  m_mutex;
+
+    /* 保证可见性 */
+    volatile ConnStatus     m_status{ConnStatus::Done};
+    /* 去除对连接状态保护的锁，因为不太可能多线程同时析构，那样更严重 */
+    // std::mutex              m_mutex; 
 };
 
 
