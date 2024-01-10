@@ -47,7 +47,7 @@ public:
      * 
      * @return int 成功返回0；失败返回-1
      */
-    int Start(util::network::ev::evIOThreadSPtr thread);
+    util::errcode::ErrOpt Start(util::network::ev::evIOThreadSPtr thread);
 
     /**
      * @brief 获取监听套接字

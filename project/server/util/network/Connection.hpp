@@ -86,7 +86,6 @@ public:
     int GetSocket() const;
 
 protected:
-
     int                     m_sockfd{-1};
     util::network::Address  m_local_addr;
     util::network::Address  m_peer_addr;

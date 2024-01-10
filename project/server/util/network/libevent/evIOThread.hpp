@@ -34,24 +34,9 @@ public:
     /* 线程启动前需要初始化（必选） */
     void SetEventBase(event_base* ev_base);
 
-    /**
-     * @brief 在当前线程中注册一个事件
-     * 
-     * @param event_ptr 
-     * @return EventId 如果成功返回事件id，失败返回-1
-     */
-    EventId RegisterEvent(std::shared_ptr<evEvent> event_ptr) BBTATTR_FUNC_RetVal;
-
-    /**
-     * @brief 与 RegisterEvent 相比为线程安全版本
-     * 
-     * @param fd 如果不是fd相关的事件，可以设置为0
-     * @param events 关注事件的类型，参考宏EV_TIMEOUT
-     * @param callback 事件发生时调用的回调函数
-     * @param args callback的参数（大部分情况使用函数对象即可）
-     * @return int 成功返回大于等于0的eventid，失败返回-1
-     */
-    EventId RegisterEventSafe(std::shared_ptr<evEvent> event_ptr) BBTATTR_FUNC_RetVal;
+    /* 注册一个libevent事件 */
+    std::pair<errcode::ErrOpt, EventId>
+    RegisterEventSafe(const EventCallback& cb, evutil_socket_t fd, short events, int target_interval_ms) BBTATTR_FUNC_RetVal;
 
     /**
      * @brief 从此线程监听的事件中取消一个事件

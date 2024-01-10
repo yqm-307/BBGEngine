@@ -25,10 +25,6 @@ void Acceptor::Init()
 {
     m_listen_fd = util::network::CreateListen(m_listen_ip, m_listen_port, true);
     Assert(m_listen_fd >= 0);
-
-    m_event = util::network::ev::evEvent::Create([this](ev_socklen_t fd, short event, void* args){
-        AcceptEvent(fd, event, args); 
-    }, m_listen_fd, EV_READ | EV_PERSIST, m_accept_once_timeval);
 }
 
 void Acceptor::Destory()
@@ -117,7 +113,7 @@ void Acceptor::AcceptEvent(ev_socklen_t fd, short event, void* args)
     
 }
 
-int Acceptor::Start(util::network::ev::evIOThreadSPtr thread)
+util::errcode::ErrOpt Acceptor::Start(util::network::ev::evIOThreadSPtr thread)
 {
     DebugAssert(thread != nullptr);
     if(thread == nullptr)
@@ -125,8 +121,10 @@ int Acceptor::Start(util::network::ev::evIOThreadSPtr thread)
 
     m_master_thread = thread;
 
-    int err = thread->RegisterEventSafe(m_event);
-    DebugAssert(err >= 0);
+    auto [err, event_id] = thread->RegisterEventSafe([this](ev_socklen_t fd, short event, void* args){
+        AcceptEvent(fd, event, args); 
+    }, m_listen_fd, EV_READ | EV_PERSIST, m_accept_once_timeval);
+    DebugAssert(err != std::nullopt);
 
     return err;
 }

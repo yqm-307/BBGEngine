@@ -74,7 +74,7 @@ EventId evIOThread::RegisterEvent(std::shared_ptr<evEvent> evptr)
 {
     int err = 0;
     DebugAssert(evptr != nullptr);
-    err = evptr->RegisterInEvBase(m_ev_base);
+    err = evptr->Register(m_ev_base);
     if(err < 0) {
         return -1;
     }
@@ -96,7 +96,7 @@ EventId evIOThread::RegisterEventSafe(std::shared_ptr<evEvent> evptr)
 
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        err = evptr->RegisterInEvBase(m_ev_base);
+        err = evptr->Register(m_ev_base);
         if(err < 0) {
             return -1;
         }
@@ -125,6 +125,37 @@ int evIOThread::UnRegisterEvent(EventId eventid)
     auto isok = (it->second)->UnRegister();
 
     return isok;
+}
+
+std::pair<errcode::ErrOpt, EventId>
+evIOThread::RegisterEventSafe(const EventCallback& cb, evutil_socket_t fd, short events, int target_interval_ms)
+{
+    auto event = std::make_shared<evEvent>(cb, fd, events, target_interval_ms);
+    int err = 0;
+
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        err = event->Register(m_ev_base);
+        if (err < 0) {
+            return {
+                errcode::ErrCode("event register failed!", 
+                                errcode::ErrType::NetWorkErr, 
+                                errcode::errenum::MODULE_NETWORK::Event_Register_Failed), 
+                -1};
+        }
+
+        auto [it, isok] = m_event_map.insert(std::make_pair(event->GetEventID(), event));
+        if (!isok) {
+            err = event->UnRegister();
+            return {
+                errcode::ErrCode("event register repeat!",
+                                errcode::ErrType::NetWorkErr,
+                                errcode::errenum::MODULE_NETWORK::Event_Register_Failed),
+                -1};
+        }
+    }
+
+    return {std::nullopt, event->GetEventID()};
 }
 
 }// namespace end

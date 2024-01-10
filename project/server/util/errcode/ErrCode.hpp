@@ -3,12 +3,15 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <optional>
 #include "util/errcode/ErrCodeDef.hpp"
 
 
 namespace util::errcode
 {
+class ErrCode;
 
+typedef std::optional<ErrCode> ErrOpt;
 typedef std::pair<util::errcode::ErrType, int> ErrTypePair;
 
 class ErrCode:

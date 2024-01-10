@@ -16,8 +16,6 @@ evConnection::evConnection(evIOThreadSPtr thread, int newfd, Address peer_ip, Ad
     m_output_buffer(4096) // TODO 接入配置
 {
     DebugAssert(thread != nullptr && newfd >= 0);
-    /* 初始化 event 事件 args */
-    InitEventArgs();
     /* 初始化心跳、读事件 */
     InitEvent();
     GAME_EXT1_LOG_DEBUG("evconnection is created!");
@@ -87,16 +85,8 @@ void evConnection::InitEvent()
         return;
     }
 
-    err = GetIOThread()->RegisterEvent(m_recv_event);
-
-    DebugAssert(err >= 0);
-}
-
-void evConnection::InitEventArgs()
-{
     auto weak_this = weak_from_this();
-    /* 设置 Read 事件的监听函数 */
-    m_recv_event = evEvent::Create([weak_this](evutil_socket_t fd, short events, void* args){
+    auto [err, event_id] = GetIOThread()->RegisterEventSafe([weak_this](evutil_socket_t fd, short events, void* args){
         auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
         if(share_this == nullptr) {
             GAME_EXT1_LOG_WARN("connect is delete, but event is unregisted! fd=%d, event=%d", fd, events);
@@ -104,7 +94,10 @@ void evConnection::InitEventArgs()
         }
         share_this->OnEvent(fd, events, args);
     }, GetSocket(), EV_READ | EV_PERSIST | EV_CLOSED, 5000);
+
+    DebugAssert(err == std::nullopt);
 }
+
 
 void evConnection::OnRecvEventDispatch(const bbt::buffer::Buffer& buffer, const util::errcode::ErrCode& err)
 {
@@ -336,7 +329,11 @@ int evConnection::AsyncSendInThread()
 
     auto weak_this = weak_from_this();
     auto connid = GetMemberId();
-    m_send_event = evEvent::Create([weak_this, connid, buffer](evutil_socket_t fd, short events, void* args){
+    m_send_event = evEvent::Create();
+
+    m_output_status = OutputStatus::Working;
+    
+    return io_ctx->RegisterEventSafe([weak_this, connid, buffer](evutil_socket_t fd, short events, void* args){
         auto share_this = std::static_pointer_cast<evConnection>(weak_this.lock());
         if(share_this == nullptr) {
             GAME_EXT1_LOG_ERROR("connection is destory, event can`t exec! sockfd=%d, connid=%d", fd, connid);
@@ -346,10 +343,6 @@ int evConnection::AsyncSendInThread()
         share_this->Send(buffer);
         share_this->OnSend(fd, events, args);
     }, GetSocket(), EV_WRITE, 5000);
-
-    m_output_status = OutputStatus::Working;
-    
-    return io_ctx->RegisterEventSafe(m_send_event);
 }
 
 

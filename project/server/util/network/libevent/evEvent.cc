@@ -8,7 +8,7 @@ namespace util::network::ev
 /**
  * 作为转发函数，对于 libevent 来说，将 C style函数转发到 C++ style
 */
-void _EventCallbackTransform(evutil_socket_t fd, short events, void* args)
+void OnEvent(evutil_socket_t fd, short events, void* args)
 {
     auto event = reinterpret_cast<evEvent*>(args);
     event->OnEvent(fd, events);
@@ -22,13 +22,27 @@ evEvent::evEvent(const EventCallback& cb, evutil_socket_t fd, short events, int 
 {
     DebugAssert(m_callback != nullptr);
     DebugAssert(m_events >= 0);
-    OnInit(target_interval_ms);
+
+    evutil_timerclear(&m_timeout);
+    if(target_interval_ms > 0){
+        m_timeout.tv_sec  = target_interval_ms / 1000;
+        m_timeout.tv_usec = (target_interval_ms % 1000) * 1000;
+    }
+    m_event_id = GenerateID();
 }
 
 
 evEvent::~evEvent()
 {
-    OnDestory();
+    // XXX 也许这里不需要释放
+    int err = UnRegister();
+    if (err >= 0) {
+        GAME_BASE_LOG_WARN("[evEvent::~evEvent] unresgiste failed");
+    }
+
+    event_free(m_event);
+    m_event = nullptr;
+    m_event_id = -1;
 }
 
 void evEvent::OnEvent(evutil_socket_t fd, short events)
@@ -37,7 +51,7 @@ void evEvent::OnEvent(evutil_socket_t fd, short events)
     m_callback(fd, events, nullptr);
 }
 
-int evEvent::RegisterInEvBase(event_base* base)
+int evEvent::Register(event_base* base)
 {
     int err = 0;
 
@@ -49,7 +63,7 @@ int evEvent::RegisterInEvBase(event_base* base)
         return -1;
     }
 
-    m_event = event_new(base, m_fd, m_events, _EventCallbackTransform, this);
+    m_event = event_new(base, m_fd, m_events, ev::OnEvent, this);
     DebugAssert(m_event != nullptr);
 
     if(m_event == nullptr) {
@@ -70,9 +84,8 @@ int evEvent::RegisterInEvBase(event_base* base)
 
 int evEvent::UnRegister()
 {
-    int err = 0;
-
     // XXX 也许这里会反复的释放
+    int err = 0;
     err = event_del(m_event);
     DebugAssert(err == 0);
 
@@ -83,34 +96,8 @@ int evEvent::UnRegister()
     return 0;
 }
 
-void evEvent::OnInit(int timeout)
-{
-    evutil_timerclear(&m_timeout);
-    if(timeout > 0){
-        m_timeout.tv_sec  = timeout / 1000;
-        m_timeout.tv_usec = (timeout % 1000) * 1000;
-    }
-    m_event_id = GenerateID();
-}
-
-void evEvent::OnDestory()
-{
-    // XXX 也许这里不需要释放
-    BBTATTR_COMM_Unused int err = UnRegister();
-    DebugAssert(err >= 0);
-    event_free(m_event);
-    m_event = nullptr;
-    m_event_id = -1;
-}
-
 EventId evEvent::GenerateID()
 {
-    /**
-     * 这样写的好处是，避免在类内声明静态变量。
-     * 
-     * 类内静态变量的初始化规则比较不好理解，需要初始化在源文件，
-     * 涉及到一些链接相关的知识需要理解。
-    */
     static std::atomic_int32_t global_id = 1;
     return global_id++;
 }
@@ -118,11 +105,6 @@ EventId evEvent::GenerateID()
 EventId evEvent::GetEventID() const
 {
     return m_event_id;
-}
-
-std::shared_ptr<evEvent> evEvent::Create(const EventCallback& cb, evutil_socket_t fd, short events, int timeout_interval_ms)
-{
-    return std::make_shared<evEvent>(cb, fd, events, timeout_interval_ms);
 }
 
 }// namespace end

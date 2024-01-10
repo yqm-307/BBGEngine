@@ -100,7 +100,6 @@ private:
 
     /* IO事件初始化 */
     void InitEvent();
-    void InitEventArgs();
     evConnectionSPtr SPtr();
     size_t AppendOutput(const char* buf, size_t len);
 private:
@@ -147,32 +146,32 @@ private:
     };
 private:
 
-    evIOThreadWKPtr   m_io_thread;
+    evIOThreadWKPtr             m_io_thread;
     std::shared_ptr<evEvent>    m_recv_event{nullptr};      // 接收事件    
     std::shared_ptr<evEvent>    m_socket_timeout{nullptr};      // 接收事件    
     std::shared_ptr<evEvent>    m_send_event{nullptr};      // 发送事件
 
     //-------------------- IO缓存 -------------------//
-    bbt::buffer::Buffer     m_input_buffer;
-    bbt::buffer::Buffer     m_output_buffer;
-    OutputStatus            m_output_status{OutputStatus::Free};
+    bbt::buffer::Buffer         m_input_buffer;
+    bbt::buffer::Buffer         m_output_buffer;
+    OutputStatus                m_output_status{OutputStatus::Free};
     bbt::thread::lock::Mutex    m_output_mutex;
-    size_t                  m_output_prev_size{0};      // 上次发送数据的长度
+    size_t                      m_output_prev_size{0};      // 上次发送数据的长度
 
     /** 
      * 上次接收到心跳包的时间戳，默认为连接建立的时间。 
      * 
-     * @yqm-307 关于线程安全，这个值在创建时是被认为只在多线程读取
+     * 关于线程安全，这个值在创建时是被认为只在多线程读取
      * ，不会多线程进行写操作。并且心跳对于线程之间的低概率
      * 延迟是不关心的，误差及其小。
      */
     bbt::timer::clock::Timestamp<bbt::timer::clock::ms>    
-                m_prev_heart_beat_time;
+                                m_prev_heart_beat_time;
 
-    OnRecvCallback      m_onrecv{nullptr};
-    OnSendCallback      m_onsend{nullptr};
-    OnTimeOutCallback   m_timeout_cb{nullptr};
-    OnCloseCallback     m_onclose{nullptr};
+    OnRecvCallback              m_onrecv{nullptr};
+    OnSendCallback              m_onsend{nullptr};
+    OnTimeOutCallback           m_timeout_cb{nullptr};
+    OnCloseCallback             m_onclose{nullptr};
 };
 }
 

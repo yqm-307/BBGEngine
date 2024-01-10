@@ -4,13 +4,13 @@
 #include "util/network/Connection.hpp"
 #include "util/errcode/ErrCode.hpp"
 #include "util/network/libevent/evConnection.hpp"
+#include "util/network/INetwork.hpp"
 
 
 namespace util::network
 {
 
 /* 因为本身 OnRecv 函数带状态，所以只能用全局的void(void*)来包裹 */
-
 void OnConnectCallback(evutil_socket_t sockfd, short events, void* args);
 
 void OnAcceptCallback(evutil_socket_t sockfd, short events, void* args);
@@ -32,4 +32,11 @@ int SetFdReUseAddr(int fd) BBTATTR_FUNC_RetVal;
 
 void OnHeartBeatCallback(evutil_socket_t sockfd, short events, void* args);
 
+class evNetCallback:
+    public INetCallback
+{
+public:
+    util::network::ev::evIOThreadSPtr OnLoadBlance();
+    
+};
 }

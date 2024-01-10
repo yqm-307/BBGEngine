@@ -1,3 +1,9 @@
+#include <string>
+#include "evNetwork.hpp"
+
+namespace util::network::ev
+{
+
 #include "share/ecs/network/entity/Network.hpp"
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "share/ecs/Define.hpp"
@@ -24,8 +30,9 @@ void Network::OnFixUpdate(int index)
 void Network::RegistFixUpdate(int index)
 {
     auto weak_this = weak_from_this();
+    auto event = util::network::ev::evEvent::Create();
 
-    auto [err, eventid] = m_io_threads[index]->RegisterEventSafe([weak_this, index](evutil_socket_t fd, short event, void* args){
+    auto err = m_io_threads[index]->RegisterEventSafe([weak_this, index](evutil_socket_t fd, short event, void* args){
         auto shared_this = std::static_pointer_cast<Network>(weak_this.lock());
         if(shared_this == nullptr){
             GAME_EXT1_LOG_ERROR("io thread fix update function, exec failed! sockfd=%d event=%d", fd, event);
@@ -34,9 +41,8 @@ void Network::RegistFixUpdate(int index)
 
         shared_this->OnFixUpdate(index);
     }, -1, EV_PERSIST, 50);
-
-    if(err != std::nullopt) {
-        GAME_EXT1_LOG_ERROR("thread regist evEvent failed! eventid=%d", eventid);
+    if(err < 0) {
+        GAME_EXT1_LOG_ERROR("thread regist evEvent failed! eventid=%d", event->GetEventID());
     }
 }
 
@@ -241,3 +247,5 @@ void Network::OnDestoryEventBase(event_base* base)
 #pragma endregion
 
 }// namespace end
+
+}
