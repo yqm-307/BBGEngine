@@ -20,7 +20,9 @@ class ErrCode:
     typedef bbt::errcode::Errcode<ErrTypePair> BaseClassType;
 public:
 
-    explicit ErrCode(const std::string& err_info,ErrType errtype,int errcode);
+    explicit ErrCode(const std::string& err_info,
+                    ErrType errtype = ErrType::Common,
+                    int errcode = errenum::MODULE_COMMON::Failed);
 
     ErrCode();
     void SetInfo(const std::string& errinfo);

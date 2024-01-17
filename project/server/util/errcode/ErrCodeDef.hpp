@@ -10,6 +10,7 @@ namespace util::errcode
 enum ErrType
 {
     Nothing = 1,
+    Common = 2,
     NetWorkErr = 100,   // 网络err
 };
 
@@ -17,11 +18,21 @@ enum ErrType
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 namespace errenum { 
+
+enum MODULE_COMMON
+{
+    Failed = 1,
+    Success = 2,
+};
+
 enum MODULE_NETWORK
 {
     Default                         = 0,    // 未知，如果遇到，需要确定err原因并完善err枚举表
     TimeOut                         = 1,    // 操作超时
-    //--------- network recv ---------//     
+    Failed                          = 2,    // 通用。失败通知
+
+    //--------- socket ---------//     
+    Socket_BadFd                    = 101,  // 错误的socket fd
 
     //--------- network recv ---------//     
     Recv_Success                    = 2000, // 读取成功
@@ -33,6 +44,10 @@ enum MODULE_NETWORK
 
     //--------- event ---------//     
     Event_Register_Failed           = 2101, // 事件注册失败
+
+    //--------- network accept ---------//     
+    Accept_TryAgain                 = 2151, // 重试一次
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

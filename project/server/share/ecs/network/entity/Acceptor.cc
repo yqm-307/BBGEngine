@@ -79,7 +79,7 @@ int Acceptor::DoAccept()
     return -1;
 }
 
-int Acceptor::Stop()
+errcode::ErrOpt Acceptor::Stop()
 {
     /* 注销事件，并释放资源 */
     auto thread = m_master_thread.lock();

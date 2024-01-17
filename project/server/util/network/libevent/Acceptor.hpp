@@ -19,19 +19,20 @@ public:
     Acceptor(evIOThreadWKPtr io_thread);
     ~Acceptor();
 
+    /* 在指定端口上开启监听器 */
     errcode::ErrOpt     Listen(std::string ip, short port);
-    int                 Stop();
-    int                 Accept();
+    /* 停止监听器 */
+    errcode::ErrOpt     Stop();
 
+    /* 设置连接回调。启动前需设置网络事件的回调 */
     void                SetNetCallback(evNetCallback* callback);
+    /* 执行连接处理 */
+    std::pair<errcode::ErrOpt, int> Accept();
 
     /* 获取监听地址 */
     const Address&      GetAddress() const;
-    short               Port() const;
 private:
     evutil_socket_t     m_listen_fd{-1};
-    std::string         m_listen_ip{""};
-    short               m_listen_port{-1};
     evEventSPtr         m_event{nullptr};
     Address             m_listen_addr;
     int                 m_accept_once_timeval{50};  //TODO 配置文件
