@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/config/GlobalConfig.hpp>
+#include <bbt/base/config/GlobalConfig.hpp>
 
 
 namespace util::config

@@ -1,9 +1,9 @@
 #pragma once
 #include "util/network/libevent/evIOCallbacks.hpp"
 #include "util/network/IOThread.hpp"
-#include <bbt/timer/Clock.hpp>
-#include <bbt/buffer/Buffer.hpp>
-#include <bbt/poolutil/IDPool.hpp>
+#include <bbt/base/timer/Clock.hpp>
+#include <bbt/base/buffer/Buffer.hpp>
+#include <bbt/base/poolutil/IDPool.hpp>
 #include <map>
 
 namespace util::network

@@ -3,8 +3,8 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "util/testhelper/Helper.hpp"
-#include <bbt/random/Random.hpp>
-#include <bbt/uuid/EasyID.hpp>
+#include <bbt/base/random/Random.hpp>
+#include <bbt/base/uuid/EasyID.hpp>
 
 #define INIT_SAMPLE(v, t) util::test::TestSample<t>{.m_sample = v,.m_sample_id = v}
 

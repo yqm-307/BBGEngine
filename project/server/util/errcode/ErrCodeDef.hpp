@@ -1,6 +1,6 @@
 #pragma once
 #include <cstring>
-#include <bbt/errcode/Errcode.hpp>
+#include <bbt/base/errcode/Errcode.hpp>
 
 namespace util::errcode
 {

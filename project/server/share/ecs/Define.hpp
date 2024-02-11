@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/Attribute.hpp>
+#include <bbt/base/Attribute.hpp>
 #include "engine/ecs/component/ComponentMgr.hpp"
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 

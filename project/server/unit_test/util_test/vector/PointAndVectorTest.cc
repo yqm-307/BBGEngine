@@ -2,7 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
-#include <bbt/random/Random.hpp>
+#include <bbt/base/random/Random.hpp>
 #include "util/vector/CalcOpt.hpp"
 #include "util/testhelper/Helper.hpp"
 

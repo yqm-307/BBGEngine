@@ -1,8 +1,8 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/included/unit_test.hpp>
 #include <thread>
-#include <bbt/random/Random.hpp>
-#include <bbt/timer/Interval.hpp>
+#include <bbt/base/random/Random.hpp>
+#include <bbt/base/timer/Interval.hpp>
 #include "util/lockfree/LockFreeQueue.hpp"
 
 BOOST_AUTO_TEST_SUITE(LockFreeTest)

@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/Logger/Logger.hpp>
+#include <bbt/base/Logger/Logger.hpp>
 
 /**
  *  Debug log 和 Release log 的区别

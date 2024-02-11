@@ -1,6 +1,6 @@
 #pragma once
 #include "util/assert/Assert.hpp"
-#include <bbt/templateutil/Noncopyable.hpp>
+#include <bbt/base/templateutil/Noncopyable.hpp>
 #include <map>
 
 /* 标识类被 managerbase 管理 */

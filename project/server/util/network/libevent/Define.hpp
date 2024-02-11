@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 #include <event2/event.h>
-#include <bbt/Attribute.hpp>
+#include <bbt/base/Attribute.hpp>
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 #include "util/typedef/NamespaceType.hpp"

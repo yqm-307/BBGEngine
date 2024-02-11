@@ -2,7 +2,7 @@
 #include <memory>
 #include "util/typedef/NamespaceType.hpp"
 #include "util/managerbase/ManagerBase.hpp"
-#include <bbt/uuid/EasyID.hpp>
+#include <bbt/base/uuid/EasyID.hpp>
 
 #pragma region "==> 宏声明 <=="
 

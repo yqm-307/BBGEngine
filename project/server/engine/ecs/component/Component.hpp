@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <bbt/templateutil/BaseType.hpp>
+#include <bbt/base/templateutil/BaseType.hpp>
 #include "./ComponentMgr.hpp"
 
 namespace engine::ecs

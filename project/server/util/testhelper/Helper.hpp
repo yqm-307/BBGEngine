@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_set>
 
-#include <bbt/uuid/EasyID.hpp>
+#include <bbt/base/uuid/EasyID.hpp>
 
 namespace util::test
 {

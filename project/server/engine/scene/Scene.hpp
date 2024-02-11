@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/templateutil/Noncopyable.hpp>
+#include <bbt/base/templateutil/Noncopyable.hpp>
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/hashmap/Hashmap.hpp"
 

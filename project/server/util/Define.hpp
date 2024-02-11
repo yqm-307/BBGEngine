@@ -10,7 +10,7 @@
  * 
  */
 #pragma once
-#include <bbt/Attribute.hpp>
+#include <bbt/base/Attribute.hpp>
 
 
 #define FLOAT_EQUAL_DIFF_VALUE      0.00001f

@@ -1,8 +1,8 @@
 #pragma once
 #include <event2/event.h>
 #include <string>
-#include <bbt/thread/Lock.hpp>
-#include <bbt/Attribute.hpp>
+#include <bbt/base/thread/Lock.hpp>
+#include <bbt/base/Attribute.hpp>
 #include "util/network/libevent/evIOThread.hpp"
 #include "share/ecs/network/entity/Acceptor.hpp"
 #include "engine/ecs/gameobject/GameObject.hpp"

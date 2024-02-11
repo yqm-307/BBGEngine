@@ -1,7 +1,7 @@
 #pragma once
 #include "Helper.hpp"
 #include "util/assert/Assert.hpp"
-#include <bbt/Logger/Logger.hpp>
+#include <bbt/base/Logger/Logger.hpp>
 
 namespace util::test
 {

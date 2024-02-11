@@ -6,9 +6,9 @@
 #include "util/network/libevent/evEvent.hpp"
 #include "util/network/libevent/evConnMgr.hpp"
 #include "util/errcode/ErrCode.hpp"
-#include <bbt/buffer/Buffer.hpp>
-#include <bbt/timer/Clock.hpp>
-#include <bbt/thread/Lock.hpp>
+#include <bbt/base/buffer/Buffer.hpp>
+#include <bbt/base/timer/Clock.hpp>
+#include <bbt/base/thread/Lock.hpp>
 
 /**
  * @brief libevent实现

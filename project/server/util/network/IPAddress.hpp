@@ -1,6 +1,6 @@
 #pragma once
-#include <bbt/net/IPAddress.hpp>
-#include <bbt/Attribute.hpp>
+#include <bbt/base/net/IPAddress.hpp>
+#include <bbt/base/Attribute.hpp>
 
 namespace util::network
 {

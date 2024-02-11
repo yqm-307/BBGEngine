@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "bbt/uuid/EasyID.hpp"
+#include <bbt/base/uuid/EasyID.hpp>
 #include "util/managerbase/ManagerBase.hpp"
 
 namespace util::network

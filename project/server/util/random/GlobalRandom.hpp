@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/random/Random.hpp>
+#include <bbt/base/random/Random.hpp>
 #include "util/log/Log.hpp"
 
 namespace util
