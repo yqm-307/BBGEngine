@@ -22,7 +22,11 @@ include_directories(
     
 # c++待编译的源文件
 file(GLOB_RECURSE SRC_FILE
-    ${PROJECT_SOURCE_DIR}/share/*.cc
+    ${PROJECT_SOURCE_DIR}/share/ecs/aoi/*.cc
+    ${PROJECT_SOURCE_DIR}/share/ecs/gameobject/*.cc
+    ${PROJECT_SOURCE_DIR}/share/ecs/testobj/*.cc
+    ${PROJECT_SOURCE_DIR}/share/ecs/testobj/*.cc
+    ${PROJECT_SOURCE_DIR}/share/scene/*.cc
     ${PROJECT_SOURCE_DIR}/engine/*.cc
     ${PROJECT_SOURCE_DIR}/util/*.cc
     # ${PROJECT_SOURCE_DIR}/unit_test/*.cc

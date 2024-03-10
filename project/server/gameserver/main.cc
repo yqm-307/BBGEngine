@@ -2,6 +2,7 @@
 #include "share/ecs/network/entity/Network.hpp"
 #include "gameserver/scene/GameServerScene.hpp"
 #include "util/random/GlobalRandom.hpp"
+#include <bbt/network/Define.hpp>
 
 
 
@@ -43,13 +44,19 @@ void ConfigLoad()
     G_SetConfigPtr(util::config::AoiConfig, aoi_cfg, util::config::GameConfigType::Cfg_Aoi);
 }
 
+void LibeventInit()
+{
+    bbt::network::GlobalInit();
+}
+
 int main()
 {
     // 加载全局配置
     ConfigLoad();
     // 设置随机数种子
     RandomSeedInit();
-
+    // libevent 初始化
+    LibeventInit();
     // pid 文件
     PidFile();
     // 数据库连接初始化

@@ -1,8 +1,9 @@
 #include "gameserver/scene/GameServerScene.hpp"
 #include "gameserver/init/LoadConfig.hpp"
-#include "share/ecs/network/entity/Network.hpp"
+#include "share/ecs/network/NetworkSystem.hpp"
 #include "share/ecs/gameobject/GameObject.hpp"
 #include "share/ecs/aoi/AoiComponent.hpp"
+#include "share/ecs/network/NetworkComponent.hpp"
 #include "util/log/Log.hpp"
 #include <signal.h>
 
@@ -117,10 +118,11 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
 
     GAME_BASE_LOG_INFO("gameserver! IP: %s  Port: %d", ip.c_str(), port);
 
-    auto network_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::entity::network::Network>(ip, port);
+    auto network_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
+    network_obj->AddComponent(G_ComponentMgr()->Create<share::ecs::network::NetworkComponent>());
+    Assert(share::ecs::network::NetworkSystem::GetInstance()->InitNetwork(network_obj, ip.c_str(), port));
 
     return network_obj;
-    // module_network = new server::network::Network(ip, port);
 }
 
 void GameServerScene::OnDestory()
@@ -137,11 +139,9 @@ void GameServerScene::OnDestory()
 void GameServerScene::StartScene()
 {
     auto [obj, isok] = GetGameobjectById(m_network_id);
-    DebugAssert(isok);
-    auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
-    /* 阻塞等待网络层启动 */
-    isok = network_ptr->SyncStart();
-    DebugAssertWithInfo(isok, "SyncStart() is not reentrant!");
+    DebugAssertWithInfo(isok, "can`t found netowrk object!");
+
+    share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
     event_base_dispatch(m_ev_base);
 }
 
@@ -175,9 +175,9 @@ void GameServerScene::IOThreadExit()
 {
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
-    auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
-    GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exitting!");
-    network_ptr->SyncStop();
+
+    // auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
+    share::ecs::network::NetworkSystem::GetInstance()->StopNetwork(obj);
     GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 

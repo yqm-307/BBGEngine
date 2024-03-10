@@ -44,10 +44,11 @@ add_executable(gameserver
 # 为可执行程序添加链接库
 target_link_libraries(gameserver
     event_core
-    pthread
+    event_pthreads
+    bbt_network
     ybbt
     inih
     protobuf
-    tcmalloc
+    # tcmalloc
     dl
 )
