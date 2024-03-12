@@ -1,8 +1,6 @@
 #pragma once
 #include <bbt/network/adapter/libevent/EventLoop.hpp>
 #include "engine/scene/Scene.hpp"
-// 游戏对象
-#include "share/ecs/network/entity/Network.hpp"
 
 /**
  * 关于游戏场景的理解
@@ -25,7 +23,6 @@
 namespace server::scene
 {
 
-void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg);
 const int GameSceneFrame = 20;  // 服务端游戏场景每秒20帧
 
 /**
@@ -36,7 +33,6 @@ class GameServerScene:
     public engine::scene::Scene
 {
     typedef engine::ecs::GameObjectSPtr    GameObjectSPtr;
-    friend void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg);
 public:
     GameServerScene();
     ~GameServerScene();
@@ -67,14 +63,10 @@ private:
     std::shared_ptr<bbt::network::libevent::EventLoop>      m_loop{nullptr};
     std::shared_ptr<bbt::network::libevent::Event>          m_update_event;
     std::shared_ptr<bbt::network::libevent::Event>          m_signal_sigint_handle;
-    // event_base*     m_ev_base;
-    // event*          m_update_event;     // 场景update函数
-    // event*          m_signal_sigint;    // SIGINT 信号捕获处理
+    volatile bool                                           m_is_stop{false};          // 是否停止            
 
-    volatile bool   m_is_stop{false};          // 是否停止            
-
-    engine::ecs::GameObjectId   m_aoi_id;
-    engine::ecs::GameObjectId   m_network_id;
+    engine::ecs::GameObjectId                               m_aoi_id;
+    engine::ecs::GameObjectId                               m_network_id;
 };
 
 } // namespace end

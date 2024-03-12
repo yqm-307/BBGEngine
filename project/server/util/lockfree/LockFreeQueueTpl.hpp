@@ -14,41 +14,37 @@ Queue<T, size>::Queue()
 template <typename T, size_t size> 
 bool Queue<T, size>::Push(const T &element) 
 {
-    /* 已经写了多少个了 */
-    size_t current_count = m_write_count.load(std::memory_order_relaxed);
+    /* 原子的获得已经写的对象总个数 */
+    size_t total_write_count = m_write_count.load(std::memory_order_relaxed);
 
     while (true) {
-        /* 计算循环数组的下标 */
-        const size_t index = current_count % size;
-        /* 获取该槽的push计数，后面对这个值还有修改，需要保证不会吧重排 */
+        /* 此轮我们写入的数组下标 */
+        const size_t index = total_write_count % size;
         const size_t slot_push_count = m_data[index].push_count.load(std::memory_order_acquire);
-        /* 获取该槽的pop计数，在push操作中，只读所以保证原子性即可 */
         const size_t slot_pop_count = m_data[index].pop_count.load(std::memory_order_relaxed);
 
-        /* 首次确认当前槽的插入合法性，对于每个槽，push操作一定小于等于pop操作次数 */
+        /* 说明这个下标不可以写 */
         if (slot_push_count > slot_pop_count) 
             return false;
 
-        /* 已经循环圈数 */ 
-        const size_t revolution_count = current_count / size;
-        /* 再次确认这个槽的插入合法性 */ 
-        const bool our_turn = revolution_count == slot_push_count;
+        /* 是否已经被写过了 */ 
+        const size_t revolution_count = total_write_count / size;
+        const bool is_our_turn = revolution_count == slot_push_count;
 
-        if (our_turn) 
+        if (is_our_turn) 
         {
-            /* 通过竞争获得写入的权限，保证原子性即可 */
-            if (m_write_count.compare_exchange_weak(current_count, current_count + 1U, std::memory_order_relaxed)) 
+            /* 轮到我们去写对象 */
+            if (m_write_count.compare_exchange_weak(total_write_count, total_write_count + 1U, std::memory_order_relaxed)) 
             {
-                /* 内部是安全的操作，因为获得了第 m_write_count 位的写入权限，其他人需要竞争后面的位置 */
-                m_data[index].val = element;
-                /* 使用 memory_order_release 是因为，作为最终的标志结束的标志位。不允许重排到前面 */
+                m_data[index].obj = element;
                 m_data[index].push_count.store(slot_push_count + 1U, std::memory_order_release);
                 return true;
             }
         } 
         else 
         {
-            current_count = m_write_count.load(std::memory_order_relaxed);
+            /* 我们去取下一个 */
+            total_write_count = m_write_count.load(std::memory_order_relaxed);
         }
     }
 }
@@ -56,34 +52,40 @@ bool Queue<T, size>::Push(const T &element)
 template <typename T, size_t size> 
 bool Queue<T, size>::Pop(T &element) 
 {
-    /* 读保证原子性即可 */
-    size_t r_count = m_read_count.load(std::memory_order_relaxed);
+    /* 原子的获得已经读取的对象数量 */
+    size_t total_read_count = m_read_count.load(std::memory_order_relaxed);
 
     while (true) 
     {
-        const size_t index = r_count % size;
-        /* 有修改，保证可见性，防止重排 */
-        const size_t pop_count = m_data[index].pop_count.load(std::memory_order_acquire);
-        const size_t push_count = m_data[index].push_count.load(std::memory_order_relaxed);
+        /* 此轮读取的值早数组中的下标 */
+        const size_t will_read_index = total_read_count % size;
+        const size_t pop_count = m_data[will_read_index].pop_count.load(std::memory_order_acquire);
+        const size_t push_count = m_data[will_read_index].push_count.load(std::memory_order_relaxed);
 
+        /* 说明此slot没有可读对象 */
         if (pop_count == push_count) 
             return false;
 
-        const size_t revolution_count = r_count / size;
-        const bool our_turn = revolution_count == pop_count;
+        /** 
+         * 如果 已经循环的次数 == 该槽pop次数 为真，说明这个值被其他线程读完了。
+         * 我们更新已读下标，当前调用改为去取下一个对象
+         */
+        const size_t revolution_count = total_read_count / size;
+        const bool is_our_turn = revolution_count == pop_count;
 
-        if (our_turn) 
+        if (is_our_turn) 
         {
-            /* 通过竞争获得读取的权限，保证原子性即可 */
-            if (m_read_count.compare_exchange_weak(r_count, r_count + 1U, std::memory_order_relaxed)) 
+            /* 轮到我们去取对象 */
+            if (m_read_count.compare_exchange_weak(total_read_count, total_read_count + 1U, std::memory_order_relaxed)) 
             {
-                element = m_data[index].val;
-                m_data[index].pop_count.store(pop_count + 1U, std::memory_order_release);
+                element = m_data[will_read_index].obj;
+                m_data[will_read_index].pop_count.store(pop_count + 1U, std::memory_order_release);
                 return true;
             }
         } 
         else 
-            r_count = m_read_count.load(std::memory_order_relaxed);
+            /* 取下一个对象 */
+            total_read_count = m_read_count.load(std::memory_order_relaxed);
     }
 }
 

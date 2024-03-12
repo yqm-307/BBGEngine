@@ -45,17 +45,17 @@ public:
 
 private:
     struct Slot {
-        T val;
-        std::atomic_size_t pop_count;
-        std::atomic_size_t push_count;
+        T obj;
+        std::atomic_size_t pop_count;   // 当前槽已经pop的次数
+        std::atomic_size_t push_count;  // 当前槽已经push的次数
 
         Slot() : pop_count(0U), push_count(0U) {}
     };
 
 private:
     std::vector<Slot> m_data;
-    std::atomic_size_t m_read_count;
-    std::atomic_size_t m_write_count;
+    std::atomic_size_t m_read_count;    // 已经读的总数，取余可获得index
+    std::atomic_size_t m_write_count;   // 已经写的总数，取余可活动index
 };
 
 }
