@@ -7,7 +7,7 @@ namespace engine::ecs
 {
 
 class Component:
-    public util::managerbase::MemberBase<ComponentId, Component>
+    public bbt::templateutil::MemberBase<ComponentId, Component>
 {
     friend class GameObject;
 public:

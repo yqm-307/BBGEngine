@@ -9,15 +9,16 @@ namespace engine::ecs
 {
 
 class GameObjectMgr final:
-    public util::managerbase::ManagerBase<GameObjectId, GameObject>
+    public bbt::templateutil::ManagerBase<GameObjectId, GameObject>
 {
     typedef std::tuple<std::string, GameObjectTemplateId> GameObjectInfo; 
+    typedef std::pair<MemberPtr, bool> Result; 
 public:
     ~GameObjectMgr();
     static const std::unique_ptr<GameObjectMgr>& GetInstance();
 
-    virtual Result      Search(KeyType key) override;
-    virtual bool        IsExist(KeyType key) override;
+    virtual Result      Search(KeyType key);
+    virtual bool        IsExist(KeyType key);
     std::string  GetName(GameObjectTemplateId tid) const;        
 
     bool InitTemplateInfo(std::initializer_list<GameObjectInfo> list);

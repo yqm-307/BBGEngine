@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
+#include <bbt/base/templateutil/managerconn/ManagerBase.hpp>
 #include "util/typedef/NamespaceType.hpp"
-#include "util/managerbase/ManagerBase.hpp"
 #include <bbt/base/uuid/EasyID.hpp>
 
 #pragma region "==> 宏声明 <=="
@@ -9,10 +9,10 @@
 #define Managed
 
 #define GameObjectDeriveClassDef \
-    FlagManagedByManagerBase(engine::ecs::GameObjectId, engine::ecs::GameObject)
+    BBTManagerFriendFlag(engine::ecs::GameObjectId, engine::ecs::GameObject)
 
 #define ComponentDeriveClassDef \
-    FlagManagedByManagerBase(engine::ecs::ComponentId, engine::ecs::Component)
+    BBTManagerFriendFlag(engine::ecs::ComponentId, engine::ecs::Component)
 
 #define G_ComponentMgr \
     engine::ecs::ComponentMgr::GetInstance
