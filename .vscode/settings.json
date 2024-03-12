@@ -5,7 +5,7 @@
         "${workspaceRoot}/project/server"
     ],
     "cmake.sourceDirectory": "${workspaceFolder}/project/server",
-    "C_Cpp.default.compilerPath": "/usr/bin/g++-11",
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
     "C_Cpp.dimInactiveRegions": true,
     "cmake.buildDirectory": "${workspaceFolder}/project/server/build",
     "C_Cpp.errorSquiggles": "enabled",

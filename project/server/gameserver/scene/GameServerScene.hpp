@@ -1,5 +1,5 @@
 #pragma once
-#include <event2/event.h>
+#include <bbt/network/adapter/libevent/EventLoop.hpp>
 #include "engine/scene/Scene.hpp"
 // 游戏对象
 #include "share/ecs/network/entity/Network.hpp"
@@ -64,9 +64,12 @@ private:
     // void OnSceneEmpty();
     void OnStopScene();
 private:
-    event_base*     m_ev_base;
-    event*          m_update_event;     // 场景update函数
-    event*          m_signal_sigint;    // SIGINT 信号捕获处理
+    std::shared_ptr<bbt::network::libevent::EventLoop>      m_loop{nullptr};
+    std::shared_ptr<bbt::network::libevent::Event>          m_update_event;
+    std::shared_ptr<bbt::network::libevent::Event>          m_signal_sigint_handle;
+    // event_base*     m_ev_base;
+    // event*          m_update_event;     // 场景update函数
+    // event*          m_signal_sigint;    // SIGINT 信号捕获处理
 
     volatile bool   m_is_stop{false};          // 是否停止            
 

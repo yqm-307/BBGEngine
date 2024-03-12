@@ -39,53 +39,33 @@ void GameServerScene::OnUpdate()
     }
 }
 
-#pragma region "事件函数"
-
-void EventUpdate(evutil_socket_t,short,void* arg)
-{
-    /* 优雅关闭， */
-    auto pthis = (GameServerScene*)arg;
-    pthis->Update();
-}
-
-// SIGINT 信号
-void EventSignal_Sigint(evutil_socket_t fd, short events, void* arg)
-{
-    GAME_BASE_LOG_INFO("[EventSignal_Sigint] signal handle recv SIGINT , events=%d", events);
-    auto pthis = (GameServerScene*)arg;
-    
-    /* 下达停止循环的指令 */
-    pthis->StopScene();
-}
-
-#pragma endregion
-
 #pragma region "内部函数"
-
-
 
 void GameServerScene::OnCreate()
 {
+    using namespace bbt::network;
 
-
-    m_ev_base = event_base_new();
+    m_loop = std::make_shared<bbt::network::libevent::EventLoop>();
     {// scene update 事件注册
-        timeval tv;
-        evutil_timerclear(&tv);
-        tv.tv_usec = GameSceneFrame * 1000;
-        /* 随意的暴露this，这不是一个很好的做法。todo：寻求更好的兼容C风格Api的方式 */
-        m_update_event = event_new(m_ev_base, -1, EV_PERSIST, EventUpdate, this);
-        Assert(m_update_event != nullptr);
-        Assert(event_add(m_update_event, &tv) == 0);
+        m_update_event = m_loop->CreateEvent(-1, libevent::EventOpt::PERSIST, [this](auto, short events){
+            this->Update();
+        });
+
+        auto err = m_update_event->StartListen(1000 / GameSceneFrame);
+        if (!err)
+            GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist scene update, %s\n", err.CWhat());
     }
 
     {// SIGINT 信号事件注册
-        m_signal_sigint = evsignal_new(m_ev_base, SIGINT, EventSignal_Sigint, this);
-        Assert(m_signal_sigint != nullptr);
-        Assert(event_add(m_signal_sigint, NULL) == 0);
+        m_signal_sigint_handle = m_loop->CreateEvent(SIGINT, libevent::EventOpt::SIGNAL, [this](auto, short){
+            this->StopScene();
+        });
+        auto err = m_signal_sigint_handle->StartListen(0);
+        if (!err)
+            GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist signal SIGNAL, %s\n", err.CWhat());
     }
 
-    {
+    {// Aoi
         auto aoi = AoiInit();
         bool isok = MountGameObject(aoi);
         DebugAssert(isok);
@@ -127,13 +107,9 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
 
 void GameServerScene::OnDestory()
 {
-    event_free(m_update_event);
-    event_free(m_signal_sigint);
-    event_base_free(m_ev_base);
-
-    m_ev_base = nullptr;
+    m_loop = nullptr;
     m_update_event = nullptr;
-    m_signal_sigint = nullptr;
+    m_signal_sigint_handle = nullptr;
 }
 
 void GameServerScene::StartScene()
@@ -142,7 +118,7 @@ void GameServerScene::StartScene()
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
     share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
-    event_base_dispatch(m_ev_base);
+    m_loop->StartLoop(bbt::network::libevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
 }
 
 void GameServerScene::StopScene()
@@ -165,7 +141,7 @@ void GameServerScene::OnStopScene()
 
     // 循环延时退出
     {
-        event_base_loopbreak(m_ev_base);
+        m_loop->BreakLoop();
     }
     BBT_BASE_LOG_INFO("[GameServerScene::OnStopScene] exit loop!");
 
