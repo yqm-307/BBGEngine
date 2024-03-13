@@ -16,38 +16,27 @@ public:
     typedef std::tuple<std::string, ComponentTemplateId> ComponentInfo;
 
     ~ComponentMgr();
-    static const std::unique_ptr<ComponentMgr>& GetInstance();
-
-    const std::string& GetComponentName(ComponentTemplateId id);
-
-    virtual Result Search(KeyType key);
-    virtual bool IsExist(KeyType key);
+    static const std::unique_ptr<ComponentMgr>& 
+                        GetInstance();
+    const std::string&  GetComponentName(ComponentTemplateId id);
+    virtual Result      Search(KeyType key);
+    virtual bool        IsExist(KeyType key);
 public:
-    // Component模板管理
-
-    /**
-     * @brief 初始化所有模板的信息
-     * 
-     * @param list 初始化列表
-     * @return true 
-     * @return false 已经初始化过了，不可以重复初始化
-     */
-    bool InitTemplateInfo(std::initializer_list<ComponentInfo> list);
-
-
+    bool                InitTemplateInfo(std::initializer_list<ComponentInfo> list);
 protected:
     ComponentMgr();
 
-    // override ManagerBase 
-    virtual bool OnMemberCreate(MemberPtr member_base) override;
-
-    virtual bool OnMemberDestory(KeyType key) override;
-
-    virtual KeyType GenerateKey(MemberPtr member_base) override;
+    virtual bool        OnMemberCreate(MemberPtr member_base) override;
+    virtual bool        OnMemberDestory(KeyType key) override;
+    virtual KeyType     GenerateKey(MemberPtr member_base) override;
 
 private:
-    util::hashmap::Hashmap<ComponentTemplateId, ComponentInfo, ComponentHashBucketNum> m_component_info_map;
-    std::map<ComponentId, ComponentWKPtr>    m_component_map;
+    /* 组件信息表 */
+    util::hashmap::Hashmap<ComponentTemplateId, ComponentInfo, ComponentHashBucketNum> 
+                        m_component_info_map;
+    /* 全局组件表 */
+    std::map<ComponentId, ComponentWKPtr>
+                        m_component_map;
 };
 
 }

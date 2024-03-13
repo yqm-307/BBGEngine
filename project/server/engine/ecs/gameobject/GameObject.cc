@@ -1,3 +1,4 @@
+#include <typeinfo>
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
@@ -10,22 +11,11 @@ GameObject::GameObject(int gobj_type)
     :m_gobj_type(gobj_type)
 {
     AssertWithInfo( gobj_type >= 0, "game object type error");
-    OnCreate();
 }
 
 GameObject::~GameObject()
 {
-    OnDestory();
 }
-
-void GameObject::OnCreate()
-{
-}
-
-void GameObject::OnDestory()
-{
-}
-
 
 ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid)
 {
