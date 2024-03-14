@@ -4,12 +4,15 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceRoot}/project/server",
+                "${workspaceFolder}/project/src/server",
+                "${workspaceFolder}/project/src/common",
                 "/usr/local/include/**",
                 "/usr/include/**"
             ],
             "defines": [],
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "cStandard": "c99",
+            "cppStandard": "c++17"
         }
     ],
     "version": 4

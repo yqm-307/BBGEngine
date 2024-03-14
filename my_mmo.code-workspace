@@ -128,6 +128,13 @@
 			"[x]": {
 				"icon": "issue-closed"
 			}
-		}
+		},
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.default.cStandard": "c99",
+		"C_Cpp.default.includePath": [
+			"${default}",
+			"${workspaceFolder}/project/src/common",
+			"${workspaceFolder}/project/src/server"
+		]
 	},
 }
