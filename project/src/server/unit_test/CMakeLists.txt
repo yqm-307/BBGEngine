@@ -12,21 +12,19 @@ add_definitions(-DDebug)
 
 # include目录
 include_directories(
-    ${PROJECT_SOURCE_DIR}/../common          # util、share等库
-    ${PROJECT_SOURCE_DIR}/../share         # util、share等库
-    ${PROJECT_SOURCE_DIR}               # gs源文件
+    ${PROJECT_SOURCE_DIR}/common                # util、share等库
+    ${PROJECT_SOURCE_DIR}/share                 # util、share等库
+    ${PROJECT_SOURCE_DIR}/server                # gs源文件
     ${THIRD_PARTY_INCLUDE_PATH}
 )
 
 # c++待编译的源文件
 file(GLOB_RECURSE SRC_FILE
-    ${PROJECT_SOURCE_DIR}/share/ecs/aoi/*.cc
-    ${PROJECT_SOURCE_DIR}/share/ecs/gameobject/*.cc
-    ${PROJECT_SOURCE_DIR}/share/ecs/testobj/*.cc
-    ${PROJECT_SOURCE_DIR}/share/ecs/testobj/*.cc
-    ${PROJECT_SOURCE_DIR}/share/scene/*.cc
-    # ${PROJECT_SOURCE_DIR}/../common/engine/*.cc
-    # ${PROJECT_SOURCE_DIR}/../common/util/*.cc
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/aoi/*.cc
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/gameobject/*.cc
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/testobj/*.cc
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/testobj/*.cc
+    ${PROJECT_SOURCE_DIR}/server/share/scene/*.cc
 )
 
 # 链接库
@@ -39,7 +37,7 @@ set(MY_LINK_LIB
     pthread
     dl
     BBGCommon
-    ${PROJECT_BINARY_DIR}/../common/lib/libBBGCommon.so
+    ${PROJECT_BINARY_DIR}/common/lib/libBBGCommon.so
 )
 
 ##########################################################################
