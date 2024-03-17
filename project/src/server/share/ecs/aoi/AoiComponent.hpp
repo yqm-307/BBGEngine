@@ -9,8 +9,9 @@ namespace share::ecs::aoi
 {
 
 class AoiSystem;
+
 /**
- * 地图的aoi组件，保存地图中的玩家并维持兴趣列表
+ * 赋予父对象位置信息管理的能力
  */
 class AoiComponent:
     public engine::ecs::Component

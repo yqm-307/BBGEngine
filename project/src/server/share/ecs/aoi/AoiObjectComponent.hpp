@@ -9,7 +9,7 @@ namespace share::ecs::aoi
 {
 
 /**
- * 在aoi中时保存位置信息
+ * 赋予父对象场景，内位置信息的能力
  */
 class AoiObjectComponent: 
     public engine::ecs::Component

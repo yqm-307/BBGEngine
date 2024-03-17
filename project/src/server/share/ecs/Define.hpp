@@ -19,7 +19,8 @@ enum emEntityType: int {
 
 //------------------------> 实体对象 <------------------------//
     EM_ENTITY_TYPE_HAS_ENTITY               = 1000000,
-    EM_ENTITY_TYPE_PLAYER                   = 1000001,    // 玩家
+    EM_ENTITY_TYPE_PLAYER                   = 1000001,      // 玩家
+    EM_ENTITY_TYPE_NPC                      = 1000002,      // npc
 
 
 //------------------------> 测试对象 <------------------------//
@@ -37,6 +38,8 @@ enum emComponentType: int {
     EM_COMPONENT_TYPE_AOI                   = 1,    // aoi组件
     EM_COMPONENT_TYPE_AOI_OBJECT            = 2,    // aoi object组件
     EM_COMPONENT_TYPE_NETWORK               = 3,    // network 组件
+    EM_COMPONENT_TYPE_BUFFLIST              = 4,    // buff list 组件
+    EM_COMPONENT_TYPE_ATTRIBUTE             = 5,    // attribute 组件
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
@@ -50,6 +53,8 @@ public:
             {
                 {"Aoi",                             emComponentType::EM_COMPONENT_TYPE_AOI},
                 {"test1",                           emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
+                {"npc_buff_list",                   emComponentType::EM_COMPONENT_TYPE_BUFFLIST},
+                {"npc_attribute",                   emComponentType::EM_COMPONENT_TYPE_ATTRIBUTE},
             }
         );
 
