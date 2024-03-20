@@ -18,13 +18,13 @@ public:
     Attribute();
     ~Attribute();
 
-    void RegistModule(AttrModule* module);
+    bool RegistModule(AttributeModuleType type, AttrModule::SPtr module);
 
 private:
     virtual void OnUpdate() override;
     void RecalcAllModuleAttr();
 private:
-    std::unordered_map<AttributeModuleType, AttrModule*> m_attr_module_map;
+    std::unordered_map<AttributeModuleType, AttrModule::SPtr> m_attr_module_map;
     AttributeData m_current_attribute;
 };
 

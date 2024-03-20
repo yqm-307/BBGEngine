@@ -18,7 +18,7 @@ void Attribute::OnUpdate()
     bool need_update = false;
 
     for (auto it : m_attr_module_map) {
-        auto* module = it.second; 
+        auto module = it.second; 
         if (module->IsModify()) {
             module->Recalculate();
             module->MarkModify(false);
@@ -29,6 +29,13 @@ void Attribute::OnUpdate()
         RecalcAllModuleAttr();
     }
 }
+
+bool Attribute::RegistModule(AttributeModuleType type, AttrModule::SPtr module)
+{
+    auto [it, isok] = m_attr_module_map.insert(std::make_pair(type, module));
+    return isok;
+}
+
 
 
 }

@@ -7,6 +7,8 @@ namespace share::ecs::attr
 class AttrModule
 {
 public:
+    typedef std::shared_ptr<AttrModule> SPtr;
+
     /* 当前模块属性是否发生了修改 */
     bool                    IsModify();
     /* 标记当前模块发生了修改 */
