@@ -36,6 +36,33 @@ bool Attribute::RegistModule(AttributeModuleType type, AttrModule::SPtr module)
     return isok;
 }
 
+void Attribute::RecalcAllModuleAttr()
+{
+    static AttributeData total_attr;
+    for (auto it : m_attr_module_map) {
+        auto attr = it.second->GetAttributeData();
+        total_attr += (*attr);
+    }
+
+    (*m_max_attribute) = total_attr;
+
+    // 根据最新属性，矫正real属性
+    CorrentRealAttr(m_max_attribute, m_real_attribute);
+}
+
+void Attribute::CorrentRealAttr(AttributeData* max_attr, AttributeData* real_attr)
+{
+    if (real_attr->m_base_hp >= max_attr->m_base_hp) {
+        real_attr->m_base_hp = max_attr->m_base_hp;
+    }
+
+    if (real_attr->m_base_mp >= max_attr->m_base_mp) {
+        real_attr->m_base_mp = max_attr->m_base_mp;
+    }
+}
+
+
+
 
 
 }

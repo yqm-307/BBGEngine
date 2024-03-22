@@ -2,8 +2,8 @@
 #include "engine/ecs/gameobject/GameObject.hpp"
 #include "share/ecs/npc/NpcDefine.hpp"
 #include "share/ecs/aoi/AoiObjectComponent.hpp"
-#include "share/ecs/npc/Attribute.hpp"
-#include "share/ecs/npc/BuffList.hpp"
+#include "share/ecs/attribute/Attribute.hpp"
+#include "share/ecs/buff/BuffList.hpp"
 
 namespace share::ecs::npc
 {
@@ -23,7 +23,9 @@ public:
 
 private:
     NpcId           m_npc_id{-1};
-    
+
+    attr::Attribute*            m_attr_ctrl{nullptr};    // npc attribute
+    buff::BuffList*             m_buff_ctrl{nullptr};    // npc buff
 };
 
 } // namespace share::ecs::npc

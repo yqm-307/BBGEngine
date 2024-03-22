@@ -8,7 +8,12 @@
 
 namespace share::ecs::attr
 {
-
+/**
+ * @brief 属性
+ * 
+ * //TODO 提供各种属性变动的回调
+ * 
+ */
 class Attribute:
     public engine::ecs::Component
 {
@@ -18,14 +23,17 @@ public:
     Attribute();
     ~Attribute();
 
-    bool RegistModule(AttributeModuleType type, AttrModule::SPtr module);
+    bool                RegistModule(AttributeModuleType type, AttrModule::SPtr module);
 
 private:
-    virtual void OnUpdate() override;
-    void RecalcAllModuleAttr();
+    virtual void        OnUpdate() override;
+    void                RecalcAllModuleAttr();
+    /* 根据max属性矫正real属性，矫正属性是否属于属性修改呢？ */
+    void                CorrentRealAttr(AttributeData* max_attr, AttributeData* real_attr);
 private:
     std::unordered_map<AttributeModuleType, AttrModule::SPtr> m_attr_module_map;
-    AttributeData m_current_attribute;
+    AttributeData* m_max_attribute{nullptr};        // 当前属性集
+    AttributeData* m_real_attribute{nullptr};       // 真实属性集
 };
 
 } // namespace share::ecs::attribute

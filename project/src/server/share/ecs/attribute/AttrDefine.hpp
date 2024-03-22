@@ -18,6 +18,13 @@ struct AttributeData
     int64_t             m_base_mp{0};       // 基础法力值
     int64_t             m_base_attack{0};   // 基础攻击力
 
+    void Clear()
+    {
+        m_base_hp = 0;
+        m_base_mp = 0;
+        m_base_attack = 0;
+    }
+
     AttributeData& operator+(const AttributeData& other)
     {
         AttributeData data;
@@ -34,6 +41,13 @@ struct AttributeData
         m_base_attack += other.m_base_attack;
 
         return *this;
+    }
+
+    AttributeData operator=(const AttributeData& other)
+    {
+        this->m_base_hp = other.m_base_hp;
+        this->m_base_mp = other.m_base_mp;
+        this->m_base_attack = other.m_base_attack;
     }
 };
 
