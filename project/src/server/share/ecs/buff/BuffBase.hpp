@@ -8,13 +8,18 @@ class BuffBase:
     public IBuff<engine::ecs::GameObjectSPtr, std::shared_ptr<BuffBase>>
 {
 public:
-
-    virtual BuffType            GetType() = 0;
+    typedef std::shared_ptr<BuffBase> SPtr;
+    virtual BuffTriggerType     GetType() = 0;
     virtual BuffId              GetBuffId() = 0;
     npc::NpcId                  GetTargetId() { return m_cur_target_npc; }
     npc::NpcId                  GetMasterId() { return m_raw_master_npc; }
 
     virtual void                OnUpdate() = 0;
+    virtual void                OnEvent(
+        engine::ecs::GameObjectSPtr from,
+        engine::ecs::GameObjectSPtr to,
+        BuffTriggerType type,
+        const void* param) = 0;
 
 protected:
     // 当前目标npc造成伤害
@@ -47,6 +52,7 @@ protected:
     // 初始npc状态变化
     virtual void OnMasterChangeState() {};
 protected:
+    int                         m_life_frame{0};                    // buff 生命期（帧数）
     npc::NpcId                  m_cur_target_npc{-1};               // 当前的buff目标（受影响者）
     /**
      *  原则上buff的原始主人不可以变动。

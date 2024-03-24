@@ -32,7 +32,7 @@ public:
     /* 插入一个组件, 如果组件已经存在，返回false，否则true */
     bool            AddComponent(ComponentSPtr component);
     /* 获取一个组件，如果不存在返回nullptr */
-    ComponentSPtr   GetComponent(ComponentTemplateId component_name);
+    ComponentSPtr   GetComponent(ComponentTemplateId component_name) const;
     /* 删除一个组件，如果不存在返回nullptr */
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
@@ -77,7 +77,8 @@ private:
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */
     const int                                       m_gobj_type{-1};
     /* 每个游戏对象都可以保存着一些组件 */
-    std::map<ComponentTemplateId, ComponentSPtr>    m_component_map;
+    std::unordered_map<ComponentTemplateId, ComponentSPtr>    
+                                                    m_component_map;
     /* 游戏对象是递归的，也就是说一个游戏对象可以作为节点来包含一些子对象 */
     std::map<GameObjectId, GameObjectSPtr>          m_childs;
     /* 父游戏对象 */

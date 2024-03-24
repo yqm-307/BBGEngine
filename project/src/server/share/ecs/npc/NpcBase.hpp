@@ -20,12 +20,12 @@ public:
     NpcBase();
     ~NpcBase();
     void OnDeath();
-
 private:
-    NpcId           m_npc_id{-1};
-
-    attr::Attribute*            m_attr_ctrl{nullptr};    // npc attribute
-    buff::BuffList*             m_buff_ctrl{nullptr};    // npc buff
+    engine::ecs::ComponentCSPtr GetAttributeComp() const;
+    engine::ecs::ComponentCSPtr GetBuffComp() const;
+    engine::ecs::ComponentCSPtr GetAoiObjComp() const;
+private:
+    NpcId                           m_npc_id{-1};
 };
 
 } // namespace share::ecs::npc

@@ -7,7 +7,7 @@
 namespace share::ecs
 {
 
-enum emEntityType: int {
+enum emEntityType: engine::ecs::ComponentTemplateId {
 
 //------------------------> 无实体对象 <------------------------//
     EM_ENTITY_TYPE_GAMEOBJECT               = 0,    // 空对象

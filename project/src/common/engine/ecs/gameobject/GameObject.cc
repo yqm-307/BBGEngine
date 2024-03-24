@@ -17,7 +17,7 @@ GameObject::~GameObject()
 {
 }
 
-ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid)
+ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid) const
 {
     if(tid < 0)
         return nullptr;
