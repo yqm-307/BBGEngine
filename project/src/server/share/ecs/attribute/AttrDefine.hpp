@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <memory>
 
 /**
  *  Attribute Module的设计
@@ -25,7 +26,7 @@ struct AttributeData
         m_base_attack = 0;
     }
 
-    AttributeData& operator+(const AttributeData& other)
+    AttributeData operator+(const AttributeData& other)
     {
         AttributeData data;
         data += *this;
@@ -43,11 +44,12 @@ struct AttributeData
         return *this;
     }
 
-    AttributeData operator=(const AttributeData& other)
+    AttributeData& operator=(const AttributeData& other)
     {
         this->m_base_hp = other.m_base_hp;
         this->m_base_mp = other.m_base_mp;
         this->m_base_attack = other.m_base_attack;
+        return *this;
     }
 };
 

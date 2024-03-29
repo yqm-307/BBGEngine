@@ -156,3 +156,18 @@ target_link_libraries(test_ecs_gameobjmgr_texe
 )
 
 add_test(NAME test_ecs_gameobjmgr_texe COMMAND test_ecs_gameobjmgr_texe)
+
+######################## ==> game 的 lua script component debug 测试 <== ########################
+
+add_executable(test_game_lua_script_compoment_texe
+    ${SRC_FILE}
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/LuaScriptComponent.cc
+    ./game/luascript/Test_lua_comp.cc
+)
+
+target_link_libraries(test_game_lua_script_compoment_texe
+    ${MY_LINK_LIB}
+    lua
+)
+
+add_test(NAME test_game_lua_script_compoment_texe COMMAND test_game_lua_script_compoment_texe)

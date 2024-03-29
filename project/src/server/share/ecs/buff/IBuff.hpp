@@ -11,7 +11,6 @@ class IBuff
 {
 public:
     typedef NpcPtr Object;
-    typedef BuffPtr BuffPtr;
 
     // 当前目标npc造成伤害
     virtual void OnDoDamage(Object injured, uint64_t damage_value) = 0;

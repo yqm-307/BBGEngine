@@ -31,9 +31,9 @@ protected:
     // 当前buff超时
     virtual void OnTimeout() {};
     // 当前npc添加buff
-    virtual void OnAddBuff(BuffPtr buff) {};
+    virtual void OnAddBuff(SPtr buff) {};
     // 当前npc移除buff
-    virtual void OnDelBuff(BuffPtr buff) {};
+    virtual void OnDelBuff(SPtr buff) {};
     // 当前npc状态变化
     virtual void OnChangeState() {};
 
@@ -46,9 +46,9 @@ protected:
     // 初始npc buff超时
     virtual void OnMasterTimeout() {};
     // 初始npc添加buff
-    virtual void OnMasterAddBuff(Object master, BuffPtr buff) {};
+    virtual void OnMasterAddBuff(Object master, SPtr buff) {};
     // 初始npc移除buff
-    virtual void OnMasterDelBuff(Object master, BuffPtr buff) {};
+    virtual void OnMasterDelBuff(Object master, SPtr buff) {};
     // 初始npc状态变化
     virtual void OnMasterChangeState() {};
 protected:
