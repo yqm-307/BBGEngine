@@ -1,11 +1,7 @@
 local _g            = require("preload.EventSystem.lua") --[[@as GTableDef]]
-local _EventSystem  = require("preload.ComponentMgr") --[[@as ComponentMgr]]
 local _Tools        = require("preload.Tools")
 
 ---@alias EventId integer
-
----@class EventSystem
----@field EVENT     table<string, EventId>
 
 ---@class EventSystem
 local EventSystem = _g.EventSystem

@@ -1,3 +1,4 @@
+---@class Tools
 local Tools = {}
 
 ---错误输出日志

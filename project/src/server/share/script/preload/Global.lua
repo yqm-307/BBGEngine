@@ -3,6 +3,7 @@ local g_table_def = {}
 
 ---@alias Object table
 ---@alias CommonCallback fun(Args:...)
+---@alias ComponentId integer
 
 
 ---@class LuaScriptMgr

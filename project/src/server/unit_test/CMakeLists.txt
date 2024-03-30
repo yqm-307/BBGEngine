@@ -171,3 +171,18 @@ target_link_libraries(test_game_lua_script_compoment_texe
 )
 
 add_test(NAME test_game_lua_script_compoment_texe COMMAND test_game_lua_script_compoment_texe)
+
+######################## ==> game 的 lua global vm component debug 测试 <== ########################
+
+add_executable(test_game_global_lua_vm_compoment_texe
+    ${SRC_FILE}
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/GlobalLuaVM.cc
+    ./game/luascript/Test_lua_global_vm.cc
+)
+
+target_link_libraries(test_game_global_lua_vm_compoment_texe
+    ${MY_LINK_LIB}
+    lua
+)
+
+add_test(NAME test_game_global_lua_vm_compoment_texe COMMAND test_game_global_lua_vm_compoment_texe)
