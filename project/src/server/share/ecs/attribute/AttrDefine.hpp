@@ -12,6 +12,13 @@
 namespace share::ecs::attr
 {
 
+enum AttributeType: int32_t
+{
+    BASE_HP             = 1,
+    BASE_MP             = 2,
+    BASE_ATTACK         = 3,
+};
+
 struct AttributeData
 {
     int64_t             m_base_hp{0};       // 基础生命值           

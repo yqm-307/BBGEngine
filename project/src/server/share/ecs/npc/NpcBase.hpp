@@ -21,9 +21,9 @@ public:
     ~NpcBase();
     void OnDeath();
 private:
-    engine::ecs::ComponentCSPtr GetAttributeComp() const;
-    engine::ecs::ComponentCSPtr GetBuffComp() const;
-    engine::ecs::ComponentCSPtr GetAoiObjComp() const;
+    engine::ecs::ComponentCSPtr     GetAttributeComp() const;
+    engine::ecs::ComponentCSPtr     GetBuffComp() const;
+    engine::ecs::ComponentCSPtr     GetAoiObjComp() const;
 private:
     NpcId                           m_npc_id{-1};
 };
