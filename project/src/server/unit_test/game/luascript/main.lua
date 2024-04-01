@@ -1,6 +1,11 @@
-local _EventSystem = require("share.script.preload.EventSystem") --[[@as EventSystem]]
+package.path =      ";../?.lua;" .. package.path
+package.path =      ";../../../share/script/?.lua;" .. package.path
 
-function Main(nValue)
-    _EventSystem:ListenEvent()
-    return nValue
-end
+require("preload.ComponentMgr")
+
+
+ComponentMgr:RegistComponent(1, function (Args)
+    print("on update")
+end);
+
+ComponentMgr:OnUpdateEvent(1);

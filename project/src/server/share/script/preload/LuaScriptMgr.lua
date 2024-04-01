@@ -1,4 +1,4 @@
-local _g = require("preload.Global.lua") --[[@as GTableDef]]
+local _g = require("preload.Global") --[[@as GTableDef]]
 
 ---@class LuaScriptMgr
 ---@field tbEventMap table<integer, fun()>

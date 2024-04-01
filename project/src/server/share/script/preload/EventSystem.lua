@@ -1,4 +1,4 @@
-local _g            = require("preload.EventSystem.lua") --[[@as GTableDef]]
+local _g            = require("preload.Global") --[[@as GTableDef]]
 local _Tools        = require("preload.Tools")
 
 ---@alias EventId integer

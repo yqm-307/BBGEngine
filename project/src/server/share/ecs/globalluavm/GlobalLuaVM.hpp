@@ -14,7 +14,12 @@ public:
     virtual ~GlobalLuaVM();
 
     bool PreloadLuaFile(const char* dir_path);
-    void DoScript(const std::string& script);
+    bool DoScript(const std::string& script);
+    bool LoadLuaLibrary();
+    bool AddRequirePath(const std::string& path);
+
+    template<typename ... Args>
+    bool CallLuaFunction()
 private:
     GlobalLuaVM();
     virtual void OnUpdate() override {};

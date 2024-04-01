@@ -21,7 +21,7 @@ function Tools.SafeCall(fnCallback, ...)
         return false
     end
 
-    local bSucc = xpcall(fnCallback, fnMessageHandler, table.unpack(...))
+    local bSucc = xpcall(fnCallback, fnMessageHandler, table.unpack(... or {}))
     return bSucc
 end
 
