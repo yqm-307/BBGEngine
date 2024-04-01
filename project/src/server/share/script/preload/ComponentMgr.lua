@@ -40,4 +40,18 @@ function ComponentMgr:UnRegistComponent(nComponentId)
     self.tbUpdateComponentEventMap[nComponentId] = nil
 end
 
+---c++注册module
+---@param nComponentId any
+---@param szModule any
+---@return boolean
+---@return string|nil
+function CppCallRegist(nComponentId, szModule)
+    local pModule = require(szModule)
+    if not pModule.OnUpdate or type(pModule.OnUpdate) ~= "function" then
+        return false, "component module not OnUpdate() method!"
+    end
+
+    return ComponentMgr:RegistComponent(nComponentId, pModule.OnUpdate);
+end
+
 return ComponentMgr

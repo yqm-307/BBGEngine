@@ -10,6 +10,7 @@ class GlobalLuaVM:
     public engine::ecs::Component
 {
 public:
+    typedef bbt::cxxlua::detail::LuaParseReturnCallback ParseLuaRetValFunc;
     ComponentDeriveClassDef;
     virtual ~GlobalLuaVM();
 
@@ -19,7 +20,20 @@ public:
     bool AddRequirePath(const std::string& path);
 
     template<typename ... Args>
-    bool CallLuaFunction()
+    bool CallLuaFunction(
+        const std::string&  funcname,
+        int                 return_nums,
+        const ParseLuaRetValFunc& parse_handle,
+        Args                ...args)
+    {
+        auto err = m_lua_vm->CallLuaFunction(funcname, return_nums, parse_handle, args ...);
+        if (err != std::nullopt) {
+            GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+            return false;
+        }
+
+        return true;
+    }
 private:
     GlobalLuaVM();
     virtual void OnUpdate() override {};

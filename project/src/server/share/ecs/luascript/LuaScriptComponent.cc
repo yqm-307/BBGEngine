@@ -59,27 +59,16 @@ std::optional<bbt::cxxlua::LuaErr> LuaScriptComponent::DoScript(const char* scri
     return m_vm->DoScript(script);
 }
 
-
 /* 注册到lua事件 */
 void LuaScriptComponent::RegistInLuaEvent()
 {
-    static char script[SCRIPT_BUFFER_SIZE] = "";
     std::string path = m_script_path;
-    int total_size = 0;
+    //TODO 等待cxxlua完善lua读取栈数据操作
+    m_vm->CallLuaFunction("CppCallRegist", 2, [](std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack){
+        auto index = stack->GetTop();
 
-    total_size = m_script_path.size() + sizeof(*g_regist_in_lua_event) + 20;/* ComponentId 最大值字符串长度 */
-    if (total_size > SCRIPT_BUFFER_SIZE) {
-        GAME_EXT1_LOG_ERROR("lua script buffer overflow!");
-        return;
-    }
-    memset(script, '\0', SCRIPT_BUFFER_SIZE);
-    snprintf(script, SCRIPT_BUFFER_SIZE, g_regist_in_lua_event, m_script_path.c_str(), std::to_string(GetId()));
-
-    GAME_EXT1_LOG_DEBUG(script);
-    
-    auto err = m_vm->DoScript(script);
-    if (err != std::nullopt)
-        GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+        return std::nullopt;
+    }, GetMemberId(), path);
 }
 
 /* 反注册到lua事件 */
