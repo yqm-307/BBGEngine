@@ -40,6 +40,8 @@ enum emComponentType: int {
     EM_COMPONENT_TYPE_NETWORK               = 3,    // network 组件
     EM_COMPONENT_TYPE_BUFFLIST              = 4,    // buff list 组件
     EM_COMPONENT_TYPE_ATTRIBUTE             = 5,    // attribute 组件
+    EM_COMPONENT_TYPE_LUA_SCRIPT            = 6,    // lua 脚本组件
+    EM_COMPONENT_TYPE_GLOBAL_LUA_VM         = 7,    // lua 全局虚拟机
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
@@ -55,6 +57,8 @@ public:
                 {"test1",                           emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
                 {"npc_buff_list",                   emComponentType::EM_COMPONENT_TYPE_BUFFLIST},
                 {"npc_attribute",                   emComponentType::EM_COMPONENT_TYPE_ATTRIBUTE},
+                {"lua_script",                      emComponentType::EM_COMPONENT_TYPE_LUA_SCRIPT},
+                {"lua_global_vm",                   emComponentType::EM_COMPONENT_TYPE_GLOBAL_LUA_VM},
             }
         );
 

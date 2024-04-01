@@ -44,4 +44,5 @@ target_link_libraries(gameserver
     # tcmalloc
     dl
     BBGCommon
+    lua
 )

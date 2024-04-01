@@ -23,6 +23,8 @@ class BuffList:
     public engine::ecs::Component
 {
 public:
+    ComponentDeriveClassDef;
+    virtual ~BuffList() {}
     /**
      * @brief 驱动BuffList的核心函数，通过抛出事件
      *  让buff进行处理。
@@ -38,6 +40,7 @@ public:
     bool DelBuff(BuffId id);
     BuffBase::SPtr GetBuffById(BuffId id);
 private:
+    BuffList();
     virtual void OnUpdate() override;
 
     void OnCommonEvent(

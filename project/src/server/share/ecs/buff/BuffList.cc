@@ -3,6 +3,12 @@
 namespace share::ecs::buff
 {
 
+BuffList::BuffList():
+    engine::ecs::Component(EM_COMPONENT_TYPE_BUFFLIST)
+{
+}
+
+
 void BuffList::OnUpdate()
 {
     for (auto buff : m_buff_map) {
