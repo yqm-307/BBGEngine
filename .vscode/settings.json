@@ -81,7 +81,8 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "csignal": "cpp"
+        "csignal": "cpp",
+        "regex": "cpp"
     },
     
 }

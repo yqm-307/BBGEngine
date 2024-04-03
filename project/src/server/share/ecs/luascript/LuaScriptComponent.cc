@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <cstring>
+#include <regex>
 #include <bbt/base/cxxlua/detail/LuaErr.hpp>
 #include "share/ecs/luascript/LuaScriptComponent.hpp"
 
@@ -40,6 +41,8 @@ LuaScriptComponent::LuaScriptComponent(bbt::cxxlua::LuaVM* vm, const char* relat
     }
 
     m_init_success = true;
+
+    RegistInLuaEvent();
 }
 
 bool LuaScriptComponent::IsInitSucc()
@@ -49,6 +52,7 @@ bool LuaScriptComponent::IsInitSucc()
 
 LuaScriptComponent::~LuaScriptComponent()
 {
+    UnRegistInLuaEvent();
 }
 
 std::optional<bbt::cxxlua::LuaErr> LuaScriptComponent::DoScript(const char* script)
@@ -62,19 +66,40 @@ std::optional<bbt::cxxlua::LuaErr> LuaScriptComponent::DoScript(const char* scri
 /* 注册到lua事件 */
 void LuaScriptComponent::RegistInLuaEvent()
 {
-    std::string path = m_script_path;
+    std::string path = std::regex_replace(std::regex_replace(m_script_path, std::regex(".lua"), ""), std::regex("//"), ".");
+
     //TODO 等待cxxlua完善lua读取栈数据操作
-    m_vm->CallLuaFunction("CppCallRegist", 2, [](std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack){
-        auto index = stack->GetTop();
+    auto err = m_vm->CallLuaFunction("CppCallRegist", 2, [](std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack)->std::optional<bbt::cxxlua::LuaErr>{
+        bbt::cxxlua::Value msg;
+        bbt::cxxlua::Value bsucc;
+        auto pop_msg_err = stack->Pop(msg);
+        if (pop_msg_err != std::nullopt)
+            return pop_msg_err;
+        
+        auto pop_bsucc_err = stack->Pop(bsucc);
+            return pop_bsucc_err;
 
         return std::nullopt;
-    }, GetMemberId(), path);
+    }, GetMemberId(), path.c_str());
+
+    if (err != std::nullopt) {
+        GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+        return;
+    }
 }
 
 /* 反注册到lua事件 */
 void LuaScriptComponent::UnRegistInLuaEvent()
 {
 
+}
+
+void LuaScriptComponent::OnUpdate()
+{
+    auto err = m_vm->DoScript("ComponentMgr:OnUpdateEvent(" + std::to_string(GetMemberId()) + ")");
+    if (err != std::nullopt) {
+        GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+    }
 }
 
 

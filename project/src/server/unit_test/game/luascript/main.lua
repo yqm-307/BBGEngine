@@ -4,8 +4,10 @@ package.path =      ";../../../share/script/?.lua;" .. package.path
 require("preload.ComponentMgr")
 
 
-ComponentMgr:RegistComponent(1, function (Args)
-    print("on update")
-end);
+local function OnUpdate()
+    print("component do onupdate function!")
+end
 
-ComponentMgr:OnUpdateEvent(1);
+return {
+    OnUpdate = OnUpdate
+}

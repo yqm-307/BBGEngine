@@ -56,6 +56,10 @@ bool GlobalLuaVM::AddRequirePath(const std::string& path)
     return DoScript("package.path = \";" + path + ";\" .. package.path");
 }
 
+bbt::cxxlua::LuaVM* GlobalLuaVM::GetVM()
+{
+    return m_lua_vm;
+}
 
 
 } // namespace share::ecs::globalluavm

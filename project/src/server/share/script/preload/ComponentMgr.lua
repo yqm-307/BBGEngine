@@ -16,6 +16,7 @@ ComponentMgr.tbUpdateComponentEventMap = {}
 ---组件Update事件，由c++调用
 ---@param nComponentId integer
 function ComponentMgr:OnUpdateEvent(nComponentId)
+    print("调用OnUpdateEvent", nComponentId);
     local fnCallback = self.tbUpdateComponentEventMap[nComponentId]
     if not fnCallback then
         return false, ""
@@ -50,7 +51,7 @@ function CppCallRegist(nComponentId, szModule)
     if not pModule.OnUpdate or type(pModule.OnUpdate) ~= "function" then
         return false, "component module not OnUpdate() method!"
     end
-
+    print("注册成功", nComponentId)
     return ComponentMgr:RegistComponent(nComponentId, pModule.OnUpdate);
 end
 

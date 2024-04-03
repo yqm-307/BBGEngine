@@ -16,7 +16,7 @@ public:
     bool    IsInitSucc();
     std::optional<bbt::cxxlua::LuaErr> DoScript(const char* script);
 private:
-    virtual void OnUpdate() override {};
+    virtual void OnUpdate() override;
     LuaScriptComponent(bbt::cxxlua::LuaVM* vm, const char* relative_path);
     /* 注册到lua事件 */
     void RegistInLuaEvent();

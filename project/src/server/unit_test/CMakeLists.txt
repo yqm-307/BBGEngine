@@ -162,6 +162,7 @@ add_test(NAME test_ecs_gameobjmgr_texe COMMAND test_ecs_gameobjmgr_texe)
 add_executable(test_game_lua_script_compoment_texe
     ${SRC_FILE}
     ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/LuaScriptComponent.cc
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/GlobalLuaVM.cc
     ./game/luascript/Test_lua_comp.cc
 )
 
@@ -176,6 +177,7 @@ add_test(NAME test_game_lua_script_compoment_texe COMMAND test_game_lua_script_c
 
 add_executable(test_game_global_lua_vm_compoment_texe
     ${SRC_FILE}
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/LuaScriptComponent.cc
     ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/GlobalLuaVM.cc
     ./game/luascript/Test_lua_global_vm.cc
 )

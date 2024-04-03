@@ -34,6 +34,8 @@ public:
 
         return true;
     }
+
+    bbt::cxxlua::LuaVM* GetVM();
 private:
     GlobalLuaVM();
     virtual void OnUpdate() override {};
