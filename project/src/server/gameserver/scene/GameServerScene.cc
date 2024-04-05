@@ -118,7 +118,10 @@ void GameServerScene::StartScene()
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
     share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
-    m_loop->StartLoop(bbt::network::libevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
+    auto err = m_loop->StartLoop(bbt::network::libevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
+    if (!err)
+        GAME_EXT1_LOG_ERROR(err.CWhat());
+    
 }
 
 void GameServerScene::StopScene()
@@ -141,9 +144,12 @@ void GameServerScene::OnStopScene()
 
     // 循环延时退出
     {
-        m_loop->BreakLoop();
+        auto err = m_loop->BreakLoop();
+        if (!err)
+            GAME_EXT1_LOG_ERROR(err.CWhat());
+
     }
-    BBT_BASE_LOG_INFO("[GameServerScene::OnStopScene] exit loop!");
+    GAME_EXT1_LOG_INFO("[GameServerScene::OnStopScene] exit loop!");
 
 }
 

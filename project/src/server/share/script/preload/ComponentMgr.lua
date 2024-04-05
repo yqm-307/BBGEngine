@@ -51,7 +51,6 @@ function CppCallRegist(nComponentId, szModule)
     if not pModule.OnUpdate or type(pModule.OnUpdate) ~= "function" then
         return false, "component module not OnUpdate() method!"
     end
-    print("注册成功", nComponentId)
     return ComponentMgr:RegistComponent(nComponentId, pModule.OnUpdate);
 end
 

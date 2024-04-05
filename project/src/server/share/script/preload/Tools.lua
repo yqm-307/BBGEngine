@@ -4,7 +4,7 @@ local Tools = {}
 ---错误输出日志
 ---@param szLogMsg string
 function Tools.LogErr(szLogMsg)
-    io.write(io.stderr, szLogMsg)
+    io.write(io.stderr, szLogMsg, debug.traceback())
 end
 
 ---安全调用

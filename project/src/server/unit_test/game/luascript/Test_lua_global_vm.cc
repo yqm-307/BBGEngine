@@ -12,6 +12,13 @@
 
 BOOST_AUTO_TEST_SUITE(LuaGlobalVMComponentTest)
 
+int open = 1;
+
+BOOST_AUTO_TEST_CASE(preload)
+{
+    BBT_CONFIG_QUICK_SET_DYNAMIC_ENTRY(int, &open, bbt::config::_BBTSysCfg::BBT_LOG_STDOUT_OPEN);
+}
+
 BOOST_AUTO_TEST_CASE(t_scene_test)
 {
     // 创建场景、空对象，将空对象挂载到场景上

@@ -10,6 +10,7 @@ class Component:
     public bbt::templateutil::MemberBase<ComponentId, Component>
 {
     friend class GameObject;
+    friend class ComponentMgr;
 public:
     explicit Component(ComponentTemplateId id);
 
