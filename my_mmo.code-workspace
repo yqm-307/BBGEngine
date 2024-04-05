@@ -82,7 +82,8 @@
 			"concepts": "cpp",
 			"numbers": "cpp",
 			"semaphore": "cpp",
-			"stop_token": "cpp"
+			"stop_token": "cpp",
+			"regex": "cpp"
 		},
 		"C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
 		"C_Cpp.intelliSenseEngineFallback": "enabled",

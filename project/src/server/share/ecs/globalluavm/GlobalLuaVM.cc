@@ -15,6 +15,11 @@ GlobalLuaVM::GlobalLuaVM():
     auto err = m_lua_vm->LoadLuaLibrary();
     if (err != std::nullopt)
         GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+
+    auto err1 = m_lua_vm->DoScript("collectgarbage(\"generational\")");
+    if (err1 != std::nullopt)
+        GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+
 }
 
 
