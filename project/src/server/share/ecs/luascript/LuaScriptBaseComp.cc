@@ -2,47 +2,23 @@
 #include <cstring>
 #include <regex>
 #include <bbt/base/cxxlua/detail/LuaErr.hpp>
-#include "share/ecs/luascript/LuaScriptComponent.hpp"
+#include "share/ecs/luascript/LuaScriptBaseComp.hpp"
 
 namespace share::ecs::luascript
 {
 
 
-LuaScriptComponent::LuaScriptComponent(bbt::cxxlua::LuaVM* vm, const char* relative_path):
-    Component(ecs::EM_COMPONENT_TYPE_LUA_SCRIPT),
-    m_vm(vm),
-    m_script_path(relative_path)
-{
-    if (!std::filesystem::exists(m_script_path)) {
-        return;
-    }
+LuaScriptBaseComp::LuaScriptBaseComp(ecs::emComponentType id, bbt::cxxlua::LuaVM* vm):
+    Component(id),
+    m_vm(vm)
+{}
 
-    if (m_vm == nullptr) {
-        return;
-    }
-
-    auto err = m_vm->LoadFile(m_script_path);
-    if (err != std::nullopt) {
-        GAME_EXT1_LOG_ERROR("%s", err.value().What().c_str());
-        return;
-    }
-
-    m_init_success = true;
-
-    RegistInLuaEvent();
-}
-
-bool LuaScriptComponent::IsInitSucc()
-{
-    return m_init_success;
-}
-
-LuaScriptComponent::~LuaScriptComponent()
+LuaScriptBaseComp::~LuaScriptBaseComp()
 {
     UnRegistInLuaEvent();
 }
 
-std::optional<bbt::cxxlua::LuaErr> LuaScriptComponent::DoScript(const char* script)
+std::optional<bbt::cxxlua::LuaErr> LuaScriptBaseComp::DoScript(const char* script)
 {
     if (m_vm == nullptr)
         return bbt::cxxlua::LuaErr("vm is NULL!", bbt::cxxlua::ERRCODE::Default);
@@ -51,7 +27,7 @@ std::optional<bbt::cxxlua::LuaErr> LuaScriptComponent::DoScript(const char* scri
 }
 
 /* 注册到lua事件 */
-void LuaScriptComponent::RegistInLuaEvent()
+void LuaScriptBaseComp::RegistInLuaEvent()
 {
     std::string path = std::regex_replace(std::regex_replace(m_script_path, std::regex(".lua"), ""), std::regex("//"), ".");
 
@@ -76,18 +52,49 @@ void LuaScriptComponent::RegistInLuaEvent()
 }
 
 /* 反注册到lua事件 */
-void LuaScriptComponent::UnRegistInLuaEvent()
+void LuaScriptBaseComp::UnRegistInLuaEvent()
 {
 
 }
 
-void LuaScriptComponent::OnUpdate()
+void LuaScriptBaseComp::OnUpdate()
+{
+    _SendLuaComponentMgrUpdateEvent();
+}
+
+void LuaScriptBaseComp::_SendLuaComponentMgrUpdateEvent()
 {
     auto err = m_vm->DoScript("ComponentMgr:OnUpdateEvent(" + std::to_string(GetMemberId()) + ")");
     if (err != std::nullopt) {
         GAME_EXT1_LOG_ERROR("DoScript() error! %s", err.value().What().c_str());
     }
 }
+
+bool LuaScriptBaseComp::RegistScript(const char* relative_path)
+{
+    m_script_path = relative_path;
+
+    if (!std::filesystem::exists(m_script_path)) {
+        GAME_EXT1_LOG_ERROR("[%s] script file not exist!", m_script_path);
+        return false;
+    }
+
+    auto err = m_vm->LoadFile(m_script_path);
+    if (err != std::nullopt) {
+        GAME_EXT1_LOG_ERROR(err.value().What().c_str());
+        return false;
+    }
+
+    RegistInLuaEvent();
+
+    return true;
+}
+
+std::string& LuaScriptBaseComp::GetScriptPath()
+{
+    return m_script_path;
+}
+
 
 
 } // namespace share::ecs::luascript

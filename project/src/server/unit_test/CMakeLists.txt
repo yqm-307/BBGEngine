@@ -159,10 +159,14 @@ add_test(NAME test_ecs_gameobjmgr_texe COMMAND test_ecs_gameobjmgr_texe)
 
 ######################## ==> game 的 lua script component debug 测试 <== ########################
 
+file(GLOB_RECURSE TEST_LUA_COMP_SRC
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/*.cc
+    ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/*.cc
+)
+
 add_executable(test_game_lua_script_compoment_texe
     ${SRC_FILE}
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/LuaScriptComponent.cc
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/GlobalLuaVM.cc
+    ${TEST_LUA_COMP_SRC}
     ./game/luascript/Test_lua_comp.cc
 )
 
@@ -177,8 +181,7 @@ add_test(NAME test_game_lua_script_compoment_texe COMMAND test_game_lua_script_c
 
 add_executable(test_game_global_lua_vm_compoment_texe
     ${SRC_FILE}
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/LuaScriptComponent.cc
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/GlobalLuaVM.cc
+    ${TEST_LUA_COMP_SRC}
     ./game/luascript/Test_lua_global_vm.cc
 )
 

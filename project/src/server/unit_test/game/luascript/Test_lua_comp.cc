@@ -5,7 +5,7 @@
 #include <bbt/base/random/Random.hpp>
 
 #include "share/ecs/gameobject/GameObject.hpp"
-#include "share/ecs/luascript/LuaScriptComponent.hpp"
+#include "share/ecs/luascript/LuaTestComp.hpp"
 #include "share/ecs/globalluavm/GlobalLuaVM.hpp"
 #include "share/scene/testscene/SampleScene.hpp"
 
@@ -29,8 +29,12 @@ BOOST_AUTO_TEST_CASE(t_scene_load_lua_files)
     BOOST_ASSERT(vm_component->LoadLuaLibrary());
 
     auto lua_object = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    auto lua_script_comp = G_ComponentMgr()->Create<share::ecs::luascript::LuaScriptComponent>(vm_component->GetVM(), "main.lua");
+    auto lua_script_comp = G_ComponentMgr()->Create<share::ecs::luascript::LuaTestComp>(vm_component->GetVM(), "main.lua");
     BOOST_ASSERT(lua_script_comp->IsInitSucc());
+
+    lua_script_comp->DoScript(R"(
+        G_UPDATE_COUNT = 0
+    )");
 
     BOOST_ASSERT(lua_object->AddComponent(lua_script_comp));
     BOOST_ASSERT(m_sample_scene.MountGameObject(lua_object));
