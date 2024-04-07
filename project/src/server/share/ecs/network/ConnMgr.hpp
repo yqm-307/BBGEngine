@@ -8,9 +8,9 @@ class ConnMgr:
     public engine::ecs::GameObject
 {
 public:
-
+    ~ConnMgr();
 protected:
-
+    ConnMgr();
 private:
 };
 

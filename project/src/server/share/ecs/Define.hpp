@@ -21,6 +21,7 @@ enum emEntityType: engine::ecs::ComponentTemplateId {
     EM_ENTITY_TYPE_HAS_ENTITY               = 1000000,
     EM_ENTITY_TYPE_PLAYER                   = 1000001,      // 玩家
     EM_ENTITY_TYPE_NPC                      = 1000002,      // npc
+    EM_ENTITY_TYPE_CONN_MANAGER             = 1000003,      // connect mgr
 
 
 //------------------------> 测试对象 <------------------------//
