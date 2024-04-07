@@ -16,7 +16,6 @@ ComponentMgr.tbUpdateComponentEventMap = {}
 ---组件Update事件，由c++调用
 ---@param nComponentId integer
 function ComponentMgr:OnUpdateEvent(nComponentId)
-    print("调用OnUpdateEvent", nComponentId);
     local fnCallback = self.tbUpdateComponentEventMap[nComponentId]
     if not fnCallback then
         return false, ""

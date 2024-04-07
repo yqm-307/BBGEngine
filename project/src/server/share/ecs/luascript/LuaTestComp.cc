@@ -5,12 +5,15 @@
 namespace share::ecs::luascript
 {
 
-LuaTestComp::LuaTestComp(bbt::cxxlua::LuaVM* vm, const char* script_path):
+LuaTestComp::LuaTestComp(bbt::cxxlua::LuaVM* vm):
     LuaScriptBaseComp(EM_COMPONENT_TYPE_LUA_TEST, vm)
 {
-    m_init_succ = RegistScript(script_path);
 }
 
+bool LuaTestComp::Init(const char* script_path)
+{
+    return RegistScript(script_path);
+}
 
 
 }

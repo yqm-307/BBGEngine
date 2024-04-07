@@ -29,8 +29,8 @@ BOOST_AUTO_TEST_CASE(t_scene_load_lua_files)
     BOOST_ASSERT(vm_component->LoadLuaLibrary());
 
     auto lua_object = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    auto lua_script_comp = G_ComponentMgr()->Create<share::ecs::luascript::LuaTestComp>(vm_component->GetVM(), "main.lua");
-    BOOST_ASSERT(lua_script_comp->IsInitSucc());
+    auto lua_script_comp = G_ComponentMgr()->Create<share::ecs::luascript::LuaTestComp>(vm_component->GetVM());
+    BOOST_ASSERT(lua_script_comp->Init("main.lua"));
 
     lua_script_comp->DoScript(R"(
         G_UPDATE_COUNT = 0
@@ -39,11 +39,16 @@ BOOST_AUTO_TEST_CASE(t_scene_load_lua_files)
     BOOST_ASSERT(lua_object->AddComponent(lua_script_comp));
     BOOST_ASSERT(m_sample_scene.MountGameObject(lua_object));
 
-    m_sample_scene.Update();
+    m_sample_scene.Update();    // 计数 +1
     m_sample_scene.UnMountGameObject(lua_object->GetId());
     m_sample_scene.Update();
     m_sample_scene.MountGameObject(lua_object);
-    m_sample_scene.Update();
+    m_sample_scene.Update();    // 计数 +1
+
+    bbt::cxxlua::Value value;
+    lua_script_comp->GetGlobal(value, "G_UPDATE_COUNT");
+    BOOST_ASSERT(value.type == bbt::cxxlua::LUATYPE::LUATYPE_NUMBER);
+    BOOST_CHECK_EQUAL(value.basevalue.integer, 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

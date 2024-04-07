@@ -38,14 +38,6 @@ public:
     std::string&                        GetScriptPath();
 
     /**
-     * @brief 获取全局变量（基础类型）
-     */
-    bbt::cxxlua::Value GetGlobalValue(const char* value_name)
-    {
-        return GetValueEx(1, value_name);
-    }
-
-    /**
      * @brief 多级key索引的变量
      * 
      * @tparam TRetValue 
@@ -59,6 +51,17 @@ public:
     {
         //TODO 需要bbt cxxlua 提供这个功能
         return bbt::cxxlua::Value(); // 默认返回nil
+    }
+
+    template<typename ...Args>
+    std::optional<bbt::cxxlua::LuaErr> GetByKey4GTable(bbt::cxxlua::Value& value, const std::string& global_name, Args ...args)
+    {
+        return m_vm->GetByKey4Table(value, global_name, args ...);
+    }
+
+    std::optional<bbt::cxxlua::LuaErr> GetGlobal(bbt::cxxlua::Value& value, const std::string& global_value)
+    {
+        return m_vm->GetGlobalValue(value, global_value);
     }
 protected:
     LuaScriptBaseComp(ecs::emComponentType type ,bbt::cxxlua::LuaVM* vm);

@@ -10,11 +10,9 @@ class LuaTestComp:
 public:
     ComponentDeriveClassDef;
     virtual ~LuaTestComp() {}
-    bool IsInitSucc() { return m_init_succ; }
+    bool Init(const char* script_path);
 protected:
-    LuaTestComp(bbt::cxxlua::LuaVM* vm, const char* script_path);
-
-    bool m_init_succ{false};
+    LuaTestComp(bbt::cxxlua::LuaVM* vm);
 };
 
 }
