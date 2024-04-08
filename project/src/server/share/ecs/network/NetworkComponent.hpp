@@ -15,6 +15,10 @@ public:
     void SetListenAddr(const char* ip, short port);
     void Start();
     void Stop();
+    //TODO
+    void Connect() {}
+    //TODO
+    void SetOnAccept() {}
 
 private:
     NetworkComponent();
