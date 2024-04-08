@@ -90,6 +90,19 @@ target_link_libraries(test_engine_scene_texe
 )
 add_test(NAME engine_scene COMMAND test_engine_scene_texe)
 
+######################## ==> engine 的 scene 功能测试 <== ########################
+
+add_executable(test_engine_component_texe
+    ${SRC_FILE}
+    ./engine_test/Test_ecs_component.cc
+)
+
+target_link_libraries(test_engine_component_texe
+    ${MY_LINK_LIB}
+)
+add_test(NAME test_engine_component_texe COMMAND test_engine_component_texe)
+
+
 ######################## ==> engine 的 component mgr 功能测试 <== ########################
 
 add_executable(test_engine_componentmgr_texe

@@ -1,11 +1,11 @@
 #pragma once
-#include "engine/ecs/gameobject/GameObject.hpp"
+#include "engine/ecs/component/Component.hpp"
 
 namespace share::ecs::network
 {
 
 class ConnMgr:
-    public engine::ecs::GameObject
+    public engine::ecs::Component
 {
 public:
     ~ConnMgr();

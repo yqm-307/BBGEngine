@@ -14,22 +14,23 @@ class Component:
 public:
     explicit Component(ComponentTemplateId id);
 
-    void SetActive(bool is_active);
-    bool IsActive();
+    void                        SetActive(bool is_active);
+    bool                        IsActive();
 
     // interface
     //--------------------------------------------
-    virtual ~Component() = 0;
-    virtual void OnUpdate() = 0;
-    virtual void OnAddComponent(ecs::GameObjectSPtr);
-    virtual void OnDelComponent(ecs::GameObjectSPtr);
-    virtual void OnEnable();
-    virtual void OnDisable();
+    virtual                     ~Component() = 0;
+    virtual void                OnUpdate() = 0;
+    virtual void                OnAddComponent(ecs::GameObjectSPtr);
+    virtual void                OnDelComponent(ecs::GameObjectSPtr);
+    virtual void                OnEnable();
+    virtual void                OnDisable();
     //--------------------------------------------
 
-    const std::string& GetName() const;
-    ComponentTemplateId GetTemplateId() const;
-    ComponentId GetId() const;
+    const std::string&          GetName() const;
+    ComponentTemplateId         GetTemplateId() const;
+    ComponentId                 GetId() const;
+    GameObjectSPtr              GetParentObject() const;
 protected:
     virtual void OnCreate();
     virtual void OnDestory();
@@ -38,6 +39,10 @@ private:
 private:
     ComponentTemplateId     m_template_id;
     bool                    m_is_active;
+    /**
+     * 父对象的弱引用
+     */
+    GameObjectWKPtr         m_parent_gameobject;
 };
 
 }

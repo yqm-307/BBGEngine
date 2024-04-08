@@ -40,12 +40,16 @@ ComponentId Component::GetId() const
     return GetMemberId();
 }
 
-void Component::OnAddComponent(ecs::GameObjectSPtr)
+void Component::OnAddComponent(ecs::GameObjectSPtr parent)
 {
+    m_parent_gameobject = parent;
 }
 
-void Component::OnDelComponent(ecs::GameObjectSPtr)
+void Component::OnDelComponent(ecs::GameObjectSPtr parent)
 {
+    auto parent_sptr = m_parent_gameobject.lock();
+    AssertWithInfo(parent_sptr == parent, "this a wrong! please check object life cycle!");
+    m_parent_gameobject.reset(); // 释放parent所有权
 }
 
 void Component::OnEnable()
@@ -78,6 +82,11 @@ void Component::Update()
 {
     if (IsActive())
         OnUpdate();
+}
+
+GameObjectSPtr Component::GetParentObject() const
+{
+    return m_parent_gameobject.lock();
 }
 
 

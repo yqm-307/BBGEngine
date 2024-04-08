@@ -21,7 +21,6 @@ enum emEntityType: engine::ecs::ComponentTemplateId {
     EM_ENTITY_TYPE_HAS_ENTITY               = 1000000,
     EM_ENTITY_TYPE_PLAYER                   = 1000001,      // 玩家
     EM_ENTITY_TYPE_NPC                      = 1000002,      // npc
-    EM_ENTITY_TYPE_CONN_MANAGER             = 1000003,      // connect mgr
 
 
 //------------------------> 测试对象 <------------------------//
@@ -43,9 +42,11 @@ enum emComponentType: int {
     EM_COMPONENT_TYPE_ATTRIBUTE             = 5,    // attribute 组件
     EM_COMPONENT_TYPE_GLOBAL_LUA_VM         = 7,    // lua 全局虚拟机
     EM_COMPONENT_TYPE_LUA_TEST              = 8,    // lua 测试组件
+    EM_COMPONENT_TYPE_CONN_MGR              = 9,    // conn mgr
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
+    EM_COMPONENT_TYPE_EMPTY                 = 1001002,   // 空组件
 };
 
 class EcsInitHelper
@@ -59,6 +60,8 @@ public:
                 {"npc_buff_list",                   emComponentType::EM_COMPONENT_TYPE_BUFFLIST},
                 {"npc_attribute",                   emComponentType::EM_COMPONENT_TYPE_ATTRIBUTE},
                 {"lua_test_script",                 emComponentType::EM_COMPONENT_TYPE_LUA_TEST},
+                {"connect_manager",                 emComponentType::EM_COMPONENT_TYPE_CONN_MGR},
+                {"empty_component",                 emComponentType::EM_COMPONENT_TYPE_EMPTY},
             }
         );
 

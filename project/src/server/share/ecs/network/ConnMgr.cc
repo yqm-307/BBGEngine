@@ -1,5 +1,6 @@
 #include "share/ecs/network/ConnMgr.hpp"
 #include "share/ecs/Define.hpp"
+#include "share/ecs/network/NetworkComponent.hpp"
 
 namespace share::ecs::network
 {
@@ -10,9 +11,8 @@ ConnMgr::~ConnMgr()
 }
 
 ConnMgr::ConnMgr():
-    engine::ecs::GameObject(EM_ENTITY_TYPE_CONN_MANAGER)
+    engine::ecs::Component(EM_COMPONENT_TYPE_CONN_MGR)
 {
-
 }
 
 }
