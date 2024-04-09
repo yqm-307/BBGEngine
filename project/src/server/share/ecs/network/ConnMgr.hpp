@@ -17,12 +17,14 @@ struct ServerCfg
 class ConnMgr:
     public engine::ecs::Component
 {
+    ComponentDeriveClassDef;
 public:
     ~ConnMgr();
     bool Init();
     
 protected:
     ConnMgr(const ServerCfg& cfg);
+    virtual void OnUpdate() override {};
 
     /* network回调，当建立新连接时触发 */
     void OnAcceptAndInitConn(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn);

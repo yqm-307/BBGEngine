@@ -15,15 +15,17 @@ std::unique_ptr<NetworkSystem>& NetworkSystem::GetInstance()
     return _inst;
 }
 
-bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const char* ip, short port)
+bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg)
 {
-    auto comp = GetComponent(gameobject);
-    if (comp == nullptr)
-        return false;
+    // 初始化network gameobject
+    auto network_comp = G_ComponentMgr()->Create<share::ecs::network::NetworkComponent>();
+    Assert(gameobject->AddComponent(network_comp));
+    auto connmgr_comp = G_ComponentMgr()->Create<share::ecs::network::ConnMgr>(cfg);
+    Assert(gameobject->AddComponent(connmgr_comp));
 
-    comp->SetListenAddr(ip, port);
-    return true;
+    return connmgr_comp->Init();
 }
+
 
 bool NetworkSystem::StartNetwork(GameObjectSPtr gameobject)
 {

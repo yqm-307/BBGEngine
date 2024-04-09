@@ -9,11 +9,13 @@ namespace share::ecs::network
 class Network:
     public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
     virtual ~Network() {}
-private:
+protected:
     Network();
-
+    virtual void OnUpdate() override {}
+private:
 };
 
 }

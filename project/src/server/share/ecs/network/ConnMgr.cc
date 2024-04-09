@@ -31,12 +31,13 @@ bool ConnMgr::Init()
     network_comp->SetOnAccept([this](auto err, auto new_conn){
         OnAcceptAndInitConn(err, new_conn);
     });
+
+    return true;
 }
 
 void ConnMgr::OnAcceptAndInitConn(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
 {
-    auto conn = std::make_shared<Connection>();
-    
+    auto conn = std::make_shared<network::Connection>(new_conn, 1000);
 }
 
 

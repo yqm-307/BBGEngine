@@ -4,6 +4,7 @@
 #include "share/ecs/gameobject/GameObject.hpp"
 #include "share/ecs/aoi/AoiComponent.hpp"
 #include "share/ecs/network/NetworkComponent.hpp"
+#include "share/ecs/network/Network.hpp"
 #include "util/log/Log.hpp"
 #include <signal.h>
 
@@ -98,9 +99,13 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
 
     GAME_BASE_LOG_INFO("gameserver! IP: %s  Port: %d", ip.c_str(), port);
 
-    auto network_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    network_obj->AddComponent(G_ComponentMgr()->Create<share::ecs::network::NetworkComponent>());
-    Assert(share::ecs::network::NetworkSystem::GetInstance()->InitNetwork(network_obj, ip.c_str(), port));
+    share::ecs::network::ServerCfg cfg;
+    cfg.ip = ip;
+    cfg.port = port;
+    cfg.connent_timeout = 1000;
+
+    auto network_obj = G_GameObjectMgr()->Create<share::ecs::network::Network>();
+    share::ecs::network::NetworkSystem::GetInstance()->InitNetwork(network_obj, cfg);
 
     return network_obj;
 }

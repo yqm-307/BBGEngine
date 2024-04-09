@@ -10,16 +10,19 @@ namespace share::ecs::network
 class Connection
 {
 public:
-    Connection();
-    ~Connection();
+    virtual ~Connection();
+    Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
+protected:
+    void            OnRecv(const char* data, size_t len);
+    void            OnSend(const bbt::network::Errcode& err, size_t succ_len);
+    void            OnTimeout();
+    void            OnClose();
+    void            OnError(const bbt::network::Errcode& err);
+
 private:
-    void OnRecv(const char* data, size_t len) {}
-    void OnClose(void* udata, const bbt::net::IPAddress& addr) {}
-    void OnSend(const bbt::network::Errcode& err, size_t send_len) {}
-    void OnTimeout() {}
-private:
-    bbt::network::libevent::ConnCallbacks m_conn_callbacks;
-    bbt::network::ConnId                  m_conn_id{0};
+    bbt::network::libevent::ConnCallbacks   m_conn_callbacks;
+    bbt::network::ConnId                    m_conn_id{0};
+    bbt::network::libevent::ConnectionSPtr  m_raw_conn_ptr{nullptr};
 };
 
 }
