@@ -17,8 +17,7 @@ public:
     void Stop();
     //TODO
     void Connect() {}
-    //TODO
-    void SetOnAccept() {}
+    void SetOnAccept(const bbt::network::libevent::OnAcceptCallback& onaccept_cb);
 
 private:
     NetworkComponent();
@@ -27,6 +26,7 @@ private:
 
 private:
     bbt::network::libevent::Network*    m_network{nullptr};
+    bbt::network::libevent::OnAcceptCallback m_onaccept_cb{nullptr};
 };
 
 } // namespace share::ecs::network

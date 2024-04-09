@@ -42,7 +42,17 @@ void NetworkComponent::OnAccept(const bbt::network::Errcode& err, bbt::network::
         GAME_EXT1_LOG_ERROR("accept failed! %s", err.CWhat());
         return;
     }
+    if (m_onaccept_cb == nullptr) {
+        GAME_EXT1_LOG_WARN("no OnAccept()! lost connect: {%s}", conn->GetPeerAddress().GetIPPort().c_str());
+        return;
+    }
+    m_onaccept_cb(err, conn);
     GAME_EXT1_LOG_INFO("new connection: {%s}", conn->GetPeerAddress().GetIPPort().c_str());
+}
+
+void NetworkComponent::SetOnAccept(const bbt::network::libevent::OnAcceptCallback& onaccept_cb)
+{
+    m_onaccept_cb = onaccept_cb;
 }
 
 }
