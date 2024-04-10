@@ -22,6 +22,9 @@ public:
     ~ConnMgr();
     bool Init();
     
+    bool DelConnect(bbt::network::ConnId conn);
+    bool AddConnect(std::shared_ptr<Connection> conn);
+    void OnTimeout(Connection* conn);
 protected:
     ConnMgr(const ServerCfg& cfg);
     virtual void OnUpdate() override {};

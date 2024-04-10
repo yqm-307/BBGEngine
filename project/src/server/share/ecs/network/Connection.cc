@@ -1,10 +1,13 @@
-#include "share/ecs/network/Connection.hpp"
 #include "util/log/Log.hpp"
+#include "share/ecs/network/Connection.hpp"
+#include "share/ecs/network/ConnMgr.hpp"
 
 namespace share::ecs::network
 {
 
-Connection::Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
+uint64_t Connection::m_id_template = 1;
+
+Connection::Connection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
     m_raw_conn_ptr(raw_conn)
 {
     m_conn_callbacks.on_close_callback = [this](void* udata, const bbt::net::IPAddress& addr){ OnClose(); };
@@ -47,6 +50,10 @@ void Connection::OnTimeout()
     GAME_EXT1_LOG_WARN("[Connection::OnTimeout] ontimeout!");
 }
 
+bbt::network::ConnId Connection::GetConnId()
+{
+    return m_conn_id;
+}
 
 
 }

@@ -37,8 +37,38 @@ bool ConnMgr::Init()
 
 void ConnMgr::OnAcceptAndInitConn(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
 {
-    auto conn = std::make_shared<network::Connection>(new_conn, 1000);
+    auto conn = std::make_shared<network::Connection>(this, new_conn, 1000);
+    if (!AddConnect(conn)) {
+        GAME_EXT1_LOG_ERROR("add connect failed!");
+        return;
+    }
 }
 
+bool ConnMgr::DelConnect(bbt::network::ConnId conn)
+{
+    auto it = m_conn_map.find(conn);
+    if (it != m_conn_map.end()) {
+        return false;
+    }
+
+    m_conn_map.erase(it);
+    return true;
+}
+
+bool ConnMgr::AddConnect(std::shared_ptr<Connection> conn)
+{
+    if (conn == nullptr)
+        return false;
+
+    auto [it, succ] = m_conn_map.insert(std::make_pair(conn->GetConnId(), conn));
+    return succ;
+}
+
+void ConnMgr::OnTimeout(Connection* conn)
+{
+    if (!DelConnect(conn->GetConnId())) {
+        GAME_EXT1_LOG_ERROR("[ConnMgr::OnTimeout] connect timeout!");
+    }
+}
 
 }
