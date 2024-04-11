@@ -18,7 +18,7 @@ public:
     bool StartNetwork(GameObjectSPtr gameobject);
     bool StopNetwork(GameObjectSPtr gameobject);
 
-    bool AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const OnAsyncConnectCallback& on_connect);
+    bool AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
 private:
     NetworkSystem() {}
     std::shared_ptr<NetworkComponent> GetComponent(GameObjectSPtr gameobject);

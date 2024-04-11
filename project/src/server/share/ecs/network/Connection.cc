@@ -55,5 +55,11 @@ bbt::network::ConnId Connection::GetConnId()
     return m_conn_id;
 }
 
+void Connection::Send(const char* data, size_t len)
+{
+    m_raw_conn_ptr->AsyncSend(data, len);
+}
+
+
 
 }
