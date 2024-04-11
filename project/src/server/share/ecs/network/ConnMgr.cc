@@ -71,4 +71,11 @@ void ConnMgr::OnTimeout(Connection* conn)
     }
 }
 
+void ConnMgr::OnConnectAndAdd(std::shared_ptr<Connection> new_conn)
+{
+    if (!AddConnect(new_conn))
+        GAME_EXT1_LOG_ERROR("add connect failed!");
+}
+
+
 }

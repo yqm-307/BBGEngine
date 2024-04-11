@@ -55,4 +55,14 @@ void NetworkComponent::SetOnAccept(const bbt::network::libevent::OnAcceptCallbac
     m_onaccept_cb = onaccept_cb;
 }
 
+bool NetworkComponent::Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect)
+{
+    auto err = m_network->AsyncConnect(ip, port, timeout, on_connect);
+    if (!err) {
+        GAME_EXT1_LOG_ERROR("AsyncConnect() failed! %s", err.CWhat());
+        return false;
+    }
+
+    return true;
+}
 }

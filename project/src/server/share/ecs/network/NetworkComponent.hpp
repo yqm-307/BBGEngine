@@ -16,7 +16,7 @@ public:
     void Start();
     void Stop();
     //TODO
-    void Connect() {}
+    bool Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
     void SetOnAccept(const bbt::network::libevent::OnAcceptCallback& onaccept_cb);
 
 private:

@@ -59,4 +59,9 @@ std::shared_ptr<NetworkComponent> NetworkSystem::GetComponent(GameObjectSPtr obj
     return std::static_pointer_cast<ecs::network::NetworkComponent>(component);
 }
 
+bool NetworkSystem::AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const OnAsyncConnectCallback& on_connect)
+{
+    auto component = obj->
+}
+
 }

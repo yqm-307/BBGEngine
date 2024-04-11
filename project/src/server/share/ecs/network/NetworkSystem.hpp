@@ -5,6 +5,7 @@
 
 namespace share::ecs::network
 {
+typedef std::function<std::shared_ptr<Connection>(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr conn)> OnAsyncConnectCallback;
 
 class NetworkSystem
 {
@@ -17,6 +18,7 @@ public:
     bool StartNetwork(GameObjectSPtr gameobject);
     bool StopNetwork(GameObjectSPtr gameobject);
 
+    bool AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const OnAsyncConnectCallback& on_connect);
 private:
     NetworkSystem() {}
     std::shared_ptr<NetworkComponent> GetComponent(GameObjectSPtr gameobject);

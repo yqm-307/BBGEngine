@@ -6,10 +6,6 @@ namespace share::ecs::network
 
 class ConnMgr;
 
-/**
- * @brief 可以继承自bbt::network::libevent::Connection
- * 但是选择使用组合的方式，因为继承层次可能有些多了，不是很好看
- */
 class Connection
 {
 public:
