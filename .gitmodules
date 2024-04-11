@@ -1,5 +1,5 @@
 [submodule "project/server/thirdparty"]
-	path = project/server/thirdparty
+	path = project/thirdparty
 	url = git@github.com:yqm-307/mmothirdpatry.git
 [submodule "project/protocol/dbservice_protofile"]
 	path = project/protocol/dbservice_protofile
