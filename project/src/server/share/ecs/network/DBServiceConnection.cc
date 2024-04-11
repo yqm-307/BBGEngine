@@ -5,7 +5,9 @@
 namespace share::ecs::network
 {
 
-void DBServiceConnection::RegistHandler(int protoid, const DBServiceHandler& handler)
+std::unordered_map<int, DBServiceCFuncPtr*> DBServiceConnection::m_proto_handler_map = std::unordered_map<int, DBServiceCFuncPtr*>();
+
+void DBServiceConnection::RegistHandler(int protoid, DBServiceCFuncPtr* handler)
 {
     auto [_, succ] = m_proto_handler_map.insert(std::make_pair(protoid, handler));
     Assert(succ);
@@ -16,10 +18,10 @@ bool DBServiceConnection::Dispatch(int protoid, bbt::buffer::Buffer& buf, bbt::b
     auto it = m_proto_handler_map.find(protoid);
     if (it == m_proto_handler_map.end()) {
         GAME_EXT1_LOG_ERROR("unknow protoid [%d]", protoid);
-        return;
+        return false;
     }
 
-    it->second(buf, resp);
+    return (*(it->second))(buf, resp);
 }
 
 
@@ -53,7 +55,7 @@ int DBServiceConnection::_HasAProtocol(const char* data, size_t remain_size)
 {
     // 当前这条协议的总长度
     int length = 0;
-    memcpy((char*)length, data, sizeof(int));
+    memcpy((char*)&length, data, sizeof(int));
     Assert(length >= 0);
 
     return (remain_size >= length ? length : -1);

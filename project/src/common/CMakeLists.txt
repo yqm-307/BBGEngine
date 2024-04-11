@@ -21,4 +21,5 @@ add_library(BBGCommon SHARED ${SRCS})
 target_link_libraries(BBGCommon
     ybbt
     inih
+    protobuf
 )
