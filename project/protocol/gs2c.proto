@@ -1,4 +1,6 @@
+syntax = "proto3";
+
 message GS2C_ON_LOGIN_RSP
 {
-    int32 Field_HandleID = 2;
+    int32 Field_HandleID = 1;
 };

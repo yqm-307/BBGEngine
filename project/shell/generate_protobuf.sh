@@ -6,7 +6,7 @@
 ##
 
 
-PROTO_DST_PATH="../server/protoc"   # 导出目录
+PROTO_DST_PATH="../src/common/protocol"   # 导出目录
 PROTO_SRC_PATH="../protocol"        # protobuf源代码目录
 
 function generate_ex()
@@ -23,16 +23,14 @@ function generate_ex()
 function main()
 {
     # 创建目录
-    if [ !  -d $PROTO_DST_PATH  ]
+    if [ ! -d $PROTO_DST_PATH  ]
     then
         mkdir $PROTO_DST_PATH
     fi
 
-    ##########
-    # c++ c2gs
-    ##########
     generate_ex $PROTO_DST_PATH $PROTO_SRC_PATH c2gs.proto
-
+    generate_ex $PROTO_DST_PATH $PROTO_SRC_PATH gs2c.proto
+    generate_ex "../src/common/protocol" "../protocol/dbservice_protofile" dbservice.proto
 }
 
 

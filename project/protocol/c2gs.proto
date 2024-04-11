@@ -11,5 +11,3 @@ message C2GS_ON_LOGIN_REQ
 {
     int32 Field_HandleID = 1;
 };
-
-message

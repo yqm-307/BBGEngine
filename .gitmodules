@@ -1,3 +1,6 @@
 [submodule "project/server/thirdparty"]
 	path = project/server/thirdparty
 	url = git@github.com:yqm-307/mmothirdpatry.git
+[submodule "project/protocol/dbservice_protofile"]
+	path = project/protocol/dbservice_protofile
+	url = git@github.com:Justice-League-Lab/dbservice_protofile.git
