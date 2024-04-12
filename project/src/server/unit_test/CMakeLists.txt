@@ -204,3 +204,21 @@ target_link_libraries(test_game_global_lua_vm_compoment_texe
 )
 
 add_test(NAME test_game_global_lua_vm_compoment_texe COMMAND test_game_global_lua_vm_compoment_texe)
+
+######################## ==> game 的 timewheel component debug 测试 <== ########################
+
+file(GLOB_RECURSE timewheel_component_src
+    ${PROJECT_SOURCE_DIR}/server/share/ecs//timewheel/*.cc
+)
+
+add_executable(test_game_timewheel_compoment_texe
+    ${SRC_FILE}
+    ${timewheel_component_src}
+    ./game/timewheel/Test_timewheel_gameobj.cc
+)
+
+target_link_libraries(test_game_timewheel_compoment_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_game_timewheel_compoment_texe COMMAND test_game_timewheel_compoment_texe)

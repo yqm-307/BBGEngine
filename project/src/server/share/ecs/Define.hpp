@@ -15,6 +15,7 @@ enum emEntityType: engine::ecs::ComponentTemplateId {
     EM_ENTITY_TYPE_PLAYER_MGR               = 2,    // 玩家管理器
     EM_ENTITY_TYPE_COMM_SCENE               = 3,    // 通用空场景
     EM_ENTITY_TYPE_NETWORK                  = 4,    //
+    EM_ENTITY_TYPE_TIME_WHEEL               = 5,    // timewheel 对象
 
 
 //------------------------> 实体对象 <------------------------//
@@ -43,6 +44,7 @@ enum emComponentType: int {
     EM_COMPONENT_TYPE_GLOBAL_LUA_VM         = 7,    // lua 全局虚拟机
     EM_COMPONENT_TYPE_LUA_TEST              = 8,    // lua 测试组件
     EM_COMPONENT_TYPE_CONN_MGR              = 9,    // conn mgr
+    EM_COMPONENT_TYPE_TIME_WHEEL            = 10,   // time wheel
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
@@ -62,6 +64,7 @@ public:
                 {"lua_test_script",                 emComponentType::EM_COMPONENT_TYPE_LUA_TEST},
                 {"connect_manager",                 emComponentType::EM_COMPONENT_TYPE_CONN_MGR},
                 {"empty_component",                 emComponentType::EM_COMPONENT_TYPE_EMPTY},
+                {"timewheel",                       emComponentType::EM_COMPONENT_TYPE_TIME_WHEEL},
             }
         );
 
@@ -70,6 +73,7 @@ public:
                 {"Gameobject",                      emEntityType::EM_ENTITY_TYPE_GAMEOBJECT},
                 {"Aoi",                             emEntityType::EM_ENTITY_TYPE_AOI},
                 {"network",                         emEntityType::EM_ENTITY_TYPE_NETWORK},
+                {"timewheel_obj",                   emEntityType::EM_ENTITY_TYPE_TIME_WHEEL},
             }
         );
     }
