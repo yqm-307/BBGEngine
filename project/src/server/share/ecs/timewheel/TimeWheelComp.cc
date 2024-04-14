@@ -13,7 +13,11 @@ TimeWheelComp::TimeWheelComp(int frames):
 
 void TimeWheelComp::OnUpdate()
 {
-    m_wheel.Tick();
+    while (m_wheel.HasTimeoutSlot(bbt::timer::clock::now()))
+    {
+        m_wheel.Tick();
+        GAME_BASE_LOG_DEBUG("tick once, %ld, %d", m_wheel.GetNextTickTimestamp().time_since_epoch().count() / 1000, time(nullptr));
+    }
 }
 
 TaskId TimeWheelComp::AddTask(const std::function<bool()>& timeout_handle, int nframes)
@@ -25,6 +29,7 @@ TaskId TimeWheelComp::AddTask(const std::function<bool()>& timeout_handle, int n
         [=](){
             bool go_on = timeout_handle();
             if (go_on) {
+                task->Reset();
                 bool succ = m_wheel.AddTask(task);
                 if (!succ)
                     GAME_EXT1_LOG_ERROR("go on regist time task failed! taskid=%d", task->GetTaskID());

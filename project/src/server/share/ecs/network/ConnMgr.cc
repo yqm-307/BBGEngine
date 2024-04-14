@@ -37,7 +37,7 @@ bool ConnMgr::Init()
 
 void ConnMgr::OnAcceptAndInitConn(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
 {
-    auto conn = std::make_shared<network::Connection>(this, new_conn, 1000);
+    auto conn = std::make_shared<network::Connection>(this, new_conn, m_cfg.connent_timeout);
     if (!AddConnect(conn)) {
         GAME_EXT1_LOG_ERROR("add connect failed!");
         return;

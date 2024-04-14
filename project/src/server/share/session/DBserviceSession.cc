@@ -17,14 +17,9 @@ bool DBServiceSession::OnPing(bbt::buffer::Buffer req, bbt::buffer::Buffer& resp
         return false;
     }
 
-    GAME_EXT1_LOG_DEBUG("[%d]", protobuf_req.timestamp());
-
-    protobuf_resp.set_timestamp(bbt::timer::clock::now().time_since_epoch().count());
-    auto string = protobuf_resp.SerializeAsString();
-    resp.WriteString(string);
+    GAME_EXT1_LOG_DEBUG("[%ld]", protobuf_req.timestamp());
 
     return true;
 }
-
 
 }

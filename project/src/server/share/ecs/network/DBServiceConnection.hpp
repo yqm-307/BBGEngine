@@ -5,7 +5,9 @@
 namespace share::ecs::network
 {
 
-typedef bool(*DBServiceCFuncPtr)(bbt::buffer::Buffer& req, bbt::buffer::Buffer& resp);
+typedef std::function<bool(bbt::buffer::Buffer&, bbt::buffer::Buffer&)> DBServiceCPPFuncPtr;
+
+class DBServiceSession;
 
 class DBServiceConnection:
     public Connection
@@ -13,9 +15,9 @@ class DBServiceConnection:
 public:
     DBServiceConnection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
     virtual ~DBServiceConnection();
-    static void RegistHandler(int protoid, DBServiceCFuncPtr* handler);
+    static void RegistHandler(int protoid, DBServiceCPPFuncPtr handler);
 protected:
-    void            OnRecv(const char* data, size_t len);
+    void            OnRecv(const char* data, size_t len) override;
     static bool     Dispatch(int protoid, bbt::buffer::Buffer& buf, bbt::buffer::Buffer& resp);
 
     std::pair<bool, int> GetAProtocol(bbt::buffer::Buffer& protocol);
@@ -30,7 +32,7 @@ protected:
     int             _HasAProtocol(const char* data, size_t remain_size);
 private:
 
-    static std::unordered_map<int, DBServiceCFuncPtr*> m_proto_handler_map;
+    static std::unordered_map<int, DBServiceCPPFuncPtr> m_proto_handler_map;
     bbt::buffer::Buffer m_recv_buffer; // 接收缓存，保存不完整数据包
 };
 

@@ -13,7 +13,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin) # 可执行文件目录
 set(PROJECT_SRC ${PROJECT_SOURCE_DIR}/../..)
 set(COMMOM_SRC ${PROJECT_SOURCE_DIR}/../../src/common)
 set(SERVER_SRC ${PROJECT_SOURCE_DIR}/../../src/server)
-set(CLIENT_SRC ${PROJECT_SOURCE_DIR}/../../src/client)
 
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} 
@@ -34,7 +33,9 @@ file(GLOB_RECURSE SRC_FILE
     # engine module
     ${COMMOM_SRC}/*.cc
     # ecs define module
-    ${SERVER_SRC}/share/*.cc
+    ${SERVER_SRC}/share/ecs/network/*.cc
+    ${SERVER_SRC}/share/ecs/gameobject/*.cc
+    ${SERVER_SRC}/share/session/*.cc
     ${PROJECT_SOURCE_DIR}/*.cc
 )
 

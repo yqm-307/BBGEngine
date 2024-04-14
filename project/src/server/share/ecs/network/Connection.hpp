@@ -15,11 +15,11 @@ public:
 
     virtual void Send(const char* data, size_t len);
 protected:
-    void            OnRecv(const char* data, size_t len);
-    void            OnSend(const bbt::network::Errcode& err, size_t succ_len);
-    void            OnTimeout();
-    void            OnClose();
-    void            OnError(const bbt::network::Errcode& err);
+    virtual void    OnRecv(const char* data, size_t len);
+    virtual void    OnSend(const bbt::network::Errcode& err, size_t succ_len);
+    virtual void    OnTimeout();
+    virtual void    OnClose();
+    virtual void    OnError(const bbt::network::Errcode& err);
 private:
     static uint64_t GenerateId() { return m_id_template++; }
 

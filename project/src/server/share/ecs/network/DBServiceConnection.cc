@@ -5,9 +5,9 @@
 namespace share::ecs::network
 {
 
-std::unordered_map<int, DBServiceCFuncPtr*> DBServiceConnection::m_proto_handler_map = std::unordered_map<int, DBServiceCFuncPtr*>();
+std::unordered_map<int, DBServiceCPPFuncPtr> DBServiceConnection::m_proto_handler_map = std::unordered_map<int, DBServiceCPPFuncPtr>();
 
-void DBServiceConnection::RegistHandler(int protoid, DBServiceCFuncPtr* handler)
+void DBServiceConnection::RegistHandler(int protoid, DBServiceCPPFuncPtr handler)
 {
     auto [_, succ] = m_proto_handler_map.insert(std::make_pair(protoid, handler));
     Assert(succ);
@@ -21,7 +21,8 @@ bool DBServiceConnection::Dispatch(int protoid, bbt::buffer::Buffer& buf, bbt::b
         return false;
     }
 
-    return (*(it->second))(buf, resp);
+    auto func = it->second;
+    return func(buf, resp);
 }
 
 
@@ -54,7 +55,7 @@ void DBServiceConnection::OnRecv(const char* data, size_t len)
 int DBServiceConnection::_HasAProtocol(const char* data, size_t remain_size)
 {
     // 当前这条协议的总长度
-    int length = 0;
+    uint32_t length = 0;
     memcpy((char*)&length, data, sizeof(int));
     Assert(length >= 0);
 
