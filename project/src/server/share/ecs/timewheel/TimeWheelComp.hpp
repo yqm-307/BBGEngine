@@ -5,9 +5,8 @@
 namespace share::ecs::timewheel
 {
 
-typedef std::function<void()> TimerHandle;
-typedef bbt::timer::TimeWheel<TimerHandle>::TaskBasePtr TaskPtr;
-typedef bbt::timer::TimeWheel<TimerHandle>::TaskID TaskId;
+typedef bbt::timer::TimeWheel::TimerSPtr    TaskPtr;
+typedef bbt::timer::TimeWheel::TimerId      TaskId;
 
 class TimeWheelComp:
     public engine::ecs::Component
@@ -15,8 +14,8 @@ class TimeWheelComp:
     ComponentDeriveClassDef;
 public:
     ~TimeWheelComp() {}
-    TaskId AddTask(const std::function<bool()>& timeout_handle, int nframes);
-    bool CancelTask(TaskId task);
+    std::pair<std::optional<bbt::timer::Errcode>, TaskId> AddTask(const std::function<bool()>& timeout_handle, int nframes);
+    bool    CancelTask(TaskId task);
 protected:
     /**
      * @param frames 每秒tick次数
@@ -24,8 +23,8 @@ protected:
     TimeWheelComp(int frames);
     virtual void OnUpdate() override;
 private:
-    bbt::timer::TimeWheel<TimerHandle> m_wheel;
-    const int m_one_second_frames{0};
+    bbt::timer::TimeWheel       m_wheel;
+    const int                   m_one_second_frames{0};
 };
 
 }

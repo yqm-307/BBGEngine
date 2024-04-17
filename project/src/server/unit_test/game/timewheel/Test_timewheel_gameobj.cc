@@ -19,7 +19,6 @@ BOOST_AUTO_TEST_CASE(preload)
 BOOST_AUTO_TEST_CASE(t_timewheel_base_test)
 {
     int one_sec_frames = 20;
-    int interval = 1000 / one_sec_frames;
     auto begin_time = bbt::timer::clock::now();
     int num = 0;
 
@@ -28,7 +27,7 @@ BOOST_AUTO_TEST_CASE(t_timewheel_base_test)
     scene.MountGameObject(gameobject);
     share::ecs::timewheel::TimeWheelSystem::GetInstance()->InitGameobject(gameobject, one_sec_frames);
     share::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
-    [&](){
+    [&num](){
         if (num < 10) {
             num++;
             return true;
@@ -38,9 +37,9 @@ BOOST_AUTO_TEST_CASE(t_timewheel_base_test)
     },
     1);
 
-    for (int i = 0; i < 30; ++i)
+    for (int i = 0; i < 100; ++i)
     {
-        begin_time = begin_time + bbt::timer::clock::ms(interval);
+        begin_time = begin_time + bbt::timer::clock::ms(10);
         std::this_thread::sleep_until(begin_time);
         scene.Update();
     }
@@ -60,7 +59,7 @@ BOOST_AUTO_TEST_CASE(t_timewheel_cancel_test)
     scene.MountGameObject(gameobject);
 
     share::ecs::timewheel::TimeWheelSystem::GetInstance()->InitGameobject(gameobject, one_sec_frames);
-    int taskid = share::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
+    auto [err, taskid] = share::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
     [&](){
         if (num < 10) {
             num++;
@@ -70,6 +69,8 @@ BOOST_AUTO_TEST_CASE(t_timewheel_cancel_test)
         return false;
     },
     2);
+
+    BOOST_ASSERT(err == std::nullopt);
 
     scene.Update();
     share::ecs::timewheel::TimeWheelSystem::GetInstance()->CancelTask(gameobject, taskid);

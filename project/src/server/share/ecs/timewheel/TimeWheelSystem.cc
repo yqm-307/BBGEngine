@@ -15,7 +15,8 @@ std::unique_ptr<TimeWheelSystem>& TimeWheelSystem::GetInstance()
     return ptr;
 }
 
-TaskId TimeWheelSystem::AddTask(engine::ecs::GameObjectSPtr gameobject, const std::function<bool()>& timeout_handle, int nframes)
+std::pair<std::optional<bbt::timer::Errcode>, TaskId>
+    TimeWheelSystem::AddTask(engine::ecs::GameObjectSPtr gameobject, const std::function<bool()>& timeout_handle, int nframes)
 {
     auto timewheel_comp = GetComponent(gameobject);   
     return timewheel_comp->AddTask(timeout_handle, nframes);
