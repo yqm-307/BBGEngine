@@ -31,11 +31,12 @@ class SystemMgr;
 
 class Component;
 class GameObject;
+
+template<typename TChildClass>
 class System;
 
 SharedWithUniqueDef(Component);
 SharedWithUniqueDef(GameObject);
-SharedWithUniqueDef(System);
 
 #pragma region "==> ID和ID生成器的声明 <=="
 

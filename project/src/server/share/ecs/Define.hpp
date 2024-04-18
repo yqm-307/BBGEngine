@@ -45,6 +45,7 @@ enum emComponentType: int {
     EM_COMPONENT_TYPE_LUA_TEST              = 8,    // lua 测试组件
     EM_COMPONENT_TYPE_CONN_MGR              = 9,    // conn mgr
     EM_COMPONENT_TYPE_TIME_WHEEL            = 10,   // time wheel
+    EM_COMPONENT_TYPE_CLOCK_MODULE          = 11,   // 游戏内时钟
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
@@ -65,6 +66,7 @@ public:
                 {"connect_manager",                 emComponentType::EM_COMPONENT_TYPE_CONN_MGR},
                 {"empty_component",                 emComponentType::EM_COMPONENT_TYPE_EMPTY},
                 {"timewheel",                       emComponentType::EM_COMPONENT_TYPE_TIME_WHEEL},
+                {"clock_module",                    emComponentType::EM_COMPONENT_TYPE_CLOCK_MODULE},
             }
         );
 

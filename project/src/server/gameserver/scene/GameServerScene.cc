@@ -125,8 +125,7 @@ void GameServerScene::StartScene()
     share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
     auto err = m_loop->StartLoop(bbt::network::libevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
     if (!err)
-        GAME_EXT1_LOG_ERROR(err.CWhat());
-    
+        GAME_EXT1_LOG_ERROR(err.CWhat());   
 }
 
 void GameServerScene::StopScene()

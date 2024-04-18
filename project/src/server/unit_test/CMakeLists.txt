@@ -222,3 +222,16 @@ target_link_libraries(test_game_timewheel_compoment_texe
 )
 
 add_test(NAME test_game_timewheel_compoment_texe COMMAND test_game_timewheel_compoment_texe)
+
+######################## ==> game 的 timewheel component debug 测试 <== ########################
+add_executable(test_game_timewheel_debug_texe
+    ${SRC_FILE}
+    ${timewheel_component_src}
+    ./game/timewheel/Test_timewheel_fatigue_test.cc
+)
+
+target_link_libraries(test_game_timewheel_debug_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_game_timewheel_debug_texe COMMAND test_game_timewheel_debug_texe)
