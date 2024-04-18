@@ -1,12 +1,17 @@
 #pragma once
+#include "engine/ecs/system/System.hpp"
 #include "share/ecs/timewheel/TimeWheelComp.hpp"
 
 namespace share::ecs::timewheel
 {
 
-class TimeWheelSystem
+class TimeWheelSystem:
+    public engine::ecs::System<TimeWheelSystem>
 {
 public:
+    TimeWheelSystem() {}
+    ~TimeWheelSystem() {}
+
     static std::unique_ptr<TimeWheelSystem>& GetInstance();
 
     void InitGameobject(engine::ecs::GameObjectSPtr gameobject, int fps);

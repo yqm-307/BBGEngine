@@ -1,3 +1,4 @@
+#include <bbt/base/timer/TimeWheel.hpp>
 #include "share/ecs/Define.hpp"
 #include "share/ecs/timewheel/TimeWheelComp.hpp"
 
@@ -18,9 +19,9 @@ void TimeWheelComp::OnUpdate()
     */
     while (m_wheel.HasTimeoutSlot(bbt::timer::clock::now()))
     {
-        GAME_BASE_LOG_DEBUG("tick once, %ld, %ld",
-            m_wheel.GetNextTickTimestamp().time_since_epoch().count(),
-            bbt::timer::clock::now<>().time_since_epoch().count());
+        // GAME_BASE_LOG_DEBUG("tick once, %ld, %ld",
+        //     m_wheel.GetNextTickTimestamp().time_since_epoch().count(),
+        //     bbt::timer::clock::now<>().time_since_epoch().count());
         m_wheel.Tick();
     }
 }

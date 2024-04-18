@@ -28,4 +28,9 @@ public:
     }
 };
 
+template<typename TChildClass>
+System<TChildClass>::~System()
+{
+}
+
 }

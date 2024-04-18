@@ -30,15 +30,15 @@ include_directories(
 
 # 搜索CPP文件
 file(GLOB_RECURSE SRC_FILE
-    # engine module
-    ${COMMOM_SRC}/*.cc
     # ecs define module
     ${SERVER_SRC}/share/ecs/network/*.cc
     ${SERVER_SRC}/share/ecs/gameobject/*.cc
+    ${SERVER_SRC}/share/ecs/timewheel/*.cc
     ${SERVER_SRC}/share/session/*.cc
     ${PROJECT_SOURCE_DIR}/*.cc
 )
 
+# message(${SRC_FILE})
 
 # 为可执行程序添加CPP源文件
 add_executable(dbservrobot
@@ -48,14 +48,13 @@ add_executable(dbservrobot
 
 # 为可执行程序添加链接库
 target_link_libraries(dbservrobot
+    ${LIB_BBGCOMM}
+    ybbt
     event_core
     event_pthreads
     bbt_network
-    ybbt
-    inih
     protobuf
     # tcmalloc
     dl
-    ${LIB_BBGCOMM}
     lua
 )

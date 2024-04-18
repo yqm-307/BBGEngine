@@ -16,7 +16,8 @@ namespace share::session
 
 enum DBServiceProtoId
 {
-    EM_DB_SERVICE_PROTO_PING_RESQ = 2, // ping resp
+    EM_DB_SERVICE_PROTO_PING_RESQ                   = 2, // ping resp
+    EM_DB_SERVICE_PROTO_HEARTBEAT_RESP              = 4, // heart beat
 };
 
 class DBServiceSession
@@ -24,11 +25,13 @@ class DBServiceSession
 public:
     static void Init()
     {
-        REGIST_HANDLE(EM_DB_SERVICE_PROTO_PING_RESQ, OnPing);
+        REGIST_HANDLE(EM_DB_SERVICE_PROTO_PING_RESQ,                OnPing);
+        REGIST_HANDLE(EM_DB_SERVICE_PROTO_HEARTBEAT_RESP,           OnHeartBeart);
     }
 
 private:
     static bool OnPing(bbt::buffer::Buffer req, bbt::buffer::Buffer& resp);
+    static bool OnHeartBeart(bbt::buffer::Buffer req, bbt::buffer::Buffer& resp);
 };
 
 }
