@@ -30,6 +30,13 @@ void ServerConfig::Init()
     m_config.m_connmgr_cfg.m_heart_beat_once_ms = m_ini_reader->GetInteger("heartbeat", "interval", 0);
     m_config.m_connmgr_cfg.m_heart_beat_timeout_ms = m_ini_reader->GetInteger("heartbeat", "checkonce", 0);
     G_SetConfigPtr(util::config::evConnMgrConfig, &m_config.m_connmgr_cfg, util::config::Cfg_evConnMgr);
+
+    m_config.m_db_service_cfg.dbservice_ip       = m_ini_reader->GetString("dbservice", "ip", "");
+    m_config.m_db_service_cfg.dbservice_port     = m_ini_reader->GetInteger("dbservice", "port", 0);
+    m_config.m_db_service_cfg.connect_timeout_ms = m_ini_reader->GetInteger("dbservice", "timeout", 0);
+    AssertWithInfo(m_config.m_db_service_cfg.dbservice_ip != "",        "fatal: dbservice.ip is null!");
+    AssertWithInfo(m_config.m_db_service_cfg.dbservice_port != 0,       "fatal: dbservice.port is 0!");
+    AssertWithInfo(m_config.m_db_service_cfg.connect_timeout_ms > 0,    "fatal: dbservice.timeout less then 0!");
 }
 
 void ServerConfig::CheckConfig()
@@ -84,15 +91,28 @@ const std::unique_ptr<ServerConfig>& ServerConfig::GetInstance()
     return _instance;
 }
 
-std::string ServerConfig::GetServerIP()
+const std::string& ServerConfig::GetServerIP() const
 {
     return m_config.server_ip;
 }
 
-int ServerConfig::GetServerPort()
+int ServerConfig::GetServerPort() const
 {
     return m_config.server_port;
 }
 
+const std::string& ServerConfig::GetDBServiceIP() const
+{
+    return m_config.m_db_service_cfg.dbservice_ip;
+}
+
+int ServerConfig::GetDBServicePort() const
+{
+    return m_config.m_db_service_cfg.dbservice_port;
+}
+int ServerConfig::GetDBServiceConnTimeout() const
+{
+    return m_config.m_db_service_cfg.connect_timeout_ms;
+}
 
 }

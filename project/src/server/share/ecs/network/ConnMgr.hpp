@@ -27,6 +27,7 @@ public:
     void OnTimeout(Connection* conn);
     /* 建立了连接后，调用此函数注册 */
     void OnConnectAndAdd(std::shared_ptr<Connection> new_conn);
+    std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id); 
 protected:
     ConnMgr(const ServerCfg& cfg);
     virtual void OnUpdate() override {};

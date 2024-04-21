@@ -13,7 +13,9 @@ public:
     Connection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
     bbt::network::ConnId GetConnId();
 
-    virtual void Send(const char* data, size_t len);
+    virtual void    Send(const char* data, size_t len);
+    virtual bool    IsClosed();
+    virtual void    Close();
 protected:
     virtual void    OnRecv(const char* data, size_t len);
     virtual void    OnSend(const bbt::network::Errcode& err, size_t succ_len);

@@ -29,6 +29,7 @@ Connection::~Connection()
 void Connection::OnClose()
 {
     GAME_EXT1_LOG_WARN("no onclose!");
+    m_conn_mgr->DelConnect(m_conn_id);
 }
 
 void Connection::OnError(const bbt::network::Errcode& err)
@@ -43,7 +44,7 @@ void Connection::OnRecv(const char* data, size_t len)
 
 void Connection::OnSend(const bbt::network::Errcode& err, size_t succ_len)
 {
-    GAME_EXT1_LOG_WARN("[Connection::OnSend] no onrecv %ld", succ_len);
+    GAME_EXT1_LOG_WARN("[Connection::OnSend] no onsend %ld", succ_len);
 }
 
 void Connection::OnTimeout()
@@ -61,6 +62,18 @@ void Connection::Send(const char* data, size_t len)
     m_raw_conn_ptr->AsyncSend(data, len);
 }
 
+bool Connection::IsClosed()
+{
+    return (m_raw_conn_ptr == nullptr) ? false : m_raw_conn_ptr->IsClosed();
+}
+
+void Connection::Close()
+{
+    if (m_raw_conn_ptr == nullptr)
+        return;
+    
+    m_raw_conn_ptr->Close();
+}
 
 
 }

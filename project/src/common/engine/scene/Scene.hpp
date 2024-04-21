@@ -21,6 +21,8 @@ public:
     virtual Result      UnMountGameObject(engine::ecs::GameObjectSPtr) final; 
     virtual Result      UnMountGameObject(engine::ecs::GameObjectId) final;
     virtual size_t      GetChildNum() final;
+    virtual std::vector<engine::ecs::GameObjectSPtr>
+                        GetGameObject(engine::ecs::GameObjectTemplateId tid) final;
 protected:
     virtual void        OnUpdate() = 0;
 

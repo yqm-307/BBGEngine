@@ -57,12 +57,18 @@ const std::string& ErrCode::What() const
     return GetMsg(); 
 } 
 
+const char* ErrCode::CWhat() const
+{
+    return GetCMsg();
+}
+
+
 int ErrCode::GetCode() const
 { 
     return GetErrType().second; 
 }
 
-ErrType ErrCode::GetType() const
+const ErrType& ErrCode::Type() const
 {
     return GetErrType().first;
 }

@@ -63,4 +63,17 @@ size_t Scene::GetChildNum()
     return m_root_gobjs.size();
 }
 
+std::vector<engine::ecs::GameObjectSPtr> Scene::GetGameObject(engine::ecs::GameObjectTemplateId tid)
+{
+    std::vector<engine::ecs::GameObjectSPtr> vec;
+
+    for (auto&& obj : m_root_gobjs)
+    {
+        if (obj->Type() == tid)
+            vec.push_back(obj);
+    }
+
+    return vec;
+}
+
 }

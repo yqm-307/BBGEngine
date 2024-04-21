@@ -77,5 +77,13 @@ void ConnMgr::OnConnectAndAdd(std::shared_ptr<Connection> new_conn)
         GAME_EXT1_LOG_ERROR("add connect failed!");
 }
 
+std::shared_ptr<Connection> ConnMgr::GetConnectById(bbt::network::ConnId conn_id)
+{
+    auto it = m_conn_map.find(conn_id);
+    if (it == m_conn_map.end())
+        return nullptr;
+
+    return it->second;
+}
 
 }

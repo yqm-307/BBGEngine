@@ -36,7 +36,7 @@ public:
     /* 删除一个组件，如果不存在返回nullptr */
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
-    int             Type();
+    GameObjectTemplateId Type();
     GameObjectId    GetId();
     std::string     GetName() const;
     /* 根据游戏对象的名字，在当前游戏对象的子游戏对象中找到游戏对象 */
@@ -63,6 +63,9 @@ protected:
      */
     virtual void    OnUpdate();
 
+    virtual void    OnMountChild(GameObjectSPtr gameobj);
+    virtual void    OnUnMountChild(GameObjectSPtr gameobj);
+
 private:
     /**
      * @brief 此函数被调用时会自上而下的遍历所有的子节点并Update
@@ -75,7 +78,7 @@ private:
 
 private:
     /* 游戏对象的类型，每个游戏对象的实例都需要对应与一个已经定义的GameObjType，否则会导致未知行为 */
-    const int                                       m_gobj_type{-1};
+    const GameObjectTemplateId                      m_gobj_type{-1};
     /* 每个游戏对象都可以保存着一些组件 */
     std::unordered_map<ComponentTemplateId, ComponentSPtr>
                                                     m_component_map;

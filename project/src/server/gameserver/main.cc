@@ -1,7 +1,8 @@
+#include <bbt/network/Define.hpp>
 #include "gameserver/init/LoadConfig.hpp"
 #include "gameserver/scene/GameServerScene.hpp"
 #include "util/random/GlobalRandom.hpp"
-#include <bbt/network/Define.hpp>
+#include "share/scene/SceneDefine.hpp"
 
 
 
@@ -63,6 +64,7 @@ int main()
 
     // 初始化游戏场景
     auto scene = new server::scene::GameServerScene();
+    share::scene::g_scene = std::unique_ptr<engine::scene::Scene>(scene);
     // 开启 World Scene
     scene->StartScene();
     delete scene;

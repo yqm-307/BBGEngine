@@ -1,19 +1,22 @@
+#include <signal.h>
 #include "gameserver/scene/GameServerScene.hpp"
 #include "gameserver/init/LoadConfig.hpp"
 #include "share/ecs/network/NetworkSystem.hpp"
 #include "share/ecs/gameobject/GameObject.hpp"
 #include "share/ecs/aoi/AoiComponent.hpp"
 #include "share/ecs/network/NetworkComponent.hpp"
+#include "share/ecs/network/DBServiceConnObj.hpp"
 #include "share/ecs/network/Network.hpp"
+#include "share/ecs/globalmgr/GlobalMgr.hpp"
+#include "share/scene/SceneDefine.hpp"
 #include "util/log/Log.hpp"
-#include <signal.h>
 
 namespace server::scene
 {
 
 GameServerScene::GameServerScene()
 {
-    OnCreate();
+    OnInit();
 }
 
 GameServerScene::~GameServerScene()
@@ -40,13 +43,23 @@ void GameServerScene::OnUpdate()
     }
 }
 
+void GameServerScene::Init()
+{
+    share::scene::g_scene = std::unique_ptr<engine::scene::Scene>(this);
+    OnInit();
+}
+
 #pragma region "内部函数"
 
-void GameServerScene::OnCreate()
+void GameServerScene::OnInit()
 {
     using namespace bbt::network;
 
+
+
     m_loop = std::make_shared<bbt::network::libevent::EventLoop>();
+
+
     {// scene update 事件注册
         m_update_event = m_loop->CreateEvent(-1, libevent::EventOpt::PERSIST, [this](auto, short events){
             this->Update();
@@ -66,6 +79,12 @@ void GameServerScene::OnCreate()
             GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist signal SIGNAL, %s\n", err.CWhat());
     }
 
+    {// global mgr 注册
+        auto globalmgr = GlobalMgrInit();
+        bool isok = MountGameObject(globalmgr);
+        DebugAssert(isok);
+    }
+
     {// Aoi
         auto aoi = AoiInit();
         bool isok = MountGameObject(aoi);
@@ -77,14 +96,28 @@ void GameServerScene::OnCreate()
         auto network = NetWorkInit();
         bool isok = MountGameObject(network);
         DebugAssert(isok);
+        isok = share::scene::RegistGlobalInst(network);
+        DebugAssertWithInfo(isok, "gameobject is repeat in global mgr!");
         m_network_id = network->GetId();
     }
+
+    {// db service init
+        auto dbservice_cli = DBServiceInit();
+        bool isok = MountGameObject(dbservice_cli);
+        DebugAssert(isok);
+    }
+}
+
+engine::ecs::GameObjectSPtr GameServerScene::GlobalMgrInit()
+{
+    auto global_mgr = G_GameObjectMgr()->Create<share::ecs::globalmgr::GlobalMgr>();
+    return global_mgr;
 }
 
 engine::ecs::GameObjectSPtr GameServerScene::AoiInit()
 {
     /* 初始化 aoi */
-    auto gameobj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::gameobject::GameObject>();
+    auto gameobj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
     // auto aoi_obj = engine::ecs::GameObjectMgr::GetInstance()->Create<share::ecs::aoi::Aoi>();
     gameobj->AddComponent(G_ComponentMgr()->Create<share::ecs::aoi::AoiComponent>());
 
@@ -108,6 +141,12 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
     share::ecs::network::NetworkSystem::GetInstance()->InitNetwork(network_obj, cfg);
 
     return network_obj;
+}
+
+engine::ecs::GameObjectSPtr GameServerScene::DBServiceInit()
+{
+    auto& g_config = server::init::ServerConfig::GetInstance();
+    auto dbservice = G_GameObjectMgr()->Create<share::ecs::network::DBServiceConnObj>();
 }
 
 void GameServerScene::OnDestory()

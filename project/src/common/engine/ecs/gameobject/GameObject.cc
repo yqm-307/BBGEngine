@@ -93,6 +93,8 @@ bool GameObject::MountChild(GameObjectSPtr gameobj)
         return false;
 
     auto [_, isok] = m_childs.insert(std::make_pair(objid, gameobj));
+
+    OnMountChild(gameobj);
     
     return isok;
 }
@@ -108,6 +110,8 @@ std::pair<bool, GameObjectSPtr> GameObject::UnMountChild(GameObjectId gameobj_id
     }
 
     m_childs.erase(it);
+    OnUnMountChild(it->second);
+
     return {true, it->second};
 }
 
@@ -195,6 +199,14 @@ void GameObject::UpdateComponent()
 
         comp->Update();
     }
+}
+
+void GameObject::OnMountChild(GameObjectSPtr gameobj)
+{
+}
+
+void GameObject::OnUnMountChild(GameObjectSPtr gameobj)
+{
 }
 
 #pragma endregion

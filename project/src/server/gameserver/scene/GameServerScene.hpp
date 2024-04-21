@@ -37,22 +37,23 @@ public:
     GameServerScene();
     ~GameServerScene();
 
-    virtual void OnUpdate() override;
+    void Init();
     /* 启动场景，开启游戏 */
     void StartScene();
-
     /* TODO 优雅退出 关闭场景 */
     void StopScene();
 private:
-    void OnCreate();
+    virtual void OnUpdate() override;
+    void OnInit();
     void OnDestory();
 private:
     /**
      * Module 流程控制
      */
-
+    engine::ecs::GameObjectSPtr GlobalMgrInit();
     engine::ecs::GameObjectSPtr AoiInit();
     engine::ecs::GameObjectSPtr NetWorkInit();
+    engine::ecs::GameObjectSPtr DBServiceInit();
     /* 阻塞的等待IO线程退出 */
     void IOThreadExit();
 

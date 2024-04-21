@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <optional>
 #include "util/errcode/ErrCodeDef.hpp"
 
 
@@ -36,11 +37,18 @@ public:
 
     const std::string& What() const;
 
+    const char* CWhat() const override;
+
     int GetCode() const;
 
-    ErrType GetType() const;
+    const ErrTypePair& Type() const;
 protected:
 
 };
+
+typedef std::optional<util::errcode::ErrCode> ErrOpt;
+
+template<typename ...TRetVal>
+using ErrTuple = std::tuple<util::errcode::ErrOpt, ... TRetVal>;
 
 }// namespace end
