@@ -52,6 +52,7 @@ private:
 
     //TODO 做一下连接超时
     bbt::clock::Timestamp<> m_last_heartbeat_timestamp;
+    bbt::clock::Timestamp<> m_last_try_connect_timestamp;
     bool                    m_is_connecting{false};
 };
 

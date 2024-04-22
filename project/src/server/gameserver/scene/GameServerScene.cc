@@ -17,7 +17,6 @@ namespace server::scene
 
 GameServerScene::GameServerScene()
 {
-    OnInit();
 }
 
 GameServerScene::~GameServerScene()

@@ -12,6 +12,7 @@ DBServiceCliComp::DBServiceCliComp(DBServiceCliCfg cfg):
     m_cfg(cfg)
 {
     m_last_heartbeat_timestamp = bbt::clock::now<>();
+    m_last_try_connect_timestamp = bbt::clock::now<>() - bbt::clock::ms(m_cfg.connect_timeout);
 }
 
 DBServiceCliComp::~DBServiceCliComp()
@@ -22,15 +23,16 @@ void DBServiceCliComp::OnUpdate()
 {
     auto connection = GetConnect();
     // 如果连接断开了，尝试建立连接
-    if (connection == nullptr && !m_is_connecting) {
+    if (connection == nullptr && !m_is_connecting && bbt::clock::is_expired<bbt::clock::ms>(m_last_try_connect_timestamp + bbt::clock::ms(m_cfg.connect_timeout + 1000))) {
         AsyncConnect(m_cfg.ip.c_str(), m_cfg.port, m_cfg.connect_timeout);
         m_is_connecting = true;
+        m_last_try_connect_timestamp = bbt::clock::now<>();
         GAME_EXT1_LOG_INFO("try connect to database service!");
         return;
     }
 
     // 如果连接已经成立了，则检测是否发送heartbeat
-    if (!m_is_connecting && bbt::clock::is_expired<bbt::clock::ms>(m_last_heartbeat_timestamp + bbt::clock::ms(m_cfg.heartbeat)))
+    if (connection != nullptr && !m_is_connecting && bbt::clock::is_expired<bbt::clock::ms>(m_last_heartbeat_timestamp + bbt::clock::ms(m_cfg.heartbeat)))
     {
         DoHeartBeat(connection);        
     }
@@ -50,7 +52,7 @@ void DBServiceCliComp::DoHeartBeat(std::shared_ptr<DBServiceConnection> conn)
 
     protolen = protocol.size() + sizeof(protolen) + sizeof(protoid);
     output_buffer.WriteInt32(protolen);
-    output_buffer.WriteInt32(protolen);
+    output_buffer.WriteInt32(protoid);
     output_buffer.WriteString(protocol);
 
     conn->Send(output_buffer.Peek(), output_buffer.DataSize());
@@ -117,17 +119,20 @@ void DBServiceCliComp::__OnConnect(
     }
 
     auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
-    if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp))) {
+    if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp)) == nullptr) {
         GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_CONN_MGR);
         return;
     }
+
 
     /* 连接建立成功，加入ConnMgr进行管理 */
     auto dbconn = std::make_shared<share::ecs::network::DBServiceConnection>(
         connmgr_comp.get(), std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), m_cfg.timeout);
     
+    GAME_EXT1_LOG_DEBUG("db service connection! connid=%d", dbconn->GetConnId());
     connmgr_comp->OnConnectAndAdd(dbconn);
     m_last_heartbeat_timestamp = bbt::clock::now<>();
+    m_connid = dbconn->GetConnId();
 }
 
 std::shared_ptr<DBServiceConnection> DBServiceCliComp::GetConnect()
@@ -136,7 +141,7 @@ std::shared_ptr<DBServiceConnection> DBServiceCliComp::GetConnect()
     std::shared_ptr<share::ecs::network::ConnMgr> connmgr_comp = nullptr;
 
     auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
-    if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp))) {
+    if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp)) == nullptr) {
         GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_CONN_MGR);
         return nullptr;
     }

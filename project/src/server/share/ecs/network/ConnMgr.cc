@@ -47,7 +47,7 @@ void ConnMgr::OnAcceptAndInitConn(const bbt::network::Errcode& err, bbt::network
 bool ConnMgr::DelConnect(bbt::network::ConnId conn)
 {
     auto it = m_conn_map.find(conn);
-    if (it != m_conn_map.end()) {
+    if (it == m_conn_map.end()) {
         return false;
     }
 

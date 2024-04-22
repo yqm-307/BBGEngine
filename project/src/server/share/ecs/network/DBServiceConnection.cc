@@ -1,4 +1,6 @@
 #include "share/ecs/network/DBServiceConnection.hpp"
+#include "share/scene/SceneDefine.hpp"
+#include "share/ecs/network/ConnMgr.hpp"
 #include "util/log/Log.hpp"
 
 
@@ -55,7 +57,21 @@ void DBServiceConnection::OnRecv(const char* data, size_t len)
 void DBServiceConnection::OnClose()
 {
     GAME_EXT1_LOG_WARN("lost db service connection!");
+    auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
+    AssertWithInfo(network_obj != nullptr, "");
+
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
+    auto connmgr = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp);
+    AssertWithInfo(comp != nullptr && connmgr != nullptr, "");
+    connmgr->DelConnect(GetConnId());
 }
+
+void DBServiceConnection::OnTimeout()
+{
+    GAME_EXT1_LOG_WARN("db service timeout!");
+    Close();
+}
+
 
 
 int DBServiceConnection::_HasAProtocol(const char* data, size_t remain_size)

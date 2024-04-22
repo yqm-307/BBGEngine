@@ -64,7 +64,7 @@ int main()
 
     // 初始化游戏场景
     auto scene = new server::scene::GameServerScene();
-    share::scene::g_scene = std::unique_ptr<engine::scene::Scene>(scene);
+    scene->Init();
     // 开启 World Scene
     scene->StartScene();
     delete scene;
