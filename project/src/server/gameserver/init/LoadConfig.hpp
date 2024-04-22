@@ -10,19 +10,20 @@ namespace server::init
 
 struct DBServiceConfig
 {
-    std::string dbservice_ip;
-    int dbservice_port;
-    int connect_timeout_ms;
+    std::string             ip;                 // 服务ip
+    short                   port;               // 服务端口
+    int                     timeout;            // tcp连接空闲超时
+    int                     connect_timeout;    // 连接对端超时
+    int                     heartbeat;          // heartbeat 发送间隔
 };
 
 struct IniConfigList
 {
     /* 服务器开放地址 */
-    std::string server_ip;
-    int         server_port;
-    util::config::evConnMgrConfig
-                m_connmgr_cfg;
-    DBServiceConfig m_db_service_cfg;
+    std::string                         server_ip;
+    int                                 server_port;
+    util::config::evConnMgrConfig       m_connmgr_cfg;
+    DBServiceConfig                     m_db_service_cfg;
 };
 
 /**
@@ -39,9 +40,7 @@ public:
     const std::string& GetServerIP() const;
     int         GetServerPort() const;
 
-    const std::string& GetDBServiceIP() const;
-    int         GetDBServicePort() const;
-    int         GetDBServiceConnTimeout() const;
+    const DBServiceConfig *const GetDBServiceCfg() const;
 private:
     ServerConfig();
 

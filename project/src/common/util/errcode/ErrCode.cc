@@ -68,9 +68,9 @@ int ErrCode::GetCode() const
     return GetErrType().second; 
 }
 
-const ErrType& ErrCode::Type() const
+const ErrTypePair& ErrCode::Type() const
 {
-    return GetErrType().first;
+    return GetErrType();
 }
 
 }

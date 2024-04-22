@@ -2,14 +2,16 @@
 #include "share/ecs/network/Network.hpp"
 #include "share/ecs/network/NetworkSystem.hpp"
 #include "share/scene/SceneDefine.hpp"
+#include "share/session/DBServiceSession.hpp"
 
 namespace share::ecs::network
 {
 
-DBServiceCliComp::DBServiceCliComp(DBServiceCliCfg* cfg):
+DBServiceCliComp::DBServiceCliComp(DBServiceCliCfg cfg):
     engine::ecs::Component(EM_COMPONENT_TYPE_DBSERVICE_CLIENT),
     m_cfg(cfg)
 {
+    m_last_heartbeat_timestamp = bbt::clock::now<>();
 }
 
 DBServiceCliComp::~DBServiceCliComp()
@@ -20,15 +22,38 @@ void DBServiceCliComp::OnUpdate()
 {
     auto connection = GetConnect();
     // 如果连接断开了，尝试建立连接
-    if (connection == nullptr) {
-        auto& db_service_cli_system = engine::ecs::GetSystem<DBServiceCliCompSystem>();
-        db_service_cli_system->AsyncConnect(GetParentObject(), m_cfg->ip.c_str(), m_cfg->port, m_cfg->timeout);
+    if (connection == nullptr && !m_is_connecting) {
+        AsyncConnect(m_cfg.ip.c_str(), m_cfg.port, m_cfg.connect_timeout);
+        m_is_connecting = true;
         GAME_EXT1_LOG_INFO("try connect to database service!");
         return;
     }
 
     // 如果连接已经成立了，则检测是否发送heartbeat
-    
+    if (!m_is_connecting && bbt::clock::is_expired<bbt::clock::ms>(m_last_heartbeat_timestamp + bbt::clock::ms(m_cfg.heartbeat)))
+    {
+        DoHeartBeat(connection);        
+    }
+}
+
+void DBServiceCliComp::DoHeartBeat(std::shared_ptr<DBServiceConnection> conn)
+{
+    DB_HEART_BEAT_REQ   req;
+    bbt::buffer::Buffer output_buffer;
+    std::string         protocol;
+    uint32_t            protolen = 0;
+    uint32_t            protoid = share::session::DBServiceProtoId::EM_DB_SERVICE_PROTO_HEARTBEAT_REQ;
+
+    m_last_heartbeat_timestamp = bbt::clock::now<>();
+    req.set_timestamp(m_last_heartbeat_timestamp.time_since_epoch().count());
+    protocol = req.SerializeAsString();
+
+    protolen = protocol.size() + sizeof(protolen) + sizeof(protoid);
+    output_buffer.WriteInt32(protolen);
+    output_buffer.WriteInt32(protolen);
+    output_buffer.WriteString(protocol);
+
+    conn->Send(output_buffer.Peek(), output_buffer.DataSize());
 }
 
 bool DBServiceCliComp::IsConnected()
@@ -66,24 +91,26 @@ bool DBServiceCliComp::AsyncConnect(
     auto& network_sys_ref = engine::ecs::GetSystem<share::ecs::network::NetworkSystem>();
     network_sys_ref->AsyncConnect(network_obj, ip, port, timeout,
     [this, timeout](bbt::network::Errcode err, bbt::network::interface::INetConnectionSPtr conn){
-        __OnConnect(err, conn, timeout);
+        __OnConnect(err, conn);
     });
     return false;
 }
 
 void DBServiceCliComp::__OnConnect(
     bbt::network::Errcode err,
-    bbt::network::interface::INetConnectionSPtr conn,
-    int timeout)
+    bbt::network::interface::INetConnectionSPtr conn)
 {
+    std::shared_ptr<share::ecs::network::ConnMgr> connmgr_comp = nullptr;
+
+    /* 不管成功还是失败，先设置连接中状态位 */
+    m_is_connecting = false;
+
     if (!err) {
         GAME_EXT1_LOG_ERROR(err.CWhat());
         return;
     }
 
     auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
-    std::shared_ptr<share::ecs::network::ConnMgr> connmgr_comp = nullptr;
-
     if (network_obj == nullptr) {
         GAME_EXT1_LOG_ERROR("can`t found Gameobject Tid=%d", (int)EM_ENTITY_TYPE_NETWORK);
         return;
@@ -95,11 +122,12 @@ void DBServiceCliComp::__OnConnect(
         return;
     }
 
+    /* 连接建立成功，加入ConnMgr进行管理 */
     auto dbconn = std::make_shared<share::ecs::network::DBServiceConnection>(
-        connmgr_comp.get(), std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), timeout);
+        connmgr_comp.get(), std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), m_cfg.timeout);
     
     connmgr_comp->OnConnectAndAdd(dbconn);
-
+    m_last_heartbeat_timestamp = bbt::clock::now<>();
 }
 
 std::shared_ptr<DBServiceConnection> DBServiceCliComp::GetConnect()
@@ -110,7 +138,7 @@ std::shared_ptr<DBServiceConnection> DBServiceCliComp::GetConnect()
     auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
     if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp))) {
         GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_CONN_MGR);
-        return;
+        return nullptr;
     }
 
     auto connect = connmgr_comp->GetConnectById(m_connid);
@@ -126,7 +154,7 @@ util::errcode::ErrOpt DBServiceCliCompSystem::Init(engine::ecs::GameObjectSPtr g
         return util::errcode::ErrCode("gameobj is null!", util::errcode::ErrType::CommonErr, util::errcode::errenum::COMMON::PARAM_ERR);
     }
 
-    auto dbservice_cli_comp = G_ComponentMgr()->Create<share::ecs::network::DBServiceCliComp>(conn_cfg);
+    auto dbservice_cli_comp = G_ComponentMgr()->Create<share::ecs::network::DBServiceCliComp>(*conn_cfg);
     auto isok = gameobj->AddComponent(dbservice_cli_comp);
     Assert(isok);
 
@@ -144,14 +172,5 @@ std::shared_ptr<DBServiceCliComp> DBServiceCliCompSystem::GetComponent(engine::e
     
     return std::dynamic_pointer_cast<DBServiceCliComp>(comp);
 }
-
-void DBServiceCliCompSystem::AsyncConnect(engine::ecs::GameObjectSPtr gameobj, const char* ip, short prot, int timeout)
-{
-    if (gameobj == nullptr) {
-
-        return;
-    }
-}
-
 
 }

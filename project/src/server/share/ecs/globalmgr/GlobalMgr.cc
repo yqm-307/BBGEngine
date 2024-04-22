@@ -23,9 +23,9 @@ bool GlobalMgr::AddGlobalInst(engine::ecs::GameObjectSPtr gameobj)
     if (!mount_succ)
         return false;
     
-    m_global_instance_map.insert(std::pair(gameobj->Type(), gameobj));
+    auto [it, succ] = m_global_instance_map.insert(std::pair(gameobj->Type(), gameobj));
 
-    return;
+    return succ;
 }
 
 std::pair<bool, engine::ecs::GameObjectSPtr> GlobalMgr::DelGlobalInst(engine::ecs::GameObjectTemplateId tid)

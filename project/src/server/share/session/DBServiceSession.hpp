@@ -1,5 +1,6 @@
 #pragma once
 #include "share/ecs/network/DBServiceConnection.hpp"
+#include "protocol/dbservice.pb.h"
 
 namespace share::session
 {
@@ -16,7 +17,9 @@ namespace share::session
 
 enum DBServiceProtoId
 {
+    EM_DB_SERVICE_PROTO_PING_REQ                    = 1,
     EM_DB_SERVICE_PROTO_PING_RESQ                   = 2, // ping resp
+    EM_DB_SERVICE_PROTO_HEARTBEAT_REQ               = 3,
     EM_DB_SERVICE_PROTO_HEARTBEAT_RESP              = 4, // heart beat
 };
 

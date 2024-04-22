@@ -18,6 +18,7 @@ public:
     static void             RegistHandler(int protoid, DBServiceCPPFuncPtr handler);
 protected:
     void                    OnRecv(const char* data, size_t len) override;
+    virtual void            OnClose() override;
     static bool             Dispatch(int protoid, bbt::buffer::Buffer& buf, bbt::buffer::Buffer& resp);
 
     std::pair<bool, int>    GetAProtocol(bbt::buffer::Buffer& protocol);

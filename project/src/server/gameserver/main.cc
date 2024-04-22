@@ -4,7 +4,7 @@
 #include "util/random/GlobalRandom.hpp"
 #include "share/scene/SceneDefine.hpp"
 
-
+std::unique_ptr<engine::scene::Scene> share::scene::g_scene = nullptr;
 
 void RandomSeedInit()
 {

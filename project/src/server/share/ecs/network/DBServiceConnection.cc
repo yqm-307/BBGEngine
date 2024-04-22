@@ -52,6 +52,12 @@ void DBServiceConnection::OnRecv(const char* data, size_t len)
         Send(resp.Peek(), resp.DataSize());
 }
 
+void DBServiceConnection::OnClose()
+{
+    GAME_EXT1_LOG_WARN("lost db service connection!");
+}
+
+
 int DBServiceConnection::_HasAProtocol(const char* data, size_t remain_size)
 {
     // 当前这条协议的总长度

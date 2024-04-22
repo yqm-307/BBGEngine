@@ -8,6 +8,7 @@ namespace share::ecs::network
 class DBServiceConnObj:
     public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
     virtual ~DBServiceConnObj();
 protected:

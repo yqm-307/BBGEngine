@@ -6,6 +6,7 @@
 #include "share/ecs/aoi/AoiComponent.hpp"
 #include "share/ecs/network/NetworkComponent.hpp"
 #include "share/ecs/network/DBServiceConnObj.hpp"
+#include "share/ecs/network/DBServiceCliComp.hpp"
 #include "share/ecs/network/Network.hpp"
 #include "share/ecs/globalmgr/GlobalMgr.hpp"
 #include "share/scene/SceneDefine.hpp"
@@ -146,7 +147,19 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
 engine::ecs::GameObjectSPtr GameServerScene::DBServiceInit()
 {
     auto& g_config = server::init::ServerConfig::GetInstance();
-    auto dbservice = G_GameObjectMgr()->Create<share::ecs::network::DBServiceConnObj>();
+    auto dbservice_obj = G_GameObjectMgr()->Create<share::ecs::network::DBServiceConnObj>();
+    auto& system_ref = engine::ecs::GetSystem<share::ecs::network::DBServiceCliCompSystem>();
+    share::ecs::network::DBServiceCliCfg cfg;
+    auto g_db_service_cfg = g_config->GetDBServiceCfg();
+    cfg.ip              = g_db_service_cfg->ip;
+    cfg.port            = g_db_service_cfg->port;
+    cfg.timeout         = g_db_service_cfg->timeout;
+    cfg.heartbeat       = g_db_service_cfg->heartbeat;
+    cfg.connect_timeout = g_db_service_cfg->connect_timeout;
+
+    system_ref->Init(dbservice_obj, &cfg);
+
+    return dbservice_obj;
 }
 
 void GameServerScene::OnDestory()

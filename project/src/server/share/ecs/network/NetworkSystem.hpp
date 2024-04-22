@@ -1,4 +1,5 @@
 #pragma once
+#include <engine/ecs/system/System.hpp>
 #include "share/ecs/network/NetworkComponent.hpp"
 #include "share/ecs/network/ConnMgr.hpp"
 
@@ -7,11 +8,11 @@ namespace share::ecs::network
 {
 typedef std::function<std::shared_ptr<Connection>(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr conn)> OnAsyncConnectCallback;
 
-class NetworkSystem
+class NetworkSystem:
+    public engine::ecs::System<NetworkSystem>
 {
     typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
 public:
-    ~NetworkSystem() {}
     static std::unique_ptr<NetworkSystem>& GetInstance();
 
     bool InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg);
@@ -20,7 +21,6 @@ public:
 
     bool AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
 private:
-    NetworkSystem() {}
     std::shared_ptr<NetworkComponent> GetComponent(GameObjectSPtr gameobject);
 
 };

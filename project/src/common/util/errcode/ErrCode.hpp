@@ -49,6 +49,6 @@ protected:
 typedef std::optional<util::errcode::ErrCode> ErrOpt;
 
 template<typename ...TRetVal>
-using ErrTuple = std::tuple<util::errcode::ErrOpt, ... TRetVal>;
+using ErrTuple = std::tuple<util::errcode::ErrOpt, TRetVal...>;
 
 }// namespace end

@@ -8,6 +8,7 @@ namespace share::ecs::globalmgr
 class GlobalMgr:
     public engine::ecs::GameObject
 {
+    GameObjectDeriveClassDef;
 public:
     virtual ~GlobalMgr();
 
