@@ -256,4 +256,175 @@
 #### （2）接口风格
 <br>
 
-&emsp;不同的库作者提供接口的方式区别很大，尤其是有宏的存在，允许自定义一些奇怪的语法。反正我见过各种奇怪的接口实现。
+&emsp;不同的库作者提供接口的方式区别很大，尤其是有宏的存在，允许自定义一些奇怪的语法。反正我见过各种奇怪的接口实现。下面分享一下见过的几个常见库的接口提供方式，比如自定义宏、宏函数、模板、面向对象等。
+
+<br>
+
+* 自定义宏
+
+    &emsp;个人感觉是最神奇、最毒瘤的api提供方式。目前用过的库里面使用这种自定义宏来提供功能的有两个库Boost.Test和libco，且看示例如下：
+
+    &emsp;这是Boost.Test写测试代码的例程，具体测试内容不必深究，主要是两个函数BOOST_AUTO_TEST_SUITE、BOOST_AUTO_TEST_CASE等几个很特殊的非关键字。
+
+    ``` cpp
+
+    BOOST_AUTO_TEST_SUITE(AabbTest)
+
+    /**
+    * aabb盒碰撞检测 
+    */
+    BOOST_AUTO_TEST_CASE(t_aabb_check_test)
+    {
+        using namespace share::ecs::aoi;
+        // 重叠检测
+        AABBBox a;
+        AABBBox b;
+        AABBBox c;
+        AABBBox d;
+        AABBBox e;
+        Box_Init(a, 1, 0, 1, 0, 1, 0);
+        Box_Init(b, 1, 0, 1, 0, 2, 0);
+        Box_Init(c, 3, 0, 3, 0, 3, 0);
+        Box_Init(d, 2, 1, 1, 0, 1, 0);
+        Box_Init(e, 2, 1, 2, 1, 2, 1);
+        bool rlt1 = AABBCheck(a, a);
+        BOOST_CHECK_MESSAGE(rlt1, "重叠测试失败");
+
+        bool rlt2 = AABBCheck(a, b);
+        BOOST_CHECK(rlt2);
+
+        bool rlt3 = AABBCheck(a, c);
+        BOOST_CHECK(rlt3);
+
+        bool rlt4 = AABBCheck(a, d);
+        BOOST_CHECK(!rlt4);
+
+        bool rlt5 = AABBCheck(a, e);
+        BOOST_CHECK(!rlt5);
+    }
+
+    BOOST_AUTO_TEST_SUITE_END()
+
+    ```
+
+    &emsp;其实这几个宏展开后，是做了注册操作。但是由于使用了宏，我们会认为它类似关键字一样的存在。这就是宏的特点，优点是很方便隐藏了很多细节，并且编译期就可以展开，不影响runtime性能；缺点是debug不方便，其次让代码变得不容易理解。
+
+    &emsp;libco也是为了封装注册操作，下面是libco的例程：
+
+    ``` cpp
+    int main( int argc,char *argv[] )
+    {
+        vector< stCoClosure_t* > v;
+
+        pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+
+        int total = 100;
+        vector<int> v2;
+        // 这里的宏
+        co_ref( ref,total,v2,m);
+        for(int i=0;i<10;i++)
+        {
+            // 这里的宏
+            co_func( f,ref,i )
+            {
+                printf("ref.total %d i %d\n",ref.total,i );
+                //lock
+                pthread_mutex_lock(&ref.m);
+                ref.v2.push_back( i );
+                pthread_mutex_unlock(&ref.m);
+                //unlock
+            }
+            co_func_end;
+            v.push_back( new f( ref,i ) );
+        }
+        for(int i=0;i<2;i++)
+        {
+            // 这里的宏
+            co_func( f2,i )
+            {
+                printf("i: %d\n",i);
+                for(int j=0;j<2;j++)
+                {
+                    usleep( 1000 );
+                    printf("i %d j %d\n",i,j);
+                }
+            }
+            co_func_end;
+            v.push_back( new f2( i ) );
+        }
+
+        batch_exec( v );
+        printf("done\n");
+
+        return 0;
+    }
+    ```
+
+<br>
+
+* 宏函数
+
+    &emsp;使用宏函数比较多的库，我是用过的就是libcurl、libevent和lua，libevent中有evutil_xx相关api都是以宏的方式提供，libcurl设置http协议头都是使用宏函数，lua api基本上都是宏函数。具体原因就是因为可以提高性能，因为预编译期就会展开，但是会带来代码膨胀的问题，不过如果是做服务器开发，linux服务器进程的text段完全不会溢出。所以也不用考虑膨胀问题。
+
+* 模板库
+
+    &emsp;前面说到的宏相关的主要是c库，也即是c库才需要通过宏来提高运行时性能。如果使用c++完全可以使用模板来提供库功能。使用模板同样有代码膨胀的问题，但是相对宏来说编译器可以支持类型系统、类型匹配、类型推断等功能，所以一些对模板元编程了解比较多的人会使用全头文件开发完全基于模板的库，这种库用起来不管怎么样，但是阅读起来及其困难。
+
+    ``` cpp
+    // 这是一个无锁队列模板库的示例
+    #include "blockingconcurrentqueue.h"
+
+    moodycamel::BlockingConcurrentQueue<int> q;
+    std::thread producer([&]() {
+        for (int i = 0; i != 100; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(i % 10));
+            q.enqueue(i);
+        }
+    });
+    std::thread consumer([&]() {
+        for (int i = 0; i != 100; ++i) {
+            int item;
+            q.wait_dequeue(item);
+            assert(item == i);
+            
+            if (q.wait_dequeue_timed(item, std::chrono::milliseconds(5))) {
+                ++i;
+                assert(item == i);
+            }
+        }
+    });
+    producer.join();
+    consumer.join();
+
+    assert(q.size_approx() == 0);
+    ```
+
+* 面向对象
+
+    &emsp;对于C++库另一种提供功能的方式就是使用面向对象。这种库容易引入一些自己得概念，比如asio会引入executor、io_context、tcpservice等来提供功能，需要对库设计进行一定的理解，否则无法理解为什么这个库每个对象的关系。其次就是这种库需要对对象的生命周期敏感，即需要文档明确其各个对象的生命周期。
+
+    ``` cpp
+
+    int main()
+    {
+        asio::io_context io_context;
+        asio::ip::tcp::resolver r(io_context);
+        asio::ip::tcp::resolver::query q("www.yahoo.com", "http");
+
+        asio::ip::tcp::socket socket(io_context);
+        asio::error_code ec;
+        asio::connect(socket, r.resolve(q), ec);
+        return 0;
+    }
+
+    ```
+
+<br>
+
+&emsp; 上面几种调用方式，产生的究其原因有几点：
+
+* C、C++ API提供的方式不同。一方面是C程序员喜欢使用函数、宏来提供接口，一些C转入C++的尤其喜欢使用宏。一些C++程序员比较喜欢现代C++技术（模板、全局常量等）来替代宏。还有一部分人喜欢将两种方式组合起来使用。
+
+* 历史原因。一些库历史比较长远原本只需要兼容C，自从C++引入面向对象后，有些想要使用C库的，做了兼容性处理创造了适配层。
+
+&emsp;不管怎么样，在一个项目里对外提供接口应该取其中的一种，否则对于使用者来说体验绝对是毁灭性。
