@@ -37,6 +37,8 @@ add_executable(gameserver
 target_link_libraries(gameserver
     event_core
     event_pthreads
+    bbt_pollevent
+    bbt_cxxlua
     bbt_network
     ybbt
     inih

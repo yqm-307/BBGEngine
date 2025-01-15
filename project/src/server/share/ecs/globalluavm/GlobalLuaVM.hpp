@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/base/cxxlua/CXXLua.hpp>
+#include <bbt/cxxlua/CXXLua.hpp>
 #include "engine/ecs/component/Component.hpp"
 #include "share/ecs/Define.hpp"
 

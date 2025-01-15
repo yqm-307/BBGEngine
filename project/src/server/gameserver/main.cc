@@ -46,7 +46,6 @@ void ConfigLoad()
 
 void LibeventInit()
 {
-    bbt::network::GlobalInit();
 }
 
 int main()

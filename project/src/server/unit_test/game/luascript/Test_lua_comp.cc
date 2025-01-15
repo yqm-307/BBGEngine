@@ -45,10 +45,13 @@ BOOST_AUTO_TEST_CASE(t_scene_load_lua_files)
     m_sample_scene.MountGameObject(lua_object);
     m_sample_scene.Update();    // 计数 +1
 
-    bbt::cxxlua::Value value;
+    bbt::cxxlua::LuaValue value;
     lua_script_comp->GetGlobal(value, "G_UPDATE_COUNT");
-    BOOST_ASSERT(value.type == bbt::cxxlua::LUATYPE::LUATYPE_NUMBER);
-    BOOST_CHECK_EQUAL(value.basevalue.integer, 2);
+    
+    int integer;
+    auto err = value.GetValue(integer);
+    BOOST_ASSERT(value.GetType() == bbt::cxxlua::LUATYPE::LUATYPE_NUMBER);
+    BOOST_CHECK_EQUAL(integer, 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/base/cxxlua/CXXLua.hpp>
+#include <bbt/cxxlua/CXXLua.hpp>
 #include "engine/ecs/component/Component.hpp"
 #include "share/ecs/Define.hpp"
 
@@ -47,21 +47,21 @@ public:
      * @return bbt::cxxlua::Value 
      */
     template<typename ... Args>
-    bbt::cxxlua::Value GetValueEx(int nkey, Args ...args)
+    bbt::cxxlua::LuaValue GetValueEx(int nkey, Args ...args)
     {
         //TODO 需要bbt cxxlua 提供这个功能
-        return bbt::cxxlua::Value(); // 默认返回nil
+        return bbt::cxxlua::LuaValue(); // 默认返回nil
     }
 
-    template<typename ...Args>
-    std::optional<bbt::cxxlua::LuaErr> GetByKey4GTable(bbt::cxxlua::Value& value, const std::string& global_name, Args ...args)
-    {
-        return m_vm->GetByKey4Table(value, global_name, args ...);
-    }
+    // template<typename ...Args>
+    // std::optional<bbt::cxxlua::LuaErr> GetByKey4GTable(bbt::cxxlua::Value& value, const std::string& global_name, Args ...args)
+    // {
+    //     return m_vm->GetByKey4Table(value, global_name, args ...);
+    // }
 
-    std::optional<bbt::cxxlua::LuaErr> GetGlobal(bbt::cxxlua::Value& value, const std::string& global_value)
+    std::optional<bbt::cxxlua::LuaErr> GetGlobal(bbt::cxxlua::LuaValue& value, const std::string& global_value)
     {
-        return m_vm->GetGlobalValue(value, global_value);
+        return m_vm->GetGlobalValue(global_value, value);
     }
 protected:
     LuaScriptBaseComp(ecs::emComponentType type ,bbt::cxxlua::LuaVM* vm);

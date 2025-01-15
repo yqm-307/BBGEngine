@@ -107,7 +107,7 @@ void DBServiceCliComp::__OnConnect(
     /* 不管成功还是失败，先设置连接中状态位 */
     m_is_connecting = false;
 
-    if (!err) {
+    if (err.IsErr()) {
         GAME_EXT1_LOG_ERROR(err.CWhat());
         return;
     }

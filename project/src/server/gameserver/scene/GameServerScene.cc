@@ -55,28 +55,26 @@ void GameServerScene::OnInit()
 {
     using namespace bbt::network;
 
-
-
-    m_loop = std::make_shared<bbt::network::libevent::EventLoop>();
-
+    m_loop = std::make_shared<bbt::pollevent::EventLoop>();
 
     {// scene update 事件注册
-        m_update_event = m_loop->CreateEvent(-1, libevent::EventOpt::PERSIST, [this](auto, short events){
+        m_update_event = m_loop->CreateEvent(-1, bbt::pollevent::EventOpt::PERSIST, [this](auto, short events){
             this->Update();
         });
 
         auto err = m_update_event->StartListen(1000 / GameSceneFrame);
-        if (!err)
-            GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist scene update, %s\n", err.CWhat());
+        if (err != 0)
+            GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist scene update failed!");
     }
 
     {// SIGINT 信号事件注册
-        m_signal_sigint_handle = m_loop->CreateEvent(SIGINT, libevent::EventOpt::SIGNAL, [this](auto, short){
+        m_signal_sigint_handle = m_loop->CreateEvent(SIGINT, bbt::pollevent::EventOpt::SIGNAL, [this](auto, short){
             this->StopScene();
         });
-        auto err = m_signal_sigint_handle->StartListen(0);
-        if (!err)
-            GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist signal SIGNAL, %s\n", err.CWhat());
+
+        int err = m_signal_sigint_handle->StartListen(0);
+        if (err != 0)
+            GAME_BASE_LOG_ERROR("[GameServerScene::OnCreate] regist signal SIGNAL failed!");
     }
 
     {// global mgr 注册
@@ -174,9 +172,9 @@ void GameServerScene::StartScene()
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
     share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
-    auto err = m_loop->StartLoop(bbt::network::libevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
-    if (!err)
-        GAME_EXT1_LOG_ERROR(err.CWhat());   
+    auto err = m_loop->StartLoop(bbt::pollevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
+    if (err != 0)
+        GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
 }
 
 void GameServerScene::StopScene()
@@ -200,8 +198,8 @@ void GameServerScene::OnStopScene()
     // 循环延时退出
     {
         auto err = m_loop->BreakLoop();
-        if (!err)
-            GAME_EXT1_LOG_ERROR(err.CWhat());
+        if (err != 0)
+            GAME_EXT1_LOG_ERROR("[GameServerScene::OnStopScene] eventloop break failed!");
 
     }
     GAME_EXT1_LOG_INFO("[GameServerScene::OnStopScene] exit loop!");

@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <cstring>
 #include <regex>
-#include <bbt/base/cxxlua/detail/LuaErr.hpp>
+#include <bbt/cxxlua/detail/LuaErr.hpp>
 #include "share/ecs/luascript/LuaScriptBaseComp.hpp"
 
 namespace share::ecs::luascript
@@ -32,15 +32,14 @@ void LuaScriptBaseComp::RegistInLuaEvent()
     std::string path = std::regex_replace(std::regex_replace(m_script_path, std::regex(".lua"), ""), std::regex("//"), ".");
 
     //TODO 等待cxxlua完善lua读取栈数据操作
-    auto err = m_vm->CallLuaFunction("CppCallRegist", 2, [](std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack)->std::optional<bbt::cxxlua::LuaErr>{
-        bbt::cxxlua::Value msg;
-        bbt::cxxlua::Value bsucc;
-        auto pop_msg_err = stack->Pop(msg);
-        if (pop_msg_err != std::nullopt)
-            return pop_msg_err;
-        
-        auto pop_bsucc_err = stack->Pop(bsucc);
-            return pop_bsucc_err;
+    auto err = m_vm->CallLuaFunction("CppCallRegist", 2, [](std::shared_ptr<bbt::cxxlua::detail::LuaStack>& stack)->std::optional<bbt::cxxlua::LuaErr>{
+        auto [get_msg_err, msg_opt] = stack->GetValue(-1);
+        if (get_msg_err)
+            return get_msg_err;
+
+        auto [get_succ_err, bsucc_opt] = stack->GetValue(-2);
+        if (get_succ_err)
+            return get_succ_err;
 
         return std::nullopt;
     }, GetMemberId(), path.c_str());

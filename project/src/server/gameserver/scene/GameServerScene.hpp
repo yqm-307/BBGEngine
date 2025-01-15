@@ -1,5 +1,6 @@
 #pragma once
-#include <bbt/network/adapter/libevent/EventLoop.hpp>
+#include <bbt/pollevent/EventLoop.hpp>
+#include <bbt/pollevent/Event.hpp>
 #include "engine/scene/Scene.hpp"
 
 /**
@@ -61,9 +62,10 @@ private:
     // void OnSceneEmpty();
     void OnStopScene();
 private:
-    std::shared_ptr<bbt::network::libevent::EventLoop>      m_loop{nullptr};
-    std::shared_ptr<bbt::network::libevent::Event>          m_update_event;
-    std::shared_ptr<bbt::network::libevent::Event>          m_signal_sigint_handle;
+    std::shared_ptr<bbt::pollevent::EventLoop>              m_loop{nullptr};
+    // std::shared_ptr<bbt::network::libevent::EventLoop>      m_loop{nullptr};
+    std::shared_ptr<bbt::pollevent::Event>                  m_update_event{nullptr};
+    std::shared_ptr<bbt::pollevent::Event>                  m_signal_sigint_handle{nullptr};
     volatile bool                                           m_is_stop{false};          // 是否停止            
 
     engine::ecs::GameObjectId                               m_aoi_id;

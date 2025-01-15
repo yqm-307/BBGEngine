@@ -5,6 +5,6 @@
 namespace util::other::string
 {
 
-const std::string EmptyString = "";
+static const std::string EmptyString = "";
 
 }

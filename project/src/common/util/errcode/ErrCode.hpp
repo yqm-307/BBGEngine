@@ -13,37 +13,16 @@ namespace util::errcode
 typedef std::pair<util::errcode::ErrType, int> ErrTypePair;
 
 class ErrCode:
-    public bbt::errcode::Errcode<ErrTypePair>
+    public bbt::errcode::Errcode
 {
-    typedef bbt::errcode::Errcode<ErrTypePair> BaseClassType;
 public:
 
-    explicit ErrCode(const std::string& err_info,ErrType errtype,int errcode);
+    explicit        ErrCode(const std::string& err_info, bbt::errcode::ErrType errtype, int errnum);
+    virtual bool    IsErr() const override;
+    int             GetErrNum() const;
 
-    ErrCode();
-    void SetInfo(const std::string& errinfo);
-
-    void SetInfo(const char* fmt, ...);
-
-
-    void SetCode(int code);
-
-
-    void SetType(ErrType type);
-
-
-    void Set(const std::string& err_info,ErrType errtype,int errcode);
-
-
-    const std::string& What() const;
-
-    const char* CWhat() const override;
-
-    int GetCode() const;
-
-    const ErrTypePair& Type() const;
 protected:
-
+    int             m_errnum{-1};
 };
 
 typedef std::optional<util::errcode::ErrCode> ErrOpt;

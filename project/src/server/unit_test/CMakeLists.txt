@@ -32,6 +32,7 @@ set(MY_LINK_LIB
     boost_unit_test_framework
     boost_test_exec_monitor
     event_core
+    bbt_cxxlua
     ybbt
     inih
     pthread
