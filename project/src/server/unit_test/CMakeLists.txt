@@ -158,6 +158,19 @@ target_link_libraries(test_PointAndVector_texe
 
 add_test(NAME test_PointAndVector_texe COMMAND test_PointAndVector_texe)
 
+######################## ==> yqm 的 test uuid 测试 <== ########################
+
+add_executable(test_UUID_texe
+    ${SRC_FILE}
+    ./util_test/uuid/test_uuid.cc
+)
+
+target_link_libraries(test_UUID_texe
+    ${MY_LINK_LIB}
+)
+
+add_test(NAME test_UUID_texe COMMAND test_UUID_texe --log_level=message)
+
 ######################## ==> engine 的 gameobject debug 测试 <== ########################
 
 add_executable(test_ecs_gameobjmgr_texe

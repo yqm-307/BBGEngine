@@ -5,9 +5,9 @@ namespace share::ecs::aoi
 {
 
 
-AoiComponent::AoiComponent()
+AoiComponent::AoiComponent(util::config::AoiConfig* cfg)
     :Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI),
-    m_config(G_GetConfigPtr(util::config::AoiConfig, util::config::Cfg_Aoi)),
+    m_config(cfg),
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
     m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(emComponentType::EM_COMPONENT_TYPE_AOI)),
     m_create_ms(bbt::timer::clock::now())

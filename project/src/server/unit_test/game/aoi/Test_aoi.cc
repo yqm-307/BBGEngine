@@ -3,6 +3,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
 #include <bbt/base/random/Random.hpp>
+#include <mutex>
 #include "share/ecs/aoi/AoiObjectComponent.hpp"
 // #include "share/ecs/none/entity/NoneObj.hpp"
 #include "share/ecs/gameobject/GameObject.hpp"
@@ -45,25 +46,32 @@ GameObjectSPtr CreateAoiObj()
     return noneobj;
 }
 
+std::once_flag flag;
+
+util::config::AoiConfig* GenAoiConfig()
+{
+    static util::config::AoiConfig* aoi = nullptr;
+    std::call_once(flag, [&](){
+        aoi = new util::config::AoiConfig();
+        aoi->m_map_x = 10.0f;
+        aoi->m_map_y = 10.0f;
+        aoi->m_map_z = 10.0f;
+        aoi->m_tower_x = 1.0f;
+        aoi->m_tower_y = 1.0f;
+        aoi->m_tower_z = 1.0f;
+    });
+
+    return aoi;    
+}
+
 GameObjectSPtr CreateAoiMap()
 {
     auto noneobj = G_GameObjectMgr()->Create<ecs::gameobject::GameObject>();
-    auto aoi_component = G_ComponentMgr()->Create<ecs::aoi::AoiComponent>();
+    auto aoi_component = G_ComponentMgr()->Create<ecs::aoi::AoiComponent>(GenAoiConfig());
     noneobj->AddComponent(aoi_component);
     return noneobj;
 }
 
-void GenAoiConfig()
-{
-    auto* aoi = new util::config::AoiConfig();
-    aoi->m_map_x = 10.0f;
-    aoi->m_map_y = 10.0f;
-    aoi->m_map_z = 10.0f;
-    aoi->m_tower_x = 1.0f;
-    aoi->m_tower_y = 1.0f;
-    aoi->m_tower_z = 1.0f;
-    G_SetConfigPtr(util::config::AoiConfig, aoi, util::config::Cfg_Aoi);
-}
 
 BOOST_AUTO_TEST_SUITE(AoiTest)
 

@@ -9,7 +9,8 @@ uint64_t Connection::m_id_template = 1;
 
 Connection::Connection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
     m_raw_conn_ptr(raw_conn),
-    m_conn_id(GenerateId())
+    m_conn_id(GenerateId()),
+    m_conn_mgr(mgr)
 {
     m_conn_callbacks.on_close_callback = [this](void* udata, const bbt::net::IPAddress& addr){ OnClose(); };
     m_conn_callbacks.on_err_callback = [this](void* udata, const bbt::network::Errcode& err){ OnError(err); };

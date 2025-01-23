@@ -1,6 +1,6 @@
 #include <signal.h>
-#include "gameserver/scene/GameServerScene.hpp"
-#include "gameserver/init/LoadConfig.hpp"
+#include "nodeserver/scene/NodeScene.hpp"
+#include "nodeserver/config/LoadConfig.hpp"
 #include "share/ecs/network/NetworkSystem.hpp"
 #include "share/ecs/gameobject/GameObject.hpp"
 #include "share/ecs/aoi/AoiComponent.hpp"
@@ -12,19 +12,19 @@
 #include "share/scene/SceneDefine.hpp"
 #include "util/log/Log.hpp"
 
-namespace server::scene
+namespace BBTENGINE_NODE_NAMESPACE::scene
 {
 
-GameServerScene::GameServerScene()
+ServerScene::ServerScene()
 {
 }
 
-GameServerScene::~GameServerScene()
+ServerScene::~ServerScene()
 {
     OnDestory();
 }
 
-void GameServerScene::OnUpdate()
+void ServerScene::OnUpdate()
 {
     if(m_is_stop) {
         // 释放场景内的所有游戏对象
@@ -43,7 +43,7 @@ void GameServerScene::OnUpdate()
     }
 }
 
-void GameServerScene::Init()
+void ServerScene::Init()
 {
     share::scene::g_scene = std::unique_ptr<engine::scene::Scene>(this);
     OnInit();
@@ -51,7 +51,7 @@ void GameServerScene::Init()
 
 #pragma region "内部函数"
 
-void GameServerScene::OnInit()
+void ServerScene::OnInit()
 {
     using namespace bbt::network;
 
@@ -94,15 +94,15 @@ void GameServerScene::OnInit()
 
 }
 
-engine::ecs::GameObjectSPtr GameServerScene::GlobalMgrInit()
+engine::ecs::GameObjectSPtr ServerScene::GlobalMgrInit()
 {
     auto global_mgr = G_GameObjectMgr()->Create<share::ecs::globalmgr::GlobalMgr>();
     return global_mgr;
 }
 
-engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
+engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
 {
-    auto& cfgInst = server::init::ServerConfig::GetInstance();
+    auto& cfgInst = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
     auto ip     = cfgInst->GetServerIP();
     auto port   = cfgInst->GetServerPort();
 
@@ -119,9 +119,9 @@ engine::ecs::GameObjectSPtr GameServerScene::NetWorkInit()
     return network_obj;
 }
 
-engine::ecs::GameObjectSPtr GameServerScene::DBServiceInit()
+engine::ecs::GameObjectSPtr ServerScene::DBServiceInit()
 {
-    auto& g_config = server::init::ServerConfig::GetInstance();
+    auto& g_config = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
     auto dbservice_obj = G_GameObjectMgr()->Create<share::ecs::network::DBServiceConnObj>();
     auto& system_ref = engine::ecs::GetSystem<share::ecs::network::DBServiceCliCompSystem>();
     share::ecs::network::DBServiceCliCfg cfg;
@@ -137,14 +137,14 @@ engine::ecs::GameObjectSPtr GameServerScene::DBServiceInit()
     return dbservice_obj;
 }
 
-void GameServerScene::OnDestory()
+void ServerScene::OnDestory()
 {
     m_loop = nullptr;
     m_update_event = nullptr;
     m_signal_sigint_handle = nullptr;
 }
 
-void GameServerScene::StartScene()
+void ServerScene::StartScene()
 {
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
@@ -155,7 +155,7 @@ void GameServerScene::StartScene()
         GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
 }
 
-void GameServerScene::StopScene()
+void ServerScene::StopScene()
 {
     if(m_is_stop)
     {
@@ -166,7 +166,7 @@ void GameServerScene::StopScene()
     m_is_stop = true;
 }
 
-void GameServerScene::OnStopScene()
+void ServerScene::OnStopScene()
 {
     // 让io线程退出
     {
@@ -184,12 +184,11 @@ void GameServerScene::OnStopScene()
 
 }
 
-void GameServerScene::IOThreadExit()
+void ServerScene::IOThreadExit()
 {
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
 
-    // auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
     share::ecs::network::NetworkSystem::GetInstance()->StopNetwork(obj);
     GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }

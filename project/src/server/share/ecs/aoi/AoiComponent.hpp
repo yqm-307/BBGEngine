@@ -43,7 +43,7 @@ private:
     void Init();
 
 protected:
-    explicit AoiComponent();
+    explicit AoiComponent(util::config::AoiConfig* cfg);
 private:
     /////////////////////////////////////////////////////////////////////////////
     int         m_tower_max_x;  // x 轴上灯塔数量
@@ -55,7 +55,7 @@ private:
     GameObjHashmap                  m_gameobj_map; // AOI中所有游戏对象 hashmap
     std::vector<Tower>              m_towers;   // AOI中所有灯塔
     std::vector<MapSlot>            m_slots;    // AOI中所有Slot
-    const util::config::AoiConfig*  m_config;   // AOI配置
+    const util::config::AoiConfig*  m_config{nullptr};   // AOI配置
 };
 
 }

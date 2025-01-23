@@ -52,7 +52,6 @@ private:
      * Module 流程控制
      */
     engine::ecs::GameObjectSPtr GlobalMgrInit();
-    engine::ecs::GameObjectSPtr AoiInit();
     engine::ecs::GameObjectSPtr NetWorkInit();
     engine::ecs::GameObjectSPtr DBServiceInit();
     /* 阻塞的等待IO线程退出 */
@@ -68,7 +67,6 @@ private:
     std::shared_ptr<bbt::pollevent::Event>                  m_signal_sigint_handle{nullptr};
     volatile bool                                           m_is_stop{false};          // 是否停止            
 
-    engine::ecs::GameObjectId                               m_aoi_id;
     engine::ecs::GameObjectId                               m_network_id;
 };
 

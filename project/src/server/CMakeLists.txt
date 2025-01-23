@@ -9,5 +9,7 @@ link_directories(thirdparty/libs)
 
 add_subdirectory(gameserver)
 
+add_subdirectory(nodeserver)
+
 include(CTest)
 add_subdirectory(unit_test)
