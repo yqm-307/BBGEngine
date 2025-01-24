@@ -17,12 +17,9 @@ class ErrCode:
 {
 public:
 
-    explicit        ErrCode(const std::string& err_info, bbt::errcode::ErrType errtype, int errnum);
+    explicit        ErrCode(const std::string& err_info, bbt::errcode::ErrType errtype);
     virtual bool    IsErr() const override;
-    int             GetErrNum() const;
 
-protected:
-    int             m_errnum{-1};
 };
 
 typedef std::optional<util::errcode::ErrCode> ErrOpt;

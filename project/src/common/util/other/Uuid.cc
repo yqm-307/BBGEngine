@@ -10,6 +10,16 @@ void Uuid::Generator(boost::uuids::uuid& uuid)
     uuid = _generator();
 }
 
+std::size_t Uuid::Hash::operator()(const Uuid& uuid)
+{
+    if (uuid.IsNil())
+        return 0;
+
+    std::hash<std::string> hash;
+    return hash(uuid.ToString());
+}
+
+
 Uuid::Uuid()
 {
     Generator(m_uuid);
@@ -40,6 +50,12 @@ Uuid& Uuid::operator=(Uuid&& other)
     return *this;
 }
 
+bool Uuid::operator==(const Uuid& other) const
+{
+    return (m_uuid == other.m_uuid);
+}
+
+
 bool Uuid::ToString(char* uuid, size_t len) const
 {
     if (len <= m_uuid.size())
@@ -66,7 +82,7 @@ bool Uuid::ToString(std::string& uuid) const
     return true;
 }
 
-std::string Uuid::ToString() const
+const std::string& Uuid::ToString() const
 {
     std::stringstream f;
 

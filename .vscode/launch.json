@@ -4,134 +4,17 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    {
-        "name": "uuid test",
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "${workspaceFolder}/project/server/build/server/unit_test/test_UUID_texe",
-        "args": [],
-        "stopAtEntry": false,
-        "cwd": "${fileDirname}",
-        "environment": [],
-        "externalConsole": false,
-        "MIMode": "gdb",
-        "setupCommands": [
-            {
-                "description": "为 gdb 启用整齐打印",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            },
-            {
-                "description": "将反汇编风格设置为 Intel",
-                "text": "-gdb-set disassembly-flavor intel",
-                "ignoreFailures": true
-            }
-        ]
-    },
         {
-            "name": "timewheel debug",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_timewheel_debug_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
+            "name": "==== debug ====",
         },
         {
-            "name": "time wheel compoent",
+            "name": "test_testhelperdebug_texe",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_timewheel_compoment_texe",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_testhelperdebug_texe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "db service robot",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/tools/dbservicerobot/build/bin/dbservrobot",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/project/tools/dbservicerobot/build/bin/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "global lua vm component",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_global_lua_vm_compoment_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/project/src/server/unit_test/game/luascript",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "lua script component",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_lua_script_compoment_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/project/src/server/unit_test/game/luascript",
+            "cwd": "${workspaceFolder}/project/server/build/bin/debug",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -155,7 +38,7 @@
             "program": "${workspaceFolder}/demo/BehaviorTree/build/foodtree",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/project/server/build/bin/debug",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -173,13 +56,44 @@
             ]
         },
         {
-            "name": "test_ecs_gameobjmgr_texe",
+            "name": "timewheel_test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/unit_test/test_ecs_gameobjmgr_texe",
+            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_timewheel_debug_texe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/project/server/build/bin/debug",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        
+
+
+
+        {
+            "name": "==== test ====",
+        },
+        {
+            "name": "engine component mgr test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_engine_componentmgr_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -197,61 +111,13 @@
             ]
         },
         {
-            "name": "test_PointAndVector_texe",
+            "name": "scene test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/unit_test/test_PointAndVector_texe",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_engine_scene_texe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "test_testhelperdebug_texe",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/unit_test/test_testhelperdebug_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "test_game_aoi_texe",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/unit_test/test_game_aoi_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -275,7 +141,7 @@
             "program": "${workspaceFolder}/project/server/build/unit_test/unit_test",
             "args": ["--log_level=test_suite"],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -293,10 +159,209 @@
             ]
         },
         {
+            "name": "test_game_aoi_texe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_game_aoi_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test_PointAndVector_texe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_PointAndVector_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test_ecs_gameobjmgr_texe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/unit_test/test_ecs_gameobjmgr_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test_game_lua_script_compoment_texe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_lua_script_compoment_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "uuid test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_UUID_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test_game_global_lua_vm_compoment_texe",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_global_lua_vm_compoment_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "time wheel compoent",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/server/build/server/unit_test/test_game_timewheel_compoment_texe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/unit_test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+
+
+
+
+        {
+            "name": "==== exec ====",
+        },
+        {
             "name": "gameserver",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/project/server/build/bin/gameserver",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/project/server/build/bin/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "db service robot",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/project/tools/dbservicerobot/build/bin/dbservrobot",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/project/server/build/bin/",
@@ -340,53 +405,11 @@
                 }
             ]
         },
+
+
+
         {
-            "name": "scene test",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/unit_test/test_engine_scene_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/project/server/build/bin",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "engine component mgr test",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/project/server/build/unit_test/test_engine_componentmgr_texe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/project/server/build/bin",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
+            "name": "==== example ===="
         },
     ]
 }

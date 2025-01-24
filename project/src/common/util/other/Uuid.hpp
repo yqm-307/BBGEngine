@@ -1,25 +1,34 @@
 #pragma once
+#include <memory>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/operators.hpp>
 
 namespace util::other
 {
 
-class Uuid
+class Uuid:
+    boost::equality_comparable<Uuid>
 {
 public:
-    explicit Uuid();
-    explicit Uuid(const Uuid& other);
-    explicit Uuid(Uuid&& other);
+    typedef std::shared_ptr<Uuid> SPtr;
+
+    struct Hash{ std::size_t operator()(const Uuid& uuid); };
+
+    Uuid();
+    Uuid(const Uuid& other);
+    Uuid(Uuid&& other);
     virtual ~Uuid();
 
     Uuid& operator=(const Uuid& other);
     Uuid& operator=(Uuid&& other);
 
+    bool operator==(const Uuid& other) const;
+
     bool ToString(char* uuid, size_t len) const;
     bool ToString(std::string& uuid) const;
-    std::string ToString() const;
+    const std::string& ToString() const;
 
     bool IsNil() const;
 

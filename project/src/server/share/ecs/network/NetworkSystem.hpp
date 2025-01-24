@@ -13,8 +13,6 @@ class NetworkSystem:
 {
     typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
 public:
-    static std::unique_ptr<NetworkSystem>& GetInstance();
-
     bool InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg);
     bool StartNetwork(GameObjectSPtr gameobject);
     bool StopNetwork(GameObjectSPtr gameobject);

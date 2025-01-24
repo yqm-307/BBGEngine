@@ -93,7 +93,7 @@ void LoginServerScene::StartScene()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
-    share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
+    share::ecs::network::NetworkSystem::GetSysInst()->StartNetwork(obj);
     auto err = m_loop->StartLoop(bbt::network::libevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
     if (!err)
         GAME_EXT1_LOG_ERROR(err.CWhat());   
@@ -129,7 +129,7 @@ engine::ecs::GameObjectSPtr LoginServerScene::NetWorkInit()
     cfg.connent_timeout = 1000;
 
     auto network_obj = G_GameObjectMgr()->Create<share::ecs::network::Network>();
-    share::ecs::network::NetworkSystem::GetInstance()->InitNetwork(network_obj, cfg);
+    share::ecs::network::NetworkSystem::GetSysInst()->InitNetwork(network_obj, cfg);
 
     return network_obj;
 }
@@ -158,7 +158,7 @@ void LoginServerScene::IOThreadExit()
     DebugAssert(isok);
 
     // auto network_ptr = std::static_pointer_cast<share::ecs::entity::network::Network>(obj);
-    share::ecs::network::NetworkSystem::GetInstance()->StopNetwork(obj);
+    share::ecs::network::NetworkSystem::GetSysInst()->StopNetwork(obj);
     GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 

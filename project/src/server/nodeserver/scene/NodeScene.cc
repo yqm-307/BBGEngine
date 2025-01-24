@@ -114,7 +114,7 @@ engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
     cfg.connent_timeout = 1000;
 
     auto network_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    share::ecs::network::NetworkSystem::GetInstance()->InitNetwork(network_obj, cfg);
+    share::ecs::network::NetworkSystem::GetSysInst()->InitNetwork(network_obj, cfg);
 
     return network_obj;
 }
@@ -149,7 +149,7 @@ void ServerScene::StartScene()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
-    share::ecs::network::NetworkSystem::GetInstance()->StartNetwork(obj);
+    share::ecs::network::NetworkSystem::GetSysInst()->StartNetwork(obj);
     auto err = m_loop->StartLoop(bbt::pollevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
     if (err != 0)
         GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
@@ -189,7 +189,7 @@ void ServerScene::IOThreadExit()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
 
-    share::ecs::network::NetworkSystem::GetInstance()->StopNetwork(obj);
+    share::ecs::network::NetworkSystem::GetSysInst()->StopNetwork(obj);
     GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 

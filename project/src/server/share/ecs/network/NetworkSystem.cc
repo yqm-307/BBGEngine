@@ -5,16 +5,6 @@
 namespace share::ecs::network
 {
 
-std::unique_ptr<NetworkSystem>& NetworkSystem::GetInstance()
-{
-    static std::unique_ptr<NetworkSystem> _inst = nullptr;
-    if (_inst == nullptr) {
-        _inst = std::unique_ptr<NetworkSystem>(new NetworkSystem());
-    }
-
-    return _inst;
-}
-
 bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg)
 {
     // 初始化network gameobject

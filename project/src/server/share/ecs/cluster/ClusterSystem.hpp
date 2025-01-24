@@ -9,6 +9,9 @@ namespace share::ecs::cluster
  */
 class ClusterSystem
 {
+public:
+
+private:
     
 };
 

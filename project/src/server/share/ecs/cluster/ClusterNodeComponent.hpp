@@ -1,6 +1,8 @@
 #pragma once
 #include <engine/ecs/component/Component.hpp>
-#include "share/ecs/cluster/ClusterDefine.hpp"
+#include <util/other/Uuid.hpp>
+#include <util/errcode/ErrCode.hpp>
+#include "ClusterNode.hpp"
 
 namespace share::ecs::cluster
 {
@@ -23,9 +25,9 @@ public:
     virtual ~ClusterNodeComponent();
 
     // 已连接节点管理
-    void AppendNode(const NodeInfo& node);    
-    void RemoveNode(const NodeInfo& node);
-    const NodeInfo& FindNode(const std::string& service_name);
+    util::errcode::ErrOpt AppendNode(std::shared_ptr<ClusterNode> node);
+    std::shared_ptr<ClusterNode> RemoveNode(std::shared_ptr<ClusterNode> node);
+    std::shared_ptr<ClusterNode> FindNode(const std::string& service_name) const;
     void ActiveNode(const std::string& service_name);
 
     // 节点操作
@@ -34,12 +36,14 @@ private:
     virtual void OnUpdate() override;
 
 private:
-    std::string         m_ip;
-    short               m_port;
-    std::string         m_node_name;
-    char                m_node_uuid[128];
-    NodeState           m_state;
-    std::unordered_map<std::string/*service_name*/, NodeInfo> 
+    std::string         m_ip{""};
+    short               m_port{-1};
+    std::string         m_node_name{""};
+    util::other::Uuid   m_node_uuid;
+    NodeState           m_state{NodeState::NODESTATE_DEFAULT};
+
+    /* 节点内维护其他节点数据 */
+    std::unordered_map<util::other::Uuid, std::shared_ptr<ClusterNode>, util::other::Uuid::Hash>
                         m_node_map;
 
 };

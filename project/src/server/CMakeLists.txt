@@ -11,5 +11,7 @@ add_subdirectory(gameserver)
 
 add_subdirectory(nodeserver)
 
+add_subdirectory(debug)
+
 include(CTest)
 add_subdirectory(unit_test)

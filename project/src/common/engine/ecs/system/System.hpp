@@ -7,7 +7,7 @@ namespace engine::ecs
 template<class TSystem>
 static inline std::unique_ptr<TSystem>& GetSystem()
 {
-    return TSystem::__GetInstance();
+    return TSystem::GetSysInst();
 }
 
 template<typename TChildClass>
@@ -19,7 +19,7 @@ public:
     System(){}
     virtual ~System() = 0;
 
-    static std::unique_ptr<TChildClass>& __GetInstance()
+    static std::unique_ptr<TChildClass>& GetSysInst()
     {
         static std::unique_ptr<TChildClass> _inst{nullptr};
         if (_inst == nullptr)

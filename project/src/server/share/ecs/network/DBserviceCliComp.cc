@@ -156,7 +156,7 @@ util::errcode::ErrOpt DBServiceCliCompSystem::Init(engine::ecs::GameObjectSPtr g
 {
     if (gameobj == nullptr) {
         GAME_EXT1_LOG_ERROR("gameobj is null!");
-        return util::errcode::ErrCode("gameobj is null!", util::errcode::ErrType::CommonErr, util::errcode::errenum::COMMON::PARAM_ERR);
+        return util::errcode::ErrCode("gameobj is null!", util::errcode::ErrType::CommonErr);
     }
 
     auto dbservice_cli_comp = G_ComponentMgr()->Create<share::ecs::network::DBServiceCliComp>(*conn_cfg);

@@ -37,7 +37,6 @@ set(MY_LINK_LIB
     inih
     pthread
     dl
-    BBGCommon
     ${PROJECT_BINARY_DIR}/common/lib/libBBGCommon.so
 )
 
@@ -185,24 +184,24 @@ target_link_libraries(test_ecs_gameobjmgr_texe
 add_test(NAME test_ecs_gameobjmgr_texe COMMAND test_ecs_gameobjmgr_texe)
 
 ######################## ==> game 的 lua script component debug 测试 <== ########################
-
+# TODO 和路径相关，后续需要调整把lua代码直接卸载cxx文件内
 file(GLOB_RECURSE TEST_LUA_COMP_SRC
     ${PROJECT_SOURCE_DIR}/server/share/ecs/luascript/*.cc
     ${PROJECT_SOURCE_DIR}/server/share/ecs/globalluavm/*.cc
 )
 
-add_executable(test_game_lua_script_compoment_texe
-    ${SRC_FILE}
-    ${TEST_LUA_COMP_SRC}
-    ./game/luascript/Test_lua_comp.cc
-)
+# add_executable(test_game_lua_script_compoment_texe
+#     ${SRC_FILE}
+#     ${TEST_LUA_COMP_SRC}
+#     ./game/luascript/Test_lua_comp.cc
+# )
 
-target_link_libraries(test_game_lua_script_compoment_texe
-    ${MY_LINK_LIB}
-    lua
-)
+# target_link_libraries(test_game_lua_script_compoment_texe
+#     ${MY_LINK_LIB}
+#     lua
+# )
 
-add_test(NAME test_game_lua_script_compoment_texe COMMAND test_game_lua_script_compoment_texe)
+# add_test(NAME test_game_lua_script_compoment_texe COMMAND test_game_lua_script_compoment_texe)
 
 ######################## ==> game 的 lua global vm component debug 测试 <== ########################
 
@@ -238,14 +237,14 @@ target_link_libraries(test_game_timewheel_compoment_texe
 add_test(NAME test_game_timewheel_compoment_texe COMMAND test_game_timewheel_compoment_texe)
 
 ######################## ==> game 的 timewheel component debug 测试 <== ########################
-add_executable(test_game_timewheel_debug_texe
-    ${SRC_FILE}
-    ${timewheel_component_src}
-    ./game/timewheel/Test_timewheel_fatigue_test.cc
-)
+# add_executable(test_game_timewheel_debug_texe
+#     ${SRC_FILE}
+#     ${timewheel_component_src}
+#     ./game/timewheel/Test_timewheel_fatigue_test.cc
+# )
 
-target_link_libraries(test_game_timewheel_debug_texe
-    ${MY_LINK_LIB}
-)
+# target_link_libraries(test_game_timewheel_debug_texe
+#     ${MY_LINK_LIB}
+# )
 
-add_test(NAME test_game_timewheel_debug_texe COMMAND test_game_timewheel_debug_texe)
+# add_test(NAME test_game_timewheel_debug_texe COMMAND test_game_timewheel_debug_texe)

@@ -16,7 +16,7 @@ int main()
     int dbg_terminal = 1;
     std::shared_ptr<share::ecs::network::DBServiceConnection> dbconn{nullptr};
     BBT_CONFIG_QUICK_SET_DYNAMIC_ENTRY(int, &dbg_terminal, bbt::config::_BBTSysCfg::BBT_LOG_STDOUT_OPEN);
-    auto& SysRef = share::ecs::network::NetworkSystem::GetInstance();
+    auto& SysRef = share::ecs::network::NetworkSystem::GetSysInst();
     bbt::network::libevent::EventLoop eventloop;
     share::session::DBServiceSession::Init();
 
