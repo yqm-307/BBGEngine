@@ -45,7 +45,7 @@ void ServerScene::OnUpdate()
 
 void ServerScene::Init()
 {
-    share::scene::g_scene = std::unique_ptr<engine::scene::Scene>(this);
+    share::scene::MainScene() = std::unique_ptr<engine::scene::Scene>(this);
     OnInit();
 }
 

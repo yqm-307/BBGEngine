@@ -99,7 +99,7 @@ ClusterNode& ClusterNode::operator=(const ClusterNode& other)
 
 void ClusterNode::Clear()
 {
-    memset(&m_address, '\0', sizeof(m_address));
+    m_address.Clear();
     m_last_active_time = -1;
     m_service_name = "";
     m_state = NODESTATE_DEFAULT;

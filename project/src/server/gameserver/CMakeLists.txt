@@ -8,22 +8,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g ${Wall_Flag}")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin) # 可执行文件目录
 
+# 库文件搜索路径
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} 
     ${PROJECT_SOURCE_DIR}/../thirdparty/libs
     ${PROJECT_BINARY_DIR}/common/lib
 )
 
+# 头文件搜索路径
 include_directories(
     ${PROJECT_SOURCE_DIR}/common
     ${PROJECT_SOURCE_DIR}/server
     ${PROJECT_SOURCE_DIR}
 )
+
 # 搜索CPP文件
 file(GLOB_RECURSE SRC_FILE
     # gameserver 目录下
     ${PROJECT_SOURCE_DIR}/server/gameserver/*.cc
-    # share 目录下
-    ${PROJECT_SOURCE_DIR}/server/share/*.cc
 )
 
 
@@ -46,5 +47,6 @@ target_link_libraries(gameserver
     # tcmalloc
     dl
     BBGCommon
+    BBGShare
     lua
 )

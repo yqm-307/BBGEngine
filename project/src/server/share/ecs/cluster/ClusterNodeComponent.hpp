@@ -27,8 +27,8 @@ public:
     // 已连接节点管理
     util::errcode::ErrOpt AppendNode(std::shared_ptr<ClusterNode> node);
     std::shared_ptr<ClusterNode> RemoveNode(std::shared_ptr<ClusterNode> node);
-    std::shared_ptr<ClusterNode> FindNode(const std::string& service_name) const;
-    void ActiveNode(const std::string& service_name);
+    std::shared_ptr<ClusterNode> FindNode(const util::other::Uuid& uuid) const;
+    void ActiveNode(const util::other::Uuid& uuid);
 
     // 节点操作
 private:

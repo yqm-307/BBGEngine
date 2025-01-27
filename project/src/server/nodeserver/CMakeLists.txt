@@ -22,8 +22,6 @@ include_directories(
 file(GLOB_RECURSE SRC_FILE
     # nodeserver 目录下
     ${PROJECT_SOURCE_DIR}/server/nodeserver/*.cc
-    # share 目录下
-    ${PROJECT_SOURCE_DIR}/server/share/*.cc
 )
 
 
@@ -46,5 +44,6 @@ target_link_libraries(nodeserver
     # tcmalloc
     dl
     BBGCommon
+    BBGShare
     lua
 )

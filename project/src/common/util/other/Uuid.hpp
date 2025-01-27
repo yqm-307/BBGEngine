@@ -14,7 +14,7 @@ class Uuid:
 public:
     typedef std::shared_ptr<Uuid> SPtr;
 
-    struct Hash{ std::size_t operator()(const Uuid& uuid); };
+    struct Hash{ std::size_t operator()(const Uuid& uuid) const; };
 
     Uuid();
     Uuid(const Uuid& other);
@@ -28,7 +28,7 @@ public:
 
     bool ToString(char* uuid, size_t len) const;
     bool ToString(std::string& uuid) const;
-    const std::string& ToString() const;
+    std::string ToString() const;
 
     bool IsNil() const;
 

@@ -4,8 +4,6 @@
 #include "nodeserver/scene/NodeScene.hpp"
 #include "nodeserver/config/LoadConfig.hpp"
 
-std::unique_ptr<engine::scene::Scene> share::scene::g_scene = nullptr;
-
 /**
  * 加载全局配置
  */

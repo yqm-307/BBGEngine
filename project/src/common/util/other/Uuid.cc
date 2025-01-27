@@ -10,7 +10,7 @@ void Uuid::Generator(boost::uuids::uuid& uuid)
     uuid = _generator();
 }
 
-std::size_t Uuid::Hash::operator()(const Uuid& uuid)
+std::size_t Uuid::Hash::operator()(const Uuid& uuid) const
 {
     if (uuid.IsNil())
         return 0;
@@ -82,7 +82,7 @@ bool Uuid::ToString(std::string& uuid) const
     return true;
 }
 
-const std::string& Uuid::ToString() const
+std::string Uuid::ToString() const
 {
     std::stringstream f;
 

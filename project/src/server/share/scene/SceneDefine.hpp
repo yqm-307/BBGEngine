@@ -7,11 +7,15 @@
 namespace share::scene
 {
 
-extern std::unique_ptr<engine::scene::Scene> g_scene;
+extern inline std::unique_ptr<engine::scene::Scene>& MainScene()
+{
+    static std::unique_ptr<engine::scene::Scene> g_scene = nullptr;
+    return g_scene;
+}
 
 extern inline engine::ecs::GameObjectSPtr GetGlobalInstByTid(engine::ecs::GameObjectTemplateId tid)
 {
-    auto objs = g_scene->GetGameObject(share::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
+    auto objs = MainScene()->GetGameObject(share::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
     if (objs.size() != 1)
         return nullptr;
     
@@ -24,7 +28,7 @@ extern inline engine::ecs::GameObjectSPtr GetGlobalInstByTid(engine::ecs::GameOb
 
 extern inline bool RegistGlobalInst(engine::ecs::GameObjectSPtr obj)
 {
-    auto objs = g_scene->GetGameObject(share::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
+    auto objs = MainScene()->GetGameObject(share::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
     if (objs.size() != 1)
         return false;
     

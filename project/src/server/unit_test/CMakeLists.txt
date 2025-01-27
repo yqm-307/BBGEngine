@@ -18,15 +18,6 @@ include_directories(
     ${THIRD_PARTY_INCLUDE_PATH}
 )
 
-# c++待编译的源文件
-file(GLOB_RECURSE SRC_FILE
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/aoi/*.cc
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/gameobject/*.cc
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/testobj/*.cc
-    ${PROJECT_SOURCE_DIR}/server/share/ecs/testobj/*.cc
-    ${PROJECT_SOURCE_DIR}/server/share/scene/*.cc
-)
-
 # 链接库
 set(MY_LINK_LIB
     boost_unit_test_framework
@@ -37,7 +28,9 @@ set(MY_LINK_LIB
     inih
     pthread
     dl
-    ${PROJECT_BINARY_DIR}/common/lib/libBBGCommon.so
+    BBGCommon
+    BBGShare
+    lua
 )
 
 ##########################################################################
@@ -58,7 +51,6 @@ set(MY_LINK_LIB
 
 ######################## ==> 单元测试，后续需要拆分 <== ########################
 add_executable(unit_test 
-    ${SRC_FILE}
     ./main.cc
 )
 target_link_libraries(unit_test
@@ -69,7 +61,6 @@ add_test(NAME unit_test COMMAND unit_test)
 
 ######################## ==> game 的 aoi 功能测试 <== ########################
 add_executable(test_game_aoi_texe
-    ${SRC_FILE}
     ./game/aoi/Test_aoi.cc
 )
 
@@ -81,7 +72,6 @@ add_test(NAME test_game_aoi_texe COMMAND test_game_aoi_texe)
 ######################## ==> engine 的 scene 功能测试 <== ########################
 
 add_executable(test_engine_scene_texe
-    ${SRC_FILE}
     ./engine_test/Test_scene.cc
 )
 

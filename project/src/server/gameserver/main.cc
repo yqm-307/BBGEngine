@@ -4,8 +4,6 @@
 #include "util/random/GlobalRandom.hpp"
 #include "share/scene/SceneDefine.hpp"
 
-std::unique_ptr<engine::scene::Scene> share::scene::g_scene = nullptr;
-
 void RandomSeedInit()
 {
     util::Random::SetSeed(bbt::timer::clock::now().time_since_epoch().count());
