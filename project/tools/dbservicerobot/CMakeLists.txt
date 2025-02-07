@@ -38,8 +38,6 @@ file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/*.cc
 )
 
-# message(${SRC_FILE})
-
 # 为可执行程序添加CPP源文件
 add_executable(dbservrobot
     main.cc

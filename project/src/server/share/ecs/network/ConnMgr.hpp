@@ -20,7 +20,7 @@ class ConnMgr:
     ComponentDeriveClassDef;
 public:
     ~ConnMgr();
-    bool Init();
+    virtual void Init() override;
     
     bool DelConnect(bbt::network::ConnId conn);
     bool AddConnect(std::shared_ptr<Connection> conn);

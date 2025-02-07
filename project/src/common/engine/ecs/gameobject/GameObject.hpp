@@ -29,6 +29,8 @@ public:
     virtual         ~GameObject() = 0;
 
 
+    template<class TComponent, typename ...Args>
+    bool            AddComponent(Args ...args);
     /* 插入一个组件, 如果组件已经存在，返回false，否则true */
     bool            AddComponent(ComponentSPtr component);
     /* 获取一个组件，如果不存在返回nullptr */
@@ -88,6 +90,14 @@ private:
     std::map<GameObjectId, GameObjectWKPtr>         m_fathers;
     engine::scene::SceneWKPtr                       m_scene;
 };
+
+
+template<class TComponent, typename ...Args>
+bool GameObject::AddComponent(Args ...args)
+{
+    auto comp = G_ComponentMgr()->Create<TComponent>(args ...);
+    return AddComponent(comp);
+}
 
 } // namespace engine::ecs
 

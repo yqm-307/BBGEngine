@@ -25,6 +25,7 @@ public:
     virtual void                OnDelComponent(ecs::GameObjectSPtr);
     virtual void                OnEnable();
     virtual void                OnDisable();
+    virtual void                Init();
     //--------------------------------------------
 
     const std::string&          GetName() const;

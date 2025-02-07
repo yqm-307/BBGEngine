@@ -43,6 +43,7 @@ ComponentId Component::GetId() const
 void Component::OnAddComponent(ecs::GameObjectSPtr parent)
 {
     m_parent_gameobject = parent;
+    Init();
 }
 
 void Component::OnDelComponent(ecs::GameObjectSPtr parent)
@@ -57,6 +58,10 @@ void Component::OnEnable()
 }
 
 void Component::OnDisable()
+{
+}
+
+void Component::Init()
 {
 }
 

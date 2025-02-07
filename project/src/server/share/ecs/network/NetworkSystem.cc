@@ -7,13 +7,11 @@ namespace share::ecs::network
 
 bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg)
 {
-    // 初始化network gameobject
-    auto network_comp = G_ComponentMgr()->Create<share::ecs::network::NetworkComponent>();
-    Assert(gameobject->AddComponent(network_comp));
-    auto connmgr_comp = G_ComponentMgr()->Create<share::ecs::network::ConnMgr>(cfg);
-    Assert(gameobject->AddComponent(connmgr_comp));
+    Assert(gameobject->AddComponent<share::ecs::network::NetworkComponent>());
+    Assert(gameobject->AddComponent<share::ecs::network::ConnMgr>(cfg));
 
-    return connmgr_comp->Init();
+    gameobject->GetComponent(share::ecs::EM_COMPONENT_TYPE_CONN_MGR);
+    return true;
 }
 
 

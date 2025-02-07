@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -9,7 +10,7 @@ namespace util::other
 {
 
 class Uuid:
-    boost::equality_comparable<Uuid>
+    public boost::equality_comparable<Uuid>
 {
 public:
     typedef std::shared_ptr<Uuid> SPtr;

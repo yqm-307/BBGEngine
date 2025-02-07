@@ -20,8 +20,6 @@ file(GLOB_RECURSE SRC_FILE
     ${PROJECT_SOURCE_DIR}/server/share/scene/*.cc
 )
 
-message(${SRC_FILE})
-
 set(MY_DBG_LIBS
     inih
     bbt_cxxlua

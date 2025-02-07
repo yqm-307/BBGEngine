@@ -159,8 +159,7 @@ util::errcode::ErrOpt DBServiceCliCompSystem::Init(engine::ecs::GameObjectSPtr g
         return util::errcode::ErrCode("gameobj is null!", util::errcode::ErrType::CommonErr);
     }
 
-    auto dbservice_cli_comp = G_ComponentMgr()->Create<share::ecs::network::DBServiceCliComp>(*conn_cfg);
-    auto isok = gameobj->AddComponent(dbservice_cli_comp);
+    auto isok = gameobj->AddComponent<share::ecs::network::DBServiceCliComp>(*conn_cfg);
     Assert(isok);
 
     return std::nullopt;

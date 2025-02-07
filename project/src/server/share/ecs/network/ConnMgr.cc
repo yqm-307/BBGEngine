@@ -17,22 +17,18 @@ ConnMgr::ConnMgr(const ServerCfg& cfg):
 {
 }
 
-bool ConnMgr::Init()
+void ConnMgr::Init()
 {
     auto parent = GetParentObject();
-    if (parent == nullptr)
-        return false;
+    AssertWithInfo(parent != nullptr, "no parent!");
 
     auto network_comp = std::static_pointer_cast<NetworkComponent>(parent->GetComponent(EM_COMPONENT_TYPE_NETWORK));
-    if (network_comp == nullptr)
-        return false;
-    
+    AssertWithInfo(network_comp != nullptr, "need network component!");
+
     network_comp->SetListenAddr(m_cfg.ip.c_str(), m_cfg.port);
     network_comp->SetOnAccept([this](auto err, auto new_conn){
         OnAcceptAndInitConn(err, new_conn);
     });
-
-    return true;
 }
 
 void ConnMgr::OnAcceptAndInitConn(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
