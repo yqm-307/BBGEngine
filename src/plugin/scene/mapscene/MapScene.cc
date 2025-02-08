@@ -1,0 +1,1 @@
+#include "plugin/scene/mapscene/MapScene.hpp"

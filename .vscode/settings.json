@@ -2,12 +2,12 @@
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.cStandard": "c99",
     "C_Cpp.default.includePath": [
-        "${workspaceRoot}/project/server"
+        "${workspaceRoot}"
     ],
-    "cmake.sourceDirectory": "${workspaceFolder}/project/src",
+    "cmake.sourceDirectory": "/home/yqm/Git/owner/BBGEngine",
     "C_Cpp.default.compilerPath": "/usr/bin/g++",
     "C_Cpp.dimInactiveRegions": true,
-    "cmake.buildDirectory": "${workspaceFolder}/project/server/build",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
     "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
         "cctype": "cpp",
@@ -84,5 +84,9 @@
         "csignal": "cpp",
         "regex": "cpp"
     },
+    "cmake.configureArgs": [
+        "-DNO_EXAMPLE=OFF",
+        "-DNO_TEST=ON",
+    ]
     
 }
