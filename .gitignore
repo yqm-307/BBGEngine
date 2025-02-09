@@ -46,6 +46,10 @@ CTestTestfile.cmake
 _deps
 
 
+#protobuf generated files
+*.pb.cc
+*.pb.h
+
 # my define
 build
 .vscode/settings.json
