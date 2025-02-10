@@ -7,7 +7,7 @@
 #include "nodeserver/ecs/network/DBServiceConnection.hpp"
 
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 class DBServiceCliCompSystem;

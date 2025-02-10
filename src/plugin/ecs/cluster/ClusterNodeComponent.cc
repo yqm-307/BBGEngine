@@ -1,6 +1,6 @@
 #include "ClusterNodeComponent.hpp"
 
-namespace share::ecs::cluster
+namespace plugin::ecs::cluster
 {
 
 util::errcode::ErrOpt ClusterNodeComponent::AppendNode(std::shared_ptr<ClusterNode> node)

@@ -2,7 +2,7 @@
 #include <bbt/base/buffer/Buffer.hpp>
 #include "plugin/ecs/network/Connection.hpp"
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 typedef std::function<bool(bbt::buffer::Buffer&, bbt::buffer::Buffer&)> DBServiceCPPFuncPtr;

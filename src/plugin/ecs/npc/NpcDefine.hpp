@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-namespace share::ecs::npc
+namespace plugin::ecs::npc
 {
 
 typedef int64_t NpcId;

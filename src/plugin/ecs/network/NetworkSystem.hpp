@@ -1,9 +1,9 @@
 #pragma once
 #include <engine/ecs/system/System.hpp>
-#include "plugin/ecs/network/NetworkComponent.hpp"
+#include <plugin/ecs/network/ServerComp.hpp>
 
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 typedef std::function<std::shared_ptr<Connection>(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr conn)> OnAsyncConnectCallback;
 
@@ -18,7 +18,7 @@ public:
 
     bool AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
 private:
-    std::shared_ptr<NetworkComponent> GetComponent(GameObjectSPtr gameobject);
+    std::shared_ptr<Server> GetComponent(GameObjectSPtr gameobject);
 
 };
 } // namespace share::ecs::network

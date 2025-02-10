@@ -1,6 +1,6 @@
 #include "plugin/ecs/buff/BuffList.hpp"
 
-namespace share::ecs::buff
+namespace plugin::ecs::buff
 {
 
 BuffList::BuffList():

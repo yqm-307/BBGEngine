@@ -10,7 +10,7 @@
  *  我们在初始化的时候需要将每个属性模块注册到Attribute组件上
  */
 
-namespace share::ecs::attr
+namespace plugin::ecs::attr
 {
 
 enum AttributeType: int32_t

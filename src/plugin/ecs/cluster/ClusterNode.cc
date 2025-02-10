@@ -1,7 +1,7 @@
 #include <bbt/base/clock/Clock.hpp>
 #include "ClusterNode.hpp"
 
-namespace share::ecs::cluster
+namespace plugin::ecs::cluster
 {
 
 ClusterNode::ClusterNode(const ClusterNode& other):

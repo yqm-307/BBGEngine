@@ -3,7 +3,7 @@
 #include "plugin/ecs/npc/NpcDefine.hpp"
 #include "plugin/ecs/buff/BuffDefine.hpp"
 
-namespace share::ecs::buff
+namespace plugin::ecs::buff
 {
 
 template<class NpcPtr, class BuffPtr>

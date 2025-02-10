@@ -1,10 +1,10 @@
 #include "plugin/scene/SceneDefine.hpp"
-#include "plugin/ecs/network/NetworkComponent.hpp"
+#include "plugin/ecs/network/ServerComp.hpp"
 #include "nodeserver/ecs/network/DBServiceConnection.hpp"
 #include "util/log/Log.hpp"
 
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 std::unordered_map<int, DBServiceCPPFuncPtr> DBServiceConnection::m_proto_handler_map = std::unordered_map<int, DBServiceCPPFuncPtr>();
@@ -56,11 +56,11 @@ void DBServiceConnection::OnRecv(const char* data, size_t len)
 void DBServiceConnection::OnClose()
 {
     GAME_EXT1_LOG_WARN("lost db service connection!");
-    auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
+    auto network_obj = plugin::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
     AssertWithInfo(network_obj != nullptr, "");
 
-    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_NETWORK);
-    auto network_comp = std::dynamic_pointer_cast<share::ecs::network::NetworkComponent>(comp);
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_SERVER);
+    auto network_comp = std::dynamic_pointer_cast<plugin::ecs::network::Server>(comp);
     AssertWithInfo(comp != nullptr && network_comp != nullptr, "");
     network_comp->DelConnect(GetConnId());
 }

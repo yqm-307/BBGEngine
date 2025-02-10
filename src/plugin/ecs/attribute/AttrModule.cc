@@ -1,7 +1,7 @@
 #include "plugin/ecs/attribute/AttrModule.hpp"
 
 
-namespace share::ecs::attr
+namespace plugin::ecs::attr
 {
 
 bool AttrModule::IsModify()

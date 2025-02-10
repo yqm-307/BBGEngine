@@ -1,7 +1,7 @@
 #pragma once
 #include "plugin/ecs/attribute/AttrDefine.hpp"
 
-namespace share::ecs::attr
+namespace plugin::ecs::attr
 {
 
 class AttrModule

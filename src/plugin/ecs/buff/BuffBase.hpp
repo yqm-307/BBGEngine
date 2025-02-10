@@ -1,7 +1,7 @@
 #pragma once
 #include "plugin/ecs/buff/IBuff.hpp"
 
-namespace share::ecs::buff
+namespace plugin::ecs::buff
 {
 
 class BuffBase:

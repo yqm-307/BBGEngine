@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace share::ecs::cluster
+namespace plugin::ecs::cluster
 {
 
 enum NodeState

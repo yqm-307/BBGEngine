@@ -2,7 +2,7 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/timewheel/TimeWheelSystem.hpp"
 
-namespace share::ecs::timewheel
+namespace plugin::ecs::timewheel
 {
 
 std::unique_ptr<TimeWheelSystem>& TimeWheelSystem::GetInstance()

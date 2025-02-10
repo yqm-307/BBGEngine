@@ -1,7 +1,7 @@
 #include "plugin/ecs/globalmgr/GlobalMgr.hpp"
 
 
-namespace share::ecs::globalmgr
+namespace plugin::ecs::globalmgr
 {
 
 GlobalMgr::GlobalMgr():

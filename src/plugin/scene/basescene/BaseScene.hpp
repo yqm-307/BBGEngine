@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/scene/Scene.hpp"
 
-namespace share::scene
+namespace plugin::scene
 {
 
 /**

@@ -5,7 +5,7 @@
 #include "util/vector/Pos3.hpp"
 #include <stack>
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 
 /**

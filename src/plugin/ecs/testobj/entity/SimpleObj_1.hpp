@@ -2,7 +2,7 @@
 #include <engine/ecs/gameobject/GameObject.hpp>
 
 
-namespace share::ecs::entity::testobj
+namespace plugin::ecs::entity::testobj
 {
 
 

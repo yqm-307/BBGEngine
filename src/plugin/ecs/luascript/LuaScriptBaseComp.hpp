@@ -3,7 +3,7 @@
 #include "engine/ecs/component/Component.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::luascript
+namespace plugin::ecs::luascript
 {
 
 class LuaScriptBaseComp:

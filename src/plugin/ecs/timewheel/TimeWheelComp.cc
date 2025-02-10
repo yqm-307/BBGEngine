@@ -2,7 +2,7 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/timewheel/TimeWheelComp.hpp"
 
-namespace share::ecs::timewheel
+namespace plugin::ecs::timewheel
 {
 
 TimeWheelComp::TimeWheelComp(int frames):

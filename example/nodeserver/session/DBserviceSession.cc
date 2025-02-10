@@ -3,7 +3,7 @@
 #include "protocol/dbservice.pb.h"
 
 
-namespace share::session
+namespace plugin::session
 {
 
 

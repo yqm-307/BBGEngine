@@ -5,7 +5,7 @@
 #include "util/vector/Pos3.hpp"
 #include "util/config/Config.hpp"
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 
 class AoiSystem;

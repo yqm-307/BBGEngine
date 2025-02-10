@@ -1,7 +1,7 @@
 #include "plugin/scene/testscene/TestScene.hpp"
 
 
-namespace share::scene
+namespace plugin::scene
 {
 
 void TestScene::OnUpdate()

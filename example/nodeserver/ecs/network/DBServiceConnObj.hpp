@@ -2,7 +2,7 @@
 #include <engine/ecs/gameobject/GameObject.hpp>
 #include <engine/ecs/system/System.hpp>
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 class DBServiceConnObj:

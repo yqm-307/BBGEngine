@@ -3,7 +3,7 @@
 #include "plugin/ecs/buff/BuffBase.hpp"
 
 
-namespace share::ecs::buff
+namespace plugin::ecs::buff
 {
 
 struct OnRealHpChangeParams

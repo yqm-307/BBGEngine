@@ -2,7 +2,7 @@
 #include "nodeserver/ecs/network/DBServiceCliComp.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 DBServiceConnObj::DBServiceConnObj():

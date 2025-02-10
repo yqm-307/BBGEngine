@@ -2,11 +2,11 @@
 #include "plugin/ecs/aoi/AoiDefine.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 
-AoiObjectComponent::AoiObjectComponent(share::ecs::aoi::AoiEntityFlag mode)
-    :Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI_OBJECT),
+AoiObjectComponent::AoiObjectComponent(plugin::ecs::aoi::AoiEntityFlag mode)
+    :Component(plugin::ecs::emComponentType::EM_COMPONENT_TYPE_AOI_OBJECT),
     m_id(aoi::GenAoiObjectId()),
     m_mode(mode)
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include <bbt/network/adapter/libevent/Network.hpp>
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 class Connection

@@ -15,15 +15,15 @@ int main()
     int num = 0;
 
 
-    auto scene = share::scene::SampleScene();
-    auto gameobject = G_GameObjectMgr()->Create<share::ecs::timewheel::TimeWheel>(one_sec_frames);
+    auto scene = plugin::scene::SampleScene();
+    auto gameobject = G_GameObjectMgr()->Create<plugin::ecs::timewheel::TimeWheel>(one_sec_frames);
     scene.MountGameObject(gameobject);
-    share::ecs::timewheel::TimeWheelSystem::GetInstance()->InitGameobject(gameobject, one_sec_frames);
+    plugin::ecs::timewheel::TimeWheelSystem::GetInstance()->InitGameobject(gameobject, one_sec_frames);
 
     for (int i = 0; i < 5; ++i) {
-        share::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
+        plugin::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
         [&num, i, gameobject](){
-            share::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
+            plugin::ecs::timewheel::TimeWheelSystem::GetInstance()->AddTask(gameobject,
             [](){
                 return false;
             }, 1 + i);

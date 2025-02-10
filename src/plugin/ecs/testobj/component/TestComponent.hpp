@@ -2,7 +2,7 @@
 #include "engine/ecs/component/Component.hpp"
 #include <functional>
 
-namespace share::ecs::component
+namespace plugin::ecs::component
 {
 
 class TestComponent:

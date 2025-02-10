@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/ecs/gameobject/GameObject.hpp>
 
-namespace share::ecs::timewheel
+namespace plugin::ecs::timewheel
 {
 
 class TimeWheel:

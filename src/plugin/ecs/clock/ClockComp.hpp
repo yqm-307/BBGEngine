@@ -3,7 +3,7 @@
 #include <engine/ecs/component/Component.hpp>
 
 
-namespace share::ecs::clock
+namespace plugin::ecs::clock
 {
 
 class ClockComp:

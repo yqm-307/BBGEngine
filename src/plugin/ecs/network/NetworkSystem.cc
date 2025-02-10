@@ -2,12 +2,12 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/network/NetworkSystem.hpp"
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const std::string& ip, short port, int connect_timeout)
 {
-    Assert(gameobject->AddComponent<share::ecs::network::NetworkComponent>(ip, port, connect_timeout));
+    Assert(gameobject->AddComponent<plugin::ecs::network::Server>(ip, port, connect_timeout));
     return true;
 }
 
@@ -32,25 +32,25 @@ bool NetworkSystem::StopNetwork(GameObjectSPtr gameobject)
     return true;
 }
 
-std::shared_ptr<NetworkComponent> NetworkSystem::GetComponent(GameObjectSPtr obj)
+std::shared_ptr<Server> NetworkSystem::GetComponent(GameObjectSPtr obj)
 {
     if (obj == nullptr)
         return nullptr;
     
-    auto component = obj->GetComponent(share::ecs::emComponentType::EM_COMPONENT_TYPE_NETWORK);
+    auto component = obj->GetComponent(plugin::ecs::emComponentType::EM_COMPONENT_TYPE_SERVER);
     if (component == nullptr)
         return nullptr;
     
-    return std::static_pointer_cast<ecs::network::NetworkComponent>(component);
+    return std::static_pointer_cast<ecs::network::Server>(component);
 }
 
 bool NetworkSystem::AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect)
 {
-    auto component = gameobject->GetComponent(EM_COMPONENT_TYPE_NETWORK);
+    auto component = gameobject->GetComponent(EM_COMPONENT_TYPE_SERVER);
     if (component == nullptr)
         return false;
 
-    auto network_comp = std::static_pointer_cast<NetworkComponent>(component);
+    auto network_comp = std::static_pointer_cast<Server>(component);
     if (network_comp == nullptr)
         return false;
     

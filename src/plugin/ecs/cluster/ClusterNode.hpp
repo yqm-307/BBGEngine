@@ -3,7 +3,7 @@
 #include <bbt/base/net/IPAddress.hpp>
 #include "plugin/ecs/cluster/ClusterDefine.hpp"
 
-namespace share::ecs::cluster
+namespace plugin::ecs::cluster
 {
 
 class ClusterNode

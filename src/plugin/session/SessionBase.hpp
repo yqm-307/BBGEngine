@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace share::session
+namespace plugin::session
 {
 
 class SessionBase

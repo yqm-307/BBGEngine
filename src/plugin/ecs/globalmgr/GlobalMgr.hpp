@@ -2,7 +2,7 @@
 #include <engine/ecs/gameobject/GameObject.hpp>
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::globalmgr
+namespace plugin::ecs::globalmgr
 {
 
 class GlobalMgr:

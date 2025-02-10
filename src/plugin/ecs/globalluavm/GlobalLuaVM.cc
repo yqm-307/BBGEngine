@@ -1,7 +1,7 @@
 #include "plugin/ecs/globalluavm/GlobalLuaVM.hpp"
 
 
-namespace share::ecs::globalluavm
+namespace plugin::ecs::globalluavm
 {
 
 GlobalLuaVM::~GlobalLuaVM()

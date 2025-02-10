@@ -1,7 +1,7 @@
 #include "util/log/Log.hpp"
 #include "plugin/ecs/network/Connection.hpp"
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 uint64_t Connection::m_id_template = 1;

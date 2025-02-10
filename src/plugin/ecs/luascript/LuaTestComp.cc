@@ -2,7 +2,7 @@
 
 
 
-namespace share::ecs::luascript
+namespace plugin::ecs::luascript
 {
 
 LuaTestComp::LuaTestComp(bbt::cxxlua::LuaVM* vm):

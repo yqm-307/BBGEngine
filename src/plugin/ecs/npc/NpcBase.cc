@@ -1,11 +1,11 @@
 #include "plugin/ecs/npc/NpcBase.hpp"
 
 
-namespace share::ecs::npc
+namespace plugin::ecs::npc
 {
 
 NpcBase::NpcBase():
-    GameObject(share::ecs::emEntityType::EM_ENTITY_TYPE_NPC)
+    GameObject(plugin::ecs::emEntityType::EM_ENTITY_TYPE_NPC)
 {
     auto attr_component         = G_ComponentMgr()->Create<attr::Attribute>();
     auto bufflist_component     = G_ComponentMgr()->Create<buff::BuffList>();

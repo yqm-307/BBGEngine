@@ -1,7 +1,7 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/attribute/Attribute.hpp"
 
-namespace share::ecs::attr
+namespace plugin::ecs::attr
 {
 
 Attribute::Attribute():

@@ -1,7 +1,7 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/clock/ClockSystem.hpp"
 
-namespace share::ecs::clock
+namespace plugin::ecs::clock
 {
 
 int64_t ClockSystem::GetFrame(GameObjectSPtr gameobject)

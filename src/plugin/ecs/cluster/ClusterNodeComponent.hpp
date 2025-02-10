@@ -4,7 +4,7 @@
 #include <util/errcode/ErrCode.hpp>
 #include "ClusterNode.hpp"
 
-namespace share::ecs::cluster
+namespace plugin::ecs::cluster
 {
 
 /**

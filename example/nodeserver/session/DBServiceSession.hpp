@@ -2,7 +2,7 @@
 #include "nodeserver/ecs/network/DBServiceConnection.hpp"
 #include "nodeserver/session/dbservice.pb.h"
 
-namespace share::session
+namespace plugin::session
 {
 
 #define REGIST_HANDLE(em, func) \

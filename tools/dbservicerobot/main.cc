@@ -14,23 +14,23 @@
 int main()
 {
     int dbg_terminal = 1;
-    std::shared_ptr<share::ecs::network::DBServiceConnection> dbconn{nullptr};
+    std::shared_ptr<plugin::ecs::network::DBServiceConnection> dbconn{nullptr};
     BBT_CONFIG_QUICK_SET_DYNAMIC_ENTRY(int, &dbg_terminal, bbt::config::_BBTSysCfg::BBT_LOG_STDOUT_OPEN);
-    auto& SysRef = share::ecs::network::NetworkSystem::GetSysInst();
+    auto& SysRef = plugin::ecs::network::NetworkSystem::GetSysInst();
     bbt::network::libevent::EventLoop eventloop;
-    share::session::DBServiceSession::Init();
+    plugin::session::DBServiceSession::Init();
 
-    auto sence = share::scene::SampleScene();
-    auto network_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
+    auto sence = plugin::scene::SampleScene();
+    auto network_obj = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
     sence.MountGameObject(network_obj);
-    auto timer_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    auto timer_comp = G_ComponentMgr()->Create<share::ecs::timewheel::TimeWheelComp>(20);
+    auto timer_obj = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto timer_comp = G_ComponentMgr()->Create<plugin::ecs::timewheel::TimeWheelComp>(20);
     timer_obj->AddComponent(timer_comp);
-    auto& timer_system = engine::ecs::GetSystem<share::ecs::timewheel::TimeWheelSystem>();
+    auto& timer_system = engine::ecs::GetSystem<plugin::ecs::timewheel::TimeWheelSystem>();
     sence.MountGameObject(timer_obj);
     
 
-    share::ecs::network::ServerCfg cfg;
+    plugin::ecs::network::ServerCfg cfg;
     cfg.ip = "127.0.0.1";
     cfg.port = 10011;
     cfg.connent_timeout = 5000;
@@ -48,14 +48,14 @@ int main()
     SysRef->StartNetwork(network_obj);
     GAME_EXT1_LOG_INFO("netowrk start!");
     SysRef->AsyncConnect(network_obj, "192.168.1.159", 9000, 5000, [&](bbt::network::Errcode err, bbt::network::interface::INetConnectionSPtr conn){
-        auto comp = network_obj->GetComponent(share::ecs::EM_COMPONENT_TYPE_CONN_MGR);
+        auto comp = network_obj->GetComponent(plugin::ecs::EM_COMPONENT_TYPE_CONN_MGR);
         if (comp == nullptr)
             GAME_EXT1_LOG_ERROR("network object not found connmgr!");
-        auto mgr = std::static_pointer_cast<share::ecs::network::ConnMgr>(comp);
+        auto mgr = std::static_pointer_cast<plugin::ecs::network::ConnMgr>(comp);
         Assert(mgr);
 
 
-        dbconn = std::make_shared<share::ecs::network::DBServiceConnection>(mgr.get(), std::static_pointer_cast<bbt::network::libevent::Connection>(conn), 5000);
+        dbconn = std::make_shared<plugin::ecs::network::DBServiceConnection>(mgr.get(), std::static_pointer_cast<bbt::network::libevent::Connection>(conn), 5000);
 
 
 

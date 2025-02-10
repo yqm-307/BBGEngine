@@ -6,7 +6,7 @@
     type Get##attr_name() { return attr_set_name.##attr_set_field_name; } \
     void Set##attr_name(type value) { attr_set_name.##attr_set_field_name = value; }
 
-namespace share::ecs::attr
+namespace plugin::ecs::attr
 {
 /**
  * @brief 属性

@@ -2,7 +2,7 @@
 #include "plugin/ecs/timewheel/TimeWheel.hpp"
 #include "plugin/ecs/timewheel/TimeWheelComp.hpp"
 
-namespace share::ecs::timewheel
+namespace plugin::ecs::timewheel
 {
 
 TimeWheel::~TimeWheel()

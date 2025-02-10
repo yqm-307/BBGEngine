@@ -1,7 +1,7 @@
 #pragma once
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::buff
+namespace plugin::ecs::buff
 {
 
 typedef int64_t BuffId;

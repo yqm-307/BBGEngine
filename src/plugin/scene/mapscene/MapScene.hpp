@@ -1,7 +1,7 @@
 #pragma once
 #include "plugin/scene/basescene/BaseScene.hpp"
 
-namespace share::scene
+namespace plugin::scene
 {
 
 /**
@@ -9,7 +9,7 @@ namespace share::scene
  * 应该包含基础的地图信息、玩家信息、npc信息以及出入地图的回调接口等 
  */
 class MapScene:
-    public share::scene::BaseScene
+    public plugin::scene::BaseScene
 {
 };
 

@@ -6,7 +6,7 @@
 #include "engine/ecs/EcsDefine.hpp"
 #include "util/vector/Vector2.hpp"
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 
 typedef float       Pos;            // 

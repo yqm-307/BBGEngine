@@ -1,7 +1,7 @@
 #include "plugin/ecs/testobj/entity/SimpleObj_1.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::entity::testobj
+namespace plugin::ecs::entity::testobj
 {
 
 int SimpleObj_1::create_num = 0;
@@ -17,7 +17,7 @@ std::shared_ptr<SimpleObj_1> SimpleObj_1::FastCreate()
 
 
 SimpleObj_1::SimpleObj_1()
-    :engine::ecs::GameObject(share::ecs::emEntityType::EM_ENTITY_TYPE_TESTOBJ_1)
+    :engine::ecs::GameObject(plugin::ecs::emEntityType::EM_ENTITY_TYPE_TESTOBJ_1)
 {
 
 }

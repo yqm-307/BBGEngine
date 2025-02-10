@@ -1,7 +1,7 @@
 #include "engine/ecs/gameobject/GameObject.hpp"
 
 
-namespace share::ecs::gameobject
+namespace plugin::ecs::gameobject
 {
 
 class GameObject:

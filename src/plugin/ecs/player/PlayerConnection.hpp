@@ -5,7 +5,7 @@ namespace server
 {
 
 class PlayerConnect:
-    public share::ecs::network::Connection
+    public plugin::ecs::network::Connection
 {
 public:
 private:

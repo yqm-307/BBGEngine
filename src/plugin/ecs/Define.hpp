@@ -4,7 +4,7 @@
 #include "engine/ecs/gameobject/GameObjectMgr.hpp"
 
 
-namespace share::ecs
+namespace plugin::ecs
 {
 
 enum emEntityType: engine::ecs::ComponentTemplateId {
@@ -49,6 +49,7 @@ enum emComponentType: engine::ecs::GameObjectTemplateId {
     EM_COMPONENT_TYPE_TIME_WHEEL            = 10,   // time wheel
     EM_COMPONENT_TYPE_CLOCK_MODULE          = 11,   // 游戏内时钟
     EM_COMPONENT_TYPE_DBSERVICE_CLIENT      = 12,   // db service client
+    EM_COMPONENT_TYPE_SERVER                = 13,   // server
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件

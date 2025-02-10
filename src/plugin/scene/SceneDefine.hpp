@@ -4,7 +4,7 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/globalmgr/GlobalMgr.hpp"
 
-namespace share::scene
+namespace plugin::scene
 {
 
 extern inline std::unique_ptr<engine::scene::Scene>& MainScene()
@@ -15,11 +15,11 @@ extern inline std::unique_ptr<engine::scene::Scene>& MainScene()
 
 extern inline engine::ecs::GameObjectSPtr GetGlobalInstByTid(engine::ecs::GameObjectTemplateId tid)
 {
-    auto objs = MainScene()->GetGameObject(share::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
+    auto objs = MainScene()->GetGameObject(plugin::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
     if (objs.size() != 1)
         return nullptr;
     
-    auto global_mgr = std::dynamic_pointer_cast<share::ecs::globalmgr::GlobalMgr>(objs[0]);
+    auto global_mgr = std::dynamic_pointer_cast<plugin::ecs::globalmgr::GlobalMgr>(objs[0]);
     if (global_mgr == nullptr)
         return nullptr;
 
@@ -28,11 +28,11 @@ extern inline engine::ecs::GameObjectSPtr GetGlobalInstByTid(engine::ecs::GameOb
 
 extern inline bool RegistGlobalInst(engine::ecs::GameObjectSPtr obj)
 {
-    auto objs = MainScene()->GetGameObject(share::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
+    auto objs = MainScene()->GetGameObject(plugin::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
     if (objs.size() != 1)
         return false;
     
-    auto global_mgr = std::dynamic_pointer_cast<share::ecs::globalmgr::GlobalMgr>(objs[0]);
+    auto global_mgr = std::dynamic_pointer_cast<plugin::ecs::globalmgr::GlobalMgr>(objs[0]);
     if (global_mgr == nullptr)
         return false;
     

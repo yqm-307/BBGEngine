@@ -4,7 +4,7 @@
 #include "plugin/ecs/aoi/AoiObjectComponent.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 
 class AoiSystem
@@ -55,8 +55,8 @@ protected:
 
 
 private:
-    const engine::ecs::ComponentTemplateId m_comp_template_id{share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI};
-    const engine::ecs::ComponentTemplateId m_aoiobj_template_id{share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI_OBJECT};
+    const engine::ecs::ComponentTemplateId m_comp_template_id{plugin::ecs::emComponentType::EM_COMPONENT_TYPE_AOI};
+    const engine::ecs::ComponentTemplateId m_aoiobj_template_id{plugin::ecs::emComponentType::EM_COMPONENT_TYPE_AOI_OBJECT};
 
     OnLeaveFunc m_onleave_aoi_notify_event{nullptr};
     OnEnterFunc m_onenter_aoi_notify_event{nullptr};

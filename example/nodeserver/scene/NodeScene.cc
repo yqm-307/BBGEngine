@@ -1,10 +1,10 @@
 #include <signal.h>
 #include "nodeserver/scene/NodeScene.hpp"
 #include "nodeserver/config/LoadConfig.hpp"
+#include "nodeserver/ecs/network/EchoServer.hpp"
 #include "plugin/ecs/network/NetworkSystem.hpp"
 #include "plugin/ecs/gameobject/GameObject.hpp"
 #include "plugin/ecs/aoi/AoiComponent.hpp"
-#include "plugin/ecs/network/NetworkComponent.hpp"
 #include "plugin/ecs/globalmgr/GlobalMgr.hpp"
 #include "plugin/scene/SceneDefine.hpp"
 #include "util/log/Log.hpp"
@@ -44,7 +44,7 @@ void ServerScene::OnUpdate()
 
 void ServerScene::Init()
 {
-    share::scene::MainScene() = std::unique_ptr<engine::scene::Scene>(this);
+    plugin::scene::MainScene() = std::unique_ptr<engine::scene::Scene>(this);
     OnInit();
 }
 
@@ -86,7 +86,7 @@ void ServerScene::OnInit()
         auto network = NetWorkInit();
         bool isok = MountGameObject(network);
         DebugAssert(isok);
-        isok = share::scene::RegistGlobalInst(network);
+        isok = plugin::scene::RegistGlobalInst(network);
         DebugAssertWithInfo(isok, "gameobject is repeat in global mgr!");
         m_network_id = network->GetId();
     }
@@ -95,7 +95,7 @@ void ServerScene::OnInit()
 
 engine::ecs::GameObjectSPtr ServerScene::GlobalMgrInit()
 {
-    auto global_mgr = G_GameObjectMgr()->Create<share::ecs::globalmgr::GlobalMgr>();
+    auto global_mgr = G_GameObjectMgr()->Create<plugin::ecs::globalmgr::GlobalMgr>();
     return global_mgr;
 }
 
@@ -107,8 +107,8 @@ engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
 
     GAME_BASE_LOG_INFO("gameserver! IP: %s  Port: %d", ip.c_str(), port);
 
-    auto network_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    share::ecs::network::NetworkSystem::GetSysInst()->InitNetwork(network_obj, ip, port, 1000);
+    auto network_obj = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    network_obj->AddComponent<network::EchoService>(ip, port, 5000);
 
     return network_obj;
 }
@@ -116,9 +116,9 @@ engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
 engine::ecs::GameObjectSPtr ServerScene::DBServiceInit()
 {
     auto& g_config = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
-    auto dbservice_obj = G_GameObjectMgr()->Create<share::ecs::network::DBServiceConnObj>();
-    auto& system_ref = engine::ecs::GetSystem<share::ecs::network::DBServiceCliCompSystem>();
-    share::ecs::network::DBServiceCliCfg cfg;
+    auto dbservice_obj = G_GameObjectMgr()->Create<plugin::ecs::network::DBServiceConnObj>();
+    auto& system_ref = engine::ecs::GetSystem<plugin::ecs::network::DBServiceCliCompSystem>();
+    plugin::ecs::network::DBServiceCliCfg cfg;
     auto g_db_service_cfg = g_config->GetDBServiceCfg();
     cfg.ip              = g_db_service_cfg->ip;
     cfg.port            = g_db_service_cfg->port;
@@ -143,7 +143,7 @@ void ServerScene::StartScene()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
-    share::ecs::network::NetworkSystem::GetSysInst()->StartNetwork(obj);
+    plugin::ecs::network::NetworkSystem::GetSysInst()->StartNetwork(obj);
     auto err = m_loop->StartLoop(bbt::pollevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
     if (err != 0)
         GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
@@ -183,7 +183,7 @@ void ServerScene::IOThreadExit()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
 
-    share::ecs::network::NetworkSystem::GetSysInst()->StopNetwork(obj);
+    plugin::ecs::network::NetworkSystem::GetSysInst()->StopNetwork(obj);
     GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 

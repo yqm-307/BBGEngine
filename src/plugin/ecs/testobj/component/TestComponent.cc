@@ -1,11 +1,11 @@
 #include "./TestComponent.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::component
+namespace plugin::ecs::component
 {
 
 TestComponent::TestComponent(const MyCallback& OnAdd, const MyCallback& OnDel)
-    :engine::ecs::Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1)
+    :engine::ecs::Component(plugin::ecs::emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1)
 {
 
 }

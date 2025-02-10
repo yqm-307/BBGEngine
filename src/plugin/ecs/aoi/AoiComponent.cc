@@ -1,12 +1,12 @@
 #include "./AoiComponent.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 
 
 AoiComponent::AoiComponent(util::config::AoiConfig* cfg)
-    :Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_AOI),
+    :Component(plugin::ecs::emComponentType::EM_COMPONENT_TYPE_AOI),
     m_config(cfg),
     m_gameobj_map([](int key){return key%AoiHashBucketNum;}, nullptr),
     m_comp_name(engine::ecs::ComponentMgr::GetInstance()->GetComponentName(emComponentType::EM_COMPONENT_TYPE_AOI)),

@@ -12,8 +12,8 @@ MainScene::~MainScene()
 
 MainScene::MainScene(const char* ip, short port)
 {
-    auto network_obj  = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
-    auto network_comp = G_ComponentMgr()->Create<share::ecs::network::NetworkComponent>();
+    auto network_obj  = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto network_comp = G_ComponentMgr()->Create<plugin::ecs::network::NetworkComponent>();
 
     // MountGameObject();
 }

@@ -1,7 +1,7 @@
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/clock/ClockComp.hpp"
 
-namespace share::ecs::clock
+namespace plugin::ecs::clock
 {
 
 ClockComp::ClockComp():

@@ -3,7 +3,7 @@
 #include "nodeserver/ecs/network/DBServiceCliComp.hpp"
 #include "nodeserver/session/DBServiceSession.hpp"
 
-namespace share::ecs::network
+namespace plugin::ecs::network
 {
 
 DBServiceCliComp::DBServiceCliComp(DBServiceCliCfg cfg):
@@ -43,7 +43,7 @@ void DBServiceCliComp::DoHeartBeat(std::shared_ptr<DBServiceConnection> conn)
     bbt::buffer::Buffer output_buffer;
     std::string         protocol;
     uint32_t            protolen = 0;
-    uint32_t            protoid = share::session::DBServiceProtoId::EM_DB_SERVICE_PROTO_HEARTBEAT_REQ;
+    uint32_t            protoid = plugin::session::DBServiceProtoId::EM_DB_SERVICE_PROTO_HEARTBEAT_REQ;
 
     m_last_heartbeat_timestamp = bbt::clock::now<>();
     req.set_timestamp(m_last_heartbeat_timestamp.time_since_epoch().count());
@@ -85,11 +85,11 @@ bool DBServiceCliComp::AsyncConnect(
     short port,
     int timeout)
 {
-    auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
+    auto network_obj = plugin::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
     if (network_obj == nullptr)
         return false;
 
-    auto& network_sys_ref = engine::ecs::GetSystem<share::ecs::network::NetworkSystem>();
+    auto& network_sys_ref = engine::ecs::GetSystem<plugin::ecs::network::NetworkSystem>();
     network_sys_ref->AsyncConnect(network_obj, ip, port, timeout,
     [this, timeout](bbt::network::Errcode err, bbt::network::interface::INetConnectionSPtr conn){
         __OnConnect(err, conn);
@@ -109,22 +109,22 @@ void DBServiceCliComp::__OnConnect(
         return;
     }
 
-    auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
+    auto network_obj = plugin::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
     if (network_obj == nullptr) {
         GAME_EXT1_LOG_ERROR("can`t found Gameobject Tid=%d", (int)EM_ENTITY_TYPE_NETWORK);
         return;
     }
 
-    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_NETWORK);
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_SERVER);
     if (comp == nullptr) {
-        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_NETWORK);
+        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_SERVER);
         return;
     }
 
-    auto network_comp = std::dynamic_pointer_cast<share::ecs::network::NetworkComponent>(comp); 
+    auto network_comp = std::dynamic_pointer_cast<plugin::ecs::network::Server>(comp); 
 
     /* 连接建立成功，加入ConnMgr进行管理 */
-    auto dbconn = std::make_shared<share::ecs::network::DBServiceConnection>(
+    auto dbconn = std::make_shared<plugin::ecs::network::DBServiceConnection>(
         std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), m_cfg.timeout);
     dbconn->SetOnClose([this](bbt::network::ConnId connid){
         m_connid = 0;
@@ -139,12 +139,12 @@ void DBServiceCliComp::__OnConnect(
 
 std::shared_ptr<DBServiceConnection> DBServiceCliComp::GetConnect()
 {
-    auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
-    std::shared_ptr<share::ecs::network::NetworkComponent> network_comp = nullptr;
+    auto network_obj = plugin::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
+    std::shared_ptr<plugin::ecs::network::Server> network_comp = nullptr;
 
-    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_NETWORK);
-    if ( comp == nullptr || (network_comp= std::dynamic_pointer_cast<share::ecs::network::NetworkComponent>(comp)) == nullptr) {
-        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_NETWORK);
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_SERVER);
+    if ( comp == nullptr || (network_comp= std::dynamic_pointer_cast<plugin::ecs::network::Server>(comp)) == nullptr) {
+        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_SERVER);
         return nullptr;
     }
 
@@ -161,7 +161,7 @@ util::errcode::ErrOpt DBServiceCliCompSystem::Init(engine::ecs::GameObjectSPtr g
         return util::errcode::ErrCode("gameobj is null!", util::errcode::ErrType::CommonErr);
     }
 
-    auto isok = gameobj->AddComponent<share::ecs::network::DBServiceCliComp>(*conn_cfg);
+    auto isok = gameobj->AddComponent<plugin::ecs::network::DBServiceCliComp>(*conn_cfg);
     Assert(isok);
 
     return std::nullopt;

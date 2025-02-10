@@ -2,7 +2,7 @@
 #include <bbt/base/timer/TimeWheel.hpp>
 #include <engine/ecs/component/Component.hpp>
 
-namespace share::ecs::timewheel
+namespace plugin::ecs::timewheel
 {
 
 typedef bbt::timer::TimeWheel::TimerSPtr    TaskPtr;

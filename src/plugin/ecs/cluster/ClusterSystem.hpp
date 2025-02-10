@@ -1,6 +1,6 @@
 #pragma once
 
-namespace share::ecs::cluster
+namespace plugin::ecs::cluster
 {
 
 /**

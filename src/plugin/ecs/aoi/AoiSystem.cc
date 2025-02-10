@@ -6,7 +6,7 @@
 #include "util/log/Log.hpp"
 #include "util/assert/Assert.hpp"
 
-namespace share::ecs::aoi
+namespace plugin::ecs::aoi
 {
 std::unique_ptr<AoiSystem>& AoiSystem::GetInstance()
 {

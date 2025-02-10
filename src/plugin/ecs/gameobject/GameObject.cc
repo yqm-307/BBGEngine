@@ -1,7 +1,7 @@
 #include "./GameObject.hpp"
 #include "plugin/ecs/Define.hpp"
 
-namespace share::ecs::gameobject
+namespace plugin::ecs::gameobject
 {
 
 GameObject::GameObject()

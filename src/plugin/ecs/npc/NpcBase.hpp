@@ -5,7 +5,7 @@
 #include "plugin/ecs/attribute/Attribute.hpp"
 #include "plugin/ecs/buff/BuffList.hpp"
 
-namespace share::ecs::npc
+namespace plugin::ecs::npc
 {
 
 /**

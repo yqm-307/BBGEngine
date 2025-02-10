@@ -1,7 +1,7 @@
 #pragma once
 #include "plugin/ecs/luascript/LuaScriptBaseComp.hpp"
 
-namespace share::ecs::luascript
+namespace plugin::ecs::luascript
 {
 
 class LuaTestComp:
