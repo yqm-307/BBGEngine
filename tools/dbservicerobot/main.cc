@@ -21,7 +21,7 @@ int main()
     share::session::DBServiceSession::Init();
 
     auto sence = share::scene::SampleScene();
-    auto network_obj = G_GameObjectMgr()->Create<share::ecs::network::Network>();
+    auto network_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
     sence.MountGameObject(network_obj);
     auto timer_obj = G_GameObjectMgr()->Create<share::ecs::gameobject::GameObject>();
     auto timer_comp = G_ComponentMgr()->Create<share::ecs::timewheel::TimeWheelComp>(20);

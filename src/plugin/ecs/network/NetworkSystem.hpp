@@ -1,7 +1,6 @@
 #pragma once
 #include <engine/ecs/system/System.hpp>
 #include "plugin/ecs/network/NetworkComponent.hpp"
-#include "plugin/ecs/network/ConnMgr.hpp"
 
 
 namespace share::ecs::network
@@ -13,7 +12,7 @@ class NetworkSystem:
 {
     typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
 public:
-    bool InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg);
+    bool InitNetwork(GameObjectSPtr gameobject, const std::string& ip, short port, int connect_timeout);
     bool StartNetwork(GameObjectSPtr gameobject);
     bool StopNetwork(GameObjectSPtr gameobject);
 

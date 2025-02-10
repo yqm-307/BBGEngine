@@ -8,6 +8,14 @@ option(NO_EXAMPLE
 option(NO_TEST
     "不需要编译测试" ON)
 
+option(DEBUG
+    "调试信息" ON)
+
+    
+if(DEBUG)
+    add_definitions(-DDebug)
+endif()
+
 set(Wall_Flag "-Wall -Wno-sign-compare -Wno-format -Wno-reorder -Wno-unknown-pragmas")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g ${Wall_Flag}")
 

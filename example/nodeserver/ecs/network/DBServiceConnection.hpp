@@ -13,7 +13,7 @@ class DBServiceConnection:
     public Connection
 {
 public:
-    DBServiceConnection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
+    DBServiceConnection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
     virtual ~DBServiceConnection();
     static void             RegistHandler(int protoid, DBServiceCPPFuncPtr handler);
 protected:

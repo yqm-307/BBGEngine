@@ -5,12 +5,9 @@
 namespace share::ecs::network
 {
 
-bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const ServerCfg& cfg)
+bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const std::string& ip, short port, int connect_timeout)
 {
-    Assert(gameobject->AddComponent<share::ecs::network::NetworkComponent>());
-    Assert(gameobject->AddComponent<share::ecs::network::ConnMgr>(cfg));
-
-    gameobject->GetComponent(share::ecs::EM_COMPONENT_TYPE_CONN_MGR);
+    Assert(gameobject->AddComponent<share::ecs::network::NetworkComponent>(ip, port, connect_timeout));
     return true;
 }
 

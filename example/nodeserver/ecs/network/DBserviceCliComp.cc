@@ -1,4 +1,3 @@
-#include "plugin/ecs/network/Network.hpp"
 #include "plugin/ecs/network/NetworkSystem.hpp"
 #include "plugin/scene/SceneDefine.hpp"
 #include "nodeserver/ecs/network/DBServiceCliComp.hpp"
@@ -102,8 +101,6 @@ void DBServiceCliComp::__OnConnect(
     bbt::network::Errcode err,
     bbt::network::interface::INetConnectionSPtr conn)
 {
-    std::shared_ptr<share::ecs::network::ConnMgr> connmgr_comp = nullptr;
-
     /* 不管成功还是失败，先设置连接中状态位 */
     m_is_connecting = false;
 
@@ -118,19 +115,24 @@ void DBServiceCliComp::__OnConnect(
         return;
     }
 
-    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
-    if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp)) == nullptr) {
-        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_CONN_MGR);
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_NETWORK);
+    if (comp == nullptr) {
+        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_NETWORK);
         return;
     }
 
+    auto network_comp = std::dynamic_pointer_cast<share::ecs::network::NetworkComponent>(comp); 
 
     /* 连接建立成功，加入ConnMgr进行管理 */
     auto dbconn = std::make_shared<share::ecs::network::DBServiceConnection>(
-        connmgr_comp.get(), std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), m_cfg.timeout);
+        std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), m_cfg.timeout);
+    dbconn->SetOnClose([this](bbt::network::ConnId connid){
+        m_connid = 0;
+        GAME_EXT1_LOG_WARN("db service connection closed! connid=%d", connid);
+    });
     
     GAME_EXT1_LOG_DEBUG("db service connection! connid=%d", dbconn->GetConnId());
-    connmgr_comp->OnConnectAndAdd(dbconn);
+    network_comp->AddConnect(dbconn);
     m_last_heartbeat_timestamp = bbt::clock::now<>();
     m_connid = dbconn->GetConnId();
 }
@@ -138,15 +140,15 @@ void DBServiceCliComp::__OnConnect(
 std::shared_ptr<DBServiceConnection> DBServiceCliComp::GetConnect()
 {
     auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
-    std::shared_ptr<share::ecs::network::ConnMgr> connmgr_comp = nullptr;
+    std::shared_ptr<share::ecs::network::NetworkComponent> network_comp = nullptr;
 
-    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
-    if ( comp == nullptr || (connmgr_comp = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp)) == nullptr) {
-        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_CONN_MGR);
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_NETWORK);
+    if ( comp == nullptr || (network_comp= std::dynamic_pointer_cast<share::ecs::network::NetworkComponent>(comp)) == nullptr) {
+        GAME_EXT1_LOG_ERROR("can`t found Component Tid=%d", (int)EM_COMPONENT_TYPE_NETWORK);
         return nullptr;
     }
 
-    auto connect = connmgr_comp->GetConnectById(m_connid);
+    auto connect = network_comp->GetConnectById(m_connid);
     return std::static_pointer_cast<DBServiceConnection>(connect);
 }
 

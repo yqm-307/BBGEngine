@@ -4,8 +4,10 @@
 namespace share::ecs::network
 {
 
-NetworkComponent::NetworkComponent():
-    engine::ecs::Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_NETWORK)
+NetworkComponent::NetworkComponent(const std::string& ip, short port, int connect_timeout):
+    engine::ecs::Component(share::ecs::emComponentType::EM_COMPONENT_TYPE_NETWORK),
+    m_listen_addr(ip, port),
+    m_connect_timeout(connect_timeout)
 {
     m_network = new bbt::network::libevent::Network;
 }
@@ -28,6 +30,22 @@ void NetworkComponent::SetListenAddr(const char* ip, short port)
     auto err = m_network->StartListen(ip, port, [this](auto err, auto conn){ OnAccept(err, conn); });
     if (err.IsErr())
         GAME_BASE_LOG_ERROR("start listen failed! %s", err.CWhat());
+}
+
+void NetworkComponent::Init()
+{
+    SetListenAddr(m_listen_addr.GetIP().c_str(), m_listen_addr.GetPort());
+    SetOnAccept([this](auto err, auto new_conn){
+        auto conn = std::make_shared<network::Connection>(new_conn, m_connect_timeout);
+        if (!AddConnect(conn)) {
+            GAME_EXT1_LOG_ERROR("add connect failed!");
+            return;
+        }
+
+        conn->SetOnClose([this](auto conn_id){
+            DelConnect(conn_id);
+        });
+    });
 }
 
 void NetworkComponent::Start()
@@ -71,4 +89,41 @@ bool NetworkComponent::Connect(const char* ip, short port, int timeout, const bb
 
     return true;
 }
+
+bool NetworkComponent::DelConnect(bbt::network::ConnId conn)
+{
+    auto it = m_conn_map.find(conn);
+    if (it == m_conn_map.end()) {
+        return false;
+    }
+
+    m_conn_map.erase(it);
+    return true;
+}
+
+bool NetworkComponent::AddConnect(std::shared_ptr<Connection> conn)
+{
+    if (conn == nullptr)
+        return false;
+
+    auto [it, succ] = m_conn_map.insert(std::make_pair(conn->GetConnId(), conn));
+    return succ;
+}
+
+void NetworkComponent::OnTimeout(Connection* conn)
+{
+    if (!DelConnect(conn->GetConnId())) {
+        GAME_EXT1_LOG_ERROR("[ConnMgr::OnTimeout] connect timeout!");
+    }
+}
+
+std::shared_ptr<Connection> NetworkComponent::GetConnectById(bbt::network::ConnId conn_id)
+{
+    auto it = m_conn_map.find(conn_id);
+    if (it == m_conn_map.end())
+        return nullptr;
+
+    return it->second;
+}
+
 }

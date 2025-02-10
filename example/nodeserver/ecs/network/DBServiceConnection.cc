@@ -1,5 +1,5 @@
 #include "plugin/scene/SceneDefine.hpp"
-#include "plugin/ecs/network/ConnMgr.hpp"
+#include "plugin/ecs/network/NetworkComponent.hpp"
 #include "nodeserver/ecs/network/DBServiceConnection.hpp"
 #include "util/log/Log.hpp"
 
@@ -29,10 +29,9 @@ bool DBServiceConnection::Dispatch(int protoid, bbt::buffer::Buffer& buf, bbt::b
 
 
 
-DBServiceConnection::DBServiceConnection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
-    Connection(mgr, raw_conn, timeout_ms)
+DBServiceConnection::DBServiceConnection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
+    Connection(raw_conn, timeout_ms)
 {
-
 }
 
 DBServiceConnection::~DBServiceConnection()
@@ -60,10 +59,10 @@ void DBServiceConnection::OnClose()
     auto network_obj = share::scene::GetGlobalInstByTid(EM_ENTITY_TYPE_NETWORK);
     AssertWithInfo(network_obj != nullptr, "");
 
-    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_CONN_MGR);
-    auto connmgr = std::dynamic_pointer_cast<share::ecs::network::ConnMgr>(comp);
-    AssertWithInfo(comp != nullptr && connmgr != nullptr, "");
-    connmgr->DelConnect(GetConnId());
+    auto comp = network_obj->GetComponent(EM_COMPONENT_TYPE_NETWORK);
+    auto network_comp = std::dynamic_pointer_cast<share::ecs::network::NetworkComponent>(comp);
+    AssertWithInfo(comp != nullptr && network_comp != nullptr, "");
+    network_comp->DelConnect(GetConnId());
 }
 
 void DBServiceConnection::OnTimeout()

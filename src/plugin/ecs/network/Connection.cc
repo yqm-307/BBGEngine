@@ -1,16 +1,14 @@
 #include "util/log/Log.hpp"
 #include "plugin/ecs/network/Connection.hpp"
-#include "plugin/ecs/network/ConnMgr.hpp"
 
 namespace share::ecs::network
 {
 
 uint64_t Connection::m_id_template = 1;
 
-Connection::Connection(ConnMgr* mgr, bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
+Connection::Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
     m_raw_conn_ptr(raw_conn),
-    m_conn_id(GenerateId()),
-    m_conn_mgr(mgr)
+    m_conn_id(GenerateId())
 {
     m_conn_callbacks.on_close_callback = [this](void* udata, const bbt::net::IPAddress& addr){ OnClose(); };
     m_conn_callbacks.on_err_callback = [this](void* udata, const bbt::network::Errcode& err){ OnError(err); };
@@ -30,7 +28,9 @@ Connection::~Connection()
 void Connection::OnClose()
 {
     GAME_EXT1_LOG_WARN("no onclose!");
-    m_conn_mgr->DelConnect(m_conn_id);
+
+    if (m_onclose_cb != nullptr)
+        m_onclose_cb(m_conn_id);
 }
 
 void Connection::OnError(const bbt::network::Errcode& err)
@@ -74,6 +74,11 @@ void Connection::Close()
         return;
     
     m_raw_conn_ptr->Close();
+}
+
+void Connection::SetOnClose(std::function<void(bbt::network::ConnId)> onclose)
+{
+    m_onclose_cb = onclose;
 }
 
 
