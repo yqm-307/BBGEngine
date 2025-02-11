@@ -5,13 +5,6 @@
 namespace plugin::ecs::network
 {
 
-bool NetworkSystem::InitNetwork(GameObjectSPtr gameobject, const std::string& ip, short port, int connect_timeout)
-{
-    Assert(gameobject->AddComponent<plugin::ecs::network::Server>(ip, port, connect_timeout));
-    return true;
-}
-
-
 bool NetworkSystem::StartNetwork(GameObjectSPtr gameobject)
 {
     auto comp = GetComponent(gameobject);

@@ -62,16 +62,15 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_gs2
   &scc_info_GS2C_ON_LOGIN_RSP_gs2c_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_gs2c_2eproto_once;
-static bool descriptor_table_gs2c_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gs2c_2eproto = {
-  &descriptor_table_gs2c_2eproto_initialized, descriptor_table_protodef_gs2c_2eproto, "gs2c.proto", 65,
+  false, false, descriptor_table_protodef_gs2c_2eproto, "gs2c.proto", 65,
   &descriptor_table_gs2c_2eproto_once, descriptor_table_gs2c_2eproto_sccs, descriptor_table_gs2c_2eproto_deps, 1, 0,
   schemas, file_default_instances, TableStruct_gs2c_2eproto::offsets,
   file_level_metadata_gs2c_2eproto, 1, file_level_enum_descriptors_gs2c_2eproto, file_level_service_descriptors_gs2c_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_gs2c_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_gs2c_2eproto), true);
+static bool dynamic_init_dummy_gs2c_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_gs2c_2eproto)), true);
 
 // ===================================================================
 
@@ -81,15 +80,15 @@ class GS2C_ON_LOGIN_RSP::_Internal {
  public:
 };
 
-GS2C_ON_LOGIN_RSP::GS2C_ON_LOGIN_RSP()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+GS2C_ON_LOGIN_RSP::GS2C_ON_LOGIN_RSP(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:GS2C_ON_LOGIN_RSP)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:GS2C_ON_LOGIN_RSP)
 }
 GS2C_ON_LOGIN_RSP::GS2C_ON_LOGIN_RSP(const GS2C_ON_LOGIN_RSP& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   field_handleid_ = from.field_handleid_;
   // @@protoc_insertion_point(copy_constructor:GS2C_ON_LOGIN_RSP)
 }
@@ -101,11 +100,19 @@ void GS2C_ON_LOGIN_RSP::SharedCtor() {
 GS2C_ON_LOGIN_RSP::~GS2C_ON_LOGIN_RSP() {
   // @@protoc_insertion_point(destructor:GS2C_ON_LOGIN_RSP)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void GS2C_ON_LOGIN_RSP::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
+void GS2C_ON_LOGIN_RSP::ArenaDtor(void* object) {
+  GS2C_ON_LOGIN_RSP* _this = reinterpret_cast< GS2C_ON_LOGIN_RSP* >(object);
+  (void)_this;
+}
+void GS2C_ON_LOGIN_RSP::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void GS2C_ON_LOGIN_RSP::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -122,11 +129,12 @@ void GS2C_ON_LOGIN_RSP::Clear() {
   (void) cached_has_bits;
 
   field_handleid_ = 0;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* GS2C_ON_LOGIN_RSP::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
@@ -135,7 +143,7 @@ const char* GS2C_ON_LOGIN_RSP::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       // int32 Field_HandleID = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          field_handleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          field_handleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -145,7 +153,9 @@ const char* GS2C_ON_LOGIN_RSP::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -159,7 +169,7 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* GS2C_ON_LOGIN_RSP::InternalSerializeWithCachedSizesToArray(
+::PROTOBUF_NAMESPACE_ID::uint8* GS2C_ON_LOGIN_RSP::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:GS2C_ON_LOGIN_RSP)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -167,13 +177,13 @@ failure:
 
   // int32 Field_HandleID = 1;
   if (this->field_handleid() != 0) {
-    stream->EnsureSpace(&target);
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_field_handleid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:GS2C_ON_LOGIN_RSP)
   return target;
@@ -221,7 +231,7 @@ void GS2C_ON_LOGIN_RSP::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) 
 void GS2C_ON_LOGIN_RSP::MergeFrom(const GS2C_ON_LOGIN_RSP& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:GS2C_ON_LOGIN_RSP)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -250,7 +260,7 @@ bool GS2C_ON_LOGIN_RSP::IsInitialized() const {
 
 void GS2C_ON_LOGIN_RSP::InternalSwap(GS2C_ON_LOGIN_RSP* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   swap(field_handleid_, other->field_handleid_);
 }
 
@@ -262,7 +272,7 @@ void GS2C_ON_LOGIN_RSP::InternalSwap(GS2C_ON_LOGIN_RSP* other) {
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::GS2C_ON_LOGIN_RSP* Arena::CreateMaybeMessage< ::GS2C_ON_LOGIN_RSP >(Arena* arena) {
-  return Arena::CreateInternal< ::GS2C_ON_LOGIN_RSP >(arena);
+  return Arena::CreateMessageInternal< ::GS2C_ON_LOGIN_RSP >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

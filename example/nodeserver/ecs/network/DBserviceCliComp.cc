@@ -126,10 +126,6 @@ void DBServiceCliComp::__OnConnect(
     /* 连接建立成功，加入ConnMgr进行管理 */
     auto dbconn = std::make_shared<plugin::ecs::network::DBServiceConnection>(
         std::dynamic_pointer_cast<bbt::network::libevent::Connection>(conn), m_cfg.timeout);
-    dbconn->SetOnClose([this](bbt::network::ConnId connid){
-        m_connid = 0;
-        GAME_EXT1_LOG_WARN("db service connection closed! connid=%d", connid);
-    });
     
     GAME_EXT1_LOG_DEBUG("db service connection! connid=%d", dbconn->GetConnId());
     network_comp->AddConnect(dbconn);

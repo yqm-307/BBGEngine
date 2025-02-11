@@ -4,8 +4,11 @@
 namespace plugin::ecs::network
 {
 
+class Server;
+
 class Connection
 {
+    friend class Server;
 public:
     virtual ~Connection();
     Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
@@ -14,13 +17,15 @@ public:
     virtual void    Send(const char* data, size_t len);
     virtual bool    IsClosed();
     virtual void    Close();
-    void            SetOnClose(std::function<void(bbt::network::ConnId)> onclose);
 protected:
     virtual void    OnRecv(const char* data, size_t len);
     virtual void    OnSend(const bbt::network::Errcode& err, size_t succ_len);
     virtual void    OnTimeout();
     virtual void    OnClose();
     virtual void    OnError(const bbt::network::Errcode& err);
+private:
+    void            SetOnClose(std::function<void(bbt::network::ConnId)> onclose);
+    virtual void    _OnClose();
 private:
     static uint64_t GenerateId() { return m_id_template++; }
 

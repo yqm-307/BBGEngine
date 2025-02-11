@@ -10,7 +10,7 @@ Connection::Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int time
     m_raw_conn_ptr(raw_conn),
     m_conn_id(GenerateId())
 {
-    m_conn_callbacks.on_close_callback = [this](void* udata, const bbt::net::IPAddress& addr){ OnClose(); };
+    m_conn_callbacks.on_close_callback = [this](void* udata, const bbt::net::IPAddress& addr){ _OnClose(); };
     m_conn_callbacks.on_err_callback = [this](void* udata, const bbt::network::Errcode& err){ OnError(err); };
     m_conn_callbacks.on_recv_callback = [this](bbt::network::libevent::ConnectionSPtr conn, const char* data, size_t len){ OnRecv(data, len); };
     m_conn_callbacks.on_send_callback = [this](bbt::network::libevent::ConnectionSPtr conn, const bbt::network::Errcode& err, size_t len){ OnSend(err, len); };
@@ -28,10 +28,16 @@ Connection::~Connection()
 void Connection::OnClose()
 {
     GAME_EXT1_LOG_WARN("no onclose!");
+}
 
+void Connection::_OnClose()
+{
     if (m_onclose_cb != nullptr)
         m_onclose_cb(m_conn_id);
+
+    OnClose();
 }
+
 
 void Connection::OnError(const bbt::network::Errcode& err)
 {

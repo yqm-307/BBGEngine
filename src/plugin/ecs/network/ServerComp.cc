@@ -56,7 +56,7 @@ void Server::OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::
         return;
     }
     
-    auto conn = std::make_shared<network::Connection>(new_conn, m_connect_timeout);
+    auto conn = CreateConnection(new_conn);
     if (!AddConnect(conn)) {
         GAME_EXT1_LOG_ERROR("add connect failed!");
         return;

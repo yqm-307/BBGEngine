@@ -14,24 +14,9 @@ protected:
         plugin::ecs::network::Server(ip, port, connect_timeout)
     {}
 
-    virtual void OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn) override
+    virtual std::shared_ptr<plugin::ecs::network::Connection> CreateConnection(bbt::network::libevent::ConnectionSPtr conn) override
     {
-        if (err.IsErr()) {
-            GAME_EXT1_LOG_ERROR("accept failed! %s", err.CWhat());
-            return;
-        }
-        
-        auto conn = std::make_shared<EchoConnection>(new_conn, 4000);
-        if (!AddConnect(conn)) {
-            GAME_EXT1_LOG_ERROR("add connect failed!");
-            return;
-        }
-    
-        conn->SetOnClose([this](auto conn_id){
-            DelConnect(conn_id);
-        });
-    
-        GAME_EXT1_LOG_INFO("new connection: {%s}", new_conn->GetPeerAddress().GetIPPort().c_str());
+        return std::make_shared<EchoConnection>(conn, 4000);
     }
 };
 
