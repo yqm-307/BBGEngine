@@ -7,8 +7,9 @@ namespace plugin::ecs::network
 {
 typedef std::function<std::shared_ptr<Connection>(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr conn)> OnAsyncConnectCallback;
 
-class NetworkSystem:
-    public engine::ecs::System<NetworkSystem>
+template<class TServerComp>
+class ServerSystem:
+    public engine::ecs::System<ServerSystem<TServerComp>>
 {
     typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
 public:
@@ -16,8 +17,8 @@ public:
     bool StopNetwork(GameObjectSPtr gameobject);
 
     bool AsyncConnect(GameObjectSPtr gameobject, const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
-private:
-    std::shared_ptr<Server> GetComponent(GameObjectSPtr gameobject);
 
 };
 } // namespace share::ecs::network
+
+#include <plugin/ecs/network/__TServerSystem.hpp>

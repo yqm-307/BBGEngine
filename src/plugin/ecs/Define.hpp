@@ -7,7 +7,7 @@
 namespace plugin::ecs
 {
 
-enum emEntityType: engine::ecs::ComponentTemplateId {
+enum emEntityType: engine::ecs::GameObjectTemplateId {
 
 //------------------------> 无实体对象 <------------------------//
     EM_ENTITY_TYPE_GAMEOBJECT               = 0,    // 空对象
@@ -32,7 +32,7 @@ enum emEntityType: engine::ecs::ComponentTemplateId {
 };
 
 
-enum emComponentType: engine::ecs::GameObjectTemplateId {
+enum emComponentType: engine::ecs::ComponentTemplateId {
 //------------------------> 特殊组件 <------------------------//
     EM_COMPONENT_TYPE_INVALID               = -1,   // 非法组件
     EM_COMPONENT_TYPE_NONE                  = 0,    // 空组件
@@ -50,10 +50,13 @@ enum emComponentType: engine::ecs::GameObjectTemplateId {
     EM_COMPONENT_TYPE_CLOCK_MODULE          = 11,   // 游戏内时钟
     EM_COMPONENT_TYPE_DBSERVICE_CLIENT      = 12,   // db service client
     EM_COMPONENT_TYPE_SERVER                = 13,   // server
+    EM_COMPONENT_TYPE_CLIENT                = 14,   // client
 
 //------------------------> 测试组件 <------------------------//
-    EM_COMPONENT_TYPE_TESTCOMP_1            = 1001001,  // 测试组件
-    EM_COMPONENT_TYPE_EMPTY                 = 1001002,   // 空组件
+    EM_COMPONENT_TYPE_TESTCOMP_1            = 50001,  // 测试组件
+    EM_COMPONENT_TYPE_EMPTY                 = 50002,   // 空组件
+//------------------------> 测试组件 <------------------------//
+    EM_COMPONENT_TYPE_MAX_COUNT             = 65535,    // plugin 最大支持组件数量，外部定义请从此id下一位开始
 };
 
 class EcsInitHelper

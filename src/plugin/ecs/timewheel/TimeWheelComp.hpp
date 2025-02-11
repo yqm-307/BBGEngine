@@ -11,7 +11,7 @@ typedef bbt::timer::TimeWheel::TimerId      TaskId;
 class TimeWheelComp:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_TIME_WHEEL);
 public:
     ~TimeWheelComp() {}
     std::pair<std::optional<bbt::timer::Errcode>, TaskId> AddTask(const std::function<bool()>& timeout_handle, int nframes);

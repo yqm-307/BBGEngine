@@ -8,7 +8,7 @@ namespace plugin::ecs::component
 class EmptyComponent:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_EMPTY);
 public:
     typedef std::function<void(engine::ecs::GameObjectSPtr)> MyCallback; 
 

@@ -37,7 +37,6 @@ private:
      */
     engine::ecs::GameObjectSPtr GlobalMgrInit();
     engine::ecs::GameObjectSPtr NetWorkInit();
-    engine::ecs::GameObjectSPtr DBServiceInit();
     /* 阻塞的等待IO线程退出 */
     void IOThreadExit();
     void OnStopScene();

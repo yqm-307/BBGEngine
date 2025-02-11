@@ -10,7 +10,6 @@ class LuaScriptBaseComp:
     public engine::ecs::Component
 {
 public:
-    ComponentDeriveClassDef;
     virtual ~LuaScriptBaseComp() = 0;
 
     /**

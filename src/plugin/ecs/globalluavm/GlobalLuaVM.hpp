@@ -9,9 +9,9 @@ namespace plugin::ecs::globalluavm
 class GlobalLuaVM:
     public engine::ecs::Component
 {
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_GLOBAL_LUA_VM);
 public:
     typedef bbt::cxxlua::detail::LuaParseReturnCallback ParseLuaRetValFunc;
-    ComponentDeriveClassDef;
     virtual ~GlobalLuaVM();
 
     bool PreloadLuaFile(const char* dir_path);

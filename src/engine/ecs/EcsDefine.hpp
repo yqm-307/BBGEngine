@@ -11,8 +11,13 @@
 #define GameObjectDeriveClassDef \
     BBTManagerFriendFlag(engine::ecs::GameObjectId, engine::ecs::GameObject)
 
-#define ComponentDeriveClassDef \
-    BBTManagerFriendFlag(engine::ecs::ComponentId, engine::ecs::Component)
+#define ComponentDeriveClassDef(templateid) \
+    BBTManagerFriendFlag(engine::ecs::ComponentId, engine::ecs::Component); \
+public: \
+    static engine::ecs::ComponentTemplateId GetComponentTemplateId() \
+    { \
+        return templateid; \
+    }
 
 #define G_ComponentMgr \
     engine::ecs::ComponentMgr::GetInstance

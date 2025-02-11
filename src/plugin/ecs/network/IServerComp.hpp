@@ -8,7 +8,6 @@ namespace plugin::ecs::network
 class IServerComp:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef;
 public:
     IServerComp(engine::ecs::ComponentId id):
         engine::ecs::Component(id)

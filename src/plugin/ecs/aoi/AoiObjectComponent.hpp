@@ -14,7 +14,7 @@ namespace plugin::ecs::aoi
 class AoiObjectComponent: 
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_AOI_OBJECT);
 public:
     ~AoiObjectComponent();
 

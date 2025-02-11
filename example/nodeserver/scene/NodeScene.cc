@@ -1,15 +1,13 @@
 #include <signal.h>
-#include "nodeserver/scene/NodeScene.hpp"
-#include "nodeserver/config/LoadConfig.hpp"
-#include "nodeserver/ecs/network/EchoServer.hpp"
-#include "plugin/ecs/network/NetworkSystem.hpp"
-#include "plugin/ecs/gameobject/GameObject.hpp"
-#include "plugin/ecs/aoi/AoiComponent.hpp"
-#include "plugin/ecs/globalmgr/GlobalMgr.hpp"
-#include "plugin/scene/SceneDefine.hpp"
-#include "util/log/Log.hpp"
-#include "nodeserver/ecs/network/DBServiceConnObj.hpp"
-#include "nodeserver/ecs/network/DBServiceCliComp.hpp"
+#include <nodeserver/scene/NodeScene.hpp>
+#include <nodeserver/config/LoadConfig.hpp>
+#include <nodeserver/ecs/network/EchoServer.hpp>
+#include <plugin/ecs/network/ServerSystem.hpp>
+#include <plugin/ecs/gameobject/GameObject.hpp>
+#include <plugin/ecs/aoi/AoiComponent.hpp>
+#include <plugin/ecs/globalmgr/GlobalMgr.hpp>
+#include <plugin/scene/SceneDefine.hpp>
+#include <util/log/Log.hpp>
 
 namespace BBTENGINE_NODE_NAMESPACE::scene
 {
@@ -113,24 +111,6 @@ engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
     return network_obj;
 }
 
-engine::ecs::GameObjectSPtr ServerScene::DBServiceInit()
-{
-    auto& g_config = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
-    auto dbservice_obj = G_GameObjectMgr()->Create<plugin::ecs::network::DBServiceConnObj>();
-    auto& system_ref = engine::ecs::GetSystem<plugin::ecs::network::DBServiceCliCompSystem>();
-    plugin::ecs::network::DBServiceCliCfg cfg;
-    auto g_db_service_cfg = g_config->GetDBServiceCfg();
-    cfg.ip              = g_db_service_cfg->ip;
-    cfg.port            = g_db_service_cfg->port;
-    cfg.timeout         = g_db_service_cfg->timeout;
-    cfg.heartbeat       = g_db_service_cfg->heartbeat;
-    cfg.connect_timeout = g_db_service_cfg->connect_timeout;
-
-    system_ref->Init(dbservice_obj, &cfg);
-
-    return dbservice_obj;
-}
-
 void ServerScene::OnDestory()
 {
     m_loop = nullptr;
@@ -143,7 +123,7 @@ void ServerScene::StartScene()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
-    plugin::ecs::network::NetworkSystem::GetSysInst()->StartNetwork(obj);
+    plugin::ecs::network::ServerSystem<network::EchoService>::GetSysInst()->StartNetwork(obj);
     auto err = m_loop->StartLoop(bbt::pollevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
     if (err != 0)
         GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
@@ -183,7 +163,7 @@ void ServerScene::IOThreadExit()
     auto [obj, isok] = GetGameobjectById(m_network_id);
     DebugAssert(isok);
 
-    plugin::ecs::network::NetworkSystem::GetSysInst()->StopNetwork(obj);
+    plugin::ecs::network::ServerSystem<network::EchoService>::GetSysInst()->StopNetwork(obj);
     GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 

@@ -12,7 +12,6 @@ namespace plugin::ecs::network
 class Server:
     public IServerComp
 {
-    ComponentDeriveClassDef;
 public:
     ~Server();
     virtual size_t  Send(bbt::network::ConnId conn, const char* bytes, size_t len) override;
@@ -24,7 +23,6 @@ public:
     void SetListenAddr(const char* ip, short port);
     void Start();
     void Stop();
-    //TODO
     bool Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
 
     bool DelConnect(bbt::network::ConnId conn);
@@ -33,12 +31,12 @@ public:
     std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id);
 
 protected:
-    Server(const std::string& ip, short port, int connect_timeout);
+    Server(engine::ecs::ComponentTemplateId type, const std::string& ip, short port, int connect_timeout);
     virtual void OnUpdate() override {}
     /**
      * @brief 重载此函数来处理新连接，默认新连接到来建立一个基础连接（只收发数据）
      */
-    virtual void OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr conn);
+    virtual void OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr conn) final;
     virtual std::shared_ptr<Connection> CreateConnection(bbt::network::libevent::ConnectionSPtr conn) = 0;
 private:
     /* 连接管理 */

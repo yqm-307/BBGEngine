@@ -35,6 +35,8 @@ public:
     bool            AddComponent(ComponentSPtr component);
     /* 获取一个组件，如果不存在返回nullptr */
     ComponentSPtr   GetComponent(ComponentTemplateId component_name) const;
+    template<class TComponent>
+    std::shared_ptr<TComponent> GetComponent() const;
     /* 删除一个组件，如果不存在返回nullptr */
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
@@ -97,6 +99,12 @@ bool GameObject::AddComponent(Args ...args)
 {
     auto comp = G_ComponentMgr()->Create<TComponent>(args ...);
     return AddComponent(comp);
+}
+
+template<class TComponent>
+std::shared_ptr<TComponent> GameObject::GetComponent() const
+{
+    return std::dynamic_pointer_cast<TComponent>(GetComponent(TComponent::GetComponentTemplateId()));
 }
 
 } // namespace engine::ecs

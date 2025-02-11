@@ -22,12 +22,7 @@ bbt::clock::Timestamp<> ClockSystem::GetFrameTime(GameObjectSPtr gameobject)
 
 std::shared_ptr<ClockComp> ClockSystem::GetComponent(GameObjectSPtr gameobject)
 {
-    auto comp = gameobject->GetComponent(EM_COMPONENT_TYPE_CLOCK_MODULE);
-    if (comp == nullptr)
-        return nullptr;
-    
-    auto clock_comp = std::dynamic_pointer_cast<ClockComp>(comp);
-    return clock_comp;
+    return gameobject->GetComponent<ClockComp>();
 }
 
 }

@@ -92,15 +92,16 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_c2g
   &scc_info_C2GS_Test_Echo_Req_c2gs_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_c2gs_2eproto_once;
+static bool descriptor_table_c2gs_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_c2gs_2eproto = {
-  false, false, descriptor_table_protodef_c2gs_2eproto, "c2gs.proto", 134,
+  &descriptor_table_c2gs_2eproto_initialized, descriptor_table_protodef_c2gs_2eproto, "c2gs.proto", 134,
   &descriptor_table_c2gs_2eproto_once, descriptor_table_c2gs_2eproto_sccs, descriptor_table_c2gs_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_c2gs_2eproto::offsets,
   file_level_metadata_c2gs_2eproto, 2, file_level_enum_descriptors_c2gs_2eproto, file_level_service_descriptors_c2gs_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_c2gs_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_c2gs_2eproto)), true);
+static bool dynamic_init_dummy_c2gs_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_c2gs_2eproto), true);
 
 // ===================================================================
 
@@ -110,19 +111,18 @@ class C2GS_Test_Echo_Req::_Internal {
  public:
 };
 
-C2GS_Test_Echo_Req::C2GS_Test_Echo_Req(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+C2GS_Test_Echo_Req::C2GS_Test_Echo_Req()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:C2GS_Test_Echo_Req)
+  // @@protoc_insertion_point(constructor:C2GS_Test_Echo_Req)
 }
 C2GS_Test_Echo_Req::C2GS_Test_Echo_Req(const C2GS_Test_Echo_Req& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   field_message_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_field_message().empty()) {
-    field_message_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_field_message(),
-      GetArena());
+    field_message_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_message_);
   }
   field_handleid_ = from.field_handleid_;
   // @@protoc_insertion_point(copy_constructor:C2GS_Test_Echo_Req)
@@ -137,20 +137,12 @@ void C2GS_Test_Echo_Req::SharedCtor() {
 C2GS_Test_Echo_Req::~C2GS_Test_Echo_Req() {
   // @@protoc_insertion_point(destructor:C2GS_Test_Echo_Req)
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void C2GS_Test_Echo_Req::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
   field_message_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
-void C2GS_Test_Echo_Req::ArenaDtor(void* object) {
-  C2GS_Test_Echo_Req* _this = reinterpret_cast< C2GS_Test_Echo_Req* >(object);
-  (void)_this;
-}
-void C2GS_Test_Echo_Req::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void C2GS_Test_Echo_Req::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -166,14 +158,13 @@ void C2GS_Test_Echo_Req::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  field_message_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  field_message_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   field_handleid_ = 0;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear();
 }
 
 const char* C2GS_Test_Echo_Req::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
@@ -182,16 +173,14 @@ const char* C2GS_Test_Echo_Req::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       // int32 Field_HandleID = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          field_handleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          field_handleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // string Field_Message = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          auto str = _internal_mutable_field_message();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "C2GS_Test_Echo_Req.Field_Message"));
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(_internal_mutable_field_message(), ptr, ctx, "C2GS_Test_Echo_Req.Field_Message");
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -201,9 +190,7 @@ const char* C2GS_Test_Echo_Req::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -217,7 +204,7 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* C2GS_Test_Echo_Req::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* C2GS_Test_Echo_Req::InternalSerializeWithCachedSizesToArray(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:C2GS_Test_Echo_Req)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -225,7 +212,7 @@ failure:
 
   // int32 Field_HandleID = 1;
   if (this->field_handleid() != 0) {
-    target = stream->EnsureSpace(target);
+    stream->EnsureSpace(&target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_field_handleid(), target);
   }
 
@@ -241,7 +228,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:C2GS_Test_Echo_Req)
   return target;
@@ -296,12 +283,13 @@ void C2GS_Test_Echo_Req::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from)
 void C2GS_Test_Echo_Req::MergeFrom(const C2GS_Test_Echo_Req& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:C2GS_Test_Echo_Req)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.field_message().size() > 0) {
-    _internal_set_field_message(from._internal_field_message());
+
+    field_message_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_message_);
   }
   if (from.field_handleid() != 0) {
     _internal_set_field_handleid(from._internal_field_handleid());
@@ -328,8 +316,9 @@ bool C2GS_Test_Echo_Req::IsInitialized() const {
 
 void C2GS_Test_Echo_Req::InternalSwap(C2GS_Test_Echo_Req* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  field_message_.Swap(&other->field_message_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  field_message_.Swap(&other->field_message_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(field_handleid_, other->field_handleid_);
 }
 
@@ -346,15 +335,15 @@ class C2GS_ON_LOGIN_REQ::_Internal {
  public:
 };
 
-C2GS_ON_LOGIN_REQ::C2GS_ON_LOGIN_REQ(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+C2GS_ON_LOGIN_REQ::C2GS_ON_LOGIN_REQ()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:C2GS_ON_LOGIN_REQ)
+  // @@protoc_insertion_point(constructor:C2GS_ON_LOGIN_REQ)
 }
 C2GS_ON_LOGIN_REQ::C2GS_ON_LOGIN_REQ(const C2GS_ON_LOGIN_REQ& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   field_handleid_ = from.field_handleid_;
   // @@protoc_insertion_point(copy_constructor:C2GS_ON_LOGIN_REQ)
 }
@@ -366,19 +355,11 @@ void C2GS_ON_LOGIN_REQ::SharedCtor() {
 C2GS_ON_LOGIN_REQ::~C2GS_ON_LOGIN_REQ() {
   // @@protoc_insertion_point(destructor:C2GS_ON_LOGIN_REQ)
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void C2GS_ON_LOGIN_REQ::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
-void C2GS_ON_LOGIN_REQ::ArenaDtor(void* object) {
-  C2GS_ON_LOGIN_REQ* _this = reinterpret_cast< C2GS_ON_LOGIN_REQ* >(object);
-  (void)_this;
-}
-void C2GS_ON_LOGIN_REQ::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void C2GS_ON_LOGIN_REQ::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -395,12 +376,11 @@ void C2GS_ON_LOGIN_REQ::Clear() {
   (void) cached_has_bits;
 
   field_handleid_ = 0;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear();
 }
 
 const char* C2GS_ON_LOGIN_REQ::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
@@ -409,7 +389,7 @@ const char* C2GS_ON_LOGIN_REQ::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       // int32 Field_HandleID = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          field_handleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          field_handleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -419,9 +399,7 @@ const char* C2GS_ON_LOGIN_REQ::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -435,7 +413,7 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* C2GS_ON_LOGIN_REQ::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* C2GS_ON_LOGIN_REQ::InternalSerializeWithCachedSizesToArray(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:C2GS_ON_LOGIN_REQ)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -443,13 +421,13 @@ failure:
 
   // int32 Field_HandleID = 1;
   if (this->field_handleid() != 0) {
-    target = stream->EnsureSpace(target);
+    stream->EnsureSpace(&target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_field_handleid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:C2GS_ON_LOGIN_REQ)
   return target;
@@ -497,7 +475,7 @@ void C2GS_ON_LOGIN_REQ::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) 
 void C2GS_ON_LOGIN_REQ::MergeFrom(const C2GS_ON_LOGIN_REQ& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:C2GS_ON_LOGIN_REQ)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -526,7 +504,7 @@ bool C2GS_ON_LOGIN_REQ::IsInitialized() const {
 
 void C2GS_ON_LOGIN_REQ::InternalSwap(C2GS_ON_LOGIN_REQ* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(field_handleid_, other->field_handleid_);
 }
 
@@ -538,10 +516,10 @@ void C2GS_ON_LOGIN_REQ::InternalSwap(C2GS_ON_LOGIN_REQ* other) {
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::C2GS_Test_Echo_Req* Arena::CreateMaybeMessage< ::C2GS_Test_Echo_Req >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::C2GS_Test_Echo_Req >(arena);
+  return Arena::CreateInternal< ::C2GS_Test_Echo_Req >(arena);
 }
 template<> PROTOBUF_NOINLINE ::C2GS_ON_LOGIN_REQ* Arena::CreateMaybeMessage< ::C2GS_ON_LOGIN_REQ >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::C2GS_ON_LOGIN_REQ >(arena);
+  return Arena::CreateInternal< ::C2GS_ON_LOGIN_REQ >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

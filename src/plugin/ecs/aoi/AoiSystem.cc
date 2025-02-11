@@ -248,11 +248,7 @@ std::shared_ptr<ecs::aoi::AoiComponent> AoiSystem::GetAoiComponent(engine::ecs::
     if(obj == nullptr)
         return nullptr;
 
-    auto comp = obj->GetComponent(m_comp_template_id);
-    if(comp == nullptr)
-        return nullptr;
-
-    return std::static_pointer_cast<ecs::aoi::AoiComponent>(comp); 
+    return obj->GetComponent<AoiComponent>();
 }
 
 std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiSystem::GetAoiObjectComponent(engine::ecs::GameObjectSPtr obj)

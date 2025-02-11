@@ -1,6 +1,7 @@
 #pragma once
-#include "engine/ecs/component/Component.hpp"
 #include <functional>
+#include <engine/ecs/component/Component.hpp>
+#include <plugin/ecs/Define.hpp>
 
 namespace plugin::ecs::component
 {
@@ -8,7 +9,7 @@ namespace plugin::ecs::component
 class TestComponent:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_TESTCOMP_1);
 public:
     typedef std::function<void(engine::ecs::GameObjectSPtr)> MyCallback; 
 

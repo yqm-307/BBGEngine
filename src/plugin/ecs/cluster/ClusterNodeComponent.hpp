@@ -1,5 +1,6 @@
 #pragma once
 #include <engine/ecs/component/Component.hpp>
+#include <plugin/ecs/Define.hpp>
 #include <util/other/Uuid.hpp>
 #include <util/errcode/ErrCode.hpp>
 #include "ClusterNode.hpp"
@@ -20,8 +21,8 @@ namespace plugin::ecs::cluster
 class ClusterNodeComponent:
     public engine::ecs::Component
 {
+    ComponentDeriveClassDef(plugin::ecs::EM_COMPONENT_TYPE_NONE);
 public:
-    ComponentDeriveClassDef;
     virtual ~ClusterNodeComponent();
 
     // 已连接节点管理

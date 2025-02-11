@@ -1,6 +1,7 @@
 #pragma once
 #include <bbt/base/clock/Clock.hpp>
 #include <engine/ecs/component/Component.hpp>
+#include <engine/ecs/EcsDefine.hpp>
 
 
 namespace plugin::ecs::clock
@@ -9,6 +10,7 @@ namespace plugin::ecs::clock
 class ClockComp:
     public engine::ecs::Component
 {
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_CLOCK_MODULE)
 public:
     virtual ~ClockComp() {}
 

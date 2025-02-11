@@ -1,6 +1,7 @@
 #pragma once
 #include "engine/ecs/component/Component.hpp"
 #include "plugin/ecs/aoi/AoiDefine.hpp"
+#include <plugin/ecs/Define.hpp>
 #include "util/vector/Vector3.hpp"
 #include "util/vector/Pos3.hpp"
 #include "util/config/Config.hpp"
@@ -17,7 +18,7 @@ class AoiComponent:
     public engine::ecs::Component
 {
     friend class AoiSystem;
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_AOI);
     template<typename T> using Timestamp = bbt::timer::clock::Timestamp<T>;
     typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */

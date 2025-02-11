@@ -4,8 +4,8 @@
 namespace plugin::ecs::network
 {
 
-Server::Server(const std::string& ip, short port, int connect_timeout):
-    IServerComp(plugin::ecs::emComponentType::EM_COMPONENT_TYPE_SERVER),
+Server::Server(engine::ecs::ComponentTemplateId type, const std::string& ip, short port, int connect_timeout):
+    IServerComp(type),
     m_listen_addr(ip, port),
     m_connect_timeout(connect_timeout)
 {

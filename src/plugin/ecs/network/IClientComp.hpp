@@ -1,6 +1,7 @@
 #pragma once
-#include <engine/ecs/component/Component.hpp>
 #include <bbt/network/adapter/libevent/Network.hpp>
+#include <engine/ecs/component/Component.hpp>
+#include <plugin/ecs/Define.hpp>
 
 namespace plugin::ecs::network
 {
@@ -8,7 +9,7 @@ namespace plugin::ecs::network
 class IClientComp:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(plugin::ecs::EM_COMPONENT_TYPE_CLIENT);
 public:
 
 };

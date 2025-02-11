@@ -8,7 +8,7 @@ class LuaTestComp:
     public LuaScriptBaseComp
 {
 public:
-    ComponentDeriveClassDef;
+    ComponentDeriveClassDef(EM_COMPONENT_TYPE_LUA_TEST);
     virtual ~LuaTestComp() {}
     bool Init(const char* script_path);
 protected:
