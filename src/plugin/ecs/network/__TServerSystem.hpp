@@ -38,4 +38,24 @@ bool ServerSystem<TServerComp>::AsyncConnect(GameObjectSPtr gameobject, const ch
     return comp->Connect(ip, port, timeout, on_connect);
 }
 
+template<class TServerComp>
+size_t ServerSystem<TServerComp>::Send(GameObjectSPtr gameobject, bbt::network::ConnId id, const char* bytes, size_t len)
+{
+    auto comp = gameobject->GetComponent<TServerComp>();
+    if (comp == nullptr)
+        return false;
+    
+    return comp->Send(id, bytes, len);
+}
+
+template<class TServerComp>
+void ServerSystem<TServerComp>::Close(GameObjectSPtr gameobject, bbt::network::ConnId id)
+{
+    auto comp = gameobject->GetComponent<TServerComp>();
+    if (comp == nullptr)
+        return false;
+    
+    comp->Close(id);
+}
+
 }
