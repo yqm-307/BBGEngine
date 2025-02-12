@@ -9,7 +9,7 @@ namespace BBTENGINE_NODE_NAMESPACE::network
 class EchoService:
     public plugin::ecs::network::Server
 {
-    ComponentDeriveClassDef(ecs::COMPONENT_TYPE_ECHO_SERVICE);
+    ComponentClassMetaInfo(ecs::COMPONENT_TYPE_ECHO_SERVICE);
 protected:
     EchoService(const std::string& ip, short port, int connect_timeout):
         plugin::ecs::network::Server(ecs::COMPONENT_TYPE_ECHO_SERVICE, ip, port, connect_timeout)

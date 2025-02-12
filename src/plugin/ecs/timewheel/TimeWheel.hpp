@@ -7,7 +7,7 @@ namespace plugin::ecs::timewheel
 class TimeWheel:
     public engine::ecs::GameObject
 {
-    GameObjectDeriveClassDef;
+    GameObjectClassMetaInfo;
 public:
     ~TimeWheel();
 protected:

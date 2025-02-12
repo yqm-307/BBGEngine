@@ -10,7 +10,7 @@ namespace plugin::ecs::clock
 class ClockComp:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef(EM_COMPONENT_TYPE_CLOCK_MODULE)
+    ComponentClassMetaInfo(EM_COMPONENT_TYPE_CLOCK_MODULE)
 public:
     virtual ~ClockComp() {}
 

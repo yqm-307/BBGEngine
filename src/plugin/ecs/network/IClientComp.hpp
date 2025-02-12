@@ -9,7 +9,7 @@ namespace plugin::ecs::network
 class IClientComp:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef(plugin::ecs::EM_COMPONENT_TYPE_CLIENT);
+    ComponentClassMetaInfo(plugin::ecs::EM_COMPONENT_TYPE_CLIENT);
 public:
 
 };

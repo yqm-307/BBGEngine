@@ -18,7 +18,7 @@ class AoiComponent:
     public engine::ecs::Component
 {
     friend class AoiSystem;
-    ComponentDeriveClassDef(EM_COMPONENT_TYPE_AOI);
+    ComponentClassMetaInfo(EM_COMPONENT_TYPE_AOI);
     template<typename T> using Timestamp = bbt::timer::clock::Timestamp<T>;
     typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */

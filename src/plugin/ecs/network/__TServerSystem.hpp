@@ -53,7 +53,7 @@ void ServerSystem<TServerComp>::Close(GameObjectSPtr gameobject, bbt::network::C
 {
     auto comp = gameobject->GetComponent<TServerComp>();
     if (comp == nullptr)
-        return false;
+        return;
     
     comp->Close(id);
 }

@@ -7,7 +7,7 @@ namespace plugin::ecs::gameobject
 class GameObject:
     public engine::ecs::GameObject
 {
-    GameObjectDeriveClassDef;
+    GameObjectClassMetaInfo;
 public:
     ~GameObject();
 

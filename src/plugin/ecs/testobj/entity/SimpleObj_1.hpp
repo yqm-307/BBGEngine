@@ -10,7 +10,7 @@ namespace plugin::ecs::entity::testobj
 class SimpleObj_1:
     public engine::ecs::GameObject
 {
-    GameObjectDeriveClassDef;
+    GameObjectClassMetaInfo;
 public:
     ~SimpleObj_1();
 

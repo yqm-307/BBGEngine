@@ -8,10 +8,10 @@
 
 #define Managed
 
-#define GameObjectDeriveClassDef \
+#define GameObjectClassMetaInfo \
     BBTManagerFriendFlag(engine::ecs::GameObjectId, engine::ecs::GameObject)
 
-#define ComponentDeriveClassDef(templateid) \
+#define ComponentClassMetaInfo(templateid) \
     BBTManagerFriendFlag(engine::ecs::ComponentId, engine::ecs::Component); \
 public: \
     static engine::ecs::ComponentTemplateId GetComponentTemplateId() \

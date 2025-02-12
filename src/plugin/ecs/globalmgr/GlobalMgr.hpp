@@ -8,7 +8,7 @@ namespace plugin::ecs::globalmgr
 class GlobalMgr:
     public engine::ecs::GameObject
 {
-    GameObjectDeriveClassDef;
+    GameObjectClassMetaInfo;
 public:
     virtual ~GlobalMgr();
 

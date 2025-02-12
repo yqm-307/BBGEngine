@@ -9,7 +9,7 @@ namespace plugin::ecs::component
 class TestComponent:
     public engine::ecs::Component
 {
-    ComponentDeriveClassDef(EM_COMPONENT_TYPE_TESTCOMP_1);
+    ComponentClassMetaInfo(EM_COMPONENT_TYPE_TESTCOMP_1);
 public:
     typedef std::function<void(engine::ecs::GameObjectSPtr)> MyCallback; 
 
