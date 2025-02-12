@@ -17,7 +17,8 @@ public: \
     static engine::ecs::ComponentTemplateId GetComponentTemplateId() \
     { \
         return templateid; \
-    }
+    } \
+    virtual void __ComponentMeta_DisableReDefine() final {}
 
 #define G_ComponentMgr \
     engine::ecs::ComponentMgr::GetInstance

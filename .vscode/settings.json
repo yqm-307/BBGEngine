@@ -86,7 +86,7 @@
     },
     "cmake.configureArgs": [
         "-DNO_EXAMPLE=OFF",
-        "-DNO_TEST=ON",
+        "-DNO_TEST=OFF",
         "-DDEBUG=ON",
     ]
     

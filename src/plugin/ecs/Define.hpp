@@ -51,7 +51,6 @@ enum emComponentType: engine::ecs::ComponentTemplateId {
     EM_COMPONENT_TYPE_DBSERVICE_CLIENT      = 12,   // db service client
     EM_COMPONENT_TYPE_SERVER                = 13,   // server
     EM_COMPONENT_TYPE_CLIENT                = 14,   // client
-    EM_COMPONENT_TYPE_RPC_CLIENT            = 15,   // rpc client
 
 //------------------------> 测试组件 <------------------------//
     EM_COMPONENT_TYPE_TESTCOMP_1            = 50001,  // 测试组件
