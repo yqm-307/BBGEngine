@@ -40,6 +40,13 @@ enum FieldType : int8_t
 class RpcSerializer
 {
 public:
+    /**
+     * @brief 将args打包为字节流并返回
+     * 
+     * @tparam Args 
+     * @param args 
+     * @return bbt::buffer::Buffer 
+     */
     template<typename ...Args>
     bbt::buffer::Buffer Serialize(Args... args)
     {
@@ -54,40 +61,53 @@ public:
         SerializeArgs(buffer, args...);
     }
 
-    template<typename ...Args>
-    std::vector<FieldValue> Deserialize(bbt::buffer::Buffer& buffer)
+    util::errcode::ErrTuple<std::vector<FieldValue>> Deserialize(bbt::buffer::Buffer& buffer)
     {
         std::vector<FieldValue> values;
         while (buffer.ReadableBytes() > 0)
         {
             FieldValue value;
-            buffer.ReadString((char*)&(value.header), sizeof(value.header));
-            switch (value.header.field_type)
-            {
-            case INT64:
-                value.value.int64_value = buffer.ReadInt64();
-                break;
-            case UINT64:
-                value.value.uint64_value = buffer.ReadInt64();
-                break;
-            case INT32:
-                value.value.int32_value = buffer.ReadInt32();
-                break;
-            case UINT32:
-                value.value.uint32_value = buffer.ReadInt32();
-                break;
-            case STRING:
-                value.string.resize(value.header.field_len);
-                buffer.ReadString(value.string.data(), value.string.size());
-                break;
-            default:
-                AssertWithInfo(false, "Not support this type");
-                break;
-            }
+            auto err = DeserializeOne(buffer, value);
+            if (err != std::nullopt)
+                return {err, values};
+            
             values.push_back(value);
         }
-        return values;
+
+        return {std::nullopt, values};
     }
+
+    util::errcode::ErrOpt DeserializeOne(bbt::buffer::Buffer& buffer, FieldValue& value)
+    {
+        if (buffer.ReadableBytes() < sizeof(value.header))
+            return util::errcode::ErrCode("deserialize failed, buffer too short!", util::errcode::ErrType::CommonErr);
+        
+        buffer.ReadString((char*)&(value.header), sizeof(value.header));
+        switch (value.header.field_type)
+        {
+        case INT64:
+            value.value.int64_value = buffer.ReadInt64();
+            break;
+        case UINT64:
+            value.value.uint64_value = buffer.ReadInt64();
+            break;
+        case INT32:
+            value.value.int32_value = buffer.ReadInt32();
+            break;
+        case UINT32:
+            value.value.uint32_value = buffer.ReadInt32();
+            break;
+        case STRING:
+            value.string.resize(value.header.field_len);
+            buffer.ReadString(value.string.data(), value.string.size());
+            break;
+        default:
+            return util::errcode::ErrCode("deserialize failed, not support this type!", util::errcode::ErrType::CommonErr);
+        }
+
+        return std::nullopt;
+    }
+    
 
 private:
     template<typename T>

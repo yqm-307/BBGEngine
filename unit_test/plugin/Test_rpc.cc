@@ -21,7 +21,9 @@ BOOST_AUTO_TEST_CASE(t_rpc)
 
     server->Register("add", [](bbt::buffer::Buffer& req, bbt::buffer::Buffer& resp)->util::errcode::ErrOpt
     {
-        auto params = decoder.Deserialize(req);
+        auto [err, params] = decoder.Deserialize(req);
+        if (err != std::nullopt)
+            BOOST_ERROR(err->CWhat());
         BOOST_ASSERT(params.size() == 2);
         decoder.SerializeAppend(resp, params[0].value.int32_value + params[1].value.int32_value);
         return std::nullopt;
@@ -36,15 +38,17 @@ BOOST_AUTO_TEST_CASE(t_rpc)
 
     client->Call([](bbt::buffer::Buffer& buffer)->util::errcode::ErrOpt
     {
-        auto params = decoder.Deserialize(buffer);
+        auto [err, params] = decoder.Deserialize(buffer);
+        if (err != std::nullopt)
+            BOOST_ERROR(err->CWhat());
         BOOST_ASSERT(!params.empty());
-        BOOST_ASSERT(params[0].value.int64_value == 30);
+        BOOST_ASSERT(params[0].value.int32_value == 30);
         return std::nullopt;
     }, "add", 10, 20);
 
     client->Call([](bbt::buffer::Buffer& buffer)->util::errcode::ErrOpt
     {
-        auto params = decoder.Deserialize(buffer);
+        auto [err, params] = decoder.Deserialize(buffer);
         BOOST_ASSERT(!params.empty());
         BOOST_ASSERT(params[0].string == "pong");
         return std::nullopt;
