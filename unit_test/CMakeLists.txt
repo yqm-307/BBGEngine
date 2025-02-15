@@ -1,10 +1,9 @@
-enable_language(CXX)
 
-set(Wall_Flag "-Wall -Wno-sign-compare -Wno-format -Wno-reorder -Wno-unknown-pragmas")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 ${Wall_Flag}")
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin/unit_test)
 
-# debug版本
-add_definitions(-DDebug)
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src
+)
 
 
 # 链接库
@@ -228,12 +227,6 @@ file(GLOB_RECURSE TEST_LUA_COMP_SRC
 # add_test(NAME test_game_timewheel_debug_texe COMMAND test_game_timewheel_debug_texe)
 
 ######################## ==> game 的 rpc component debug 测试 <== ########################
-add_executable(test_plugin_rpc_texe
-    plugin/Test_rpc.cc
-)
-
-target_link_libraries(test_plugin_rpc_texe
-    ${MY_LINK_LIB}
-)
-
+add_executable(test_plugin_rpc_texe plugin/Test_rpc.cc)
+target_link_libraries(test_plugin_rpc_texe ${MY_LINK_LIB})
 add_test(NAME test_plugin_rpc_texe COMMAND test_plugin_rpc_texe)

@@ -2,14 +2,18 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
+#include <engine/ecs/gameobject/GameObject.hpp>
 #include <plugin/ecs/gameobject/GameObject.hpp>
 #include <plugin/ecs/rpc/RpcServer.hpp>
 #include <plugin/ecs/rpc/RpcClient.hpp>
 
+#define ClientCompId 1000001
+#define ServerCompId 1000002
+
 class DbgRpcClient:
     public plugin::ecs::rpc::RpcClient
 {
-    ComponentClassMetaInfo(1000001);
+    ComponentClassMetaInfo(ClientCompId);
 public:
     DbgRpcClient(engine::ecs::ComponentTemplateId id):
         RpcClient(id)
@@ -20,14 +24,20 @@ public:
 
     int Send(const bbt::buffer::Buffer& buffer) override
     {
-        return -1;
+        auto father = GetParentObject();
+        auto comp = father->GetComponent<DbgRpcServer>();
+        if (comp == nullptr)
+            return -1;
+
+        auto err = comp->OnRpc(buffer);
+        
     }
 };
 
 class DbgRpcServer:
     public plugin::ecs::rpc::RpcServer
 {
-    ComponentClassMetaInfo(1000002);
+    ComponentClassMetaInfo(ServerCompId);
 public:
     DbgRpcServer(engine::ecs::ComponentTemplateId id):
         RpcServer(id)
@@ -53,18 +63,13 @@ BOOST_AUTO_TEST_SUITE(RpcTest)
 
 BOOST_AUTO_TEST_CASE(t_rpc)
 {
+    auto gameobject = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto cli_comp = G_ComponentMgr()->Create<DbgRpcServer>(ServerCompId);
+    auto srv_comp = G_ComponentMgr()->Create<DbgRpcClient>(ClientCompId);
 
-    auto client = std::make_shared<DbgRpcClient>(plugin::ecs::EM_COMPONENT_TYPE_LUA_TEST);
-    auto server = std::make_shared<DbgRpcServer>(plugin::ecs::EM_COMPONENT_TYPE_LUA_TEST);
+    BOOST_ASSERT(gameobject->AddComponent<DbgRpcServer>(ServerCompId));
+    BOOST_ASSERT(gameobject->AddComponent<DbgRpcClient>(ClientCompId));
 
-    server->Register("test", [](const bbt::buffer::Buffer& buffer) -> util::errcode::ErrOpt {
-        
-        return std::nullopt;
-    });
-
-    client->Call([](const bbt::buffer::Buffer& buffer) -> util::errcode::ErrOpt {
-        return std::nullopt;
-    }, "test", 1, 2, 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

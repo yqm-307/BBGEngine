@@ -1,15 +1,16 @@
 {
+    "C_Cpp.codeAnalysis.clangTidy.headerFilter": "",
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.cStandard": "c99",
     "C_Cpp.default.includePath": [
-        "${workspaceRoot}"
+        "${workspaceFolder}",
+        "${workspaceFolder}/src",
+        "/usr/local/include",
     ],
-    "cmake.sourceDirectory": "${workspaceFolder}",
-    "C_Cpp.default.compilerPath": "/usr/bin/g++",
-    "C_Cpp.dimInactiveRegions": true,
-    "cmake.buildDirectory": "${workspaceFolder}/build",
-    "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
+        "*.bat": "bat",
+        "atomic": "cpp",
+        "*.tcc": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -22,15 +23,11 @@
         "cwchar": "cpp",
         "cwctype": "cpp",
         "*.ipp": "cpp",
-        "any": "cpp",
         "array": "cpp",
-        "atomic": "cpp",
         "strstream": "cpp",
         "bit": "cpp",
-        "*.tcc": "cpp",
         "bitset": "cpp",
         "chrono": "cpp",
-        "codecvt": "cpp",
         "compare": "cpp",
         "complex": "cpp",
         "concepts": "cpp",
@@ -42,7 +39,6 @@
         "set": "cpp",
         "string": "cpp",
         "unordered_map": "cpp",
-        "unordered_set": "cpp",
         "vector": "cpp",
         "exception": "cpp",
         "algorithm": "cpp",
@@ -81,13 +77,12 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "csignal": "cpp",
-        "regex": "cpp"
+        "unordered_set": "cpp"
     },
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc",
     "cmake.configureArgs": [
         "-DNO_EXAMPLE=OFF",
         "-DNO_TEST=OFF",
         "-DDEBUG=ON",
     ]
-    
 }
