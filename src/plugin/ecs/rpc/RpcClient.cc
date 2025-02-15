@@ -12,7 +12,7 @@ RpcClient::RpcClient(engine::ecs::ComponentTemplateId id):
 {
 }
 
-void RpcClient::OnRecv(const char* data, size_t size)
+void RpcClient::OnReply(const char* data, size_t size)
 {
     bbt::buffer::Buffer buffer(data, size);
     FieldHeader header;
@@ -34,7 +34,7 @@ void RpcClient::OnRecv(const char* data, size_t size)
         GAME_EXT1_LOG_ERROR("a bad protocol! buffer not enough %d byte!", header.field_len);
         return;
     }
-    int seq = buffer.ReadInt32();
+    int seq = buffer.ReadInt64();
 
     auto iter = m_callbacks.find(seq);
     if (iter == m_callbacks.end())

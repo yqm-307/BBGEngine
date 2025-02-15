@@ -23,32 +23,54 @@ util::errcode::ErrOpt RpcServer::OnRpc(bbt::buffer::Buffer& buffer)
 {
     FieldHeader header;
     std::string method;
-    if (buffer.ReadableBytes() < sizeof(header))
+    int64_t call_seq = 0;
+    RpcSerializer coder;
+
+    // 读取 mothod name
     {
-        return util::errcode::ErrCode("a bad protocol! too short", util::errcode::ErrType::CommonErr);
+        if (buffer.ReadableBytes() < sizeof(header))
+            return util::errcode::ErrCode("a bad protocol! too short", util::errcode::ErrType::CommonErr);
+
+        buffer.ReadString((char*)&header, sizeof(header));
+        if (header.field_type != STRING)
+            return util::errcode::ErrCode("a bad protocol! method name must be string", util::errcode::ErrType::CommonErr);
+
+        if (buffer.ReadableBytes() < header.field_len)
+            return util::errcode::ErrCode("a bad protocol! method name too long", util::errcode::ErrType::CommonErr);
+
+        method.resize(header.field_len);
+        buffer.ReadString(method.data(), method.size());
+
     }
 
-    buffer.ReadString((char*)&header, sizeof(header));
-    if (header.field_type != STRING)
+    // 读取 call seq
     {
-        return util::errcode::ErrCode("a bad protocol! method name must be string", util::errcode::ErrType::CommonErr);
-    }
+        if (buffer.ReadableBytes() < sizeof(header))
+            return util::errcode::ErrCode("a bad protocol! too short", util::errcode::ErrType::CommonErr);
 
-    if (buffer.ReadableBytes() < header.field_len)
-    {
-        return util::errcode::ErrCode("a bad protocol! method name too long", util::errcode::ErrType::CommonErr);
-    }
+        buffer.ReadString((char*)&header, sizeof(header));
+        if (header.field_type != INT64)
+            return util::errcode::ErrCode("a bad protocol! method call_seq must be string", util::errcode::ErrType::CommonErr);
+        
+        if (buffer.ReadableBytes() < header.field_len)
+            return util::errcode::ErrCode("a bad protocol! method name too long", util::errcode::ErrType::CommonErr);
 
-    method.resize(header.field_len);
-    buffer.ReadString(method, header.field_len);
+        call_seq = buffer.ReadInt64();
+    }
+    
 
     auto iter = m_registed_methods.find(method);
     if (iter == m_registed_methods.end())
-    {
         return util::errcode::ErrCode("method not found", util::errcode::ErrType::CommonErr);
+
+    bbt::buffer::Buffer resp = coder.Serialize(call_seq);
+
+    auto err = iter->second(buffer, resp);
+    if (err == std::nullopt) {
+        Send(resp.Peek(), resp.DataSize());
     }
 
-    return iter->second(buffer);
+    return err;
 }
 
 } // namespace plugin::ecs::rpc

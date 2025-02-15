@@ -11,7 +11,7 @@ namespace plugin::ecs::rpc
 class RpcClient;
 class RpcServer;
 
-typedef std::function<util::errcode::ErrOpt(const bbt::buffer::Buffer&)> RpcReplyCallback;
-typedef std::function<util::errcode::ErrOpt(const bbt::buffer::Buffer&)> RpcCallback;
+typedef std::function<util::errcode::ErrOpt(bbt::buffer::Buffer&)> RpcReplyCallback;
+typedef std::function<util::errcode::ErrOpt(bbt::buffer::Buffer&/*req*/, bbt::buffer::Buffer&/*resp*/)> RpcCallback;
 
 } // namespace plugin::ecs::rpc

@@ -2,74 +2,55 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
-#include <engine/ecs/gameobject/GameObject.hpp>
-#include <plugin/ecs/gameobject/GameObject.hpp>
-#include <plugin/ecs/rpc/RpcServer.hpp>
-#include <plugin/ecs/rpc/RpcClient.hpp>
+#include "./DbgRpcServer.hpp"
+#include "./DbgRpcClient.hpp"
+#include <plugin/ecs/rpc/RpcSerializer.hpp>
 
-#define ClientCompId 1000001
-#define ServerCompId 1000002
-
-class DbgRpcClient:
-    public plugin::ecs::rpc::RpcClient
-{
-    ComponentClassMetaInfo(ClientCompId);
-public:
-    DbgRpcClient(engine::ecs::ComponentTemplateId id):
-        RpcClient(id)
-    {
-    }
-
-    void OnUpdate() {};
-
-    int Send(const bbt::buffer::Buffer& buffer) override
-    {
-        auto father = GetParentObject();
-        auto comp = father->GetComponent<DbgRpcServer>();
-        if (comp == nullptr)
-            return -1;
-
-        auto err = comp->OnRpc(buffer);
-        
-    }
-};
-
-class DbgRpcServer:
-    public plugin::ecs::rpc::RpcServer
-{
-    ComponentClassMetaInfo(ServerCompId);
-public:
-    DbgRpcServer(engine::ecs::ComponentTemplateId id):
-        RpcServer(id)
-    {
-    }
-    void OnUpdate() {};
-
-    void Send(const char* data, size_t size) override
-    {
-        auto parent = GetParentObject();
-        if (parent)
-        {
-            auto client = parent->GetComponent<DbgRpcClient>();
-            if (client)
-            {
-                client->OnRecv(data, size);
-            }
-        }
-    }
-};
+plugin::ecs::rpc::RpcSerializer decoder;
 
 BOOST_AUTO_TEST_SUITE(RpcTest)
 
 BOOST_AUTO_TEST_CASE(t_rpc)
 {
     auto gameobject = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
-    auto cli_comp = G_ComponentMgr()->Create<DbgRpcServer>(ServerCompId);
-    auto srv_comp = G_ComponentMgr()->Create<DbgRpcClient>(ClientCompId);
+    gameobject->AddComponent<DbgRpcServer>(ServerCompId);
+    gameobject->AddComponent<DbgRpcClient>(ClientCompId);
+    auto server = gameobject->GetComponent<DbgRpcServer>();
+    auto client = gameobject->GetComponent<DbgRpcClient>();
 
-    BOOST_ASSERT(gameobject->AddComponent<DbgRpcServer>(ServerCompId));
-    BOOST_ASSERT(gameobject->AddComponent<DbgRpcClient>(ClientCompId));
 
+    server->Register("add", [](bbt::buffer::Buffer& req, bbt::buffer::Buffer& resp)->util::errcode::ErrOpt
+    {
+        auto params = decoder.Deserialize(req);
+        BOOST_ASSERT(params.size() == 2);
+        decoder.SerializeAppend(resp, params[0].value.int32_value + params[1].value.int32_value);
+        return std::nullopt;
+    });
+
+    server->Register("ping", [](bbt::buffer::Buffer& req, bbt::buffer::Buffer& resp)->util::errcode::ErrOpt
+    {
+        BOOST_ASSERT(req.DataSize() == 0);
+        decoder.SerializeAppend(resp, "pong");
+        return std::nullopt;
+    });
+
+    client->Call([](bbt::buffer::Buffer& buffer)->util::errcode::ErrOpt
+    {
+        auto params = decoder.Deserialize(buffer);
+        BOOST_ASSERT(!params.empty());
+        BOOST_ASSERT(params[0].value.int64_value == 30);
+        return std::nullopt;
+    }, "add", 10, 20);
+
+    client->Call([](bbt::buffer::Buffer& buffer)->util::errcode::ErrOpt
+    {
+        auto params = decoder.Deserialize(buffer);
+        BOOST_ASSERT(!params.empty());
+        BOOST_ASSERT(params[0].string == "pong");
+        return std::nullopt;
+    }, "ping");
+
+    
 }
 
 BOOST_AUTO_TEST_SUITE_END()

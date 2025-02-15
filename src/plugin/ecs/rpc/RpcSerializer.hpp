@@ -17,10 +17,12 @@ struct FieldValue
     FieldHeader header;
     union RpcSerializerValue
     {
+        int32_t int32_value;
+        int64_t uint32_value;
         int64_t int64_value;
         uint64_t uint64_value;
-        std::string string_value;
     } value;
+    std::string string;
 };
 
 #pragma pack(pop)
@@ -30,6 +32,8 @@ enum FieldType : int8_t
 {
     INT64 = 1,
     UINT64,
+    INT32,
+    UINT32,
     STRING,
 };
 
@@ -42,6 +46,12 @@ public:
         bbt::buffer::Buffer buffer;
         SerializeArgs(buffer, args...);
         return buffer;
+    }
+
+    template<typename ...Args>
+    void SerializeAppend(bbt::buffer::Buffer& buffer, Args... args)
+    {
+        SerializeArgs(buffer, args...);
     }
 
     template<typename ...Args>
@@ -60,8 +70,15 @@ public:
             case UINT64:
                 value.value.uint64_value = buffer.ReadInt64();
                 break;
+            case INT32:
+                value.value.int32_value = buffer.ReadInt32();
+                break;
+            case UINT32:
+                value.value.uint32_value = buffer.ReadInt32();
+                break;
             case STRING:
-                buffer.ReadString(value.value.string_value, value.header.field_len);
+                value.string.resize(value.header.field_len);
+                buffer.ReadString(value.string.data(), value.string.size());
                 break;
             default:
                 AssertWithInfo(false, "Not support this type");
@@ -88,6 +105,15 @@ private:
         buffer.WriteString(arg);
     }
 
+    void SerializeArg(bbt::buffer::Buffer& buffer, const char* arg)
+    {
+        FieldHeader header;
+        header.field_type = STRING;
+        header.field_len = strlen(arg);
+        buffer.WriteString((char*)&header, sizeof(header));
+        buffer.WriteString(arg);
+    }
+
     void SerializeArg(bbt::buffer::Buffer& buffer, int64_t arg)
     {
         FieldHeader header;
@@ -104,6 +130,24 @@ private:
         header.field_len = sizeof(arg);
         buffer.WriteString((char*)&header, sizeof(header));
         buffer.WriteInt64(arg);
+    }
+
+    void SerializeArg(bbt::buffer::Buffer& buffer, int32_t arg)
+    {
+        FieldHeader header;
+        header.field_type = INT32;
+        header.field_len = sizeof(arg);
+        buffer.WriteString((char*)&header, sizeof(header));
+        buffer.WriteInt32(arg);
+    }
+
+    void SerializeArg(bbt::buffer::Buffer& buffer, uint32_t arg)
+    {
+        FieldHeader header;
+        header.field_type = UINT32;
+        header.field_len = sizeof(arg);
+        buffer.WriteString((char*)&header, sizeof(header));
+        buffer.WriteInt32(arg);
     }
 
     template<typename T, typename... Args>

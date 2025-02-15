@@ -7,6 +7,7 @@ namespace plugin::ecs::rpc
 class RpcServer:
     public engine::ecs::Component
 {
+    friend class RpcClient;
 public:
     RpcServer(engine::ecs::ComponentTemplateId id);
     ~RpcServer();
