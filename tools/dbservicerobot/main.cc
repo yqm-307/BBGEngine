@@ -59,7 +59,7 @@ int main()
 
 
 
-        bbt::buffer::Buffer protocol;
+        bbt::core::Buffer protocol;
         DB_PING_REQ req;
         std::string bytearray;
         req.set_timestamp(bbt::timer::clock::now().time_since_epoch().count() / 1000);
@@ -73,7 +73,7 @@ int main()
 
         // printf("len: %d", len);
         timer_system->AddTask(timer_obj, [dbconn](){
-            bbt::buffer::Buffer protocol;
+            bbt::core::Buffer protocol;
             DB_HEART_BEAT_REQ req;
             std::string bytearray;
             req.set_timestamp(bbt::clock::now<>().time_since_epoch().count() / 1000);

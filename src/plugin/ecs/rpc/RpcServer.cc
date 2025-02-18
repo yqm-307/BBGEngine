@@ -19,7 +19,7 @@ int RpcServer::Register(const std::string& method, RpcCallback callback)
     return 0;
 }
 
-util::errcode::ErrOpt RpcServer::OnRpc(bbt::buffer::Buffer& buffer)
+util::errcode::ErrOpt RpcServer::OnRpc(bbt::core::Buffer& buffer)
 {
     FieldValue field;
     std::string method;
@@ -55,7 +55,7 @@ util::errcode::ErrOpt RpcServer::OnRpc(bbt::buffer::Buffer& buffer)
     if (iter == m_registed_methods.end())
         return util::errcode::ErrCode("method not found", util::errcode::ErrType::CommonErr);
 
-    bbt::buffer::Buffer resp = coder.Serialize(call_seq);
+    bbt::core::Buffer resp = coder.Serialize(call_seq);
 
     auto err = iter->second(buffer, resp);
     if (err == std::nullopt) {

@@ -14,5 +14,5 @@ public:
 
     void OnUpdate() {};
 
-    int Send(const bbt::buffer::Buffer& buffer) override;
+    int Send(const bbt::core::Buffer& buffer) override;
 };

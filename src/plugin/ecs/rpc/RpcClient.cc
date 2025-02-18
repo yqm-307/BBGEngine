@@ -14,7 +14,7 @@ RpcClient::RpcClient(engine::ecs::ComponentTemplateId id):
 
 void RpcClient::OnReply(const char* data, size_t size)
 {
-    bbt::buffer::Buffer buffer(data, size);
+    bbt::core::Buffer buffer(data, size);
     FieldHeader header;
     if (buffer.ReadableBytes() < sizeof(header))
     {

@@ -18,7 +18,7 @@ public:
 
     virtual void OnReply(const char* data, size_t size) final;
 protected:
-    virtual int Send(const bbt::buffer::Buffer& buffer) = 0;
+    virtual int Send(const bbt::core::Buffer& buffer) = 0;
 private:
 
     int64_t m_seq{0};
@@ -29,7 +29,7 @@ template<typename ...Args>
 int RpcClient::Call(RpcReplyCallback callback, const std::string& method, Args... args)
 {
     RpcSerializer m_serializer;
-    bbt::buffer::Buffer buffer = m_serializer.Serialize(method, ++m_seq, args...);
+    bbt::core::Buffer buffer = m_serializer.Serialize(method, ++m_seq, args...);
 
     m_callbacks[m_seq] = callback;
     return Send(buffer);

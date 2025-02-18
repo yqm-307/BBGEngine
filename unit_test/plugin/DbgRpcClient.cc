@@ -1,7 +1,7 @@
 #include "DbgRpcClient.hpp"
 #include "DbgRpcServer.hpp"
 
-int DbgRpcClient::Send(const bbt::buffer::Buffer& buffer)
+int DbgRpcClient::Send(const bbt::core::Buffer& buffer)
 {
     auto father = GetParentObject();
     auto comp = father->GetComponent<DbgRpcServer>();

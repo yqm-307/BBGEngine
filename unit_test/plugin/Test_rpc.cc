@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(t_rpc)
     auto client = gameobject->GetComponent<DbgRpcClient>();
 
 
-    server->Register("add", [](bbt::buffer::Buffer& req, bbt::buffer::Buffer& resp)->util::errcode::ErrOpt
+    server->Register("add", [](bbt::core::Buffer& req, bbt::core::Buffer& resp)->util::errcode::ErrOpt
     {
         auto [err, params] = decoder.Deserialize(req);
         if (err != std::nullopt)
@@ -29,14 +29,14 @@ BOOST_AUTO_TEST_CASE(t_rpc)
         return std::nullopt;
     });
 
-    server->Register("ping", [](bbt::buffer::Buffer& req, bbt::buffer::Buffer& resp)->util::errcode::ErrOpt
+    server->Register("ping", [](bbt::core::Buffer& req, bbt::core::Buffer& resp)->util::errcode::ErrOpt
     {
         BOOST_ASSERT(req.DataSize() == 0);
         decoder.SerializeAppend(resp, "pong");
         return std::nullopt;
     });
 
-    client->Call([](bbt::buffer::Buffer& buffer)->util::errcode::ErrOpt
+    client->Call([](bbt::core::Buffer& buffer)->util::errcode::ErrOpt
     {
         auto [err, params] = decoder.Deserialize(buffer);
         if (err != std::nullopt)
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(t_rpc)
         return std::nullopt;
     }, "add", 10, 20);
 
-    client->Call([](bbt::buffer::Buffer& buffer)->util::errcode::ErrOpt
+    client->Call([](bbt::core::Buffer& buffer)->util::errcode::ErrOpt
     {
         auto [err, params] = decoder.Deserialize(buffer);
         BOOST_ASSERT(!params.empty());

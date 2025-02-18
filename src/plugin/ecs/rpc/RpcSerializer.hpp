@@ -45,23 +45,23 @@ public:
      * 
      * @tparam Args 
      * @param args 
-     * @return bbt::buffer::Buffer 
+     * @return bbt::core::Buffer 
      */
     template<typename ...Args>
-    bbt::buffer::Buffer Serialize(Args... args)
+    bbt::core::Buffer Serialize(Args... args)
     {
-        bbt::buffer::Buffer buffer;
+        bbt::core::Buffer buffer;
         SerializeArgs(buffer, args...);
         return buffer;
     }
 
     template<typename ...Args>
-    void SerializeAppend(bbt::buffer::Buffer& buffer, Args... args)
+    void SerializeAppend(bbt::core::Buffer& buffer, Args... args)
     {
         SerializeArgs(buffer, args...);
     }
 
-    util::errcode::ErrTuple<std::vector<FieldValue>> Deserialize(bbt::buffer::Buffer& buffer)
+    util::errcode::ErrTuple<std::vector<FieldValue>> Deserialize(bbt::core::Buffer& buffer)
     {
         std::vector<FieldValue> values;
         while (buffer.ReadableBytes() > 0)
@@ -77,7 +77,7 @@ public:
         return {std::nullopt, values};
     }
 
-    util::errcode::ErrOpt DeserializeOne(bbt::buffer::Buffer& buffer, FieldValue& value)
+    util::errcode::ErrOpt DeserializeOne(bbt::core::Buffer& buffer, FieldValue& value)
     {
         if (buffer.ReadableBytes() < sizeof(value.header))
             return util::errcode::ErrCode("deserialize failed, buffer too short!", util::errcode::ErrType::CommonErr);
@@ -111,12 +111,12 @@ public:
 
 private:
     template<typename T>
-    void SerializeArg(bbt::buffer::Buffer& bytes, T arg)
+    void SerializeArg(bbt::core::Buffer& bytes, T arg)
     {
         AssertWithInfo(false, "Not support this type");
     }
 
-    void SerializeArg(bbt::buffer::Buffer& buffer, const std::string& arg)
+    void SerializeArg(bbt::core::Buffer& buffer, const std::string& arg)
     {
         FieldHeader header;
         header.field_type = STRING;
@@ -125,7 +125,7 @@ private:
         buffer.WriteString(arg);
     }
 
-    void SerializeArg(bbt::buffer::Buffer& buffer, const char* arg)
+    void SerializeArg(bbt::core::Buffer& buffer, const char* arg)
     {
         FieldHeader header;
         header.field_type = STRING;
@@ -134,7 +134,7 @@ private:
         buffer.WriteString(arg);
     }
 
-    void SerializeArg(bbt::buffer::Buffer& buffer, int64_t arg)
+    void SerializeArg(bbt::core::Buffer& buffer, int64_t arg)
     {
         FieldHeader header;
         header.field_type = INT64;
@@ -143,7 +143,7 @@ private:
         buffer.WriteInt64(arg);
     }
 
-    void SerializeArg(bbt::buffer::Buffer& buffer, uint64_t arg)
+    void SerializeArg(bbt::core::Buffer& buffer, uint64_t arg)
     {
         FieldHeader header;
         header.field_type = UINT64;
@@ -152,7 +152,7 @@ private:
         buffer.WriteInt64(arg);
     }
 
-    void SerializeArg(bbt::buffer::Buffer& buffer, int32_t arg)
+    void SerializeArg(bbt::core::Buffer& buffer, int32_t arg)
     {
         FieldHeader header;
         header.field_type = INT32;
@@ -161,7 +161,7 @@ private:
         buffer.WriteInt32(arg);
     }
 
-    void SerializeArg(bbt::buffer::Buffer& buffer, uint32_t arg)
+    void SerializeArg(bbt::core::Buffer& buffer, uint32_t arg)
     {
         FieldHeader header;
         header.field_type = UINT32;
@@ -171,13 +171,13 @@ private:
     }
 
     template<typename T, typename... Args>
-    void SerializeArgs(bbt::buffer::Buffer& buffer, T arg, Args... args)
+    void SerializeArgs(bbt::core::Buffer& buffer, T arg, Args... args)
     {
         SerializeArg(buffer, arg);
         SerializeArgs(buffer, args...);
     }
 
-    void SerializeArgs(bbt::buffer::Buffer& buffer) {}
+    void SerializeArgs(bbt::core::Buffer& buffer) {}
 };
 
 }

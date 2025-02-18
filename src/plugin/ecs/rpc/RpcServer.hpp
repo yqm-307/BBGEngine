@@ -14,7 +14,7 @@ public:
 
     int Register(const std::string& method, RpcCallback callback);
 
-    util::errcode::ErrOpt OnRpc(bbt::buffer::Buffer& buffer);
+    util::errcode::ErrOpt OnRpc(bbt::core::Buffer& buffer);
 
     virtual void Send(const char* data, size_t size) = 0;
 private:
