@@ -5,10 +5,11 @@
 namespace engine::ecs
 {
 
-ComponentMgr::ComponentMgr()
-    :m_component_info_map(
+ComponentMgr::ComponentMgr(SceneSPtr scene):
+    m_component_info_map(
         [](const ComponentTemplateId& key){ return (size_t)(key%ComponentHashBucketNum);},
-        ComponentInfo("", -1))
+        ComponentInfo("", -1)),
+    m_scene(scene)
 {
 }
 
@@ -16,15 +17,6 @@ ComponentMgr::~ComponentMgr()
 {
     m_component_info_map.Clear();
 }
-
-const std::unique_ptr<ComponentMgr>& ComponentMgr::GetInstance()
-{
-    static std::unique_ptr<ComponentMgr> _instance = nullptr;
-    if(_instance == nullptr)
-        _instance = std::unique_ptr<ComponentMgr>(new ComponentMgr());
-    return _instance;
-}
-
 
 const std::string& ComponentMgr::GetComponentName(ComponentTemplateId id)
 {
@@ -92,6 +84,11 @@ bool ComponentMgr::OnMemberDestory(KeyType key)
 ComponentMgr::KeyType ComponentMgr::GenerateKey(MemberPtr member)
 {
     return engine::ecs::GenerateComponentID();
+}
+
+SceneSPtr ComponentMgr::GetScene() const
+{
+    return m_scene.lock();
 }
 
 }

@@ -7,8 +7,7 @@ RpcClient::~RpcClient()
 {
 }
 
-RpcClient::RpcClient(engine::ecs::ComponentTemplateId id):
-    Component(id)
+RpcClient::RpcClient()
 {
 }
 

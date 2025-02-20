@@ -1,4 +1,5 @@
 #pragma once
+#include <engine/ecs/component/Component.hpp>
 #include "plugin/ecs/Define.hpp"
 #include "plugin/ecs/aoi/AoiDefine.hpp"
 #include "util/vector/Vector3.hpp"

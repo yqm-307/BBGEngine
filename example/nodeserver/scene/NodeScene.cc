@@ -12,16 +12,18 @@
 namespace BBTENGINE_NODE_NAMESPACE::scene
 {
 
-ServerScene::ServerScene()
+NodeScene::NodeScene():
+    m_main_scene(std::make_shared<engine::ecs::Scene>())
 {
+    m_main_scene->Init();
 }
 
-ServerScene::~ServerScene()
+NodeScene::~NodeScene()
 {
     OnDestory();
 }
 
-void ServerScene::OnUpdate()
+void NodeScene::OnUpdate()
 {
     if(m_is_stop) {
         // 释放场景内的所有游戏对象
@@ -32,23 +34,26 @@ void ServerScene::OnUpdate()
         
         OnStopScene();
     }
+
+    m_main_scene->Update();
+
     static auto prev_time = bbt::timer::clock::now();
     if((bbt::timer::clock::now() - prev_time) >= bbt::timer::clock::ms(5000))
     {
-        GAME_BASE_LOG_DEBUG("[GameServerScene::OnUpdate] is_stop=%d gameobj size=%d", m_is_stop, GetChildNum());
+        GAME_BASE_LOG_DEBUG("[GameServerScene::OnUpdate] is_stop=%d gameobj size=%ld", m_is_stop, m_main_scene->GetGameObjectMgr()->ObjCount());
         prev_time = bbt::timer::clock::now();
     }
 }
 
-void ServerScene::Init()
+void NodeScene::Init()
 {
-    plugin::scene::MainScene() = std::unique_ptr<engine::scene::Scene>(this);
+    // plugin::scene::MainScene() = std::unique_ptr<engine::scene::Scene>(this);
     OnInit();
 }
 
 #pragma region "内部函数"
 
-void ServerScene::OnInit()
+void NodeScene::OnInit()
 {
     using namespace bbt::network;
 
@@ -56,7 +61,7 @@ void ServerScene::OnInit()
 
     {// scene update 事件注册
         m_update_event = m_loop->CreateEvent(-1, bbt::pollevent::EventOpt::PERSIST, [this](auto, short events){
-            this->Update();
+            this->OnUpdate();
         });
 
         auto err = m_update_event->StartListen(1000 / GameSceneFrame);
@@ -75,29 +80,30 @@ void ServerScene::OnInit()
     }
 
     {// global mgr 注册
-        auto globalmgr = GlobalMgrInit();
-        bool isok = MountGameObject(globalmgr);
-        DebugAssert(isok);
+        // auto globalmgr = GlobalMgrInit();
+        // bool isok = MountGameObject(globalmgr);
+        // DebugAssert(isok);
     }
 
     {// network 初始化
-        auto network = NetWorkInit();
-        bool isok = MountGameObject(network);
-        DebugAssert(isok);
-        isok = plugin::scene::RegistGlobalInst(network);
-        DebugAssertWithInfo(isok, "gameobject is repeat in global mgr!");
-        m_network_id = network->GetId();
+        // auto network = NetWorkInit();
+        // bool isok = MountGameObject(network);
+        // DebugAssert(isok);
+        // isok = plugin::scene::RegistGlobalInst(network);
+        // DebugAssertWithInfo(isok, "gameobject is repeat in global mgr!");
+        // m_network_id = network->GetId();
     }
 
 }
 
-engine::ecs::GameObjectSPtr ServerScene::GlobalMgrInit()
+engine::ecs::GameObjectSPtr NodeScene::GlobalMgrInit()
 {
-    auto global_mgr = G_GameObjectMgr()->Create<plugin::ecs::globalmgr::GlobalMgr>();
-    return global_mgr;
+    // auto global_mgr = G_GameObjectMgr()->Create<plugin::ecs::globalmgr::GlobalMgr>();
+    // return global_mgr;
+    return nullptr;
 }
 
-engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
+engine::ecs::GameObjectSPtr NodeScene::NetWorkInit()
 {
     auto& cfgInst = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
     auto ip     = cfgInst->GetServerIP();
@@ -105,31 +111,31 @@ engine::ecs::GameObjectSPtr ServerScene::NetWorkInit()
 
     GAME_BASE_LOG_INFO("gameserver! IP: %s  Port: %d", ip.c_str(), port);
 
-    auto network_obj = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
-    network_obj->AddComponent<network::EchoService>(ip, port, 5000);
+    // auto network_obj = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    // network_obj->AddComponent<network::EchoService>(ip, port, 5000);
 
-    return network_obj;
+    return nullptr;
 }
 
-void ServerScene::OnDestory()
+void NodeScene::OnDestory()
 {
     m_loop = nullptr;
     m_update_event = nullptr;
     m_signal_sigint_handle = nullptr;
 }
 
-void ServerScene::StartScene()
+void NodeScene::StartScene()
 {
-    auto [obj, isok] = GetGameobjectById(m_network_id);
-    DebugAssertWithInfo(isok, "can`t found netowrk object!");
+    // auto [obj, isok] = GetGameobjectById(m_network_id);
+    // DebugAssertWithInfo(isok, "can`t found netowrk object!");
 
-    plugin::ecs::network::ServerSystem<network::EchoService>::GetSysInst()->StartNetwork(obj);
-    auto err = m_loop->StartLoop(bbt::pollevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
-    if (err != 0)
-        GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
+    // // plugin::ecs::network::ServerSystem<network::EchoService>::GetSysInst()->StartNetwork(obj);
+    // auto err = m_loop->StartLoop(bbt::pollevent::EventLoopOpt::LOOP_NO_EXIT_ON_EMPTY);
+    // if (err != 0)
+    //     GAME_EXT1_LOG_ERROR("[GameServerScene::StartScene] eventloop start failed!");   
 }
 
-void ServerScene::StopScene()
+void NodeScene::StopScene()
 {
     if(m_is_stop)
     {
@@ -140,7 +146,7 @@ void ServerScene::StopScene()
     m_is_stop = true;
 }
 
-void ServerScene::OnStopScene()
+void NodeScene::OnStopScene()
 {
     // 让io线程退出
     {
@@ -158,13 +164,13 @@ void ServerScene::OnStopScene()
 
 }
 
-void ServerScene::IOThreadExit()
+void NodeScene::IOThreadExit()
 {
-    auto [obj, isok] = GetGameobjectById(m_network_id);
-    DebugAssert(isok);
+    // auto [obj, isok] = GetGameobjectById(m_network_id);
+    // DebugAssert(isok);
 
-    plugin::ecs::network::ServerSystem<network::EchoService>::GetSysInst()->StopNetwork(obj);
-    GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
+    // plugin::ecs::network::ServerSystem<network::EchoService>::GetSysInst()->StopNetwork(obj);
+    // GAME_BASE_LOG_INFO("[GameServerScene::IOThreadExit] iothread exit success!!!");
 }
 
 #pragma endregion

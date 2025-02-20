@@ -9,9 +9,7 @@ class IServerComp:
     public engine::ecs::Component
 {
 public:
-    IServerComp(engine::ecs::ComponentId id):
-        engine::ecs::Component(id)
-    {}
+    IServerComp() {}
 
     /**
      * @brief 向 conn 发送数据

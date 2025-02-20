@@ -6,11 +6,10 @@ namespace plugin::ecs::timewheel
 {
 
 class TimeWheelSystem:
-    public engine::ecs::System<TimeWheelSystem>
+    public engine::ecs::System
 {
 public:
-    TimeWheelSystem() {}
-    ~TimeWheelSystem() {}
+    virtual void OnUpdate() override {}
 
     static std::unique_ptr<TimeWheelSystem>& GetInstance();
 

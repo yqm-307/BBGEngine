@@ -1,6 +1,8 @@
 #pragma once
 #include <bbt/pollevent/EventLoop.hpp>
 #include <bbt/pollevent/Event.hpp>
+#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/scene/Scene.hpp>
 #include "engine/scene/Scene.hpp"
 #include "nodeserver/NodeDefine.hpp"
 
@@ -14,13 +16,12 @@ namespace BBTENGINE_NODE_NAMESPACE::scene
 
 const int GameSceneFrame = 20;  // 服务端游戏场景每秒20帧
 
-class ServerScene:
-    public engine::scene::Scene
+class NodeScene
 {
     typedef engine::ecs::GameObjectSPtr    GameObjectSPtr;
 public:
-    ServerScene();
-    ~ServerScene();
+    NodeScene();
+    ~NodeScene();
 
     void Init();
     /* 启动场景，开启游戏 */
@@ -28,7 +29,7 @@ public:
     /* TODO 优雅退出 关闭场景 */
     void StopScene();
 private:
-    virtual void OnUpdate() override;
+    void OnUpdate();
     void OnInit();
     void OnDestory();
 private:
@@ -41,6 +42,7 @@ private:
     void IOThreadExit();
     void OnStopScene();
 private:
+    engine::ecs::SceneSPtr                                  m_main_scene{nullptr};    
     std::shared_ptr<bbt::pollevent::EventLoop>              m_loop{nullptr};
     std::shared_ptr<bbt::pollevent::Event>                  m_update_event{nullptr};
     std::shared_ptr<bbt::pollevent::Event>                  m_signal_sigint_handle{nullptr};

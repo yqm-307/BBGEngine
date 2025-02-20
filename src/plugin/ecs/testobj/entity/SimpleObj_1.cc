@@ -10,9 +10,7 @@ int SimpleObj_1::update_num = 0;
 
 std::shared_ptr<SimpleObj_1> SimpleObj_1::FastCreate()
 {
-    auto ptr = G_GameObjectMgr()->Create<SimpleObj_1>();
-    Assert(ptr != nullptr);
-    return ptr;
+    return nullptr;
 }
 
 

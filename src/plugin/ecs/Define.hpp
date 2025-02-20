@@ -63,30 +63,30 @@ class EcsInitHelper
 {
 public:
     EcsInitHelper(){
-        G_ComponentMgr()->InitTemplateInfo(
-            {
-                {"Aoi",                             emComponentType::EM_COMPONENT_TYPE_AOI},
-                {"test1",                           emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
-                {"npc_buff_list",                   emComponentType::EM_COMPONENT_TYPE_BUFFLIST},
-                {"npc_attribute",                   emComponentType::EM_COMPONENT_TYPE_ATTRIBUTE},
-                {"lua_test_script",                 emComponentType::EM_COMPONENT_TYPE_LUA_TEST},
-                {"connect_manager",                 emComponentType::EM_COMPONENT_TYPE_CONN_MGR},
-                {"empty_component",                 emComponentType::EM_COMPONENT_TYPE_EMPTY},
-                {"timewheel",                       emComponentType::EM_COMPONENT_TYPE_TIME_WHEEL},
-                {"clock_module",                    emComponentType::EM_COMPONENT_TYPE_CLOCK_MODULE},
-                {"db_service_client",               emComponentType::EM_COMPONENT_TYPE_DBSERVICE_CLIENT},
-            }
-        );
+        // G_ComponentMgr()->InitTemplateInfo(
+        //     {
+        //         {"Aoi",                             emComponentType::EM_COMPONENT_TYPE_AOI},
+        //         {"test1",                           emComponentType::EM_COMPONENT_TYPE_TESTCOMP_1},
+        //         {"npc_buff_list",                   emComponentType::EM_COMPONENT_TYPE_BUFFLIST},
+        //         {"npc_attribute",                   emComponentType::EM_COMPONENT_TYPE_ATTRIBUTE},
+        //         {"lua_test_script",                 emComponentType::EM_COMPONENT_TYPE_LUA_TEST},
+        //         {"connect_manager",                 emComponentType::EM_COMPONENT_TYPE_CONN_MGR},
+        //         {"empty_component",                 emComponentType::EM_COMPONENT_TYPE_EMPTY},
+        //         {"timewheel",                       emComponentType::EM_COMPONENT_TYPE_TIME_WHEEL},
+        //         {"clock_module",                    emComponentType::EM_COMPONENT_TYPE_CLOCK_MODULE},
+        //         {"db_service_client",               emComponentType::EM_COMPONENT_TYPE_DBSERVICE_CLIENT},
+        //     }
+        // );
 
-        G_GameObjectMgr()->InitTemplateInfo(
-            {
-                {"Gameobject",                      emEntityType::EM_ENTITY_TYPE_GAMEOBJECT},
-                {"Aoi",                             emEntityType::EM_ENTITY_TYPE_AOI},
-                {"network",                         emEntityType::EM_ENTITY_TYPE_NETWORK},
-                {"timewheel_obj",                   emEntityType::EM_ENTITY_TYPE_TIME_WHEEL},
-                {"global_mgr",                      emEntityType::EM_ENTITY_TYPE_DB_GLOBAL_MGR},
-            }
-        );
+        // G_GameObjectMgr()->InitTemplateInfo(
+        //     {
+        //         {"Gameobject",                      emEntityType::EM_ENTITY_TYPE_GAMEOBJECT},
+        //         {"Aoi",                             emEntityType::EM_ENTITY_TYPE_AOI},
+        //         {"network",                         emEntityType::EM_ENTITY_TYPE_NETWORK},
+        //         {"timewheel_obj",                   emEntityType::EM_ENTITY_TYPE_TIME_WHEEL},
+        //         {"global_mgr",                      emEntityType::EM_ENTITY_TYPE_DB_GLOBAL_MGR},
+        //     }
+        // );
     }
 };
 

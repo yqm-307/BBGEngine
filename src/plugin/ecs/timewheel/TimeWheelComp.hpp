@@ -16,6 +16,7 @@ public:
     ~TimeWheelComp() {}
     std::pair<std::optional<bbt::timer::Errcode>, TaskId> AddTask(const std::function<bool()>& timeout_handle, int nframes);
     bool    CancelTask(TaskId task);
+    BBT_REFLEX_DYN_TYPEINFO_METHOD(TimeWheelComp);
 protected:
     /**
      * @param frames 每秒tick次数

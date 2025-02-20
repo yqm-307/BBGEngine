@@ -24,7 +24,7 @@ int main()
     ConfigLoad();
 
     // 初始化游戏场景
-    auto scene = new BBTENGINE_NODE_NAMESPACE::scene::ServerScene();
+    auto scene = new BBTENGINE_NODE_NAMESPACE::scene::NodeScene();
     scene->Init();
     // 开启 World Scene
     scene->StartScene();

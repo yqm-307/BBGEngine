@@ -4,33 +4,23 @@
 namespace engine::ecs
 {
 
-template<class TSystem>
-static inline std::unique_ptr<TSystem>& GetSystem()
-{
-    return TSystem::GetSysInst();
-}
-
-template<typename TChildClass>
 class System
 {
+    friend class SystemMgr;
 public:
-    typedef engine::ecs::GameObject Gameobject;
     typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
-    System(){}
-    virtual ~System() = 0;
+    System();
+    virtual ~System() = default;
 
-    static std::unique_ptr<TChildClass>& GetSysInst()
-    {
-        static std::unique_ptr<TChildClass> _inst{nullptr};
-        if (_inst == nullptr)
-            _inst = std::unique_ptr<TChildClass>(new TChildClass());
-        return _inst;
-    }
+    virtual void                OnInitFilter(std::shared_ptr<engine::ecs::EntityFilter> filter) {}
+    virtual void                OnUpdate() = 0;
+private:
+    virtual void                Update();
+    virtual void                Init();
+protected:
+    std::vector<GameObjectWKPtr>    m_gameobjects;
+    std::shared_ptr<EntityFilter>   m_filter{nullptr};
+    std::once_flag                  m_init_flag;
 };
-
-template<typename TChildClass>
-System<TChildClass>::~System()
-{
-}
 
 }

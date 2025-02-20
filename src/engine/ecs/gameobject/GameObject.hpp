@@ -2,28 +2,18 @@
 #include <map>
 #include <set>
 #include <string>
-#include <bbt/base/templateutil/managerconn/ManagerBase.hpp>
-#include "engine/ecs/gameobject/GameObjectMgr.hpp"
-#include "engine/ecs/component/Component.hpp"
-#include "util/typedef/NamespaceType.hpp"
+#include <engine/ecs/EcsDefine.hpp>
+#include <engine/ecs/scene/Scene.hpp>
+#include <engine/ecs/filter/TagSet.hpp>
 
-namespace engine
+namespace engine::ecs
 {
-namespace scene
-{
-class Scene;
-SharedWithUniqueDef(Scene);
-}
-
-namespace ecs    
-{
-
 class GameObject:
     public std::enable_shared_from_this<GameObject>,
     public bbt::templateutil::MemberBase<GameObjectId, GameObject>
 {
     friend class GameObjectMgr;
-    friend class engine::scene::Scene;
+    friend class engine::ecs::Scene;
 public:
     explicit        GameObject(int gobj_type);
     virtual         ~GameObject() = 0;
@@ -37,6 +27,7 @@ public:
     ComponentSPtr   GetComponent(ComponentTemplateId component_name) const;
     template<class TComponent>
     std::shared_ptr<TComponent> GetComponent() const;
+    size_t          GetComponentCount() const;
     /* 删除一个组件，如果不存在返回nullptr */
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
@@ -51,6 +42,9 @@ public:
 
     /* 动态的添加一个子游戏对象，成功返回true，失败返回false */
     bool            MountChild(GameObjectSPtr gameobj);
+    TagSet&         GetTagSet();
+    SceneSPtr       GetScene() const;
+    GameObjectMgrSPtr  GetGameObjectMgr() const;
 
     std::pair<bool, GameObjectSPtr> UnMountChild(GameObjectId gameobj_id);
     std::string     Dbg_GameObjectTree() const;
@@ -90,23 +84,25 @@ private:
     std::map<GameObjectId, GameObjectSPtr>          m_childs;
     /* 父游戏对象 */
     std::map<GameObjectId, GameObjectWKPtr>         m_fathers;
-    engine::scene::SceneWKPtr                       m_scene;
+    TagSet                                          m_tag_set;
 };
 
 
 template<class TComponent, typename ...Args>
 bool GameObject::AddComponent(Args ...args)
 {
-    auto comp = G_ComponentMgr()->Create<TComponent>(args ...);
+    auto component_mgr = GetScene()->GetComponentMgr();
+    if (!component_mgr)
+        return false;
+
+    auto comp = component_mgr->Create<TComponent>(args...);
     return AddComponent(comp);
 }
 
 template<class TComponent>
 std::shared_ptr<TComponent> GameObject::GetComponent() const
 {
-    return std::dynamic_pointer_cast<TComponent>(GetComponent(TComponent::GetComponentTemplateId()));
+    return std::dynamic_pointer_cast<TComponent>(GetComponent(BBT_REFLEX_GET_TYPEID(TComponent)));
 }
 
 } // namespace engine::ecs
-
-} // namespace engine

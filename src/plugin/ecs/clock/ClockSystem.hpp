@@ -7,10 +7,10 @@ namespace plugin::ecs::clock
 {
 
 class ClockSystem:
-    public engine::ecs::System<ClockSystem>
+    public engine::ecs::System
 {
 public:
-    int64_t                 GetFrame(GameObjectSPtr gameobject);
+    int64_t                 GetFrame(engine::ecs::GameObjectSPtr gameobject);
     bbt::clock::Timestamp<> GetFrameTime(GameObjectSPtr gameobject);
 private:
     std::shared_ptr<ClockComp> GetComponent(GameObjectSPtr gameobject);

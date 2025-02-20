@@ -6,7 +6,6 @@ namespace plugin::ecs::timewheel
 {
 
 TimeWheelComp::TimeWheelComp(int frames):
-    engine::ecs::Component(EM_COMPONENT_TYPE_TIME_WHEEL),
     m_one_second_frames(frames)
 {
 }

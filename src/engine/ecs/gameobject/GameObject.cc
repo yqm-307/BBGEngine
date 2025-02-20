@@ -1,5 +1,6 @@
 #include <typeinfo>
-#include "engine/ecs/gameobject/GameObject.hpp"
+#include <engine/ecs/component/Component.hpp>
+#include <engine/ecs/gameobject/GameObject.hpp>
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 namespace engine::ecs
@@ -28,6 +29,11 @@ ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid) const
     return it->second;
 }
 
+size_t GameObject::GetComponentCount() const
+{
+    return m_component_map.size();
+}
+
 ComponentSPtr GameObject::DelComponent(ComponentTemplateId tid)
 {
     if(tid < 0)
@@ -38,6 +44,11 @@ ComponentSPtr GameObject::DelComponent(ComponentTemplateId tid)
     
     m_component_map.erase(it);
     it->second->OnDelComponent(shared_from_this());
+    if (it->second == nullptr) {
+        return nullptr;
+    }
+
+    m_tag_set.DelTag(it->second->Reflex_GetTypeId());
     return it->second;
 }
 
@@ -49,8 +60,14 @@ bool GameObject::AddComponent(ComponentSPtr component)
 
     ComponentTemplateId tid = component->GetTemplateId();
     auto it = m_component_map.insert(std::make_pair(tid, component));
+    if (!it.second) {
+        return false;
+    }
+
     component->OnAddComponent(shared_from_this());
-    return it.second;
+
+    // 处理tag
+    return m_tag_set.AddTag(Tag{component->Reflex_GetTypeId()});
 }
 
 int GameObject::Type()
@@ -65,7 +82,7 @@ GameObjectId GameObject::GetId()
 
 std::string GameObject::GetName() const
 {
-    return G_GameObjectMgr()->GetName(m_gobj_type);
+    return GetGameObjectMgr()->GetName(m_gobj_type);
 }
 
 GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
@@ -136,6 +153,21 @@ std::string GameObject::Dbg_GameObjectTree() const
             |---@type4(33)
     */
     return __DbgTree(0);
+}
+
+TagSet& GameObject::GetTagSet()
+{
+    return m_tag_set;
+}
+
+SceneSPtr GameObject::GetScene() const
+{
+    return GetGameObjectMgr()->GetScene();
+}
+
+GameObjectMgrSPtr GameObject::GetGameObjectMgr() const
+{
+    return std::static_pointer_cast<GameObjectMgr>(GetManager());
 }
 
 

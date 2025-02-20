@@ -4,8 +4,7 @@
 namespace plugin::ecs::rpc
 {
 
-RpcServer::RpcServer(engine::ecs::ComponentTemplateId id):
-    Component(id)
+RpcServer::RpcServer()
 {
 }
 

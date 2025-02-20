@@ -8,8 +8,7 @@ namespace plugin::ecs::luascript
 {
 
 
-LuaScriptBaseComp::LuaScriptBaseComp(ecs::emComponentType id, bbt::cxxlua::LuaVM* vm):
-    Component(id),
+LuaScriptBaseComp::LuaScriptBaseComp(bbt::cxxlua::LuaVM* vm):
     m_vm(vm)
 {}
 

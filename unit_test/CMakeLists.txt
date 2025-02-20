@@ -227,10 +227,14 @@ file(GLOB_RECURSE TEST_LUA_COMP_SRC
 # add_test(NAME test_game_timewheel_debug_texe COMMAND test_game_timewheel_debug_texe)
 
 ######################## ==> game 的 rpc component debug 测试 <== ########################
-add_executable(test_plugin_rpc_texe 
-plugin/Test_rpc.cc
-plugin/DbgRpcClient.cc
-plugin/DbgRpcServer.cc
-)
-target_link_libraries(test_plugin_rpc_texe ${MY_LINK_LIB})
-add_test(NAME test_plugin_rpc_texe COMMAND test_plugin_rpc_texe)
+# add_executable(test_plugin_rpc_texe 
+# plugin/Test_rpc.cc
+# plugin/DbgRpcClient.cc
+# plugin/DbgRpcServer.cc
+# )
+# target_link_libraries(test_plugin_rpc_texe ${MY_LINK_LIB})
+# add_test(NAME test_plugin_rpc_texe COMMAND test_plugin_rpc_texe)
+
+add_executable(Test_scene engine/Test_scene.cc)
+target_link_libraries(Test_scene ${MY_LINK_LIB})
+add_test(NAME Test_scene COMMAND Test_scene)

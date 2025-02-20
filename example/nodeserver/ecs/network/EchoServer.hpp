@@ -12,7 +12,7 @@ class EchoService:
     ComponentClassMetaInfo(ecs::COMPONENT_TYPE_ECHO_SERVICE);
 protected:
     EchoService(const std::string& ip, short port, int connect_timeout):
-        plugin::ecs::network::Server(ecs::COMPONENT_TYPE_ECHO_SERVICE, ip, port, connect_timeout)
+        plugin::ecs::network::Server(ip, port, connect_timeout)
     {}
 
     virtual std::shared_ptr<plugin::ecs::network::Connection> CreateConnection(bbt::network::libevent::ConnectionSPtr conn) override

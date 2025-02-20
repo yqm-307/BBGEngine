@@ -4,8 +4,7 @@
 namespace plugin::ecs::clock
 {
 
-ClockComp::ClockComp():
-    engine::ecs::Component(EM_COMPONENT_TYPE_CLOCK_MODULE)
+ClockComp::ClockComp()
 {
 }
 

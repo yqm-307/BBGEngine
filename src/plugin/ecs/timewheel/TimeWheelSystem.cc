@@ -5,16 +5,6 @@
 namespace plugin::ecs::timewheel
 {
 
-std::unique_ptr<TimeWheelSystem>& TimeWheelSystem::GetInstance()
-{
-    static std::unique_ptr<TimeWheelSystem> ptr = nullptr;
-    if (ptr == nullptr) {
-        ptr = std::unique_ptr<TimeWheelSystem>(new TimeWheelSystem());
-    }
-
-    return ptr;
-}
-
 std::pair<std::optional<bbt::timer::Errcode>, TaskId>
     TimeWheelSystem::AddTask(engine::ecs::GameObjectSPtr gameobject, const std::function<bool()>& timeout_handle, int nframes)
 {
@@ -40,8 +30,8 @@ std::shared_ptr<TimeWheelComp> TimeWheelSystem::GetComponent(engine::ecs::GameOb
 
 void TimeWheelSystem::InitGameobject(engine::ecs::GameObjectSPtr gameobject, int fps)
 {
-    auto timewheel_comp = G_ComponentMgr()->Create<TimeWheelComp>(fps);
-    Assert(gameobject->AddComponent(timewheel_comp));
+    // auto timewheel_comp = G_ComponentMgr()->Create<TimeWheelComp>(fps);
+    // Assert(gameobject->AddComponent(timewheel_comp));
 }
 
 

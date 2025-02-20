@@ -5,7 +5,6 @@ namespace plugin::ecs::component
 {
 
 TestComponent::TestComponent(const MyCallback& OnAdd, const MyCallback& OnDel)
-    :engine::ecs::Component(EM_COMPONENT_TYPE_TESTCOMP_1)
 {
 
 }

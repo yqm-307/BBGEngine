@@ -1,18 +1,18 @@
-#pragma once
-#include "engine/scene/Scene.hpp"
+// #pragma once
+// #include "engine/scene/Scene.hpp"
 
-namespace plugin::scene
-{
+// namespace plugin::scene
+// {
 
-class SampleScene:
-    public engine::scene::Scene
-{
-public:
-    explicit SampleScene() {}
-    ~SampleScene() {}
+// class SampleScene:
+//     public engine::scene::Scene
+// {
+// public:
+//     explicit SampleScene() {}
+//     ~SampleScene() {}
 
-private:
-    virtual void OnUpdate() override {};
-};
+// private:
+//     virtual void OnUpdate() override {};
+// };
 
-} // namespace share::scene
+// } // namespace share::scene

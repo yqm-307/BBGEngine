@@ -6,7 +6,7 @@ namespace plugin::ecs::luascript
 {
 
 LuaTestComp::LuaTestComp(bbt::cxxlua::LuaVM* vm):
-    LuaScriptBaseComp(EM_COMPONENT_TYPE_LUA_TEST, vm)
+    LuaScriptBaseComp(vm)
 {
 }
 

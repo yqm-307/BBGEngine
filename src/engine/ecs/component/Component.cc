@@ -4,9 +4,8 @@ namespace engine::ecs
 {
 
 
-Component::Component(ComponentTemplateId id)
-    :m_template_id(id),
-    m_is_active(true)
+Component::Component()
+    :m_is_active(true)
 {
     OnCreate();
 }
@@ -25,14 +24,14 @@ void Component::OnDestory()
 {
 }
 
-const std::string& Component::GetName() const
+const char* Component::GetName()
 {
-    return G_ComponentMgr()->GetComponentName(m_template_id);
+    return Reflex_GetTypeName();
 }
 
-ComponentTemplateId Component::GetTemplateId() const
+ComponentTemplateId Component::GetTemplateId()
 {
-    return m_template_id;
+    return Reflex_GetTypeId();
 }
 
 ComponentId Component::GetId() const
@@ -94,6 +93,19 @@ GameObjectSPtr Component::GetParentObject() const
     return m_parent_gameobject.lock();
 }
 
+SceneSPtr Component::GetScene() const
+{
+    auto component_mgr = GetComponentMgr();
+    if (component_mgr == nullptr)
+        return nullptr;
+    
+    return component_mgr->GetScene();
+}
+
+ComponentMgrSPtr Component::GetComponentMgr() const
+{
+    return std::static_pointer_cast<ComponentMgr>(GetManager());
+}
 
 
 }

@@ -1,18 +1,20 @@
 #pragma once
 #include <string>
 #include <bbt/base/templateutil/BaseType.hpp>
+#include <engine/ecs/EcsDefine.hpp>
 #include "./ComponentMgr.hpp"
 
 namespace engine::ecs
 {
 
 class Component:
-    public bbt::templateutil::MemberBase<ComponentId, Component>
+    public bbt::templateutil::MemberBase<ComponentId, Component>,
+    public bbt::core::reflex::ReflexDynTypeInfo<Component>
 {
     friend class GameObject;
     friend class ComponentMgr;
 public:
-    explicit Component(ComponentTemplateId id);
+    explicit Component();
 
     void                        SetActive(bool is_active);
     bool                        IsActive();
@@ -21,6 +23,8 @@ public:
     //--------------------------------------------
     virtual                     ~Component() = 0;
     virtual void                OnUpdate() = 0;
+    virtual bbt::core::reflex::TypeId Reflex_GetTypeId() = 0;
+    virtual const char*         Reflex_GetTypeName() = 0;
     virtual void                OnAddComponent(ecs::GameObjectSPtr);
     virtual void                OnDelComponent(ecs::GameObjectSPtr);
     virtual void                OnEnable();
@@ -28,17 +32,18 @@ public:
     virtual void                Init();
     //--------------------------------------------
 
-    const std::string&          GetName() const;
-    ComponentTemplateId         GetTemplateId() const;
+    const char*                 GetName();
+    ComponentTemplateId         GetTemplateId();
     ComponentId                 GetId() const;
     GameObjectSPtr              GetParentObject() const;
+    SceneSPtr                   GetScene() const;
+    ComponentMgrSPtr            GetComponentMgr() const;
 protected:
     virtual void OnCreate();
     virtual void OnDestory();
 private:
     virtual void Update() final;
 private:
-    ComponentTemplateId     m_template_id;
     bool                    m_is_active;
     /**
      * 父对象的弱引用

@@ -31,7 +31,7 @@ public:
     std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id);
 
 protected:
-    Server(engine::ecs::ComponentTemplateId type, const std::string& ip, short port, int connect_timeout);
+    Server(const std::string& ip, short port, int connect_timeout);
     virtual void OnUpdate() override {}
     /**
      * @brief 重载此函数来处理新连接，默认新连接到来建立一个基础连接（只收发数据）

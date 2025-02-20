@@ -63,7 +63,7 @@ public:
         return m_vm->GetGlobalValue(global_value, value);
     }
 protected:
-    LuaScriptBaseComp(ecs::emComponentType type ,bbt::cxxlua::LuaVM* vm);
+    LuaScriptBaseComp(bbt::cxxlua::LuaVM* vm);
 
     /**
      * @brief 默认实现为调用Lua层ComponentMgr的Update事件

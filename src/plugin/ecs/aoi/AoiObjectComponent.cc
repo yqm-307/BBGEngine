@@ -6,8 +6,7 @@ namespace plugin::ecs::aoi
 {
 
 AoiObjectComponent::AoiObjectComponent(plugin::ecs::aoi::AoiEntityFlag mode)
-    :Component(plugin::ecs::emComponentType::EM_COMPONENT_TYPE_AOI_OBJECT),
-    m_id(aoi::GenAoiObjectId()),
+    :m_id(aoi::GenAoiObjectId()),
     m_mode(mode)
 {
 }
@@ -60,7 +59,11 @@ engine::ecs::GameObjectSPtr AoiObjectComponent::GetCurrentAoi()
     if (engine::ecs::GameObjectIDInvalid(m_curr_aoi_gameobj_id))
         return nullptr;
 
-    auto [gameobject, isok] = G_GameObjectMgr()->Search(m_curr_aoi_gameobj_id);
+    auto scene = GetScene();
+    if (!scene)
+        return nullptr;
+    
+    auto [gameobject, isok] = scene->GetGameObjectMgr()->Search(m_curr_aoi_gameobj_id);
     if (!isok)
         return nullptr;
 

@@ -2,16 +2,49 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
+#include <engine/ecs/scene/Scene.hpp>
+#include <engine/ecs/system/System.hpp>
 #include "./DbgRpcServer.hpp"
 #include "./DbgRpcClient.hpp"
 #include <plugin/ecs/rpc/RpcSerializer.hpp>
 
 plugin::ecs::rpc::RpcSerializer decoder;
 
+class RpcServerSystem : public engine::ecs::System
+{
+public:
+    void OnUpdate() override
+    {
+        for (auto& entity : m_entities)
+        {
+            auto server = entity->GetComponent<DbgRpcServer>();
+            server->Update();
+        }
+        auto scene = GetScene();
+        auto gameobject_mgr = scene->GetGameObjectMgr();
+        auto gameobject = gameobject_mgr->GetGameObject(1);
+        auto server = gameobject->GetComponent<DbgRpcServer>();
+        auto client = gameobject->GetComponent<DbgRpcClient>();
+
+        server->Update();
+        client->Update();
+    }
+};
+
+class RpcClientSystem : public engine::ecs::System
+{
+};
+
 BOOST_AUTO_TEST_SUITE(RpcTest)
 
 BOOST_AUTO_TEST_CASE(t_rpc)
 {
+    auto scene = std::make_shared<engine::ecs::Scene>();
+    scene->Init();
+
+    scene->RegistComponent<DbgRpcServer>("DbgRpcServer");
+    scene->RegistComponent<DbgRpcClient>("DbgRpcClient");
+
     auto gameobject = G_GameObjectMgr()->Create<plugin::ecs::gameobject::GameObject>();
     gameobject->AddComponent<DbgRpcServer>(ServerCompId);
     gameobject->AddComponent<DbgRpcClient>(ClientCompId);

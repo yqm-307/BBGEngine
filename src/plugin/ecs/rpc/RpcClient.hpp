@@ -10,7 +10,7 @@ class RpcClient:
 {
     friend class RpcServer;
 public:
-    RpcClient(engine::ecs::ComponentTemplateId id);
+    RpcClient();
     ~RpcClient();
 
     template<typename ...Args>

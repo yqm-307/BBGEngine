@@ -9,7 +9,6 @@ GlobalLuaVM::~GlobalLuaVM()
 }
 
 GlobalLuaVM::GlobalLuaVM():
-    engine::ecs::Component(EM_COMPONENT_TYPE_GLOBAL_LUA_VM),
     m_lua_vm(new bbt::cxxlua::LuaVM())
 {
     auto err = m_lua_vm->LoadLuaLibrary();

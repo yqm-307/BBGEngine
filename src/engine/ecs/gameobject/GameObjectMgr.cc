@@ -1,24 +1,17 @@
-#include "engine/ecs/gameobject/GameObjectMgr.hpp"
-#include "engine/ecs/gameobject/GameObject.hpp"
-#include "util/log/Log.hpp"
+#include <engine/ecs/filter/EntityFilter.hpp>
+#include <engine/ecs/gameobject/GameObjectMgr.hpp>
+#include <engine/ecs/gameobject/GameObject.hpp>
+#include <util/log/Log.hpp>
 #include <tuple>
 
 namespace engine::ecs
 {
 
-const std::unique_ptr<GameObjectMgr>& GameObjectMgr::GetInstance()
-{
-    static std::unique_ptr<GameObjectMgr> _instance{nullptr};
-    if(_instance == nullptr)
-        _instance = std::unique_ptr<GameObjectMgr>(new GameObjectMgr());
-
-    return _instance;
-}
-
-GameObjectMgr::GameObjectMgr()
+GameObjectMgr::GameObjectMgr(SceneSPtr scene)
     :m_gameobject_info_map(
         [](const ComponentTemplateId& key){ return (size_t)(key%8);},
-        GameObjectInfo("", -1))
+        GameObjectInfo("", -1)),
+    m_scene(scene)
 {
 }
 
@@ -68,6 +61,12 @@ bool GameObjectMgr::IsExist(KeyType key)
 {
     return !(m_gameobject_map.find(key) == m_gameobject_map.end());
 }
+
+size_t GameObjectMgr::ObjCount() const
+{
+    return m_gameobject_map.size();
+}
+
 
 std::string GameObjectMgr::GetName(GameObjectTemplateId tid) const
 {
@@ -124,5 +123,31 @@ bool GameObjectMgr::InitTemplateInfo(std::initializer_list<GameObjectInfo> list)
     return true;    
 }
 
+int GameObjectMgr::GetGameobjectByFilter(std::vector<GameObjectWKPtr>& gameobjects, std::shared_ptr<EntityFilter> filter)
+{
+    int count = 0;
+    if (filter == nullptr)
+        return count;
+
+    for(auto&& [_, wkptr] : m_gameobject_map)
+    {
+        auto sptr = wkptr.lock();
+        if(sptr == nullptr)
+            continue;
+
+        if(filter->Filter(sptr))
+        {
+            gameobjects.push_back(sptr);
+            count++;
+        }
+    }
+
+    return count;
+}
+
+SceneSPtr GameObjectMgr::GetScene() const
+{
+    return m_scene.lock();
+}
 
 }

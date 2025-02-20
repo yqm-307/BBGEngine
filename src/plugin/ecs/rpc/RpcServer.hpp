@@ -9,7 +9,7 @@ class RpcServer:
 {
     friend class RpcClient;
 public:
-    RpcServer(engine::ecs::ComponentTemplateId id);
+    RpcServer();
     ~RpcServer();
 
     int Register(const std::string& method, RpcCallback callback);
