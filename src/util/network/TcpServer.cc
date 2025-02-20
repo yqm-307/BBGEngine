@@ -1,23 +1,23 @@
-#include <plugin/ecs/Define.hpp>
-#include "plugin/ecs/network/ServerComp.hpp"
+#include <util/log/Log.hpp>
+#include <util/network/TcpServer.hpp>
 
-namespace plugin::ecs::network
+namespace util::network
 {
 
-Server::Server(const std::string& ip, short port, int connect_timeout):
+TcpServer::TcpServer(const std::string& ip, short port, int connect_timeout):
     m_listen_addr(ip, port),
     m_connect_timeout(connect_timeout)
 {
     m_network = new bbt::network::libevent::Network;
 }
 
-Server::~Server()
+TcpServer::~TcpServer()
 {
     delete m_network;
     m_network = nullptr;
 }
 
-void Server::SetListenAddr(const char* ip, short port)
+void TcpServer::SetListenAddr(const char* ip, short port)
 {
     Assert(m_network != nullptr);
     auto auto_init_io_thread_err = m_network->AutoInitThread(2);
@@ -31,24 +31,24 @@ void Server::SetListenAddr(const char* ip, short port)
         GAME_BASE_LOG_ERROR("start listen failed! %s", err.CWhat());
 }
 
-void Server::Init()
+void TcpServer::Init()
 {
     SetListenAddr(m_listen_addr.GetIP().c_str(), m_listen_addr.GetPort());
 }
 
-void Server::Start()
+void TcpServer::Start()
 {
     Assert(m_network != nullptr);
     m_network->Start();
 }
 
-void Server::Stop()
+void TcpServer::Stop()
 {
     Assert(m_network != nullptr);
     m_network->Stop();
 }
 
-void Server::OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
+void TcpServer::OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
 {
     if (err.IsErr()) {
         GAME_EXT1_LOG_ERROR("accept failed! %s", err.CWhat());
@@ -68,7 +68,7 @@ void Server::OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::
     GAME_EXT1_LOG_INFO("new connection: {%s}", new_conn->GetPeerAddress().GetIPPort().c_str());
 }
 
-bool Server::Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect)
+bool TcpServer::Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect)
 {
     auto err = m_network->AsyncConnect(ip, port, timeout, on_connect);
     if (err.IsErr()) {
@@ -79,7 +79,7 @@ bool Server::Connect(const char* ip, short port, int timeout, const bbt::network
     return true;
 }
 
-bool Server::DelConnect(bbt::network::ConnId conn)
+bool TcpServer::DelConnect(bbt::network::ConnId conn)
 {
     auto it = m_conn_map.find(conn);
     if (it == m_conn_map.end()) {
@@ -90,7 +90,7 @@ bool Server::DelConnect(bbt::network::ConnId conn)
     return true;
 }
 
-bool Server::AddConnect(std::shared_ptr<Connection> conn)
+bool TcpServer::AddConnect(std::shared_ptr<Connection> conn)
 {
     if (conn == nullptr)
         return false;
@@ -99,14 +99,14 @@ bool Server::AddConnect(std::shared_ptr<Connection> conn)
     return succ;
 }
 
-void Server::OnTimeout(Connection* conn)
+void TcpServer::OnTimeout(Connection* conn)
 {
     if (!DelConnect(conn->GetConnId())) {
         GAME_EXT1_LOG_ERROR("[ConnMgr::OnTimeout] connect timeout!");
     }
 }
 
-std::shared_ptr<Connection> Server::GetConnectById(bbt::network::ConnId conn_id)
+std::shared_ptr<Connection> TcpServer::GetConnectById(bbt::network::ConnId conn_id)
 {
     auto it = m_conn_map.find(conn_id);
     if (it == m_conn_map.end())
@@ -115,7 +115,7 @@ std::shared_ptr<Connection> Server::GetConnectById(bbt::network::ConnId conn_id)
     return it->second;
 }
 
-size_t Server::Send(bbt::network::ConnId id, const char* bytes, size_t len)
+size_t TcpServer::Send(bbt::network::ConnId id, const char* bytes, size_t len)
 {
     auto conn = GetConnectById(id);
     if (conn == nullptr) {
@@ -128,12 +128,12 @@ size_t Server::Send(bbt::network::ConnId id, const char* bytes, size_t len)
     return len; 
 }
 
-size_t Server::Recv(bbt::network::ConnId conn, const char* recv_buf, size_t len)
+size_t TcpServer::Recv(bbt::network::ConnId conn, const char* recv_buf, size_t len)
 {
     return 0;
 }
 
-void Server::ShowDown(bbt::network::ConnId conn)
+void TcpServer::ShowDown(bbt::network::ConnId conn)
 {
     auto conn_ptr = GetConnectById(conn);
     if (conn_ptr == nullptr) {
@@ -144,4 +144,4 @@ void Server::ShowDown(bbt::network::ConnId conn)
     conn_ptr->Close();
 }
 
-} // namespace share::ecs::network
+} // namespace util::network

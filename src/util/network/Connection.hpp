@@ -1,14 +1,14 @@
 #pragma once
 #include <bbt/network/adapter/libevent/Network.hpp>
 
-namespace plugin::ecs::network
+namespace util::network
 {
 
 class Server;
 
 class Connection
 {
-    friend class Server;
+    friend class TcpServer;
 public:
     virtual ~Connection();
     Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
