@@ -1,11 +1,10 @@
 #include <bbt/base/clock/Clock.hpp>
-#include "ClusterNode.hpp"
+#include <cluster/node/ClusterNodeBase.hpp>
 
-namespace plugin::ecs::cluster
+namespace cluster
 {
 
-ClusterNode::ClusterNode(const ClusterNode& other):
-    m_address(other.m_address),
+ClusterNodeBase::ClusterNodeBase(const ClusterNodeBase& other):
     m_state(other.m_state),
     m_service_name(other.m_service_name),
     m_uuid(other.m_uuid),
@@ -13,8 +12,7 @@ ClusterNode::ClusterNode(const ClusterNode& other):
 {
 }
 
-ClusterNode::ClusterNode(ClusterNode&& other):
-    m_address(std::move(other.m_address)),
+ClusterNodeBase::ClusterNodeBase(ClusterNodeBase&& other):
     m_state(other.m_state),
     m_service_name(std::move(other.m_service_name)),
     m_uuid(std::move(other.m_uuid)),
@@ -24,82 +22,73 @@ ClusterNode::ClusterNode(ClusterNode&& other):
 }
 
 
-ClusterNode::ClusterNode(const bbt::net::IPAddress& addr, const std::string& service_name):
-    m_address(addr),
+ClusterNodeBase::ClusterNodeBase(const bbt::net::IPAddress& addr, const std::string& service_name):
     m_service_name(service_name),
     m_uuid(std::make_shared<util::other::Uuid>())
 {
 }
 
-ClusterNode::ClusterNode(const bbt::net::IPAddress& addr, const std::string& service_name, const util::other::Uuid& uuid):
-    m_address(addr),
+ClusterNodeBase::ClusterNodeBase(const bbt::net::IPAddress& addr, const std::string& service_name, const util::other::Uuid& uuid):
     m_service_name(service_name),
     m_uuid(std::make_shared<util::other::Uuid>(uuid))
 {
 }
 
-ClusterNode::ClusterNode(const bbt::net::IPAddress& addr, const std::string& service_name, util::other::Uuid&& uuid):
-    m_address(addr),
+ClusterNodeBase::ClusterNodeBase(const bbt::net::IPAddress& addr, const std::string& service_name, util::other::Uuid&& uuid):
     m_service_name(service_name),
     m_uuid(std::make_shared<util::other::Uuid>(std::move(uuid)))
 {
 }
 
-ClusterNode::~ClusterNode()
+ClusterNodeBase::~ClusterNodeBase()
 {
 }
 
-util::other::Uuid::SPtr ClusterNode::GetUUID() const
+util::other::Uuid::SPtr ClusterNodeBase::GetUUID() const
 {
     return m_uuid;
 }
 
-NodeState ClusterNode::GetNodeState()
+NodeState ClusterNodeBase::GetNodeState()
 {
     return m_state;
 }
 
-const bbt::net::IPAddress& ClusterNode::GetAddr() const
-{
-    return m_address;
-}
-
-const std::string& ClusterNode::GetName() const
+const std::string& ClusterNodeBase::GetName() const
 {
     return m_service_name;
 }
 
-void ClusterNode::Active()
+void ClusterNodeBase::Active()
 {
     // 更新下节点最后活跃时间
     m_last_active_time = bbt::clock::gettime() / 1000;
 }
 
-void ClusterNode::Offline()
+void ClusterNodeBase::Offline()
 {
     m_state = NODESTATE_OFFLINE;
 }
 
-void ClusterNode::Online()
+void ClusterNodeBase::Online()
 {
     m_state = NODESTATE_ONLINE;
 }
 
-ClusterNode& ClusterNode::operator=(ClusterNode&& other)
+ClusterNodeBase& ClusterNodeBase::operator=(ClusterNodeBase&& other)
 {
     *this = std::move(other);
     return *this;
 }
 
-ClusterNode& ClusterNode::operator=(const ClusterNode& other)
+ClusterNodeBase& ClusterNodeBase::operator=(const ClusterNodeBase& other)
 {
     *this = other;
     return *this;
 }
 
-void ClusterNode::Clear()
+void ClusterNodeBase::Clear()
 {
-    m_address.Clear();
     m_last_active_time = -1;
     m_service_name = "";
     m_state = NODESTATE_DEFAULT;

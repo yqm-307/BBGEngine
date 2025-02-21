@@ -1,5 +1,5 @@
 // #include "engine/scene/Scene.hpp"
-// #include "engine/ecs/gameobject/GameObjectMgr.hpp"
+// #include "engine/ecs/entity/EntityMgr.hpp"
 // #include <algorithm>
 
 // namespace engine::scene
@@ -23,10 +23,10 @@
 //     OnUpdate();
 // }
 
-// bool Scene::MountGameObject(engine::ecs::GameObjectSPtr gameobj)
+// bool Scene::MountGameObject(engine::ecs::EntitySPtr gameobj)
 // {
 //     auto it = std::find_if(m_root_gobjs.begin(), m_root_gobjs.end(), 
-//         [gameobj](const engine::ecs::GameObjectSPtr value){
+//         [gameobj](const engine::ecs::EntitySPtr value){
 //             return value->GetId() == gameobj->GetId();
 //     });
 //     if(it != m_root_gobjs.end())
@@ -36,7 +36,7 @@
 //     return true;
 // }
 
-// Scene::Result Scene::UnMountGameObject(engine::ecs::GameObjectSPtr gameobj)
+// Scene::Result Scene::UnMountGameObject(engine::ecs::EntitySPtr gameobj)
 // {
 //     auto obj_id = gameobj->GetId();
 //     return UnMountGameObject(obj_id);
@@ -45,7 +45,7 @@
 // Scene::Result Scene::UnMountGameObject(engine::ecs::GameObjectId id)
 // {
 //     auto it = std::find_if(m_root_gobjs.begin(), m_root_gobjs.end(),
-//         [id](const engine::ecs::GameObjectSPtr value){
+//         [id](const engine::ecs::EntitySPtr value){
 //             return value->GetId() == id;
 //         }
 //     );
@@ -63,9 +63,9 @@
 //     return m_root_gobjs.size();
 // }
 
-// std::vector<engine::ecs::GameObjectSPtr> Scene::GetGameObject(engine::ecs::GameObjectTemplateId tid)
+// std::vector<engine::ecs::EntitySPtr> Scene::GetGameObject(engine::ecs::GameObjectTemplateId tid)
 // {
-//     std::vector<engine::ecs::GameObjectSPtr> vec;
+//     std::vector<engine::ecs::EntitySPtr> vec;
 
 //     for (auto&& obj : m_root_gobjs)
 //     {

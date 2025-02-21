@@ -1,6 +1,6 @@
-#include <plugin/ecs/rpc/RpcClient.hpp>
+#include <cluster/rpc/RpcClient.hpp>
 
-namespace plugin::ecs::rpc
+namespace cluster
 {
 
 RpcClient::~RpcClient()

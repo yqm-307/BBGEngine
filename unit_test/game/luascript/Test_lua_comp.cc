@@ -4,7 +4,7 @@
 #include <vector>
 #include <bbt/base/random/Random.hpp>
 
-#include "plugin/ecs/gameobject/GameObject.hpp"
+#include "plugin/ecs/entity/Entity.hpp"
 #include "plugin/ecs/luascript/LuaTestComp.hpp"
 #include "plugin/ecs/globalluavm/GlobalLuaVM.hpp"
 #include "plugin/scene/testscene/SampleScene.hpp"

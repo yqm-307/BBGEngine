@@ -11,7 +11,7 @@ class Component:
     public bbt::templateutil::MemberBase<ComponentId, Component>,
     public bbt::core::reflex::ReflexDynTypeInfo<Component>
 {
-    friend class GameObject;
+    friend class Entity;
     friend class ComponentMgr;
 public:
     explicit Component();
@@ -25,8 +25,8 @@ public:
     virtual void                OnUpdate() = 0;
     virtual bbt::core::reflex::TypeId Reflex_GetTypeId() = 0;
     virtual const char*         Reflex_GetTypeName() = 0;
-    virtual void                OnAddComponent(ecs::GameObjectSPtr);
-    virtual void                OnDelComponent(ecs::GameObjectSPtr);
+    virtual void                OnAddComponent(ecs::EntitySPtr);
+    virtual void                OnDelComponent(ecs::EntitySPtr);
     virtual void                OnEnable();
     virtual void                OnDisable();
     virtual void                Init();
@@ -35,7 +35,7 @@ public:
     const char*                 GetName();
     ComponentTemplateId         GetTemplateId();
     ComponentId                 GetId() const;
-    GameObjectSPtr              GetParentObject() const;
+    EntitySPtr                  GetParentObject() const;
     SceneSPtr                   GetScene() const;
     ComponentMgrSPtr            GetComponentMgr() const;
 protected:
@@ -48,7 +48,7 @@ private:
     /**
      * 父对象的弱引用
      */
-    GameObjectWKPtr         m_parent_gameobject;
+    EntityWKPtr         m_parent_gameobject;
 };
 
 }

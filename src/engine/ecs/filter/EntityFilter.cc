@@ -1,11 +1,11 @@
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 #include <engine/ecs/filter/EntityFilter.hpp>
 
 
 namespace engine::ecs
 {
 
-bool EntityFilter::Filter(GameObjectSPtr gameobj)
+bool EntityFilter::Filter(EntitySPtr gameobj)
 {
     for (auto& tag : m_filter_tags.GetTags())
     {

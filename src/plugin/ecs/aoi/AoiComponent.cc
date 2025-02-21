@@ -39,11 +39,11 @@ void AoiComponent::Init()
     }
 }
 
-void AoiComponent::OnAddComponent(engine::ecs::GameObjectSPtr component)
+void AoiComponent::OnAddComponent(engine::ecs::EntitySPtr component)
 {
 }
 
-void AoiComponent::OnDelComponent(engine::ecs::GameObjectSPtr component)
+void AoiComponent::OnDelComponent(engine::ecs::EntitySPtr component)
 {
 }
 
@@ -114,7 +114,7 @@ Tower* AoiComponent::GetTowerByIndex3(util::pos::Index3 index3)
     return &(m_towers[index]);
 }
 
-engine::ecs::GameObjectSPtr AoiComponent::GetGameObj(AoiObjectId id)
+engine::ecs::EntitySPtr AoiComponent::GetGameObj(AoiObjectId id)
 {
     auto [gameobj, isexist] = m_gameobj_map.Find(id);
     if(!isexist)
@@ -154,9 +154,9 @@ bool AoiComponent::CheckConfig(const util::config::AoiConfig* cfg) const
     return true;
 }
 
-std::vector<engine::ecs::GameObjectSPtr> AoiComponent::GetEntitysEx(util::pos::Point3 pos)
+std::vector<engine::ecs::EntitySPtr> AoiComponent::GetEntitysEx(util::pos::Point3 pos)
 {
-    std::vector<engine::ecs::GameObjectSPtr> rlts;
+    std::vector<engine::ecs::EntitySPtr> rlts;
     do{
         auto tower = GetTowerByPos3(pos);
         if(tower == nullptr)

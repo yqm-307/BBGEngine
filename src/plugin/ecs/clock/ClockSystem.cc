@@ -4,7 +4,7 @@
 namespace plugin::ecs::clock
 {
 
-int64_t ClockSystem::GetFrame(GameObjectSPtr gameobject)
+int64_t ClockSystem::GetFrame(EntitySPtr gameobject)
 {
     auto comp = GetComponent(gameobject);
     if (comp == nullptr)
@@ -12,7 +12,7 @@ int64_t ClockSystem::GetFrame(GameObjectSPtr gameobject)
     return comp->GetFrame();
 }
 
-bbt::clock::Timestamp<> ClockSystem::GetFrameTime(GameObjectSPtr gameobject)
+bbt::clock::Timestamp<> ClockSystem::GetFrameTime(EntitySPtr gameobject)
 {
     auto comp = GetComponent(gameobject);
     if (comp == nullptr)
@@ -20,7 +20,7 @@ bbt::clock::Timestamp<> ClockSystem::GetFrameTime(GameObjectSPtr gameobject)
     return comp->GetFrameTime();
 }
 
-std::shared_ptr<ClockComp> ClockSystem::GetComponent(GameObjectSPtr gameobject)
+std::shared_ptr<ClockComp> ClockSystem::GetComponent(EntitySPtr gameobject)
 {
     return gameobject->GetComponent<ClockComp>();
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <engine/ecs/EcsDefine.hpp>
 #include <engine/ecs/component/ComponentMgr.hpp>
-#include <engine/ecs/gameobject/GameObjectMgr.hpp>
+#include <engine/ecs/entity/EntityMgr.hpp>
 
 namespace engine::ecs
 {
@@ -22,13 +22,13 @@ public:
 
     ComponentMgrSPtr GetComponentMgr() const { return m_component_mgr; }
     SystemMgrSPtr GetSystemMgr() const { return m_system_mgr; }
-    GameObjectMgrSPtr GetGameObjectMgr() const { return m_gameobj_mgr; }
+    EntityMgrSPtr GetEntityMgr() const { return m_entity_mgr; }
 
     void Update();
 private:
     SystemMgrSPtr       m_system_mgr{nullptr};
     ComponentMgrSPtr    m_component_mgr{nullptr};
-    GameObjectMgrSPtr   m_gameobj_mgr{nullptr};
+    EntityMgrSPtr   m_entity_mgr{nullptr};
 };
 
 template<class TComponent>

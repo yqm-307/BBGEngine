@@ -6,13 +6,13 @@
 #include <mutex>
 #include "plugin/ecs/aoi/AoiObjectComponent.hpp"
 // #include "plugin/ecs/none/entity/NoneObj.hpp"
-#include "plugin/ecs/gameobject/GameObject.hpp"
+#include "plugin/ecs/entity/Entity.hpp"
 #include "plugin/ecs/aoi/AoiSystem.hpp"
 #include "util/vector/CalcOpt.hpp"
 
 using namespace share;
 using namespace util;
-typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
+typedef engine::ecs::EntitySPtr EntitySPtr;
 typedef std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiObjComponentPtr;
 typedef std::shared_ptr<ecs::gameobject::GameObject> GameobjectPtr;
 
@@ -24,7 +24,7 @@ std::shared_ptr<ecs::aoi::AoiObjectComponent> GetAoiComponet(GameobjectPtr obj)
     return std::static_pointer_cast<ecs::aoi::AoiObjectComponent>(aoi_obj);
 }
 
-void AoiNotifyEvent(GameObjectSPtr aoi, GameObjectSPtr w, GameObjectSPtr m , const std::string str)
+void AoiNotifyEvent(EntitySPtr aoi, EntitySPtr w, EntitySPtr m , const std::string str)
 {
 
     auto p1 = std::static_pointer_cast<ecs::gameobject::GameObject>(w);
@@ -38,7 +38,7 @@ void AoiNotifyEvent(GameObjectSPtr aoi, GameObjectSPtr w, GameObjectSPtr m , con
 }
 
 /* 创建一个纯动态的aoi对象 */
-GameObjectSPtr CreateAoiObj()
+EntitySPtr CreateAoiObj()
 {
     auto noneobj = G_GameObjectMgr()->Create<ecs::gameobject::GameObject>();
     auto aoi_obj_component = G_ComponentMgr()->Create<ecs::aoi::AoiObjectComponent>(share::ecs::aoi::AoiEntityFlag::Watcher);
@@ -64,7 +64,7 @@ util::config::AoiConfig* GenAoiConfig()
     return aoi;    
 }
 
-GameObjectSPtr CreateAoiMap()
+EntitySPtr CreateAoiMap()
 {
     auto noneobj = G_GameObjectMgr()->Create<ecs::gameobject::GameObject>();
     auto aoi_component = G_ComponentMgr()->Create<ecs::aoi::AoiComponent>(GenAoiConfig());
@@ -95,12 +95,12 @@ BOOST_AUTO_TEST_CASE(t_aoi_2_object_meet)
     int meet_count = 0;
 
     share::ecs::aoi::AoiSystem::GetInstance()->SetOnEnterAoiEvent(
-    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){
+    [&](EntitySPtr aoi, EntitySPtr p1, EntitySPtr p2){
         if (p1->GetId() != p2->GetId())
             meet_count++;
     });
     share::ecs::aoi::AoiSystem::GetInstance()->SetOnLeaveAoiEvent(
-    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){
+    [&](EntitySPtr aoi, EntitySPtr p1, EntitySPtr p2){
         meet_count--;
     });
 
@@ -146,11 +146,11 @@ BOOST_AUTO_TEST_CASE(t_aoi_enter_test)
     int num = 10;
     auto aoi = CreateAoiMap();
     share::ecs::aoi::AoiSystem::GetInstance()->SetOnEnterAoiEvent(
-    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){});
+    [&](EntitySPtr aoi, EntitySPtr p1, EntitySPtr p2){});
     share::ecs::aoi::AoiSystem::GetInstance()->SetOnLeaveAoiEvent(
-    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){});
+    [&](EntitySPtr aoi, EntitySPtr p1, EntitySPtr p2){});
 
-    std::vector<engine::ecs::GameObjectSPtr> players;
+    std::vector<engine::ecs::EntitySPtr> players;
     for(int i = 1; i <= num; ++i)
     {
         auto player = CreateAoiObj();
@@ -194,12 +194,12 @@ BOOST_AUTO_TEST_CASE(t_aoi_move_test)
     int meet_count = 0;
 
     share::ecs::aoi::AoiSystem::GetInstance()->SetOnEnterAoiEvent(
-    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){
+    [&](EntitySPtr aoi, EntitySPtr p1, EntitySPtr p2){
         count++;
         meet_count++;
     });
     share::ecs::aoi::AoiSystem::GetInstance()->SetOnLeaveAoiEvent(
-    [&](GameObjectSPtr aoi, GameObjectSPtr p1, GameObjectSPtr p2){
+    [&](EntitySPtr aoi, EntitySPtr p1, EntitySPtr p2){
         count--;
     });
 

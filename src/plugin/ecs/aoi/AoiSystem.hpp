@@ -9,47 +9,47 @@ namespace plugin::ecs::aoi
 
 class AoiSystem
 {
-    typedef std::vector<engine::ecs::GameObjectSPtr>     EntityResult;
-    typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
+    typedef std::vector<engine::ecs::EntitySPtr>     EntityResult;
+    typedef engine::ecs::EntitySPtr EntitySPtr;
     typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
     /* 在aoi中，通知p2进入p1的关注范围 */
-    typedef std::function<void(GameObjectSPtr/*aoi*/, GameObjectSPtr/*p1*/, GameObjectSPtr/*p2*/)> OnEnterFunc;
+    typedef std::function<void(EntitySPtr/*aoi*/, EntitySPtr/*p1*/, EntitySPtr/*p2*/)> OnEnterFunc;
     /* 在aoi中，通知p2离开p1的关注范围 */
-    typedef std::function<void(GameObjectSPtr/*aoi*/, GameObjectSPtr/*p1*/, GameObjectSPtr/*p2*/)> OnLeaveFunc;
+    typedef std::function<void(EntitySPtr/*aoi*/, EntitySPtr/*p1*/, EntitySPtr/*p2*/)> OnLeaveFunc;
 
 public:
     ~AoiSystem();
     static std::unique_ptr<AoiSystem>& GetInstance();
 
     /* 实体进入aoi */
-    bool EnterAoi(GameObjectSPtr aoi_entity, GameObjectSPtr entity, util::pos::Point3 drop_point);
+    bool EnterAoi(EntitySPtr aoi_entity, EntitySPtr entity, util::pos::Point3 drop_point);
     /* 实体离开aoi */
-    bool LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player);
+    bool LeaveAoi(EntitySPtr aoi_entity, EntitySPtr player);
     /* 实体在aoi中移动 */
-    bool Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::pos::Point3 moveto);
+    bool Move(EntitySPtr aoi_entity, EntitySPtr player, util::pos::Point3 moveto);
 
-    GameObjectSPtr GetGameObjByAoi(engine::ecs::GameObjectCSPtr aoi, AoiObjectId id);
+    EntitySPtr GetGameObjByAoi(engine::ecs::EntityCSPtr aoi, AoiObjectId id);
 
     void SetOnEnterAoiEvent(const OnEnterFunc& func);
     void SetOnLeaveAoiEvent(const OnLeaveFunc& func);
 private:
     /* p2进入p1的感兴趣区域（aoi）时调用 */
-    void OnEnterAoi(GameObjectSPtr aoi_entity, GameObjectSPtr p1, GameObjectSPtr p2);
+    void OnEnterAoi(EntitySPtr aoi_entity, EntitySPtr p1, EntitySPtr p2);
     /* p2离开p1的感兴趣区域（aoi）时调用 */
-    void OnLeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr p1, GameObjectSPtr p2);
-    void EnterTowerBroadcast(GameObjectSPtr aoi, GameObjectSPtr player, Tower* tower, int n);
-    void LeaveTowerBroadcast(GameObjectSPtr aoi, GameObjectSPtr player, Tower* tower, int n);
+    void OnLeaveAoi(EntitySPtr aoi_entity, EntitySPtr p1, EntitySPtr p2);
+    void EnterTowerBroadcast(EntitySPtr aoi, EntitySPtr player, Tower* tower, int n);
+    void LeaveTowerBroadcast(EntitySPtr aoi, EntitySPtr player, Tower* tower, int n);
 
     /* 根据id从灯塔中删除一个aoi对象，失败返回nullptr */
-    GameObjectSPtr RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id);
-    bool InsertObj2Tower(Tower* to_tower, AoiObjectId key, GameObjectSPtr value);
-    void OnEnter(GameObjectSPtr player);
-    void OnLeave(GameObjectSPtr player);
+    EntitySPtr RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id);
+    bool InsertObj2Tower(Tower* to_tower, AoiObjectId key, EntitySPtr value);
+    void OnEnter(EntitySPtr player);
+    void OnLeave(EntitySPtr player);
 
 private:
-    bool HasAoiComponent(GameObjectSPtr aoi_entity);
-    std::shared_ptr<ecs::aoi::AoiComponent> GetAoiComponent(GameObjectSPtr obj);
-    std::shared_ptr<ecs::aoi::AoiObjectComponent> GetAoiObjectComponent(GameObjectSPtr obj);
+    bool HasAoiComponent(EntitySPtr aoi_entity);
+    std::shared_ptr<ecs::aoi::AoiComponent> GetAoiComponent(EntitySPtr obj);
+    std::shared_ptr<ecs::aoi::AoiObjectComponent> GetAoiObjectComponent(EntitySPtr obj);
 protected:
     AoiSystem();
 

@@ -1,6 +1,6 @@
 #include <typeinfo>
 #include <engine/ecs/component/Component.hpp>
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 #include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 namespace engine::ecs
@@ -8,17 +8,17 @@ namespace engine::ecs
 
 
 
-GameObject::GameObject(int gobj_type)
+Entity::Entity(int gobj_type)
     :m_gobj_type(gobj_type)
 {
     AssertWithInfo( gobj_type >= 0, "game object type error");
 }
 
-GameObject::~GameObject()
+Entity::~Entity()
 {
 }
 
-ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid) const
+ComponentSPtr Entity::GetComponent(ComponentTemplateId tid) const
 {
     if(tid < 0)
         return nullptr;
@@ -29,12 +29,12 @@ ComponentSPtr GameObject::GetComponent(ComponentTemplateId tid) const
     return it->second;
 }
 
-size_t GameObject::GetComponentCount() const
+size_t Entity::GetComponentCount() const
 {
     return m_component_map.size();
 }
 
-ComponentSPtr GameObject::DelComponent(ComponentTemplateId tid)
+ComponentSPtr Entity::DelComponent(ComponentTemplateId tid)
 {
     if(tid < 0)
         return nullptr;
@@ -53,7 +53,7 @@ ComponentSPtr GameObject::DelComponent(ComponentTemplateId tid)
 }
 
 
-bool GameObject::AddComponent(ComponentSPtr component)
+bool Entity::AddComponent(ComponentSPtr component)
 {
     if(component == nullptr)
         return false;
@@ -70,22 +70,22 @@ bool GameObject::AddComponent(ComponentSPtr component)
     return m_tag_set.AddTag(Tag{component->Reflex_GetTypeId()});
 }
 
-int GameObject::Type()
+int Entity::Type()
 {
     return m_gobj_type;
 }
 
-GameObjectId GameObject::GetId()
+EntityId Entity::GetId()
 {
     return GetMemberId();
 }
 
-std::string GameObject::GetName() const
+std::string Entity::GetName() const
 {
-    return GetGameObjectMgr()->GetName(m_gobj_type);
+    return GetEntityMgr()->GetName(m_gobj_type);
 }
 
-GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
+EntitySPtr Entity::GetGameObject(EntityId id)
 {
     if(m_childs.size() == 0 || GameObjectIDInvalid(id))
         return nullptr;
@@ -103,7 +103,7 @@ GameObjectSPtr GameObject::GetGameObject(GameObjectId id)
     return it->second;
 }
 
-bool GameObject::MountChild(GameObjectSPtr gameobj)
+bool Entity::MountChild(EntitySPtr gameobj)
 {
     auto objid = gameobj->GetId();
     if(GameObjectIDInvalid(objid))
@@ -116,7 +116,7 @@ bool GameObject::MountChild(GameObjectSPtr gameobj)
     return isok;
 }
 
-std::pair<bool, GameObjectSPtr> GameObject::UnMountChild(GameObjectId gameobj_id)
+std::pair<bool, EntitySPtr> Entity::UnMountChild(EntityId gameobj_id)
 {
     if (GameObjectIDInvalid(gameobj_id))
         return {false, nullptr};
@@ -132,17 +132,17 @@ std::pair<bool, GameObjectSPtr> GameObject::UnMountChild(GameObjectId gameobj_id
     return {true, it->second};
 }
 
-void GameObject::OnFatherDead() const
+void Entity::OnFatherDead() const
 {
 }
 
-void GameObject::OnUpdate()
+void Entity::OnUpdate()
 {
 }
 
 
 
-std::string GameObject::Dbg_GameObjectTree() const
+std::string Entity::Dbg_GameObjectTree() const
 {
     /*
     |---@type1(11)
@@ -155,25 +155,25 @@ std::string GameObject::Dbg_GameObjectTree() const
     return __DbgTree(0);
 }
 
-TagSet& GameObject::GetTagSet()
+TagSet& Entity::GetTagSet()
 {
     return m_tag_set;
 }
 
-SceneSPtr GameObject::GetScene() const
+SceneSPtr Entity::GetScene() const
 {
-    return GetGameObjectMgr()->GetScene();
+    return GetEntityMgr()->GetScene();
 }
 
-GameObjectMgrSPtr GameObject::GetGameObjectMgr() const
+EntityMgrSPtr Entity::GetEntityMgr() const
 {
-    return std::static_pointer_cast<GameObjectMgr>(GetManager());
+    return std::static_pointer_cast<EntityMgr>(GetManager());
 }
 
 
 #pragma region "私有函数"
 
-std::string GameObject::__DbgTree(int level) const
+std::string Entity::__DbgTree(int level) const
 {
     std::string info_tree = "";
     std::string prefix_str(level, '\t');
@@ -191,7 +191,7 @@ std::string GameObject::__DbgTree(int level) const
 }
 
 
-bool GameObject::HasGameobj(GameObjectId id) const
+bool Entity::HasGameobj(EntityId id) const
 {
     if(GameObjectIDInvalid(id))
         return false;
@@ -203,7 +203,7 @@ bool GameObject::HasGameobj(GameObjectId id) const
     return true;
 }
 
-void GameObject::Update()
+void Entity::Update()
 {
     /* 预更新 */
     OnPreUpdate();
@@ -221,7 +221,7 @@ void GameObject::Update()
     OnUpdate();
 }
 
-void GameObject::UpdateComponent()
+void Entity::UpdateComponent()
 {
     for (auto&& pair : m_component_map) {
         auto comp = pair.second;
@@ -233,11 +233,11 @@ void GameObject::UpdateComponent()
     }
 }
 
-void GameObject::OnMountChild(GameObjectSPtr gameobj)
+void Entity::OnMountChild(EntitySPtr gameobj)
 {
 }
 
-void GameObject::OnUnMountChild(GameObjectSPtr gameobj)
+void Entity::OnUnMountChild(EntitySPtr gameobj)
 {
 }
 

@@ -5,19 +5,19 @@
 namespace engine::ecs
 {
 
-class GameObjectMgr final:
-    public bbt::templateutil::ManagerBase<GameObjectId, GameObject>
+class EntityMgr final:
+    public bbt::templateutil::ManagerBase<EntityId, Entity>
 {
     typedef std::tuple<std::string, GameObjectTemplateId> GameObjectInfo; 
     typedef std::pair<MemberPtr, bool> Result; 
 public:
-    GameObjectMgr(SceneSPtr scene);
-    ~GameObjectMgr();
+    EntityMgr(SceneSPtr scene);
+    ~EntityMgr();
     virtual Result      Search(KeyType key);
     virtual bool        IsExist(KeyType key);
     size_t              ObjCount() const;
     std::string         GetName(GameObjectTemplateId tid) const;        
-    int                 GetGameobjectByFilter(std::vector<GameObjectWKPtr>& gameobjects, std::shared_ptr<EntityFilter> filter);
+    int                 GetGameobjectByFilter(std::vector<EntityWKPtr>& gameobjects, std::shared_ptr<EntityFilter> filter);
     SceneSPtr           GetScene() const;
     void                Update() {}
 
@@ -31,7 +31,7 @@ protected:
     virtual KeyType GenerateKey(MemberPtr member_base) override;
 
 private:
-    std::map<GameObjectId, GameObjectWKPtr>  m_gameobject_map;
+    std::map<EntityId, EntityWKPtr>  m_gameobject_map;
     util::hashmap::Hashmap<ComponentTemplateId, GameObjectInfo, 8> m_gameobject_info_map;
     SceneWKPtr m_scene;
 };

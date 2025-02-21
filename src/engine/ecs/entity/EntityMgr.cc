@@ -1,13 +1,13 @@
 #include <engine/ecs/filter/EntityFilter.hpp>
-#include <engine/ecs/gameobject/GameObjectMgr.hpp>
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/EntityMgr.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 #include <util/log/Log.hpp>
 #include <tuple>
 
 namespace engine::ecs
 {
 
-GameObjectMgr::GameObjectMgr(SceneSPtr scene)
+EntityMgr::EntityMgr(SceneSPtr scene)
     :m_gameobject_info_map(
         [](const ComponentTemplateId& key){ return (size_t)(key%8);},
         GameObjectInfo("", -1)),
@@ -15,7 +15,7 @@ GameObjectMgr::GameObjectMgr(SceneSPtr scene)
 {
 }
 
-GameObjectMgr::~GameObjectMgr() 
+EntityMgr::~EntityMgr() 
 {
     /**
      * 需要主动触发残留对象的释放
@@ -48,7 +48,7 @@ GameObjectMgr::~GameObjectMgr()
     DebugAssert(m_gameobject_map.size() == 0);
 }
 
-typename GameObjectMgr::Result GameObjectMgr::Search(KeyType key)
+typename EntityMgr::Result EntityMgr::Search(KeyType key)
 {
     auto it_obj = m_gameobject_map.find(key);
     if(it_obj == m_gameobject_map.end())
@@ -57,18 +57,18 @@ typename GameObjectMgr::Result GameObjectMgr::Search(KeyType key)
     return {(it_obj->second).lock(), true};
 }
 
-bool GameObjectMgr::IsExist(KeyType key)
+bool EntityMgr::IsExist(KeyType key)
 {
     return !(m_gameobject_map.find(key) == m_gameobject_map.end());
 }
 
-size_t GameObjectMgr::ObjCount() const
+size_t EntityMgr::ObjCount() const
 {
     return m_gameobject_map.size();
 }
 
 
-std::string GameObjectMgr::GetName(GameObjectTemplateId tid) const
+std::string EntityMgr::GetName(GameObjectTemplateId tid) const
 {
     auto [info, isok] = m_gameobject_info_map.Find(tid);
     
@@ -79,7 +79,7 @@ std::string GameObjectMgr::GetName(GameObjectTemplateId tid) const
     return "";
 }
 
-bool GameObjectMgr::OnMemberCreate(MemberPtr member_base)
+bool EntityMgr::OnMemberCreate(MemberPtr member_base)
 {
     auto gid = member_base->GetMemberId();
     auto it = m_gameobject_map.find(gid);
@@ -90,7 +90,7 @@ bool GameObjectMgr::OnMemberCreate(MemberPtr member_base)
     return isok;
 }
 
-bool GameObjectMgr::OnMemberDestory(KeyType key)
+bool EntityMgr::OnMemberDestory(KeyType key)
 {
     auto it = m_gameobject_map.find(key);
     if(it == m_gameobject_map.end())
@@ -100,13 +100,13 @@ bool GameObjectMgr::OnMemberDestory(KeyType key)
     return (idx > 0);
 }
 
-GameObjectMgr::KeyType 
-GameObjectMgr::GenerateKey(MemberPtr member_base)
+EntityMgr::KeyType 
+EntityMgr::GenerateKey(MemberPtr member_base)
 {
     return engine::ecs::GenerateGameObjectID();
 }
 
-bool GameObjectMgr::InitTemplateInfo(std::initializer_list<GameObjectInfo> list)
+bool EntityMgr::InitTemplateInfo(std::initializer_list<GameObjectInfo> list)
 {
     static bool is_inited = false;
     if( is_inited )
@@ -123,7 +123,7 @@ bool GameObjectMgr::InitTemplateInfo(std::initializer_list<GameObjectInfo> list)
     return true;    
 }
 
-int GameObjectMgr::GetGameobjectByFilter(std::vector<GameObjectWKPtr>& gameobjects, std::shared_ptr<EntityFilter> filter)
+int EntityMgr::GetGameobjectByFilter(std::vector<EntityWKPtr>& gameobjects, std::shared_ptr<EntityFilter> filter)
 {
     int count = 0;
     if (filter == nullptr)
@@ -145,7 +145,7 @@ int GameObjectMgr::GetGameobjectByFilter(std::vector<GameObjectWKPtr>& gameobjec
     return count;
 }
 
-SceneSPtr GameObjectMgr::GetScene() const
+SceneSPtr EntityMgr::GetScene() const
 {
     return m_scene.lock();
 }

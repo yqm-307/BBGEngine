@@ -19,7 +19,7 @@ void Scene::Init()
 {
     m_component_mgr = std::make_shared<ComponentMgr>(shared_from_this());
     m_system_mgr = std::make_shared<SystemMgr>(shared_from_this());
-    m_gameobj_mgr = std::make_shared<GameObjectMgr>(shared_from_this());
+    m_entity_mgr = std::make_shared<EntityMgr>(shared_from_this());
 }
 
 void Scene::RegistSystem(SystemSPtr system, const EntityFilter& filter)
@@ -30,7 +30,7 @@ void Scene::RegistSystem(SystemSPtr system, const EntityFilter& filter)
 void Scene::Update()
 {
     m_component_mgr->Update();
-    m_gameobj_mgr->Update();
+    m_entity_mgr->Update();
     m_system_mgr->Update();
 }
 

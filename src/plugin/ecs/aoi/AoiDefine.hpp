@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <set>
 #include <map>
-#include "engine/ecs/gameobject/GameObject.hpp"
+#include "engine/ecs/entity/Entity.hpp"
 #include "engine/ecs/EcsDefine.hpp"
 #include "util/vector/Vector2.hpp"
 
@@ -13,7 +13,7 @@ typedef float       Pos;            //
 typedef int         AoiObjectId;    // aoi 对象id, aoi中任何 gameobject 都有该id
 typedef int         Index;          // 
 
-typedef std::map<int, engine::ecs::GameObjectSPtr> GameObjMap;
+typedef std::map<int, engine::ecs::EntitySPtr> GameObjMap;
 
 static const int AoiHashBucketNum = 16;
 static const int AoiInfoIntervalMS = 5000;

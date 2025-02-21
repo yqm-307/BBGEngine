@@ -11,7 +11,7 @@ class TestComponent:
 {
     ComponentClassMetaInfo(EM_COMPONENT_TYPE_TESTCOMP_1);
 public:
-    typedef std::function<void(engine::ecs::GameObjectSPtr)> MyCallback; 
+    typedef std::function<void(engine::ecs::EntitySPtr)> MyCallback; 
 
     ~TestComponent();    
 protected:

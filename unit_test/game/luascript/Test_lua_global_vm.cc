@@ -6,7 +6,7 @@
 
 #include "plugin/ecs/globalluavm/GlobalLuaVM.hpp"
 #include "plugin/scene/testscene/SampleScene.hpp"
-#include "plugin/ecs/gameobject/GameObject.hpp"
+#include "plugin/ecs/entity/Entity.hpp"
 
 #define SHARE_LUA_PATH "../../../plugin/script"
 

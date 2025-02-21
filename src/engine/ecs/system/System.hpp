@@ -1,5 +1,5 @@
 #pragma once
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 
 namespace engine::ecs
 {
@@ -8,7 +8,7 @@ class System
 {
     friend class SystemMgr;
 public:
-    typedef engine::ecs::GameObjectSPtr GameObjectSPtr;
+    typedef engine::ecs::EntitySPtr EntitySPtr;
     System();
     virtual ~System() = default;
 
@@ -18,7 +18,7 @@ private:
     virtual void                Update();
     virtual void                Init();
 protected:
-    std::vector<GameObjectWKPtr>    m_gameobjects;
+    std::vector<EntityWKPtr>    m_gameobjects;
     std::shared_ptr<EntityFilter>   m_filter{nullptr};
     std::once_flag                  m_init_flag;
 };

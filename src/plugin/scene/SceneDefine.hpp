@@ -13,7 +13,7 @@ extern inline std::unique_ptr<engine::ecs::Scene>& MainScene()
     return g_scene;
 }
 
-extern inline engine::ecs::GameObjectSPtr GetGlobalInstByTid(engine::ecs::GameObjectTemplateId tid)
+extern inline engine::ecs::EntitySPtr GetGlobalInstByTid(engine::ecs::GameObjectTemplateId tid)
 {
     // auto objs = MainScene()->GetGameObjectMgr()->GetGameObject(plugin::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
     // if (objs.size() != 1)
@@ -26,7 +26,7 @@ extern inline engine::ecs::GameObjectSPtr GetGlobalInstByTid(engine::ecs::GameOb
     return nullptr;
 }
 
-extern inline bool RegistGlobalInst(engine::ecs::GameObjectSPtr obj)
+extern inline bool RegistGlobalInst(engine::ecs::EntitySPtr obj)
 {
     // auto objs = MainScene()->GetGameObjectMgr()->GetGameObject(plugin::ecs::EM_ENTITY_TYPE_DB_GLOBAL_MGR);
     // if (objs.size() != 1)

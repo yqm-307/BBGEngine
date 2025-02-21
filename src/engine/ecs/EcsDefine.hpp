@@ -17,7 +17,7 @@
 #define Managed
 
 #define GameObjectClassMetaInfo \
-    BBTManagerFriendFlag(engine::ecs::GameObjectId, engine::ecs::GameObject)
+    BBTManagerFriendFlag(engine::ecs::EntityId, engine::ecs::Entity)
 
 #define ComponentClassMetaInfo(templateid) \
     BBTManagerFriendFlag(engine::ecs::ComponentId, engine::ecs::Component); \
@@ -34,22 +34,22 @@ namespace engine::ecs
 {
 
 class ComponentMgr;
-class GameObjectMgr;
+class EntityMgr;
 class SystemMgr;
 
 class Component;
-class GameObject;
+class Entity;
 class System;
 class Scene;
 
 class EntityFilter;
 
 SharedWithUniqueDef(Component);
-SharedWithUniqueDef(GameObject);
+SharedWithUniqueDef(Entity);
 SharedWithUniqueDef(System);
 SharedWithUniqueDef(Scene);
 AllSmartDef(ComponentMgr);
-AllSmartDef(GameObjectMgr);
+AllSmartDef(EntityMgr);
 AllSmartDef(SystemMgr);
 
 
@@ -64,23 +64,23 @@ enum EasyIdType {
 
 
 
-typedef int64_t GameObjectId;
+typedef int64_t EntityId;
 typedef int64_t ComponentId;
 typedef int64_t SystemId;
 typedef bbt::core::reflex::TypeId TagId;
 
-static const GameObjectId InvalidGameObjectId = -1;
-static const GameObjectId InvalidComponentId = -1;
-static const GameObjectId InvalidSystemId = -1;
+static const EntityId InvalidGameObjectId = -1;
+static const EntityId InvalidComponentId = -1;
+static const EntityId InvalidSystemId = -1;
 static const TagId        InvalidTagId = -1;
 
 typedef int32_t ComponentTemplateId; // 模板id
 typedef int32_t GameObjectTemplateId; // 模板id
 
-extern inline GameObjectId GenerateGameObjectID() 
+extern inline EntityId GenerateGameObjectID() 
 { return bbt::uuid::EasyID<bbt::uuid::emEasyID::EM_AUTO_INCREMENT, EM_Mist_GameObjectId>::GenerateID() ; }
 
-extern inline bool GameObjectIDInvalid(GameObjectId id)
+extern inline bool GameObjectIDInvalid(EntityId id)
 { return (id <= InvalidGameObjectId); }
 
 extern inline ComponentId GenerateComponentID() 

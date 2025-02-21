@@ -1,11 +1,10 @@
 #pragma once
-#include <plugin/ecs/rpc/Define.hpp>
+#include <cluster/rpc/Define.hpp>
 
-namespace plugin::ecs::rpc
+namespace cluster
 {
 
-class RpcServer:
-    public engine::ecs::Component
+class RpcServer
 {
     friend class RpcClient;
 public:
@@ -22,4 +21,4 @@ private:
     std::unordered_map<std::string, RpcCallback> m_registed_methods;    // 注册的服务方法
 };
 
-} // namespace plugin::ecs::rpc
+} // namespace cluster::rpc

@@ -41,20 +41,20 @@ AoiObjectId AoiObjectComponent::GetObjId()
     return m_id;
 }
 
-void AoiObjectComponent::OnEnterAoi(engine::ecs::GameObjectId aoi_gameobject_id)
+void AoiObjectComponent::OnEnterAoi(engine::ecs::EntityId aoi_gameobject_id)
 {
     m_prev_aoi_gameobj_id = m_curr_aoi_gameobj_id;
     m_curr_aoi_gameobj_id = aoi_gameobject_id;
 }
 
-void AoiObjectComponent::OnLeaveAoi(engine::ecs::GameObjectId aoi_gameobject_id)
+void AoiObjectComponent::OnLeaveAoi(engine::ecs::EntityId aoi_gameobject_id)
 {
     AssertWithInfo(m_curr_aoi_gameobj_id == aoi_gameobject_id, "history list is bad!");
     m_curr_aoi_gameobj_id = m_prev_aoi_gameobj_id;
     m_prev_aoi_gameobj_id = engine::ecs::InvalidGameObjectId;
 }
 
-engine::ecs::GameObjectSPtr AoiObjectComponent::GetCurrentAoi()
+engine::ecs::EntitySPtr AoiObjectComponent::GetCurrentAoi()
 {
     if (engine::ecs::GameObjectIDInvalid(m_curr_aoi_gameobj_id))
         return nullptr;
@@ -63,7 +63,7 @@ engine::ecs::GameObjectSPtr AoiObjectComponent::GetCurrentAoi()
     if (!scene)
         return nullptr;
     
-    auto [gameobject, isok] = scene->GetGameObjectMgr()->Search(m_curr_aoi_gameobj_id);
+    auto [gameobject, isok] = scene->GetEntityMgr()->Search(m_curr_aoi_gameobj_id);
     if (!isok)
         return nullptr;
 

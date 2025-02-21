@@ -9,7 +9,7 @@ TimeWheel::~TimeWheel()
 {}
 
 TimeWheel::TimeWheel(int fps):
-    engine::ecs::GameObject(EM_ENTITY_TYPE_TIME_WHEEL)
+    engine::ecs::Entity(EM_ENTITY_TYPE_TIME_WHEEL)
 {
 
 }

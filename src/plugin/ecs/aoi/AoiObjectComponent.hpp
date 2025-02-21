@@ -21,24 +21,24 @@ public:
 
     ecs::aoi::AoiEntityFlag GetMode();
     AoiObjectId GetObjId();
-    engine::ecs::GameObjectSPtr GetCurrentAoi();
+    engine::ecs::EntitySPtr GetCurrentAoi();
     
     void OnMove(util::pos::Point3 vec);
     void OnMove(Tower* tower);
-    void OnEnterAoi(engine::ecs::GameObjectId aoi_gameobject_id);
-    void OnLeaveAoi(engine::ecs::GameObjectId aoi_gameobject_id);
+    void OnEnterAoi(engine::ecs::EntityId aoi_gameobject_id);
+    void OnLeaveAoi(engine::ecs::EntityId aoi_gameobject_id);
     util::pos::Point3 GetCurrentPos();
     
 private:
     AoiObjectComponent(ecs::aoi::AoiEntityFlag mode);
     virtual void OnUpdate() override {}
     virtual void OnFatherDead() {};
-    virtual void OnAddComponent(engine::ecs::GameObjectSPtr) {};
-    virtual void OnDelComponent(engine::ecs::GameObjectSPtr) {};
+    virtual void OnAddComponent(engine::ecs::EntitySPtr) {};
+    virtual void OnDelComponent(engine::ecs::EntitySPtr) {};
 
 private:
-    engine::ecs::GameObjectId m_prev_aoi_gameobj_id{engine::ecs::InvalidGameObjectId};
-    engine::ecs::GameObjectId m_curr_aoi_gameobj_id{engine::ecs::InvalidGameObjectId};
+    engine::ecs::EntityId m_prev_aoi_gameobj_id{engine::ecs::InvalidGameObjectId};
+    engine::ecs::EntityId m_curr_aoi_gameobj_id{engine::ecs::InvalidGameObjectId};
     Tower* m_curr_tower;
     util::pos::Point3 m_prev_pos;
     util::pos::Point3 m_curr_pos;

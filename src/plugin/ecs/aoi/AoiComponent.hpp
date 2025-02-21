@@ -20,16 +20,16 @@ class AoiComponent:
     friend class AoiSystem;
     ComponentClassMetaInfo(EM_COMPONENT_TYPE_AOI);
     template<typename T> using Timestamp = bbt::timer::clock::Timestamp<T>;
-    typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::GameObjectSPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
+    typedef util::hashmap::Hashmap<AoiObjectId, engine::ecs::EntitySPtr, AoiHashBucketNum> GameObjHashmap;    /* 游戏对象hash桶 */
     /* 为什么加扫描到的下标这个参数。因为后续可能做优化，现在可以预知扫描周围的人然后处理，会导致某个方向上的玩家收到信息较慢 */
     typedef std::function<void(Tower*, int)>  AroundFunc;     /* 环视函数, 被扫到的灯塔，第几个（0-8） */
-    // typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnEnterFunc;    /* 通知p1，p2进入了他的九宫格视野 */
-    // typedef std::function<void(engine::ecs::GameObjectSPtr/*p1*/, engine::ecs::GameObjectSPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
+    // typedef std::function<void(engine::ecs::EntitySPtr/*p1*/, engine::ecs::EntitySPtr/*p2*/)>   OnEnterFunc;    /* 通知p1，p2进入了他的九宫格视野 */
+    // typedef std::function<void(engine::ecs::EntitySPtr/*p1*/, engine::ecs::EntitySPtr/*p2*/)>   OnLeaveFunc;    /* 通知p1，p2离开了他的九宫格视野 */
 public:
     virtual ~AoiComponent();
     bool CheckConfig(const util::config::AoiConfig*) const;
-    virtual void OnAddComponent(engine::ecs::GameObjectSPtr);
-    virtual void OnDelComponent(engine::ecs::GameObjectSPtr);
+    virtual void OnAddComponent(engine::ecs::EntitySPtr);
+    virtual void OnDelComponent(engine::ecs::EntitySPtr);
     virtual void OnUpdate();
 
 private:
@@ -37,10 +37,10 @@ private:
     Tower* GetTowerByIndex3(util::pos::Index3 index3);
     util::pos::Index3   GetIndex3ByPos3(util::pos::Point3 pos3) const;
     util::pos::Index3   GetIndex3ByIndex(int tower_index) const;
-    engine::ecs::GameObjectSPtr GetGameObj(AoiObjectId id);
+    engine::ecs::EntitySPtr GetGameObj(AoiObjectId id);
     void                ScanTowerAround(Tower* center_tower, AroundFunc dofunc);
-    std::vector<engine::ecs::GameObjectSPtr>  GetEntitysEx(util::pos::Point3 pos);
-    bool                Move(engine::ecs::GameObjectSPtr player, util::vector::Vector3 moveto);
+    std::vector<engine::ecs::EntitySPtr>  GetEntitysEx(util::pos::Point3 pos);
+    bool                Move(engine::ecs::EntitySPtr player, util::vector::Vector3 moveto);
     void Init();
 
 protected:

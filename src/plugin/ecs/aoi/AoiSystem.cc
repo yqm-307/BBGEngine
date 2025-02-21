@@ -27,7 +27,7 @@ AoiSystem::AoiSystem()
 }
 
 
-bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::GameObjectSPtr npc, util::pos::Point3 drop_point)
+bool AoiSystem::EnterAoi(engine::ecs::EntitySPtr aoi_entity, engine::ecs::EntitySPtr npc, util::pos::Point3 drop_point)
 {
     bool success = false;
     do
@@ -44,7 +44,7 @@ bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::Ga
         if(id < 0)
             break;
 
-        engine::ecs::GameObjectSPtr old_obj = GetGameObjByAoi(aoi_entity, id);
+        engine::ecs::EntitySPtr old_obj = GetGameObjByAoi(aoi_entity, id);
         if(bbt_unlikely(old_obj != nullptr))
             LeaveAoi(aoi_entity, npc);
         
@@ -80,7 +80,7 @@ bool AoiSystem::EnterAoi(engine::ecs::GameObjectSPtr aoi_entity, engine::ecs::Ga
     return success;
 }
 
-bool AoiSystem::LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player)
+bool AoiSystem::LeaveAoi(EntitySPtr aoi_entity, EntitySPtr player)
 {
     bool success = false;
     do
@@ -97,7 +97,7 @@ bool AoiSystem::LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player)
         if(bbt_unlikely(id < 0))
             break;
 
-        engine::ecs::GameObjectSPtr old_obj = GetGameObjByAoi(aoi_entity, id);
+        engine::ecs::EntitySPtr old_obj = GetGameObjByAoi(aoi_entity, id);
         if(bbt_unlikely(old_obj == nullptr))
             break;
 
@@ -129,7 +129,7 @@ bool AoiSystem::LeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr player)
     return success;
 }
 
-bool AoiSystem::Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::pos::Point3 moveto)
+bool AoiSystem::Move(EntitySPtr aoi_entity, EntitySPtr player, util::pos::Point3 moveto)
 {
     bool success = false;
     do
@@ -190,15 +190,15 @@ bool AoiSystem::Move(GameObjectSPtr aoi_entity, GameObjectSPtr player, util::pos
 }
 
 
-void AoiSystem::OnEnter(GameObjectSPtr player)
+void AoiSystem::OnEnter(EntitySPtr player)
 {
 }
 
-void AoiSystem::OnLeave(GameObjectSPtr player)
+void AoiSystem::OnLeave(EntitySPtr player)
 {
 }
 
-engine::ecs::GameObjectSPtr AoiSystem::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
+engine::ecs::EntitySPtr AoiSystem::RemoveObjFromTowerById(Tower* from_tower, AoiObjectId id)
 {
     if(from_tower == nullptr || from_tower->m_players.empty())
         return nullptr;
@@ -211,7 +211,7 @@ engine::ecs::GameObjectSPtr AoiSystem::RemoveObjFromTowerById(Tower* from_tower,
     return it->second;
 }
 
-bool AoiSystem::InsertObj2Tower(Tower* to_tower, AoiObjectId key, engine::ecs::GameObjectSPtr obj)
+bool AoiSystem::InsertObj2Tower(Tower* to_tower, AoiObjectId key, engine::ecs::EntitySPtr obj)
 {
     if(to_tower == nullptr || key < 0 || obj == nullptr)
         return false;
@@ -232,7 +232,7 @@ bool AoiSystem::InsertObj2Tower(Tower* to_tower, AoiObjectId key, engine::ecs::G
 }
 
 
-bool AoiSystem::HasAoiComponent(engine::ecs::GameObjectSPtr obj)
+bool AoiSystem::HasAoiComponent(engine::ecs::EntitySPtr obj)
 {
     if(obj == nullptr)
         return false;
@@ -243,7 +243,7 @@ bool AoiSystem::HasAoiComponent(engine::ecs::GameObjectSPtr obj)
     return true;
 }
 
-std::shared_ptr<ecs::aoi::AoiComponent> AoiSystem::GetAoiComponent(engine::ecs::GameObjectSPtr obj)
+std::shared_ptr<ecs::aoi::AoiComponent> AoiSystem::GetAoiComponent(engine::ecs::EntitySPtr obj)
 {
     if(obj == nullptr)
         return nullptr;
@@ -251,7 +251,7 @@ std::shared_ptr<ecs::aoi::AoiComponent> AoiSystem::GetAoiComponent(engine::ecs::
     return obj->GetComponent<AoiComponent>();
 }
 
-std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiSystem::GetAoiObjectComponent(engine::ecs::GameObjectSPtr obj)
+std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiSystem::GetAoiObjectComponent(engine::ecs::EntitySPtr obj)
 {
     if (obj == nullptr) 
         return nullptr;
@@ -263,7 +263,7 @@ std::shared_ptr<ecs::aoi::AoiObjectComponent> AoiSystem::GetAoiObjectComponent(e
     return std::static_pointer_cast<ecs::aoi::AoiObjectComponent>(component);
 }
 
-engine::ecs::GameObjectSPtr AoiSystem::GetGameObjByAoi(engine::ecs::GameObjectCSPtr aoi, AoiObjectId id)
+engine::ecs::EntitySPtr AoiSystem::GetGameObjByAoi(engine::ecs::EntityCSPtr aoi, AoiObjectId id)
 {
     auto aoi_component = GetAoiComponent(aoi);
     if (!aoi_component)
@@ -276,7 +276,7 @@ engine::ecs::GameObjectSPtr AoiSystem::GetGameObjByAoi(engine::ecs::GameObjectCS
     return gameobj;
 }
 
-void AoiSystem::EnterTowerBroadcast(GameObjectSPtr aoi_entity, GameObjectSPtr player, Tower* tower, int n)
+void AoiSystem::EnterTowerBroadcast(EntitySPtr aoi_entity, EntitySPtr player, Tower* tower, int n)
 {
     /**
      * 当一个实体进入灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
@@ -304,7 +304,7 @@ void AoiSystem::EnterTowerBroadcast(GameObjectSPtr aoi_entity, GameObjectSPtr pl
     }
 }
 
-void AoiSystem::LeaveTowerBroadcast(GameObjectSPtr aoi_entity, GameObjectSPtr player, Tower* tower, int n)
+void AoiSystem::LeaveTowerBroadcast(EntitySPtr aoi_entity, EntitySPtr player, Tower* tower, int n)
 {
     /**
      * 当一个实体离开灯塔范围的时候，应该通知之前的灯塔中所有的观察者。
@@ -337,13 +337,13 @@ void AoiSystem::LeaveTowerBroadcast(GameObjectSPtr aoi_entity, GameObjectSPtr pl
     }
 }
 
-void AoiSystem::OnLeaveAoi(GameObjectSPtr aoi_entity, GameObjectSPtr p1, GameObjectSPtr p2)
+void AoiSystem::OnLeaveAoi(EntitySPtr aoi_entity, EntitySPtr p1, EntitySPtr p2)
 {
     if (m_onleave_aoi_notify_event)
         m_onleave_aoi_notify_event(aoi_entity, p1, p2);
 }
 
-void AoiSystem::OnEnterAoi(GameObjectSPtr aoi_entity, GameObjectSPtr p1, GameObjectSPtr p2)
+void AoiSystem::OnEnterAoi(EntitySPtr aoi_entity, EntitySPtr p1, EntitySPtr p2)
 {
     if (m_onenter_aoi_notify_event)
         m_onenter_aoi_notify_event(aoi_entity, p1, p2);

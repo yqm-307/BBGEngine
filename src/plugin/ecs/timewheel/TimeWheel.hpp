@@ -1,11 +1,11 @@
 #pragma once
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 
 namespace plugin::ecs::timewheel
 {
 
 class TimeWheel:
-    public engine::ecs::GameObject
+    public engine::ecs::Entity
 {
     GameObjectClassMetaInfo;
 public:

@@ -15,7 +15,7 @@ std::shared_ptr<SimpleObj_1> SimpleObj_1::FastCreate()
 
 
 SimpleObj_1::SimpleObj_1()
-    :engine::ecs::GameObject(plugin::ecs::emEntityType::EM_ENTITY_TYPE_TESTOBJ_1)
+    :engine::ecs::Entity(plugin::ecs::emEntityType::EM_ENTITY_TYPE_TESTOBJ_1)
 {
 
 }

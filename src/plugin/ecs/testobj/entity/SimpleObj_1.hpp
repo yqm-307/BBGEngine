@@ -1,5 +1,5 @@
 #pragma once
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 
 
 namespace plugin::ecs::entity::testobj
@@ -8,7 +8,7 @@ namespace plugin::ecs::entity::testobj
 
 
 class SimpleObj_1:
-    public engine::ecs::GameObject
+    public engine::ecs::Entity
 {
     GameObjectClassMetaInfo;
 public:

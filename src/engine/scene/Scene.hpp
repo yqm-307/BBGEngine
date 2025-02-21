@@ -1,6 +1,6 @@
 // #pragma once
 // #include <bbt/base/templateutil/Noncopyable.hpp>
-// #include "engine/ecs/gameobject/GameObject.hpp"
+// #include "engine/ecs/entity/Entity.hpp"
 // #include "util/hashmap/Hashmap.hpp"
 
 // namespace engine::scene
@@ -11,23 +11,23 @@
 
 // // class Scene
 // // {
-// //     typedef std::pair<engine::ecs::GameObjectSPtr, bool> Result;
+// //     typedef std::pair<engine::ecs::EntitySPtr, bool> Result;
 // // public:
 // //     Scene();
 // //     virtual ~Scene() = 0;
 
 // //     virtual void        Update() final;
-// //     virtual bool        MountGameObject(engine::ecs::GameObjectSPtr) final;
-// //     virtual Result      UnMountGameObject(engine::ecs::GameObjectSPtr) final; 
+// //     virtual bool        MountGameObject(engine::ecs::EntitySPtr) final;
+// //     virtual Result      UnMountGameObject(engine::ecs::EntitySPtr) final; 
 // //     virtual Result      UnMountGameObject(engine::ecs::GameObjectId) final;
 // //     virtual size_t      GetChildNum() final;
-// //     virtual std::vector<engine::ecs::GameObjectSPtr>
+// //     virtual std::vector<engine::ecs::EntitySPtr>
 // //                         GetGameObject(engine::ecs::GameObjectTemplateId tid) final;
 // // protected:
 // //     virtual void        OnUpdate() = 0;
 
 // //     /* 场景根节点的 游戏对象数组 */
-// //     std::vector<engine::ecs::GameObjectSPtr> m_root_gobjs;
+// //     std::vector<engine::ecs::EntitySPtr> m_root_gobjs;
 // // };
 
 // }

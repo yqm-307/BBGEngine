@@ -5,7 +5,7 @@
 #include "plugin/scene/testscene/SampleScene.hpp"
 #include "plugin/ecs/network/Network.hpp"
 #include "plugin/ecs/network/NetworkSystem.hpp"
-#include "plugin/ecs/gameobject/GameObject.hpp"
+#include "plugin/ecs/entity/Entity.hpp"
 #include "plugin/session/DBServiceSession.hpp"
 #include "plugin/ecs/timewheel/TimeWheelSystem.hpp"
 #include "plugin/ecs/Define.hpp"

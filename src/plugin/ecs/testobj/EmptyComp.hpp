@@ -10,7 +10,7 @@ class EmptyComponent:
 {
     ComponentClassMetaInfo(EM_COMPONENT_TYPE_EMPTY);
 public:
-    typedef std::function<void(engine::ecs::GameObjectSPtr)> MyCallback; 
+    typedef std::function<void(engine::ecs::EntitySPtr)> MyCallback; 
 
     ~EmptyComponent() {} 
 protected:

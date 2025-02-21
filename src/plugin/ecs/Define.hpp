@@ -1,7 +1,7 @@
 #pragma once
 #include <bbt/base/Attribute.hpp>
 #include "engine/ecs/component/ComponentMgr.hpp"
-#include "engine/ecs/gameobject/GameObjectMgr.hpp"
+#include "engine/ecs/entity/EntityMgr.hpp"
 
 
 namespace plugin::ecs
@@ -98,6 +98,6 @@ static EcsInitHelper* __InitHelper = new EcsInitHelper();
  * @brief 保存全局对象
  * 
  */
-extern engine::ecs::GameObjectSPtr g_global_obj;
+extern engine::ecs::EntitySPtr g_global_obj;
 
 } // namespace share::ecs

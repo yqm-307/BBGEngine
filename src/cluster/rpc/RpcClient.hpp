@@ -1,12 +1,11 @@
 #pragma once
-#include <plugin/ecs/rpc/Define.hpp>
-#include <plugin/ecs/rpc/RpcSerializer.hpp>
+#include <cluster/rpc/Define.hpp>
+#include <cluster/rpc/RpcSerializer.hpp>
 
-namespace plugin::ecs::rpc
+namespace cluster
 {
 
-class RpcClient:
-    public engine::ecs::Component
+class RpcClient
 {
     friend class RpcServer;
 public:

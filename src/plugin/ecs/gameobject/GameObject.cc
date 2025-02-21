@@ -5,7 +5,7 @@ namespace plugin::ecs::gameobject
 {
 
 GameObject::GameObject()
-    :engine::ecs::GameObject(emEntityType::EM_ENTITY_TYPE_GAMEOBJECT)
+    :engine::ecs::Entity(emEntityType::EM_ENTITY_TYPE_GAMEOBJECT)
 {
 }
 

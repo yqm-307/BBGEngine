@@ -15,7 +15,7 @@ public:
     EntityFilter&           AddTag();
     EntityFilter&           AddTag(TagSet tags);
     TagSet&                 GetTags();
-    bool                    Filter(GameObjectSPtr gameobj);
+    bool                    Filter(EntitySPtr gameobj);
 
 private:
     TagSet m_filter_tags;

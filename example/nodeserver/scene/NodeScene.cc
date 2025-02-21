@@ -3,7 +3,7 @@
 #include <nodeserver/config/LoadConfig.hpp>
 #include <nodeserver/ecs/network/EchoServer.hpp>
 #include <plugin/ecs/network/ServerSystem.hpp>
-#include <plugin/ecs/gameobject/GameObject.hpp>
+#include <plugin/ecs/entity/Entity.hpp>
 #include <plugin/ecs/aoi/AoiComponent.hpp>
 #include <plugin/ecs/globalmgr/GlobalMgr.hpp>
 #include <plugin/scene/SceneDefine.hpp>
@@ -96,14 +96,14 @@ void NodeScene::OnInit()
 
 }
 
-engine::ecs::GameObjectSPtr NodeScene::GlobalMgrInit()
+engine::ecs::EntitySPtr NodeScene::GlobalMgrInit()
 {
     // auto global_mgr = G_GameObjectMgr()->Create<plugin::ecs::globalmgr::GlobalMgr>();
     // return global_mgr;
     return nullptr;
 }
 
-engine::ecs::GameObjectSPtr NodeScene::NetWorkInit()
+engine::ecs::EntitySPtr NodeScene::NetWorkInit()
 {
     auto& cfgInst = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
     auto ip     = cfgInst->GetServerIP();

@@ -1,7 +1,7 @@
 #pragma once
 #include <bbt/pollevent/EventLoop.hpp>
 #include <bbt/pollevent/Event.hpp>
-#include <engine/ecs/gameobject/GameObject.hpp>
+#include <engine/ecs/entity/Entity.hpp>
 #include <engine/ecs/scene/Scene.hpp>
 #include "engine/scene/Scene.hpp"
 #include "nodeserver/NodeDefine.hpp"
@@ -18,7 +18,7 @@ const int GameSceneFrame = 20;  // 服务端游戏场景每秒20帧
 
 class NodeScene
 {
-    typedef engine::ecs::GameObjectSPtr    GameObjectSPtr;
+    typedef engine::ecs::EntitySPtr    EntitySPtr;
 public:
     NodeScene();
     ~NodeScene();
@@ -36,8 +36,8 @@ private:
     /**
      * Module 流程控制
      */
-    engine::ecs::GameObjectSPtr GlobalMgrInit();
-    engine::ecs::GameObjectSPtr NetWorkInit();
+    engine::ecs::EntitySPtr GlobalMgrInit();
+    engine::ecs::EntitySPtr NetWorkInit();
     /* 阻塞的等待IO线程退出 */
     void IOThreadExit();
     void OnStopScene();

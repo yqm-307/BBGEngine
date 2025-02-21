@@ -8,15 +8,15 @@
 
 namespace engine::ecs
 {
-class GameObject:
-    public std::enable_shared_from_this<GameObject>,
-    public bbt::templateutil::MemberBase<GameObjectId, GameObject>
+class Entity:
+    public std::enable_shared_from_this<Entity>,
+    public bbt::templateutil::MemberBase<EntityId, Entity>
 {
-    friend class GameObjectMgr;
+    friend class EntityMgr;
     friend class engine::ecs::Scene;
 public:
-    explicit        GameObject(int gobj_type);
-    virtual         ~GameObject() = 0;
+    explicit        Entity(int gobj_type);
+    virtual         ~Entity() = 0;
 
 
     template<class TComponent, typename ...Args>
@@ -32,21 +32,21 @@ public:
     ComponentSPtr   DelComponent(ComponentTemplateId component_name);
     /* 游戏对象的类型 */
     GameObjectTemplateId Type();
-    GameObjectId    GetId();
+    EntityId    GetId();
     std::string     GetName() const;
     /* 根据游戏对象的名字，在当前游戏对象的子游戏对象中找到游戏对象 */
-    GameObjectSPtr  GetGameObject(GameObjectId id);
+    EntitySPtr  GetGameObject(EntityId id);
     // TODO
     /* 根据游戏对象的名字，递归的在子游戏对象中找到游戏对象 */
-    // GameObjectSPtr  RecursionGetGameObject(std::string gameobj_name);
+    // EntitySPtr  RecursionGetGameObject(std::string gameobj_name);
 
     /* 动态的添加一个子游戏对象，成功返回true，失败返回false */
-    bool            MountChild(GameObjectSPtr gameobj);
+    bool            MountChild(EntitySPtr gameobj);
     TagSet&         GetTagSet();
     SceneSPtr       GetScene() const;
-    GameObjectMgrSPtr  GetGameObjectMgr() const;
+    EntityMgrSPtr   GetEntityMgr() const;
 
-    std::pair<bool, GameObjectSPtr> UnMountChild(GameObjectId gameobj_id);
+    std::pair<bool, EntitySPtr> UnMountChild(EntityId gameobj_id);
     std::string     Dbg_GameObjectTree() const;
 protected:
     virtual void    OnFatherDead() const;
@@ -61,8 +61,8 @@ protected:
      */
     virtual void    OnUpdate();
 
-    virtual void    OnMountChild(GameObjectSPtr gameobj);
-    virtual void    OnUnMountChild(GameObjectSPtr gameobj);
+    virtual void    OnMountChild(EntitySPtr gameobj);
+    virtual void    OnUnMountChild(EntitySPtr gameobj);
 
 private:
     /**
@@ -71,7 +71,7 @@ private:
      */
     virtual void    Update() final;
     virtual void    UpdateComponent() final;
-    virtual bool    HasGameobj(GameObjectId id) const final;
+    virtual bool    HasGameobj(EntityId id) const final;
     std::string     __DbgTree(int level) const;
 
 private:
@@ -81,15 +81,15 @@ private:
     std::unordered_map<ComponentTemplateId, ComponentSPtr>
                                                     m_component_map;
     /* 游戏对象是递归的，也就是说一个游戏对象可以作为节点来包含一些子对象 */
-    std::map<GameObjectId, GameObjectSPtr>          m_childs;
+    std::map<EntityId, EntitySPtr>          m_childs;
     /* 父游戏对象 */
-    std::map<GameObjectId, GameObjectWKPtr>         m_fathers;
+    std::map<EntityId, EntityWKPtr>         m_fathers;
     TagSet                                          m_tag_set;
 };
 
 
 template<class TComponent, typename ...Args>
-bool GameObject::AddComponent(Args ...args)
+bool Entity::AddComponent(Args ...args)
 {
     auto component_mgr = GetScene()->GetComponentMgr();
     if (!component_mgr)
@@ -100,7 +100,7 @@ bool GameObject::AddComponent(Args ...args)
 }
 
 template<class TComponent>
-std::shared_ptr<TComponent> GameObject::GetComponent() const
+std::shared_ptr<TComponent> Entity::GetComponent() const
 {
     return std::dynamic_pointer_cast<TComponent>(GetComponent(BBT_REFLEX_GET_TYPEID(TComponent)));
 }

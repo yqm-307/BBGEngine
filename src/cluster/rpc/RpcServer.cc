@@ -1,7 +1,7 @@
-#include <plugin/ecs/rpc/RpcServer.hpp>
-#include <plugin/ecs/rpc/RpcSerializer.hpp>
+#include <cluster/rpc/RpcServer.hpp>
+#include <cluster/rpc/RpcSerializer.hpp>
 
-namespace plugin::ecs::rpc
+namespace cluster
 {
 
 RpcServer::RpcServer()
@@ -64,4 +64,4 @@ util::errcode::ErrOpt RpcServer::OnRpc(bbt::core::Buffer& buffer)
     return err;
 }
 
-} // namespace plugin::ecs::rpc
+} // namespace cluster::rpc

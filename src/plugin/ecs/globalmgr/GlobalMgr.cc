@@ -5,7 +5,7 @@ namespace plugin::ecs::globalmgr
 {
 
 GlobalMgr::GlobalMgr():
-    engine::ecs::GameObject(EM_ENTITY_TYPE_DB_GLOBAL_MGR)
+    engine::ecs::Entity(EM_ENTITY_TYPE_DB_GLOBAL_MGR)
 {
 
 }
@@ -14,7 +14,7 @@ GlobalMgr::~GlobalMgr()
 {
 }
 
-bool GlobalMgr::AddGlobalInst(engine::ecs::GameObjectSPtr gameobj)
+bool GlobalMgr::AddGlobalInst(engine::ecs::EntitySPtr gameobj)
 {
     if (gameobj == nullptr)
         return false;
@@ -28,7 +28,7 @@ bool GlobalMgr::AddGlobalInst(engine::ecs::GameObjectSPtr gameobj)
     return succ;
 }
 
-std::pair<bool, engine::ecs::GameObjectSPtr> GlobalMgr::DelGlobalInst(engine::ecs::GameObjectTemplateId tid)
+std::pair<bool, engine::ecs::EntitySPtr> GlobalMgr::DelGlobalInst(engine::ecs::GameObjectTemplateId tid)
 {
     auto it = m_global_instance_map.find(tid);
     if (it == m_global_instance_map.end())
@@ -41,7 +41,7 @@ std::pair<bool, engine::ecs::GameObjectSPtr> GlobalMgr::DelGlobalInst(engine::ec
     return {true, obj};
 }
 
-engine::ecs::GameObjectSPtr GlobalMgr::GetInstByTid(engine::ecs::GameObjectTemplateId tid)
+engine::ecs::EntitySPtr GlobalMgr::GetInstByTid(engine::ecs::GameObjectTemplateId tid)
 {
     auto it = m_global_instance_map.find(tid);
     if (it == m_global_instance_map.end())

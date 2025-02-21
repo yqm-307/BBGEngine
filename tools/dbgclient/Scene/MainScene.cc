@@ -1,5 +1,5 @@
 #include "MainScene.hpp"
-#include "plugin/ecs/gameobject/GameObject.hpp"
+#include "plugin/ecs/entity/Entity.hpp"
 #include "plugin/ecs/network/NetworkComponent.hpp"
 
 namespace dbgclient::scene

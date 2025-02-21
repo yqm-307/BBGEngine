@@ -1,4 +1,4 @@
-#include <engine/ecs/gameobject/GameObjectMgr.hpp>
+#include <engine/ecs/entity/EntityMgr.hpp>
 #include <engine/ecs/system/SystemMgr.hpp>
 #include <engine/ecs/filter/EntityFilter.hpp>
 
@@ -34,7 +34,7 @@ void SystemMgr::Update()
         if (m_scene.expired())
             return;
 
-        if (GetScene()->GetGameObjectMgr()->GetGameobjectByFilter(system->m_gameobjects, system->m_filter) == 0)
+        if (GetScene()->GetEntityMgr()->GetGameobjectByFilter(system->m_gameobjects, system->m_filter) == 0)
             continue;
 
         system->Update();

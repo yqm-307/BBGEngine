@@ -39,13 +39,13 @@ ComponentId Component::GetId() const
     return GetMemberId();
 }
 
-void Component::OnAddComponent(ecs::GameObjectSPtr parent)
+void Component::OnAddComponent(ecs::EntitySPtr parent)
 {
     m_parent_gameobject = parent;
     Init();
 }
 
-void Component::OnDelComponent(ecs::GameObjectSPtr parent)
+void Component::OnDelComponent(ecs::EntitySPtr parent)
 {
     auto parent_sptr = m_parent_gameobject.lock();
     AssertWithInfo(parent_sptr == parent, "this a wrong! please check object life cycle!");
@@ -88,7 +88,7 @@ void Component::Update()
         OnUpdate();
 }
 
-GameObjectSPtr Component::GetParentObject() const
+EntitySPtr Component::GetParentObject() const
 {
     return m_parent_gameobject.lock();
 }

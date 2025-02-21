@@ -10,10 +10,10 @@ class ClockSystem:
     public engine::ecs::System
 {
 public:
-    int64_t                 GetFrame(engine::ecs::GameObjectSPtr gameobject);
-    bbt::clock::Timestamp<> GetFrameTime(GameObjectSPtr gameobject);
+    int64_t                 GetFrame(engine::ecs::EntitySPtr gameobject);
+    bbt::clock::Timestamp<> GetFrameTime(EntitySPtr gameobject);
 private:
-    std::shared_ptr<ClockComp> GetComponent(GameObjectSPtr gameobject);
+    std::shared_ptr<ClockComp> GetComponent(EntitySPtr gameobject);
 };
 
 }

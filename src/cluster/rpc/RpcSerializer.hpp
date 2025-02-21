@@ -1,7 +1,7 @@
 #pragma once
-#include <plugin/ecs/rpc/Define.hpp>
+#include <cluster/rpc/Define.hpp>
 
-namespace plugin::ecs::rpc
+namespace cluster
 {
 
 #pragma pack(push, 1)
