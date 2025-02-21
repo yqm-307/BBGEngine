@@ -19,6 +19,7 @@ public:
     void AddMethod(const std::string& method_name);
     void DelMethod(const std::string& method_name);
     bool HasMethod(const std::string& method_name) const;
+    void Active();
     
 private:
     NodeState m_state{NodeState::NODESTATE_DEFAULT}; // 节点状态

@@ -85,7 +85,7 @@
     },
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
     "cmake.configureArgs": [
-        "-DNO_EXAMPLE=ON",
+        "-DNO_EXAMPLE=OFF",
         "-DNO_TEST=OFF",
         "-DDEBUG=ON",
     ],

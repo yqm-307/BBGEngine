@@ -56,7 +56,7 @@ bool Uuid::operator==(const Uuid& other) const
 }
 
 
-bool Uuid::ToString(char* uuid, size_t len) const
+bool Uuid::ToByte(char* uuid, size_t len) const
 {
     if (len <= m_uuid.size())
         return false;
@@ -98,5 +98,15 @@ bool Uuid::IsNil() const
     return m_uuid.is_nil();
 }
 
+void Uuid::Clear()
+{
+    m_uuid = boost::uuids::nil_uuid();
+}
+
+// 实现 < 运算符
+bool Uuid::operator<(const Uuid& other) const
+{
+    return m_uuid < other.m_uuid;
+}
 
 }

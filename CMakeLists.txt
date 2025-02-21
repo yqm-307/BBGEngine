@@ -30,6 +30,7 @@ file(GLOB_RECURSE SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/engine/*.cc
     ${PROJECT_SOURCE_DIR}/src/plugin/*.cc
     ${PROJECT_SOURCE_DIR}/src/util/*.cc
+    ${PROJECT_SOURCE_DIR}/src/cluster/*.cc
 )
 
 add_library(BBGEngine SHARED

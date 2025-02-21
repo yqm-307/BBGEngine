@@ -10,7 +10,8 @@ namespace util::other
 {
 
 class Uuid:
-    public boost::equality_comparable<Uuid>
+    public boost::equality_comparable<Uuid>,
+    public boost::less_than_comparable<Uuid>
 {
 public:
     typedef std::shared_ptr<Uuid> SPtr;
@@ -26,12 +27,14 @@ public:
     Uuid& operator=(Uuid&& other);
 
     bool operator==(const Uuid& other) const;
+    bool operator<(const Uuid& other) const;  // 实现 < 运算符
 
-    bool ToString(char* uuid, size_t len) const;
+    bool ToByte(char* uuid, size_t len) const;
     bool ToString(std::string& uuid) const;
     std::string ToString() const;
 
     bool IsNil() const;
+    void Clear();
 
 private:
     static void Generator(boost::uuids::uuid& uuid);

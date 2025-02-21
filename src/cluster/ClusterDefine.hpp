@@ -26,22 +26,4 @@ struct NodeRegInfo
 
 };
 
-#pragma pack(push, 1)
-
-struct N2R_KeepAlive
-{
-};
-
-struct N2R_KeepAliveAck
-{
-};
-
-struct N2R_RegService
-{
-};
-
-#pragma pack(pop)
-
-
-
 }

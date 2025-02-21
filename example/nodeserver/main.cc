@@ -1,8 +1,8 @@
 #include <bbt/network/Define.hpp>
-#include "util/random/GlobalRandom.hpp"
-#include "plugin/scene/SceneDefine.hpp"
-#include "nodeserver/scene/NodeScene.hpp"
-#include "nodeserver/config/LoadConfig.hpp"
+// #include "util/random/GlobalRandom.hpp"
+// #include "plugin/scene/SceneDefine.hpp"
+// #include "nodeserver/scene/NodeScene.hpp"
+// #include "nodeserver/config/LoadConfig.hpp"
 
 /**
  * 加载全局配置
@@ -23,10 +23,10 @@ int main()
 {
     ConfigLoad();
 
-    // 初始化游戏场景
-    auto scene = new BBTENGINE_NODE_NAMESPACE::scene::NodeScene();
-    scene->Init();
-    // 开启 World Scene
-    scene->StartScene();
-    delete scene;
+    // // 初始化游戏场景
+    // auto scene = new BBTENGINE_NODE_NAMESPACE::scene::NodeScene();
+    // scene->Init();
+    // // 开启 World Scene
+    // scene->StartScene();
+    // delete scene;
 }

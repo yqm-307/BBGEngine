@@ -1,8 +1,11 @@
 #include <bbt/base/clock/Clock.hpp>
 #include <cluster/node/ClusterNodeBase.hpp>
+#include <cluster/protocol/N2RProtocol.hpp>
 
 namespace cluster
 {
+
+RpcSerializer serializer;
 
 ClusterNodeBase::ClusterNodeBase(const ClusterNodeBase& other):
     m_state(other.m_state),
@@ -61,8 +64,13 @@ const std::string& ClusterNodeBase::GetName() const
 
 void ClusterNodeBase::Active()
 {
-    // 更新下节点最后活跃时间
-    m_last_active_time = bbt::clock::gettime() / 1000;
+    auto buffer = serializer.Serialize(
+        N2R_KEEPALIVE_REQ,
+        m_uuid->ToString(),
+        bbt::clock::gettime() / 1000);
+
+    // 发送心跳包
+    SendToRegistery(buffer);
 }
 
 void ClusterNodeBase::Offline()

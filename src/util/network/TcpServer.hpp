@@ -10,7 +10,7 @@ class TcpServer
 {
 public:
     TcpServer(const std::string& ip, short port, int connect_timeout);
-    ~TcpServer();
+    virtual ~TcpServer();
     virtual size_t  Send(bbt::network::ConnId conn, const char* bytes, size_t len);
     BBTATTR_FUNC_DeprecatedMsg("recv message use event callback")
     virtual size_t  Recv(bbt::network::ConnId conn, const char* recv_buf, size_t len);

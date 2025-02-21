@@ -1,5 +1,6 @@
 #pragma once
 #include <bbt/network/adapter/libevent/Network.hpp>
+#include <util/errcode/ErrCode.hpp>
 
 namespace util::network
 {
@@ -18,11 +19,11 @@ public:
     virtual bool    IsClosed();
     virtual void    Close();
 protected:
-    virtual void    OnRecv(const char* data, size_t len);
-    virtual void    OnSend(const bbt::network::Errcode& err, size_t succ_len);
-    virtual void    OnTimeout();
-    virtual void    OnClose();
-    virtual void    OnError(const bbt::network::Errcode& err);
+    virtual void    OnRecv(const char* data, size_t len) = 0;
+    virtual void    OnSend(const bbt::errcode::Errcode& err, size_t succ_len) = 0;
+    virtual void    OnTimeout() = 0;
+    virtual void    OnClose() = 0;
+    virtual void    OnError(const bbt::errcode::Errcode& err) = 0;
 private:
     void            SetOnClose(std::function<void(bbt::network::ConnId)> onclose);
     virtual void    _OnClose();
