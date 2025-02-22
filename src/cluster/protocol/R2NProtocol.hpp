@@ -7,6 +7,7 @@ namespace cluster
 enum emR2NProtocolType: int8_t
 {
     R2N_KEEPALIVE_RESP = 1,
+    R2N_HANDSHAKE_RESP,
     R2N_PROTOCOL_SIZE,
 };
 
@@ -23,6 +24,12 @@ struct R2NProtocolHead
 struct R2N_KeepAlive_Resp
 {
     R2NProtocolHead head;
+};
+
+struct R2N_Handshake_Resp
+{
+    R2NProtocolHead head;
+    int             msg_code;
 };
 
 #pragma pack(pop)

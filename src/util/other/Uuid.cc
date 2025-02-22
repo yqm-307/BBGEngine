@@ -55,6 +55,18 @@ bool Uuid::operator==(const Uuid& other) const
     return (m_uuid == other.m_uuid);
 }
 
+bool Uuid::FromByte(char* uuid, size_t len)
+{
+    if (len != m_uuid.size())
+        return false;
+
+    for (int i = 0; i < len; ++i)
+    {
+        m_uuid.data[i] = uuid[i];
+    }
+
+    return true;
+}
 
 bool Uuid::ToByte(char* uuid, size_t len) const
 {

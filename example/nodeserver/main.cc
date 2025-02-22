@@ -2,7 +2,7 @@
 // #include "util/random/GlobalRandom.hpp"
 // #include "plugin/scene/SceneDefine.hpp"
 // #include "nodeserver/scene/NodeScene.hpp"
-// #include "nodeserver/config/LoadConfig.hpp"
+#include "nodeserver/config/LoadConfig.hpp"
 
 /**
  * 加载全局配置
@@ -15,7 +15,7 @@ void ConfigLoad()
     
     // 服务器配置
     auto& cfg = BBTENGINE_NODE_NAMESPACE::config::ServerConfig::GetInstance();
-    GAME_BASE_LOG_INFO("IP: %s  Port: %d", cfg->GetInstance()->GetServerIP().c_str(), cfg->GetInstance()->GetServerPort());
+    // GAME_BASE_LOG_INFO("IP: %s  Port: %d", cfg->GetInstance()->GetServerIP().c_str(), cfg->GetInstance()->GetServerPort());
 
 }
 

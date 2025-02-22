@@ -7,6 +7,7 @@ namespace cluster
 enum emN2RProtocolType: int8_t
 {
     N2R_KEEPALIVE_REQ = 1,
+    N2R_HANDSHAKE_REQ,
     N2R_PROTOCOL_SIZE,
 };
 
@@ -21,6 +22,11 @@ struct NRProtocolHead
 };
 
 struct N2R_KeepAlive_Req
+{
+    NRProtocolHead head;
+};
+
+struct N2R_Handshake_Req
 {
     NRProtocolHead head;
 };

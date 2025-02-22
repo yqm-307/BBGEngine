@@ -29,16 +29,20 @@ void RegisteryTcp::Stop()
 
 util::errcode::ErrOpt RegisteryTcp::SendToNode(const char* uuid, const bbt::core::Buffer& buffer)
 {
-    auto it = m_registery_map.find(uuid);
-    if (it == m_registery_map.end())
+    auto* node_info = GetNodeRegInfo(uuid);
+    if (node_info == nullptr)
         return util::errcode::ErrCode("node not found! uuid=" + std::string{uuid}, util::errcode::ErrType::RPC_NOT_FOUND_NODE);
 
-    auto conn = m_server->GetConnectById(it->second);
+    auto conn = m_server->GetConnectById(node_info->GetConnId());
     if (conn == nullptr)
-        return util::errcode::ErrCode("conn is nullptr!", util::errcode::ErrType::CommonErr);
+        return util::errcode::ErrCode("conn is losed!", util::errcode::ErrType::CommonErr);
 
     conn->Send(buffer.Peek(), buffer.ReadableBytes());
     return std::nullopt;
+}
+
+void RegisteryTcp::OnNodeLoseConnection(bbt::network::ConnId connid)
+{
 }
 
 }

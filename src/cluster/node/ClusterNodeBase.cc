@@ -62,6 +62,34 @@ const std::string& ClusterNodeBase::GetName() const
     return m_service_name;
 }
 
+void ClusterNodeBase::SetRegisteryAddr(const bbt::net::IPAddress& addr)
+{
+    m_registery_addr = addr;
+}
+
+
+void ClusterNodeBase::Start()
+{
+    _AsyncConnectToNode(bbt::net::IPAddress(), [&](std::shared_ptr<R2NConnection> conn)
+    {
+        if (conn == nullptr)
+            return;
+
+        m_registery_conn = conn;
+        // 注册到注册中心
+        bbt::core::Buffer buffer;
+        N2R_Handshake_Req req;
+        req.head.protocol_type = N2R_HANDSHAKE_REQ;
+        req.head.protocol_length = sizeof(req);
+        m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid));
+        req.head.timestamp_ms = bbt::clock::gettime();
+
+        buffer.WriteString((char*)&req, sizeof(req));
+        SendToRegistery(buffer);
+    });
+}
+
+
 void ClusterNodeBase::Active()
 {
     auto buffer = serializer.Serialize(

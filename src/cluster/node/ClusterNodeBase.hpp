@@ -23,10 +23,12 @@ public:
     ClusterNodeBase& operator=(ClusterNodeBase&& other);
     ClusterNodeBase& operator=(const ClusterNodeBase& other);
 
-    virtual void Active();
-    virtual void Offline();
-    virtual void Online();
-    virtual void Clear();
+    void                                SetRegisteryAddr(const bbt::net::IPAddress& addr);
+    void                                Start();
+    virtual void                        Active();
+    virtual void                        Offline();
+    virtual void                        Online();
+    virtual void                        Clear();
 
     virtual util::other::Uuid::SPtr     GetUUID() const;
     virtual NodeState                   GetNodeState();
@@ -45,7 +47,7 @@ public:
     virtual void                        RecvFromRegistery(bbt::core::Buffer& buffer) = 0;
 
 protected:
-    virtual void                        _AsyncConnectToNode(const bbt::net::IPAddress& addr, std::function<void()> onconn_cb) = 0;
+    virtual void                        _AsyncConnectToNode(const bbt::net::IPAddress& addr, std::function<void(std::shared_ptr<R2NConnection>)> onconn_cb) = 0;
 
 private:
     NodeState               m_state{NODESTATE_DEFAULT};
@@ -54,8 +56,9 @@ private:
     time_t                  m_last_active_time{-1};
     std::unordered_map<std::string, RpcCallback>      m_method_map;
     std::unordered_map<std::string, std::vector<std::shared_ptr<RpcClient>>> m_service_map;
+    bbt::net::IPAddress      m_registery_addr;
     // std::shared_ptr<RpcServer>      m_rpc_server{nullptr};
-    // std::shared_ptr<NRConnection>   m_registery_conn{nullptr};    // 注册中心连接
+    std::shared_ptr<R2NConnection>   m_registery_conn{nullptr};    // 注册中心连接
 };
 
-}
+} // namespace cluster

@@ -10,19 +10,18 @@ Connection::Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int time
     m_raw_conn_ptr(raw_conn),
     m_conn_id(GenerateId())
 {
-    m_conn_callbacks.on_close_callback = [this](void* udata, const bbt::net::IPAddress& addr){ _OnClose(); };
-    m_conn_callbacks.on_err_callback = [this](void* udata, const bbt::errcode::Errcode& err){ OnError(err); };
-    m_conn_callbacks.on_recv_callback = [this](bbt::network::libevent::ConnectionSPtr conn, const char* data, size_t len){ OnRecv(data, len); };
-    m_conn_callbacks.on_send_callback = [this](bbt::network::libevent::ConnectionSPtr conn, const bbt::errcode::Errcode& err, size_t len){ OnSend(err, len); };
-    m_conn_callbacks.on_timeout_callback = [this](bbt::network::libevent::ConnectionSPtr conn){ OnTimeout();};
-
     Assert(timeout_ms > 0);
     raw_conn->SetOpt_CloseTimeoutMS(timeout_ms);
-    raw_conn->SetOpt_Callbacks(m_conn_callbacks);
 }
 
 Connection::~Connection()
 {
+}
+
+void Connection::SetCallbacks(bbt::network::libevent::ConnCallbacks callbacks)
+{
+    m_conn_callbacks = callbacks;
+    m_raw_conn_ptr->SetOpt_Callbacks(m_conn_callbacks);
 }
 
 void Connection::_OnClose()

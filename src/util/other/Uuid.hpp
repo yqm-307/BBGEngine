@@ -29,6 +29,7 @@ public:
     bool operator==(const Uuid& other) const;
     bool operator<(const Uuid& other) const;  // 实现 < 运算符
 
+    bool FromByte(char* uuid, size_t len);
     bool ToByte(char* uuid, size_t len) const;
     bool ToString(std::string& uuid) const;
     std::string ToString() const;

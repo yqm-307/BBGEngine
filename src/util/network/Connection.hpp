@@ -14,16 +14,12 @@ public:
     virtual ~Connection();
     Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);
     bbt::network::ConnId GetConnId();
-
+    
+    // virtual void    Init() = 0;
+    virtual void    SetCallbacks(bbt::network::libevent::ConnCallbacks callbacks);
     virtual void    Send(const char* data, size_t len);
     virtual bool    IsClosed();
     virtual void    Close();
-protected:
-    virtual void    OnRecv(const char* data, size_t len) = 0;
-    virtual void    OnSend(const bbt::errcode::Errcode& err, size_t succ_len) = 0;
-    virtual void    OnTimeout() = 0;
-    virtual void    OnClose() = 0;
-    virtual void    OnError(const bbt::errcode::Errcode& err) = 0;
 private:
     void            SetOnClose(std::function<void(bbt::network::ConnId)> onclose);
     virtual void    _OnClose();

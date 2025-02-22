@@ -19,11 +19,12 @@ void RegisterInfo::Clear()
     m_heart_beat_interval = 0;
 }
 
-void RegisterInfo::Init(util::other::Uuid uuid)
+void RegisterInfo::Init(util::other::Uuid uuid, bbt::network::ConnId conn_id)
 {
     m_uuid = uuid;
     m_state = NodeState::NODESTATE_ONLINE;
     m_last_active_time = bbt::clock::Timestamp<bbt::clock::ms>();
+    m_conn_id = conn_id;
 
     // 默认心跳间隔
     m_heart_beat_interval = 1000;
@@ -53,6 +54,11 @@ bool RegisterInfo::HasMethod(const std::string& method_name) const
 void RegisterInfo::Active()
 {
     m_last_active_time = bbt::clock::now();
+}
+
+bbt::network::ConnId RegisterInfo::GetConnId() const
+{
+    return m_conn_id;
 }
 
 } // namespace cluster

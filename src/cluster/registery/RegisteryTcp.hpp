@@ -17,12 +17,11 @@ public:
 
     virtual util::errcode::ErrOpt SendToNode(const char* uuid, const bbt::core::Buffer& buffer) override;
     virtual void OnError(const bbt::errcode::Errcode& err) = 0;
-    virtual void OnNodeLoseConnection(bbt::network::ConnId connid) = 0;
+protected:
+    virtual void OnNodeLoseConnection(bbt::network::ConnId connid);
 private:
     std::shared_ptr<RegisteryServer> 
                         m_server{nullptr};
-    std::unordered_map<std::string/*128 byte uuid*/, bbt::network::ConnId> 
-                        m_registery_map;
 };
 
 } // namespace cluster

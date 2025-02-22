@@ -3,9 +3,9 @@
 namespace cluster
 {
 
-RegisteryServer::RegisteryServer(RegisteryBase* base, const std::string& ip, short port, int connect_timeout):
+RegisteryServer::RegisteryServer(std::weak_ptr<RegisteryBase> base, const std::string& ip, short port, int connect_timeout):
     util::network::TcpServer(ip, port, connect_timeout),
-    m_registery(base)
+    m_registery_weak(base)
 {
 }
 
