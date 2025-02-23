@@ -7,7 +7,8 @@ RpcClient::~RpcClient()
 {
 }
 
-RpcClient::RpcClient()
+RpcClient::RpcClient(std::shared_ptr<bbt::network::base::NetworkBase> network, const char* ip, short port, int timeout):
+    util::network::TcpClient(network, ip, port, timeout)
 {
 }
 
@@ -47,5 +48,21 @@ void RpcClient::OnReply(const char* data, size_t size)
         GAME_EXT1_LOG_ERROR("rpc call error! %s", err->CWhat());
     }
 }
+
+int RpcClient::Send(const bbt::core::Buffer& buffer)
+{
+    auto conn = GetConn();
+    if (conn->IsClosed()) {
+        conn = nullptr;
+        return -1;
+    }
+
+    if (conn != nullptr && !conn->IsClosed()) {
+        conn->Send(buffer.Peek(), buffer.DataSize());
+    }
+
+    return -1;
+}
+
 
 } // namespace plugin::ecs::rpc

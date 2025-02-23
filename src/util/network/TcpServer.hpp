@@ -6,7 +6,8 @@
 namespace util::network
 {
 
-class TcpServer
+class TcpServer:
+    public std::enable_shared_from_this<TcpServer>
 {
 public:
     TcpServer(const std::string& ip, short port, int connect_timeout);
@@ -26,6 +27,7 @@ public:
     bool AddConnect(std::shared_ptr<Connection> conn);
     void OnTimeout(Connection* conn);
     std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id);
+    const bbt::net::IPAddress& GetListenAddr() const;
 
 protected:
     /**

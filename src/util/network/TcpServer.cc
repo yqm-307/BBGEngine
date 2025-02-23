@@ -144,4 +144,9 @@ void TcpServer::ShowDown(bbt::network::ConnId conn)
     conn_ptr->Close();
 }
 
+const bbt::net::IPAddress& TcpServer::GetListenAddr() const
+{
+    return m_listen_addr;
+}
+
 } // namespace util::network

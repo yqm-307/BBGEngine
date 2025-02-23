@@ -1,15 +1,18 @@
 #pragma once
+#include <util/network/TcpClient.hpp>
 #include <cluster/rpc/Define.hpp>
 #include <cluster/rpc/RpcSerializer.hpp>
 
 namespace cluster
 {
 
-class RpcClient
+// FIXME 这里设计有问题，继承自RpcServer的RpcClient具备发送和接收的功能，应该是一个具体类
+class RpcClient:
+    public util::network::TcpClient
 {
     friend class RpcServer;
 public:
-    RpcClient();
+    RpcClient(std::shared_ptr<bbt::network::base::NetworkBase> network, const char* ip, short port, int timeout);
     ~RpcClient();
 
     template<typename ...Args>
@@ -17,7 +20,7 @@ public:
 
     virtual void OnReply(const char* data, size_t size) final;
 protected:
-    virtual int Send(const bbt::core::Buffer& buffer) = 0;
+    virtual int Send(const bbt::core::Buffer& buffer);
 private:
 
     int64_t m_seq{0};

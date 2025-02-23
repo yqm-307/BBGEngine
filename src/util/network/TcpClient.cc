@@ -4,22 +4,38 @@
 namespace util::network
 {
 
-TcpClient::TcpClient(const char* ip, short port, int timeout):
-    m_network(std::make_shared<bbt::network::libevent::Network>()),
+TcpClient::TcpClient(std::shared_ptr<bbt::network::base::NetworkBase> network, const char* ip, short port, int timeout):
+    m_network(network),
     m_server_addr(ip, port)
 {
 }
 
-bool TcpClient::AsyncConnect(const bbt::network::interface::OnConnectCallback& on_connect)
+util::errcode::ErrOpt TcpClient::AsyncConnect(const bbt::network::interface::OnConnectCallback& on_connect)
 {
+    if (m_network == nullptr)
+        return util::errcode::ErrCode{"[TcpClient] network not found!", util::errcode::CommonErr};
+
     auto err = m_network->AsyncConnect(m_server_addr.GetIP().c_str(), m_server_addr.GetPort(), m_connect_timeout, on_connect);
     if (err.IsErr()) {
-        GAME_EXT1_LOG_ERROR("AsyncConnect() failed! %s", err.CWhat());
-        return false;
+        return util::errcode::ErrCode{"[TcpClient] async connect failed!!", util::errcode::CommonErr};
     }
 
-    return true;
+    return std::nullopt;
 }
 
+void TcpClient::SetConn(std::shared_ptr<util::network::Connection> conn)
+{
+    m_conn = conn;
+}
+
+void TcpClient::DelConn()
+{
+    m_conn = nullptr;
+}
+
+std::shared_ptr<util::network::Connection> TcpClient::GetConn() const
+{
+    return m_conn;
+}
 
 }

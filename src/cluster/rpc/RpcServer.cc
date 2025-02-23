@@ -1,10 +1,13 @@
 #include <cluster/rpc/RpcServer.hpp>
 #include <cluster/rpc/RpcSerializer.hpp>
+#include <cluster/node/ClusterNodeBase.hpp>
 
 namespace cluster
 {
 
-RpcServer::RpcServer()
+RpcServer::RpcServer(std::shared_ptr<ClusterNodeBase> node, const bbt::net::IPAddress& listen_addr, int timeout):
+    util::network::TcpServer(listen_addr.GetIP(), listen_addr.GetPort(), timeout),
+    m_node_weak(node)
 {
 }
 
@@ -62,6 +65,55 @@ util::errcode::ErrOpt RpcServer::OnRpc(bbt::core::Buffer& buffer)
     }
 
     return err;
+}
+
+std::shared_ptr<util::network::Connection> RpcServer::CreateConnection(bbt::network::libevent::ConnectionSPtr conn)
+{
+    auto rpc_conn = std::make_shared<NNConnection>(conn, 5000);
+    auto connid = rpc_conn->GetConnId();
+
+    rpc_conn->SetCallbacks({
+        .on_recv_callback = [weak_this{weak_from_this()}, connid](auto, const char* data, size_t len)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+                bbt::core::Buffer buffer{data, len};
+                if (auto err = std::static_pointer_cast<RpcServer>(shared_this)->OnRpc(buffer); err != std::nullopt) {
+                    if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
+                        cluster_node->OnError(err.value());
+                    }
+                }
+            }
+        },
+        .on_send_callback = [weak_this{weak_from_this()}, connid](auto, const bbt::errcode::Errcode& err, size_t succ_len)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
+                    if (err.IsErr())
+                        cluster_node->OnError(err);
+                }
+            }
+        },
+        .on_close_callback = [weak_this{weak_from_this()}, connid](auto, auto)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+                shared_this->DelConnect(connid);
+            }
+        },
+        .on_timeout_callback = [weak_this{weak_from_this()}, connid](auto)
+        {
+            // 这里超时后，回继续调用OnClose，所以在onclose中删除连接
+        },
+        .on_err_callback = [weak_this{weak_from_this()}, connid](auto, const bbt::errcode::Errcode& err)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
+                    cluster_node->OnError(err);
+                }
+            }
+        },
+    });
+
+    return rpc_conn;
 }
 
 } // namespace cluster::rpc
