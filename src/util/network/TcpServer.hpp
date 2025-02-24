@@ -10,7 +10,7 @@ class TcpServer:
     public std::enable_shared_from_this<TcpServer>
 {
 public:
-    TcpServer(const std::string& ip, short port, int connect_timeout);
+    TcpServer(std::shared_ptr<bbt::network::base::NetworkBase> network, const std::string& ip, short port, int connect_timeout);
     virtual ~TcpServer();
     virtual size_t  Send(bbt::network::ConnId conn, const char* bytes, size_t len);
     BBTATTR_FUNC_DeprecatedMsg("recv message use event callback")
@@ -37,7 +37,7 @@ protected:
     virtual std::shared_ptr<Connection> CreateConnection(bbt::network::libevent::ConnectionSPtr conn) = 0;
 private:
     /* 连接管理 */
-    bbt::network::libevent::Network*        m_network{nullptr};
+    std::shared_ptr<bbt::network::base::NetworkBase> m_network{nullptr};
     bbt::network::libevent::OnAcceptCallback m_onaccept_cb{nullptr};
     std::unordered_map<bbt::network::ConnId, std::shared_ptr<Connection>>
                                             m_conn_map;

@@ -4,17 +4,15 @@
 namespace util::network
 {
 
-TcpServer::TcpServer(const std::string& ip, short port, int connect_timeout):
+TcpServer::TcpServer(std::shared_ptr<bbt::network::base::NetworkBase> network, const std::string& ip, short port, int connect_timeout):
+    m_network(network),
     m_listen_addr(ip, port),
     m_connect_timeout(connect_timeout)
 {
-    m_network = new bbt::network::libevent::Network;
 }
 
 TcpServer::~TcpServer()
 {
-    delete m_network;
-    m_network = nullptr;
 }
 
 void TcpServer::SetListenAddr(const char* ip, short port)

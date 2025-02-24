@@ -13,7 +13,7 @@ class RpcClient:
     friend class RpcServer;
 public:
     RpcClient(std::shared_ptr<bbt::network::base::NetworkBase> network, const char* ip, short port, int timeout);
-    ~RpcClient();
+    virtual ~RpcClient();
 
     template<typename ...Args>
     int Call(RpcReplyCallback callback, const std::string& method, Args... args);

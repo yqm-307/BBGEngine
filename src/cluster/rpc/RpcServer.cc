@@ -5,7 +5,7 @@
 namespace cluster
 {
 
-RpcServer::RpcServer(std::shared_ptr<ClusterNodeBase> node, const bbt::net::IPAddress& listen_addr, int timeout):
+RpcServer::RpcServer(std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout):
     util::network::TcpServer(listen_addr.GetIP(), listen_addr.GetPort(), timeout),
     m_node_weak(node)
 {
@@ -21,7 +21,7 @@ int RpcServer::Register(const std::string& method, RpcCallback callback)
     return 0;
 }
 
-util::errcode::ErrOpt RpcServer::OnRpc(bbt::core::Buffer& buffer)
+util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::network::ConnId connid, bbt::core::Buffer& buffer)
 {
     FieldValue field;
     std::string method;
@@ -61,7 +61,7 @@ util::errcode::ErrOpt RpcServer::OnRpc(bbt::core::Buffer& buffer)
 
     auto err = iter->second(buffer, resp);
     if (err == std::nullopt) {
-        Send(resp.Peek(), resp.DataSize());
+        Send(connid, resp.Peek(), resp.DataSize());
     }
 
     return err;
@@ -77,7 +77,7 @@ std::shared_ptr<util::network::Connection> RpcServer::CreateConnection(bbt::netw
         {
             if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
                 bbt::core::Buffer buffer{data, len};
-                if (auto err = std::static_pointer_cast<RpcServer>(shared_this)->OnRpc(buffer); err != std::nullopt) {
+                if (auto err = std::static_pointer_cast<RpcServer>(shared_this)->OnRemoteCall(connid, buffer); err != std::nullopt) {
                     if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
                         cluster_node->OnError(err.value());
                     }
