@@ -34,7 +34,9 @@ void Registery::Stop()
 
 RegisterInfo* Registery::GetNodeRegInfo(std::string uuid)
 {
-    auto it = m_registery_map.find(uuid);
+    util::other::Uuid uuid_obj;
+    uuid_obj.FromByte(uuid.c_str(), uuid.size());
+    auto it = m_registery_map.find(uuid_obj);
     if (it == m_registery_map.end())
         return nullptr;
     return &it->second;
@@ -60,9 +62,25 @@ util::errcode::ErrOpt Registery::SendToNode(const char* uuid, const bbt::core::B
     return std::nullopt;
 }
 
-void Registery::OnNodeLoseConnection(bbt::network::ConnId connid)
+void Registery::OnAccept(bbt::network::ConnId connid)
 {
+    m_helf_connect_set.insert(connid);
 }
+
+void Registery::OnClose(bbt::network::ConnId connid)
+{
+    auto uuid = m_connid_uuid_map[connid];
+    m_connid_uuid_map.erase(connid);
+    m_helf_connect_set.erase(connid);
+    m_server->DelConnect(connid);
+    OnInfo("registery connection close! connid=" + std::to_string(connid) + "\t uuid=" + uuid.ToString());
+}
+
+void Registery::OnTimeout(bbt::network::ConnId connid)
+{
+    OnInfo("registery connection timeout! connid=" + std::to_string(connid));
+}
+
 
 util::errcode::ErrOpt Registery::RecvFromNode(bbt::network::ConnId connid, bbt::core::Buffer& buffer)
 {
@@ -77,17 +95,6 @@ util::errcode::ErrOpt Registery::RecvFromNode(bbt::network::ConnId connid, bbt::
         if (buffer.ReadableBytes() < head->protocol_length)
             return util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET);
     }
-
-    // 是否为半连接
-    {
-        if (m_helf_connect_set.find(connid) != m_helf_connect_set.end())
-        {
-            if (head->protocol_type != N2R_HANDSHAKE_REQ)
-                return util::errcode::ErrCode("half connect not handshake", util::errcode::ErrType::RPC_BAD_PROTOCOL);
-            m_helf_connect_set.erase(connid);
-        }
-    }
-
 
     return N2RDispatch(connid, head->protocol_type, buffer.Peek(), head->protocol_length);
 }
@@ -115,7 +122,7 @@ util::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAl
 {
     R2N_KeepAlive_Resp resp;
 
-    auto it = m_registery_map.find(req->head.uuid);
+    auto it = m_registery_map.find(util::other::Uuid{req->head.uuid, sizeof(req->head.uuid)});
     if (it == m_registery_map.end())
         return util::errcode::ErrCode("node not registed!", util::errcode::ErrType::RPC_NOT_FOUND_NODE);
 
@@ -146,7 +153,7 @@ util::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handsh
         return util::errcode::ErrCode("not a helf-connection!", util::errcode::ErrType::RPC_BAD_PROTOCOL);
     }
     
-    if (m_registery_map.find(req->head.uuid) != m_registery_map.end())
+    if (m_registery_map.find(util::other::Uuid{req->head.uuid, sizeof(req->head.uuid)}) != m_registery_map.end())
     {
         SendToNode(req->head.uuid, bbt::core::Buffer{(char*)&resp, sizeof(resp)});
         return util::errcode::ErrCode("node already registed!", util::errcode::ErrType::RPC_BAD_PROTOCOL);
@@ -156,13 +163,13 @@ util::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handsh
     uuid.FromByte(req->head.uuid, sizeof(req->head.uuid));
     info.Init(uuid, id);
 
+    m_connid_uuid_map[id] = uuid;
     m_helf_connect_set.erase(id);
-    m_registery_map[req->head.uuid] = info;
-
-
+    m_registery_map[uuid] = info;
 
     SendToNode(req->head.uuid, bbt::core::Buffer{(char*)&resp, sizeof(resp)});
 
+    OnInfo("[ClusterNode] handshake success! uuid=" + uuid.ToString());
     return std::nullopt;
 }
 

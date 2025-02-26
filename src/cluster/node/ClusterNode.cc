@@ -7,7 +7,8 @@ namespace cluster
 RpcSerializer serializer;
 
 ClusterNode::ClusterNode():
-    m_rpc_clients(10)
+    m_rpc_clients(10),
+    m_uuid(std::make_shared<util::other::Uuid>())
 {
 }
 
@@ -40,71 +41,61 @@ const std::string& ClusterNode::GetName() const
 
 util::errcode::ErrOpt ClusterNode::Start()
 {
-    m_network = std::make_shared<bbt::network::libevent::Network>();
+    if (auto err = InitNetwork(); err != std::nullopt)
+        return err;
+
     m_registery_client = std::make_shared<RegisteryClient>(m_network, m_registery_addr);
     m_rpc_server = std::make_shared<RpcServer>(m_network, shared_from_this(), m_listen_addr, m_connect_timeout);
     
-    m_registery_client->AsyncConnect([=](const bbt::errcode::Errcode& err, bbt::network::interface::INetConnectionSPtr conn){
+    auto connect_to_registery_err = m_registery_client->AsyncConnect([weak_this{weak_from_this()}](const bbt::errcode::Errcode& err, bbt::network::interface::INetConnectionSPtr conn){
+        if (weak_this.expired())
+            return;
+        auto shared_this = weak_this.lock();
         if (err.IsErr()) {
-            OnError(err);
+            shared_this->OnError(err);
             return;
         }
 
         auto connid = conn->GetConnId();
 
-        auto new_conn = std::make_shared<util::network::Connection>(std::static_pointer_cast<bbt::network::libevent::Connection>(conn), m_connect_timeout);
+        auto new_conn = std::make_shared<util::network::Connection>(std::static_pointer_cast<bbt::network::libevent::Connection>(conn), shared_this->m_connect_timeout);
         new_conn->SetCallbacks({
-            .on_recv_callback = [weak_this{weak_from_this()}, connid](bbt::network::libevent::ConnectionSPtr conn, const char* data, size_t len)
+            .on_recv_callback = [weak_this, connid](bbt::network::libevent::ConnectionSPtr conn, const char* data, size_t len)
             {
-                auto this_ptr = weak_this.lock();
-                if (this_ptr == nullptr)
-                    return;
-
                 bbt::core::Buffer buffer(data, len);
-                this_ptr->RecvFromRegistery(buffer);
+                if (auto this_ptr = weak_this.lock(); this_ptr != nullptr) 
+                    this_ptr->RecvFromRegistery(buffer);
             },
-            .on_send_callback = [weak_this{weak_from_this()}, connid](auto conn, const bbt::errcode::Errcode& err, size_t len)
+            .on_send_callback = [weak_this, connid](auto conn, const bbt::errcode::Errcode& err, size_t len)
             {
-                auto this_ptr = weak_this.lock();
-                if (this_ptr == nullptr)
-                    return;
-
-                if (err.IsErr()) {
+                if (auto this_ptr = weak_this.lock(); this_ptr != nullptr && err.IsErr())
                     this_ptr->OnError(err);
-                    return;
+            },
+            .on_close_callback = [weak_this, connid](auto conn, const bbt::net::IPAddress& addr)
+            {
+                if (auto this_ptr = weak_this.lock(); this_ptr != nullptr) {
+                    this_ptr->OnCloseFromRegistery(connid, addr);
                 }
             },
-            .on_close_callback = [weak_this{weak_from_this()}, connid](auto conn, const bbt::net::IPAddress& addr)
+            .on_timeout_callback = [weak_this, connid](auto conn)
             {
-                auto this_ptr = weak_this.lock();
-                if (this_ptr == nullptr)
-                    return;
-                
-                if (this_ptr->m_registery_client == nullptr)
-                    return;
-                
-                this_ptr->m_registery_client->DelConn();
-                this_ptr->OnCloseRegistery(connid, addr);
+                if (auto this_ptr = weak_this.lock(); this_ptr != nullptr)
+                    this_ptr->OnTimeoutFromRegistey();
             },
-            .on_timeout_callback = [weak_this{weak_from_this()}, connid](auto conn)
+            .on_err_callback = [weak_this, connid](void*, const bbt::errcode::Errcode& err)
             {
-                auto this_ptr = weak_this.lock();
-                if (this_ptr == nullptr)
-                    return;
-
-                this_ptr->OnError(util::errcode::ErrCode{"[ClusterNode] registery connection timeout!", util::errcode::CommonErr});
-            },
-            .on_err_callback = [weak_this{weak_from_this()}, connid](void*, const bbt::errcode::Errcode& err)
-            {
-                auto this_ptr = weak_this.lock();
-                if (this_ptr == nullptr)
-                    return;
-
-                this_ptr->OnError(err);
+                if (auto this_ptr = weak_this.lock(); this_ptr != nullptr)
+                    this_ptr->OnError(err);
             }
         });
-        m_registery_client->SetConn(new_conn);
+        shared_this->m_registery_client->SetConn(new_conn);
+
+        shared_this->N2R_DoHandshakeReq();
+        
     });
+
+    if (connect_to_registery_err != std::nullopt)
+        return connect_to_registery_err;
 
     m_rpc_server->Start();
 
@@ -163,27 +154,80 @@ util::errcode::ErrOpt ClusterNode::OnRemoteCall(bbt::network::ConnId id, bbt::co
     return std::nullopt;
 }
 
-util::errcode::ErrOpt ClusterNode::RecvFromRegistery(bbt::core::Buffer& buffer)
+void ClusterNode::RecvFromRegistery(bbt::core::Buffer& buffer)
 {
     R2NProtocolHead* head = nullptr;
 
     // 协议校验
     {
-        if (buffer.ReadableBytes() < sizeof(R2NProtocolHead))
-            return util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET);
+        if (buffer.ReadableBytes() < sizeof(R2NProtocolHead)) {
+            OnError(util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET));
+            return;
+        }
     
         head = (R2NProtocolHead*)buffer.Peek();
-        if (buffer.ReadableBytes() < head->protocol_length)
-            return util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET);
+        if (buffer.ReadableBytes() < head->protocol_length) {
+            OnError(util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET));
+            return;
+        }
     }
 
     {
-        if (!m_registery_connected && head->protocol_type != R2N_HANDSHAKE_RESP)
-            return util::errcode::ErrCode("registery not handshake", util::errcode::ErrType::RPC_BAD_PROTOCOL);
+        if (!m_registery_connected && head->protocol_type != R2N_HANDSHAKE_RESP) {
+            OnError(util::errcode::ErrCode("registery not handshake", util::errcode::ErrType::RPC_BAD_PROTOCOL));
+            return;
+        }
     }
 
-    return R2N_Dispatch(head->protocol_type, buffer.Peek(), head->protocol_length);
+    if (auto err = R2N_Dispatch(head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt) {
+        OnError(err.value());
+    }
 }
+
+void ClusterNode::OnTimeoutFromRegistey()
+{
+    OnInfo("[ClusterNode] registery lose connect! timeout!");
+}
+
+void ClusterNode::OnCloseFromRegistery(bbt::network::ConnId id, const bbt::net::IPAddress& addr)
+{
+    OnInfo("[ClusterNode] registery lose connect! addr=" + addr.GetIPPort());
+    m_registery_connected = false;
+    m_registery_client->DelConn();
+    // TODO 稍后尝试重连
+}
+
+void ClusterNode::RecvFromNode(bbt::network::ConnId id, bbt::core::Buffer& buffer)
+{
+    OnInfo("recv info");
+}
+
+void ClusterNode::OnTimeoutFromNode(bbt::network::ConnId id)
+{
+    OnInfo("node timeout");
+}
+
+void ClusterNode::OnCloseFromNode(bbt::network::ConnId id)
+{
+    OnInfo("node close");
+    m_rpc_client_connid_uuids.erase(id);
+    m_rpc_clients.erase(m_rpc_client_connid_uuids[id]);
+    m_rpc_server->DelConnect(id);
+}
+
+util::errcode::ErrOpt ClusterNode::InitNetwork()
+{
+    if (m_network != nullptr)
+        return util::errcode::ErrCode("already init network!", util::errcode::ErrType::CommonErr);
+
+    m_network = std::make_shared<bbt::network::libevent::Network>();
+    auto err = m_network->AutoInitThread(2);
+    if (err.IsErr())
+        return util::errcode::ErrCode("init network failed! " + err.What(), util::errcode::ErrType::CommonErr);
+
+    return std::nullopt;
+}
+
 
 util::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* proto, size_t proto_len)
 {
@@ -195,7 +239,7 @@ util::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* pr
         EasyCheck(type, sizeof(R2N_KEEPALIVE_RESP));
         return R2N_OnHeartBeatResp((R2N_KeepAlive_Resp*)proto);
     case R2N_HANDSHAKE_RESP:
-        EasyCheck(type, sizeof(N2R_Handshake_Req));
+        EasyCheck(type, sizeof(R2N_Handshake_Resp));
         return R2N_OnHandshakeResp((R2N_Handshake_Resp*)proto);
     default:
         return util::errcode::ErrCode("unknown protocol type=" + std::to_string(type), util::errcode::ErrType::RPC_UNKNOWN_PROTOCOL);
@@ -206,6 +250,8 @@ util::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* pr
 
 util::errcode::ErrOpt ClusterNode::R2N_OnHandshakeResp(R2N_Handshake_Resp* resp)
 {
+    OnInfo("[CLusterNode] registery handshake success! msg_code=" + std::to_string(resp->msg_code));
+    m_registery_connected = true;
     return std::nullopt;
 }
 

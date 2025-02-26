@@ -77,10 +77,8 @@ std::shared_ptr<util::network::Connection> RpcServer::CreateConnection(bbt::netw
         {
             if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
                 bbt::core::Buffer buffer{data, len};
-                if (auto err = std::static_pointer_cast<RpcServer>(shared_this)->OnRemoteCall(connid, buffer); err != std::nullopt) {
-                    if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
-                        cluster_node->OnError(err.value());
-                    }
+                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
+                    cluster_node->RecvFromNode(connid, buffer);
                 }
             }
         },
@@ -96,12 +94,19 @@ std::shared_ptr<util::network::Connection> RpcServer::CreateConnection(bbt::netw
         .on_close_callback = [weak_this{weak_from_this()}, connid](auto, auto)
         {
             if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-                shared_this->DelConnect(connid);
+                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
+                    cluster_node->OnCloseFromNode(connid);
+                }
             }
         },
         .on_timeout_callback = [weak_this{weak_from_this()}, connid](auto)
         {
             // 这里超时后，回继续调用OnClose，所以在onclose中删除连接
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
+                    cluster_node->OnTimeoutFromNode(connid);
+                }
+            }
         },
         .on_err_callback = [weak_this{weak_from_this()}, connid](auto, const bbt::errcode::Errcode& err)
         {

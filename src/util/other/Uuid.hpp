@@ -22,6 +22,7 @@ public:
     Uuid();
     Uuid(const Uuid& other);
     Uuid(Uuid&& other);
+    explicit Uuid(const char* uuid, size_t len);
     virtual ~Uuid();
 
     Uuid& operator=(const Uuid& other);
@@ -30,7 +31,7 @@ public:
     bool operator==(const Uuid& other) const;
     bool operator<(const Uuid& other) const;  // 实现 < 运算符
 
-    bool FromByte(char* uuid, size_t len);
+    bool FromByte(const char* uuid, size_t len);
     bool ToByte(char* uuid, size_t len) const;
     bool ToString(std::string& uuid) const;
     std::string ToString() const;

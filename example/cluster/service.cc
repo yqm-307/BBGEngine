@@ -10,6 +10,10 @@ public:
     {
         std::cout << "error: " << err.CWhat() << std::endl;
     }
+    void OnInfo(const std::string& info) override
+    {
+        std::cout << "info: " << info << std::endl;
+    }
 };
 
 
@@ -22,5 +26,10 @@ int main()
     if (err != std::nullopt) {
         std::cout << "start failed: " << err->CWhat() << std::endl;
         return -1;
+    }
+
+    while(1)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }

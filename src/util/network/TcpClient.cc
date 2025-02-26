@@ -17,7 +17,7 @@ util::errcode::ErrOpt TcpClient::AsyncConnect(const bbt::network::interface::OnC
 
     auto err = m_network->AsyncConnect(m_server_addr.GetIP().c_str(), m_server_addr.GetPort(), m_connect_timeout, on_connect);
     if (err.IsErr()) {
-        return util::errcode::ErrCode{"[TcpClient] async connect failed!!", util::errcode::CommonErr};
+        return util::errcode::ErrCode{"[TcpClient] async connect failed!! " + err.What(), util::errcode::CommonErr};
     }
 
     return std::nullopt;

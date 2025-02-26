@@ -35,6 +35,12 @@ Uuid::Uuid(Uuid&& other):
 {
 }
 
+Uuid::Uuid(const char* uuid, size_t len)
+{
+    FromByte(uuid, len);
+}
+
+
 
 Uuid::~Uuid() {}
 
@@ -55,7 +61,7 @@ bool Uuid::operator==(const Uuid& other) const
     return (m_uuid == other.m_uuid);
 }
 
-bool Uuid::FromByte(char* uuid, size_t len)
+bool Uuid::FromByte(const char* uuid, size_t len)
 {
     if (len != m_uuid.size())
         return false;

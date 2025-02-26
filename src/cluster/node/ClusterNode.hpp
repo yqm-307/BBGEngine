@@ -47,10 +47,23 @@ public:
     virtual util::errcode::ErrOpt       SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
     // 基类定义注册中心网络传输行为
     virtual util::errcode::ErrOpt       SendToRegistery(bbt::core::Buffer& buffer);
-    virtual util::errcode::ErrOpt       RecvFromRegistery(bbt::core::Buffer& buffer);
     virtual void                        OnError(const bbt::errcode::Errcode& err) = 0;
-    virtual void                        OnCloseRegistery(bbt::network::ConnId id, const bbt::net::IPAddress& addr) {}
+    virtual void                        OnInfo(const std::string& info) = 0;
     virtual void                        OnCloseNode(bbt::network::ConnId id, const bbt::net::IPAddress& addr) {}
+    
+    // 注册中心连接事件
+    void                                RecvFromRegistery(bbt::core::Buffer& buffer);
+    void                                OnTimeoutFromRegistey();
+    void                                OnCloseFromRegistery(bbt::network::ConnId id, const bbt::net::IPAddress& addr);
+
+    // 节点间连接事件
+    void                                RecvFromNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
+    void                                OnTimeoutFromNode(bbt::network::ConnId id);
+    void                                OnCloseFromNode(bbt::network::ConnId id);
+
+private:
+    util::errcode::ErrOpt               InitNetwork();
+
 protected:
     std::shared_ptr<util::other::Uuid>  GetRandomUuidByMethod(const std::string& method);
 
@@ -69,7 +82,7 @@ protected:
 private:
     NodeState               m_state{NODESTATE_DEFAULT};
     std::string             m_service_name{""};
-    util::other::Uuid::SPtr m_uuid;
+    util::other::Uuid::SPtr m_uuid{nullptr};
     time_t                  m_last_active_time{-1};
     bbt::net::IPAddress     m_listen_addr;
     bbt::net::IPAddress     m_registery_addr;
