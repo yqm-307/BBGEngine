@@ -1,23 +1,79 @@
-#include <cluster/registery/RegisteryBase.hpp>
+#include <cluster/registery/RegisteryServer.hpp>
+#include <cluster/registery/Registery.hpp>
 #include <cluster/protocol/R2NProtocol.hpp>
+#include <cluster/protocol/N2RProtocol.hpp>
 
 namespace cluster
 {
 
-RegisteryBase::RegisteryBase()
+Registery::Registery()
+{
+};
+
+Registery::~Registery()
+{
+};
+
+void Registery::Init(const bbt::net::IPAddress& listen_addr, int timeout_ms)
+{
+    m_network = std::make_shared<bbt::network::libevent::Network>();
+    // new RegisteryServer(m_network, shared_from_this(), listen_addr.GetIP(), listen_addr.GetPort(), timeout_ms);
+    m_server = std::make_shared<RegisteryServer>(m_network, shared_from_this(), listen_addr.GetIP(), listen_addr.GetPort(), timeout_ms);
+    m_server->Init();
+}
+
+void Registery::Start()
+{
+    m_server->Start();
+}
+
+void Registery::Stop()
+{
+    m_server->Stop();
+}
+
+RegisterInfo* Registery::GetNodeRegInfo(std::string uuid)
+{
+    auto it = m_registery_map.find(uuid);
+    if (it == m_registery_map.end())
+        return nullptr;
+    return &it->second;
+}
+
+void Registery::CloseConn(bbt::network::ConnId connid)
+{
+    m_server->ShowDown(connid);
+}
+
+
+util::errcode::ErrOpt Registery::SendToNode(const char* uuid, const bbt::core::Buffer& buffer)
+{
+    auto* node_info = GetNodeRegInfo(uuid);
+    if (node_info == nullptr)
+        return util::errcode::ErrCode("node not found! uuid=" + std::string{uuid}, util::errcode::ErrType::RPC_NOT_FOUND_NODE);
+
+    auto conn = m_server->GetConnectById(node_info->GetConnId());
+    if (conn == nullptr)
+        return util::errcode::ErrCode("conn is losed!", util::errcode::ErrType::CommonErr);
+
+    conn->Send(buffer.Peek(), buffer.ReadableBytes());
+    return std::nullopt;
+}
+
+void Registery::OnNodeLoseConnection(bbt::network::ConnId connid)
 {
 }
 
-util::errcode::ErrOpt RegisteryBase::RecvFromNode(bbt::network::ConnId connid, bbt::core::Buffer& buffer)
+util::errcode::ErrOpt Registery::RecvFromNode(bbt::network::ConnId connid, bbt::core::Buffer& buffer)
 {
-    NRProtocolHead* head = nullptr;
+    N2RProtocolHead* head = nullptr;
 
     // 协议校验
     {
-        if (buffer.ReadableBytes() < sizeof(NRProtocolHead))
+        if (buffer.ReadableBytes() < sizeof(N2RProtocolHead))
             return util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET);
     
-        head = (NRProtocolHead*)buffer.Peek();
+        head = (N2RProtocolHead*)buffer.Peek();
         if (buffer.ReadableBytes() < head->protocol_length)
             return util::errcode::ErrCode("buffer not enough", util::errcode::ErrType::RPC_IMCOMPLETE_PACKET);
     }
@@ -33,24 +89,10 @@ util::errcode::ErrOpt RegisteryBase::RecvFromNode(bbt::network::ConnId connid, b
     }
 
 
-    return Dispatch(connid, head->protocol_type, buffer.Peek(), head->protocol_length);
+    return N2RDispatch(connid, head->protocol_type, buffer.Peek(), head->protocol_length);
 }
 
-RegisterInfo* RegisteryBase::GetNodeRegInfo(std::string uuid)
-{
-    auto it = m_registery_map.find(uuid);
-    if (it == m_registery_map.end())
-        return nullptr;
-    return &it->second;
-}
-
-void RegisteryBase::CloseConn(bbt::network::ConnId connid)
-{
-    m_helf_connect_set.erase(connid);
-    OnNodeLoseConnection(connid);
-}
-
-util::errcode::ErrOpt RegisteryBase::Dispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
+util::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
 {
 #define EasyCheck(type, len) if (proto_len != len) return util::errcode::ErrCode("invalid protocol length type=" + std::to_string(type), util::errcode::ErrType::RPC_BAD_PROTOCOL);
 
@@ -69,7 +111,7 @@ util::errcode::ErrOpt RegisteryBase::Dispatch(bbt::network::ConnId id, emN2RProt
 #undef EasyCheck
 }
 
-util::errcode::ErrOpt RegisteryBase::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req)
+util::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req)
 {
     R2N_KeepAlive_Resp resp;
 
@@ -88,7 +130,7 @@ util::errcode::ErrOpt RegisteryBase::OnHeartBeat(bbt::network::ConnId id, N2R_Ke
     return std::nullopt;
 }
 
-util::errcode::ErrOpt RegisteryBase::OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req)
+util::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req)
 {
     R2N_Handshake_Resp resp;
     RegisterInfo info;
@@ -124,5 +166,4 @@ util::errcode::ErrOpt RegisteryBase::OnHandshake(bbt::network::ConnId id, N2R_Ha
     return std::nullopt;
 }
 
-
-} // namespace cluster
+}

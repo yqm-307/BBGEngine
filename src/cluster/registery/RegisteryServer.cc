@@ -1,19 +1,18 @@
 #include <cluster/registery/RegisteryServer.hpp>
-#include <cluster/registery/RegisteryBase.hpp>
-#include <cluster/connection/NRConnection.hpp>
+#include <cluster/registery/Registery.hpp>
 
 namespace cluster
 {
 
-RegisteryServer::RegisteryServer(std::weak_ptr<RegisteryBase> base, const std::string& ip, short port, int connect_timeout):
-    util::network::TcpServer(ip, port, connect_timeout),
+RegisteryServer::RegisteryServer(std::shared_ptr<bbt::network::libevent::Network> network, std::shared_ptr<Registery> base, const std::string& ip, short port, int connect_timeout):
+    util::network::TcpServer(network, ip, port, connect_timeout),
     m_registery_weak(base)
 {
 }
 
 std::shared_ptr<util::network::Connection> RegisteryServer::CreateConnection(bbt::network::libevent::ConnectionSPtr conn)
 {
-    auto nr_conn = std::make_shared<NRConnection>(conn, 5000);
+    auto nr_conn = std::make_shared<util::network::Connection>(conn, m_connect_timeout);
     auto connid = nr_conn->GetConnId();
 
     nr_conn->SetCallbacks({

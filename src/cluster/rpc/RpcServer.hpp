@@ -13,7 +13,7 @@ class RpcServer:
 {
     friend class RpcClient;
 public:
-    RpcServer(std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout);
+    RpcServer(std::shared_ptr<bbt::network::libevent::Network> network, std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout);
     virtual ~RpcServer() noexcept;
 
     int                     Register(const std::string& method, RpcCallback callback);

@@ -13,7 +13,7 @@ enum emN2RProtocolType: int8_t
 
 #pragma pack(push, 1)
 
-struct NRProtocolHead
+struct N2RProtocolHead
 {
     emN2RProtocolType   protocol_type;
     int32_t             protocol_length;
@@ -23,12 +23,12 @@ struct NRProtocolHead
 
 struct N2R_KeepAlive_Req
 {
-    NRProtocolHead head;
+    N2RProtocolHead head;
 };
 
 struct N2R_Handshake_Req
 {
-    NRProtocolHead head;
+    N2RProtocolHead head;
 };
 
 #pragma pack(pop)

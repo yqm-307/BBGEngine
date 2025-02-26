@@ -4,7 +4,7 @@
 namespace util::network
 {
 
-TcpServer::TcpServer(std::shared_ptr<bbt::network::base::NetworkBase> network, const std::string& ip, short port, int connect_timeout):
+TcpServer::TcpServer(std::shared_ptr<bbt::network::libevent::Network> network, const std::string& ip, short port, int connect_timeout):
     m_network(network),
     m_listen_addr(ip, port),
     m_connect_timeout(connect_timeout)
@@ -46,14 +46,14 @@ void TcpServer::Stop()
     m_network->Stop();
 }
 
-void TcpServer::OnAccept(const bbt::network::Errcode& err, bbt::network::libevent::ConnectionSPtr new_conn)
+void TcpServer::OnAccept(const bbt::network::Errcode& err, bbt::network::interface::INetConnectionSPtr new_conn)
 {
     if (err.IsErr()) {
         GAME_EXT1_LOG_ERROR("accept failed! %s", err.CWhat());
         return;
     }
     
-    auto conn = CreateConnection(new_conn);
+    auto conn = CreateConnection(std::static_pointer_cast<bbt::network::libevent::Connection>(new_conn));
     if (!AddConnect(conn)) {
         GAME_EXT1_LOG_ERROR("add connect failed!");
         return;

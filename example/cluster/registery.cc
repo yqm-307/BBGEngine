@@ -1,7 +1,7 @@
-#include <cluster/registery/RegisteryTcp.hpp>
+#include <cluster/registery/Registery.hpp>
 
 
-class CustomRegistery : public cluster::RegisteryTcp
+class CustomRegistery : public cluster::Registery
 {
 public:
     CustomRegistery() = default;

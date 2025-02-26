@@ -1,12 +1,12 @@
 #include <cluster/rpc/RpcServer.hpp>
 #include <cluster/rpc/RpcSerializer.hpp>
-#include <cluster/node/ClusterNodeBase.hpp>
+#include <cluster/node/ClusterNode.hpp>
 
 namespace cluster
 {
 
-RpcServer::RpcServer(std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout):
-    util::network::TcpServer(listen_addr.GetIP(), listen_addr.GetPort(), timeout),
+RpcServer::RpcServer(std::shared_ptr<bbt::network::libevent::Network> network, std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout):
+    util::network::TcpServer(network, listen_addr.GetIP(), listen_addr.GetPort(), timeout),
     m_node_weak(node)
 {
 }
@@ -69,7 +69,7 @@ util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::network::ConnId connid, bbt::
 
 std::shared_ptr<util::network::Connection> RpcServer::CreateConnection(bbt::network::libevent::ConnectionSPtr conn)
 {
-    auto rpc_conn = std::make_shared<NNConnection>(conn, 5000);
+    auto rpc_conn = std::make_shared<util::network::Connection>(conn, 5000);
     auto connid = rpc_conn->GetConnId();
 
     rpc_conn->SetCallbacks({

@@ -28,8 +28,6 @@ void Connection::_OnClose()
 {
     if (m_onclose_cb != nullptr)
         m_onclose_cb(m_conn_id);
-
-    OnClose();
 }
 
 bbt::network::ConnId Connection::GetConnId()

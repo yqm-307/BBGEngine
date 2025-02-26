@@ -15,5 +15,12 @@ public:
 
 int main()
 {
-    
+    auto node = std::make_shared<CustomService>();
+
+    node->Init(bbt::net::IPAddress{"127.0.0.1", 10022}, bbt::net::IPAddress{"127.0.0.1", 10021}, 3000);
+    auto err = node->Start();
+    if (err != std::nullopt) {
+        std::cout << "start failed: " << err->CWhat() << std::endl;
+        return -1;
+    }
 }
