@@ -24,16 +24,15 @@ public:
     bool Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect);
 
     bool DelConnect(bbt::network::ConnId conn);
-    bool AddConnect(std::shared_ptr<Connection> conn);
-    void OnTimeout(Connection* conn);
     std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id);
     const bbt::net::IPAddress& GetListenAddr() const;
-
-protected:
+    
+    protected:
     /**
      * @brief 重载此函数来处理新连接，默认新连接到来建立一个基础连接（只收发数据）
      */
     virtual void OnAccept(const bbt::network::Errcode& err, bbt::network::interface::INetConnectionSPtr conn) final;
+    bool AddConnect(std::shared_ptr<Connection> conn);
     virtual std::shared_ptr<Connection> CreateConnection(bbt::network::libevent::ConnectionSPtr conn) = 0;
 private:
     /* 连接管理 */

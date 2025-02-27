@@ -98,13 +98,6 @@ bool TcpServer::AddConnect(std::shared_ptr<Connection> conn)
     return succ;
 }
 
-void TcpServer::OnTimeout(Connection* conn)
-{
-    if (!DelConnect(conn->GetConnId())) {
-        GAME_EXT1_LOG_ERROR("[ConnMgr::OnTimeout] connect timeout!");
-    }
-}
-
 std::shared_ptr<Connection> TcpServer::GetConnectById(bbt::network::ConnId conn_id)
 {
     auto it = m_conn_map.find(conn_id);

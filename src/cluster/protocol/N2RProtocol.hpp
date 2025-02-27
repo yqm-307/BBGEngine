@@ -17,7 +17,7 @@ struct N2RProtocolHead
 {
     emN2RProtocolType   protocol_type;
     int32_t             protocol_length;
-    char                uuid[128];
+    char                uuid[16];
     int64_t             timestamp_ms;
 };
 

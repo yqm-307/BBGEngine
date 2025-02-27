@@ -30,7 +30,7 @@ public:
 
     void                                Init(const bbt::net::IPAddress& listen_addr, const bbt::net::IPAddress& registery_addr, int timeout);
     util::errcode::ErrOpt               Start();
-    virtual void                        Active();
+    virtual void                        Update();
     virtual void                        Offline();
     virtual void                        Online();
     virtual void                        Clear();
@@ -49,6 +49,8 @@ public:
     virtual util::errcode::ErrOpt       SendToRegistery(bbt::core::Buffer& buffer);
     virtual void                        OnError(const bbt::errcode::Errcode& err) = 0;
     virtual void                        OnInfo(const std::string& info) = 0;
+    virtual void                        OnDebug(const std::string& info) = 0;
+
     virtual void                        OnCloseNode(bbt::network::ConnId id, const bbt::net::IPAddress& addr) {}
     
     // 注册中心连接事件
@@ -63,13 +65,15 @@ public:
 
 private:
     util::errcode::ErrOpt               InitNetwork();
+    void                                _DelayConnectToRegistery();
+    void                                _ConnectToRegistery();
 
 protected:
     std::shared_ptr<util::other::Uuid>  GetRandomUuidByMethod(const std::string& method);
 
     // n2n
     util::errcode::ErrOpt               N2NDispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len);
-    util::errcode::ErrOpt               DoHeartBeat(bbt::network::ConnId id, N2N_KeepAlive_Req* req);
+    util::errcode::ErrOpt               N2N_DoHeartBeat(bbt::network::ConnId id);
 
     util::errcode::ErrOpt               R2N_Dispatch(emR2NProtocolType type, void* proto, size_t proto_len);
     // r2n response
@@ -80,23 +84,27 @@ protected:
     util::errcode::ErrOpt               N2R_DoHandshakeReq();
     util::errcode::ErrOpt               N2R_DoHeatBeatReq();
 private:
-    NodeState               m_state{NODESTATE_DEFAULT};
-    std::string             m_service_name{""};
-    util::other::Uuid::SPtr m_uuid{nullptr};
-    time_t                  m_last_active_time{-1};
-    bbt::net::IPAddress     m_listen_addr;
-    bbt::net::IPAddress     m_registery_addr;
+    NodeState                           m_state{NODESTATE_DEFAULT};
+    std::string                         m_service_name{""};
+    util::other::Uuid::SPtr             m_uuid{nullptr};
+    bbt::net::IPAddress                 m_listen_addr;
+    bbt::net::IPAddress                 m_registery_addr;
     std::shared_ptr<bbt::network::libevent::Network> m_network{nullptr};
-
+    
     std::shared_ptr<RpcServer>          m_rpc_server{nullptr};  // rpc节点间连接
     std::shared_ptr<RegisteryClient>    m_registery_client{nullptr};    // 与注册中心的连接
     bool                                m_registery_connected{false};   // 是否完成连接
     std::unordered_map<bbt::network::ConnId, util::other::Uuid> m_rpc_client_connid_uuids; // 连接id到uuid的映射
     std::unordered_map<
-            util::other::Uuid,
-            std::shared_ptr<RpcClient>,
-            util::other::Uuid::Hash> m_rpc_clients;  // 与其他节点的连接
-    int m_connect_timeout{0};
+    util::other::Uuid,
+    std::shared_ptr<RpcClient>,
+    util::other::Uuid::Hash>            m_rpc_clients;  // 与其他节点的连接
+
+    int                                 m_connect_timeout{3000};
+    int                                 m_heartbeat_timeout{3000};
+    int                                 m_reconnect_time{3000};
+    bbt::clock::Timestamp<>             m_connect_to_registery_ms{bbt::clock::now()};
+    bbt::clock::Timestamp<>             m_last_heatbeart_ms{bbt::clock::now()};
 
     // 本地缓存
     std::unordered_map<std::string, std::unordered_set<util::other::Uuid, util::other::Uuid::Hash>> m_service_uuids; // 服务名，到节点uuid的映射

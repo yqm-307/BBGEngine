@@ -76,13 +76,13 @@ bool Uuid::FromByte(const char* uuid, size_t len)
 
 bool Uuid::ToByte(char* uuid, size_t len) const
 {
-    if (len <= m_uuid.size())
+    if (len < m_uuid.size())
         return false;
 
     int index = 0;
     for (auto it = m_uuid.begin(); it != m_uuid.end(); ++it)
     {
-        uuid[index] = *it;
+        *(uuid + index++) = *it;
     }
 
     return true;

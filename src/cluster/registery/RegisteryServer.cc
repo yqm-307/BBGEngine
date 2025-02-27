@@ -22,9 +22,7 @@ std::shared_ptr<util::network::Connection> RegisteryServer::CreateConnection(bbt
             if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
                 if (auto registery = std::static_pointer_cast<RegisteryServer>(shared_this)->m_registery_weak.lock(); registery != nullptr) {
                     bbt::core::Buffer buffer{data, len};
-                    if (auto err = registery->RecvFromNode(connid, buffer); err != std::nullopt) {
-                        registery->OnError(err.value());
-                    }
+                    registery->RecvFromNode(connid, buffer);
                 }
             }
         },
