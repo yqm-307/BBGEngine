@@ -11,7 +11,6 @@
  */
 #pragma once
 #include <bbt/base/Attribute.hpp>
-#include "util/errcode/ErrCode.hpp"
 
 
 #define FLOAT_EQUAL_DIFF_VALUE      0.00001f

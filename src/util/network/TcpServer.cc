@@ -1,5 +1,5 @@
-#include <util/log/Log.hpp>
 #include <util/network/TcpServer.hpp>
+#include <util/errcode/ErrCodeDef.hpp>
 
 namespace util::network
 {
@@ -15,23 +15,24 @@ TcpServer::~TcpServer()
 {
 }
 
-void TcpServer::SetListenAddr(const char* ip, short port)
+bbt::errcode::ErrOpt TcpServer::SetListenAddr(const char* ip, short port)
 {
     Assert(m_network != nullptr);
     auto auto_init_io_thread_err = m_network->AutoInitThread(2);
-    if (auto_init_io_thread_err.IsErr()) {
-        GAME_BASE_LOG_ERROR("NetworkComponent::SetListenAddr init failed!");
-        return;
-    }
+    if (auto_init_io_thread_err.has_value())
+        return auto_init_io_thread_err;
 
     auto err = m_network->StartListen(ip, port, [this](auto err, auto conn){ OnAccept(err, conn); });
-    if (err.IsErr())
-        GAME_BASE_LOG_ERROR("start listen failed! %s", err.CWhat());
+    if (err.has_value())
+        return err;
+    
+    return std::nullopt;
 }
 
-void TcpServer::Init()
+void TcpServer::Init(ConnectionCreator creator)
 {
     SetListenAddr(m_listen_addr.GetIP().c_str(), m_listen_addr.GetPort());
+    m_conn_creator = creator;
 }
 
 void TcpServer::Start()
@@ -46,36 +47,23 @@ void TcpServer::Stop()
     m_network->Stop();
 }
 
-void TcpServer::OnAccept(const bbt::network::Errcode& err, bbt::network::interface::INetConnectionSPtr new_conn)
+void TcpServer::OnAccept(bbt::errcode::ErrOpt err, bbt::network::interface::INetConnectionSPtr new_conn)
 {
-    if (err.IsErr()) {
-        GAME_EXT1_LOG_ERROR("accept failed! %s", err.CWhat());
+    //TODO ERROR
+    if (err.has_value()) {
+        // OnError(err.value());
         return;
     }
     
-    auto conn = CreateConnection(std::static_pointer_cast<bbt::network::libevent::Connection>(new_conn));
+    auto conn = m_conn_creator(std::static_pointer_cast<bbt::network::libevent::Connection>(new_conn));
     if (!AddConnect(conn)) {
-        GAME_EXT1_LOG_ERROR("add connect failed!");
+        // OnError(bbt::errcode::Errcode{"add connect failed!", util::errcode::NET_ACCEPT_ERR});
         return;
     }
 
-    conn->SetOnClose([this](auto conn_id){
+    conn->SetOnCloseNotifyToTcpServer([this](auto conn_id){
         DelConnect(conn_id);
     });
-
-
-    GAME_EXT1_LOG_INFO("new connection: {%s}", new_conn->GetPeerAddress().GetIPPort().c_str());
-}
-
-bool TcpServer::Connect(const char* ip, short port, int timeout, const bbt::network::interface::OnConnectCallback& on_connect)
-{
-    auto err = m_network->AsyncConnect(ip, port, timeout, on_connect);
-    if (err.IsErr()) {
-        GAME_EXT1_LOG_ERROR("AsyncConnect() failed! %s", err.CWhat());
-        return false;
-    }
-
-    return true;
 }
 
 bool TcpServer::DelConnect(bbt::network::ConnId conn)
@@ -111,7 +99,6 @@ size_t TcpServer::Send(bbt::network::ConnId id, const char* bytes, size_t len)
 {
     auto conn = GetConnectById(id);
     if (conn == nullptr) {
-        GAME_EXT1_LOG_ERROR("conn is nullptr!");
         return 0;
     }
 
@@ -129,7 +116,6 @@ void TcpServer::ShowDown(bbt::network::ConnId conn)
 {
     auto conn_ptr = GetConnectById(conn);
     if (conn_ptr == nullptr) {
-        GAME_EXT1_LOG_ERROR("conn is nullptr!");
         return;
     }
 

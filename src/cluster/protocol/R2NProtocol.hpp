@@ -6,6 +6,7 @@ namespace cluster
 
 enum emR2NProtocolType: int8_t
 {
+    R2N_PROTOCOL_NONE = 0,
     R2N_KEEPALIVE_RESP = 1,
     R2N_HANDSHAKE_RESP,
     R2N_PROTOCOL_SIZE,

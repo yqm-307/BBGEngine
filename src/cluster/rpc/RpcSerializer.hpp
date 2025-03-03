@@ -61,7 +61,7 @@ public:
         SerializeArgs(buffer, args...);
     }
 
-    util::errcode::ErrTuple<std::vector<FieldValue>> Deserialize(bbt::core::Buffer& buffer)
+    bbt::errcode::ErrTuple<std::vector<FieldValue>> Deserialize(bbt::core::Buffer& buffer)
     {
         std::vector<FieldValue> values;
         while (buffer.ReadableBytes() > 0)
@@ -77,10 +77,10 @@ public:
         return {std::nullopt, values};
     }
 
-    util::errcode::ErrOpt DeserializeOne(bbt::core::Buffer& buffer, FieldValue& value)
+    bbt::errcode::ErrOpt DeserializeOne(bbt::core::Buffer& buffer, FieldValue& value)
     {
         if (buffer.ReadableBytes() < sizeof(value.header))
-            return util::errcode::ErrCode("deserialize failed, buffer too short!", util::errcode::ErrType::CommonErr);
+            return bbt::errcode::Errcode{"deserialize failed, buffer too short!", util::errcode::emErr::CommonErr};
         
         buffer.ReadString((char*)&(value.header), sizeof(value.header));
         switch (value.header.field_type)
@@ -102,7 +102,7 @@ public:
             buffer.ReadString(value.string.data(), value.string.size());
             break;
         default:
-            return util::errcode::ErrCode("deserialize failed, not support this type!", util::errcode::ErrType::CommonErr);
+            return bbt::errcode::Errcode("deserialize failed, not support this type!", util::errcode::emErr::CommonErr);
         }
 
         return std::nullopt;

@@ -6,6 +6,7 @@ namespace cluster
 
 enum emN2RProtocolType: int8_t
 {
+    N2R_PROTOCOL_NONE = 0,
     N2R_KEEPALIVE_REQ = 1,
     N2R_HANDSHAKE_REQ,
     N2R_PROTOCOL_SIZE,
@@ -29,6 +30,8 @@ struct N2R_KeepAlive_Req
 struct N2R_Handshake_Req
 {
     N2RProtocolHead head;
+    char            node_ip[16];
+    short           node_port;
 };
 
 #pragma pack(pop)

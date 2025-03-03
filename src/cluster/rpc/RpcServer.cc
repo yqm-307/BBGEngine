@@ -5,8 +5,7 @@
 namespace cluster
 {
 
-RpcServer::RpcServer(std::shared_ptr<bbt::network::libevent::Network> network, std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout):
-    util::network::TcpServer(network, listen_addr.GetIP(), listen_addr.GetPort(), timeout),
+RpcServer::RpcServer(std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout):
     m_node_weak(node)
 {
 }
@@ -21,7 +20,7 @@ int RpcServer::Register(const std::string& method, RpcCallback callback)
     return 0;
 }
 
-util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::network::ConnId connid, bbt::core::Buffer& buffer)
+bbt::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::Buffer& reply)
 {
     FieldValue field;
     std::string method;
@@ -30,24 +29,24 @@ util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::network::ConnId connid, bbt::
 
     // 读取 mothod name
     {
-        auto err = coder.DeserializeOne(buffer, field);
+        auto err = coder.DeserializeOne(req, field);
         if (err)
             return err;
         
         if (field.header.field_type != STRING)
-            return util::errcode::ErrCode("a bad protocol! method name must be string", util::errcode::ErrType::CommonErr);
+            return bbt::errcode::Errcode("a bad protocol! method name must be string", util::errcode::emErr::CommonErr);
 
         method = std::move(field.string);
     }
 
     // 读取 call seq
     {
-        auto err = coder.DeserializeOne(buffer, field);
+        auto err = coder.DeserializeOne(req, field);
         if (err) 
             return err;
 
         if (field.header.field_type != INT64)
-            return util::errcode::ErrCode("a bad protocol! method call_seq must be string", util::errcode::ErrType::CommonErr);
+            return bbt::errcode::Errcode("a bad protocol! method call_seq must be string", util::errcode::emErr::CommonErr);
 
         call_seq = field.value.int64_value;
     }
@@ -55,70 +54,16 @@ util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::network::ConnId connid, bbt::
 
     auto iter = m_registed_methods.find(method);
     if (iter == m_registed_methods.end())
-        return util::errcode::ErrCode("method not found", util::errcode::ErrType::CommonErr);
+        return bbt::errcode::Errcode("method not found", util::errcode::emErr::CommonErr);
 
-    bbt::core::Buffer resp = coder.Serialize(call_seq);
+    reply.WriteInt64(call_seq);
 
-    auto err = iter->second(buffer, resp);
+    auto err = iter->second(req, reply);
     if (err == std::nullopt) {
-        Send(connid, resp.Peek(), resp.DataSize());
+        // Send(connid, resp.Peek(), resp.DataSize());
     }
 
     return err;
-}
-
-std::shared_ptr<util::network::Connection> RpcServer::CreateConnection(bbt::network::libevent::ConnectionSPtr conn)
-{
-    auto rpc_conn = std::make_shared<util::network::Connection>(conn, 5000);
-    auto connid = rpc_conn->GetConnId();
-
-    rpc_conn->SetCallbacks({
-        .on_recv_callback = [weak_this{weak_from_this()}, connid](auto, const char* data, size_t len)
-        {
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-                bbt::core::Buffer buffer{data, len};
-                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
-                    cluster_node->RecvFromNode(connid, buffer);
-                }
-            }
-        },
-        .on_send_callback = [weak_this{weak_from_this()}, connid](auto, const bbt::errcode::Errcode& err, size_t succ_len)
-        {
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
-                    if (err.IsErr())
-                        cluster_node->OnError(err);
-                }
-            }
-        },
-        .on_close_callback = [weak_this{weak_from_this()}, connid](auto, auto)
-        {
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
-                    cluster_node->OnCloseFromNode(connid);
-                }
-            }
-        },
-        .on_timeout_callback = [weak_this{weak_from_this()}, connid](auto)
-        {
-            // 这里超时后，回继续调用OnClose，所以在onclose中删除连接
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
-                    cluster_node->OnTimeoutFromNode(connid);
-                }
-            }
-        },
-        .on_err_callback = [weak_this{weak_from_this()}, connid](auto, const bbt::errcode::Errcode& err)
-        {
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-                if (auto cluster_node = std::static_pointer_cast<RpcServer>(shared_this)->m_node_weak.lock(); cluster_node != nullptr) {
-                    cluster_node->OnError(err);
-                }
-            }
-        },
-    });
-
-    return rpc_conn;
 }
 
 } // namespace cluster::rpc

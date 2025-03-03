@@ -3,39 +3,58 @@
 namespace cluster
 {
 
-RegisterInfo::RegisterInfo()
+NodeRegInfo::NodeRegInfo()
 {
 }
 
-RegisterInfo::~RegisterInfo()
+NodeRegInfo::~NodeRegInfo()
 {
 }
 
-void RegisterInfo::Clear()
+NodeRegInfo& NodeRegInfo::operator=(const NodeRegInfo& other)
 {
-    m_state = NodeState::NODESTATE_DEFAULT;
+    m_state = other.m_state;
+    m_uuid = other.m_uuid;
+    m_node_addr = other.m_node_addr;
+    m_connid = other.m_connid;
+    m_method_info_map = other.m_method_info_map;
+    m_last_heartbeat = other.m_last_heartbeat;
+    return *this;
+}
+
+void NodeRegInfo::Clear()
+{
+    m_state = NodeState::NODESTATE_UNREGISTER;
     m_method_info_map.clear();
-    m_last_active_time = bbt::clock::Timestamp<bbt::clock::ms>();
-    m_heart_beat_interval = 0;
+    m_uuid.Clear();
 }
 
-void RegisterInfo::Init(util::other::Uuid uuid, bbt::network::ConnId conn_id)
+void NodeRegInfo::Init(const util::other::Uuid& uuid, const bbt::net::IPAddress& addr)
 {
     m_uuid = uuid;
+    m_node_addr = addr;
     m_state = NodeState::NODESTATE_ONLINE;
-    m_last_active_time = bbt::clock::Timestamp<bbt::clock::ms>();
-    m_conn_id = conn_id;
-
-    // 默认心跳间隔
-    m_heart_beat_interval = 1000;
 }
 
-void RegisterInfo::AddMethod(const std::string& method_name)
+void NodeRegInfo::Update()
+{
+    if (bbt::clock::now() - m_last_heartbeat > bbt::clock::ms(m_heartbeat_timeout_ms))
+    {
+        m_state = NODESTATE_OFFLINE;
+    }
+}
+
+void NodeRegInfo::OnHeartBeat()
+{
+    m_last_heartbeat = bbt::clock::now();
+}
+
+void NodeRegInfo::AddMethod(const std::string& method_name)
 {
     m_method_info_map.insert(method_name);
 }
 
-void RegisterInfo::DelMethod(const std::string& method_name)
+void NodeRegInfo::DelMethod(const std::string& method_name)
 {
     m_method_info_map.erase(method_name);
 
@@ -46,19 +65,39 @@ void RegisterInfo::DelMethod(const std::string& method_name)
     }
 }
 
-bool RegisterInfo::HasMethod(const std::string& method_name) const
+bool NodeRegInfo::HasMethod(const std::string& method_name) const
 {
     return m_method_info_map.find(method_name) != m_method_info_map.end();
 }
 
-void RegisterInfo::Active()
+NodeState NodeRegInfo::GetStatus() const
 {
-    m_last_active_time = bbt::clock::now();
+    return m_state;
 }
 
-bbt::network::ConnId RegisterInfo::GetConnId() const
+void NodeRegInfo::SetStatus(NodeState state)
 {
-    return m_conn_id;
+    m_state = state;
+}
+
+const util::other::Uuid& NodeRegInfo::GetUuid() const
+{
+    return m_uuid;
+}
+
+bbt::network::ConnId NodeRegInfo::GetConnId() const
+{
+    return m_connid;
+}
+
+void NodeRegInfo::SetConnId(bbt::network::ConnId connid)
+{
+    m_connid = connid;
+}
+
+const bbt::net::IPAddress& NodeRegInfo::GetNodeAddr() const
+{
+    return m_node_addr;
 }
 
 } // namespace cluster

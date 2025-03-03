@@ -8,28 +8,37 @@ namespace cluster
 /**
  * @brief 节点注册信息
  */
-class RegisterInfo
+class NodeRegInfo
 {
 public:
-    RegisterInfo();
-    ~RegisterInfo();
+    NodeRegInfo();
+    ~NodeRegInfo();
 
-    void Clear();
-    void Init(util::other::Uuid uuid, bbt::network::ConnId conn_id);
+    NodeRegInfo& operator=(const NodeRegInfo&);
 
-    void AddMethod(const std::string& method_name);
-    void DelMethod(const std::string& method_name);
-    bool HasMethod(const std::string& method_name) const;
-    void Active();
+    void                Clear();
+    void                Init(const util::other::Uuid& uuid, const bbt::net::IPAddress& addr);
+
+    void                Update();
+    void                OnHeartBeat();
+    void                AddMethod(const std::string& method_name);
+    void                DelMethod(const std::string& method_name);
+    bool                HasMethod(const std::string& method_name) const;
+    void                SetStatus(NodeState state);
+    NodeState           GetStatus() const;
+    const util::other::Uuid& GetUuid() const;
     bbt::network::ConnId GetConnId() const;
+    void                SetConnId(bbt::network::ConnId connid);
+    const bbt::net::IPAddress& GetNodeAddr() const;
     
 private:
-    NodeState m_state{NodeState::NODESTATE_DEFAULT}; // 节点状态
-    util::other::Uuid m_uuid; // 节点id
+    NodeState                       m_state{NodeState::NODESTATE_UNREGISTER}; // 节点状态
+    util::other::Uuid               m_uuid; // 节点id
+    bbt::net::IPAddress             m_node_addr; // 节点地址
+    bbt::network::ConnId            m_connid{0};
     std::unordered_set<std::string> m_method_info_map;  // 方法名
-    bbt::clock::Timestamp<bbt::clock::ms> m_last_active_time; // 最后活跃时间
-    bbt::network::ConnId m_conn_id{0}; // 连接id
-    int m_heart_beat_interval;
+    bbt::clock::Timestamp<>         m_last_heartbeat{bbt::clock::now()}; // 最后一次心跳时间
+    const int                       m_heartbeat_timeout_ms{HEARTBEAT_TIMEOUT_MS}; // 心跳超时时间
 
 };
 

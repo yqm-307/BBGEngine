@@ -7,23 +7,21 @@
 #include <util/other/Uuid.hpp>
 #include <bbt/base/buffer/Buffer.hpp>
 #include <bbt/base/clock/Clock.hpp>
-#include <util/errcode/ErrCode.hpp>
 
 
 namespace cluster
 {
 
+class NodeMgr;
+
+#define HEARTBEAT_TIMEOUT_MS 3000
+
 enum NodeState
 {
-    NODESTATE_DEFAULT = 0,
+    NODESTATE_UNREGISTER = 0,
     NODESTATE_ONLINE,
     NODESTATE_OFFLINE,
     NODESTATE_INVALID,
-};
-
-struct NodeRegInfo
-{
-
 };
 
 }

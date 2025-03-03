@@ -10,7 +10,7 @@ class TcpClient:
 public:
     TcpClient(std::shared_ptr<bbt::network::base::NetworkBase> network, const char* ip, short port, int timeout);
 
-    util::errcode::ErrOpt AsyncConnect(const bbt::network::interface::OnConnectCallback& on_connect);
+    bbt::errcode::ErrOpt AsyncConnect(const bbt::network::interface::OnConnectCallback& on_connect);
 
     void SetConn(std::shared_ptr<util::network::Connection> conn);
     void DelConn();

@@ -4,11 +4,8 @@
 namespace util::network
 {
 
-uint64_t Connection::m_id_template = 1;
-
 Connection::Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms):
-    m_raw_conn_ptr(raw_conn),
-    m_conn_id(GenerateId())
+    m_raw_conn_ptr(raw_conn)
 {
     Assert(timeout_ms > 0);
     raw_conn->SetOpt_CloseTimeoutMS(timeout_ms);
@@ -18,21 +15,44 @@ Connection::~Connection()
 {
 }
 
-void Connection::SetCallbacks(bbt::network::libevent::ConnCallbacks callbacks)
+void Connection::Init()
 {
-    m_conn_callbacks = callbacks;
-    m_raw_conn_ptr->SetOpt_Callbacks(m_conn_callbacks);
+    if (m_raw_conn_ptr == nullptr)
+        return;
+    
+    m_raw_conn_ptr->SetOpt_Callbacks({
+        .on_recv_callback = [weak_this{weak_from_this()}](auto, const char* data, size_t len)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->OnRecv(data, len);
+        },
+        .on_send_callback = [weak_this{weak_from_this()}](auto, auto err, size_t succ_len)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->OnSend(err, succ_len);
+        },
+        .on_close_callback = [weak_this{weak_from_this()}](auto, auto)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->_OnClose();
+        },
+        .on_timeout_callback = [weak_this{weak_from_this()}](auto)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->OnTimeout();
+        },
+        .on_err_callback = [weak_this{weak_from_this()}](void*, const bbt::errcode::Errcode& err)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->OnError(err);
+        },
+    });
 }
 
-void Connection::_OnClose()
-{
-    if (m_onclose_cb != nullptr)
-        m_onclose_cb(m_conn_id);
-}
 
 bbt::network::ConnId Connection::GetConnId()
 {
-    return m_conn_id;
+    return m_raw_conn_ptr->GetConnId();
 }
 
 void Connection::Send(const char* data, size_t len)
@@ -53,10 +73,21 @@ void Connection::Close()
     m_raw_conn_ptr->Close();
 }
 
-void Connection::SetOnClose(std::function<void(bbt::network::ConnId)> onclose)
+const bbt::net::IPAddress& Connection::GetPeerAddr() const
 {
-    m_onclose_cb = onclose;
+    return m_raw_conn_ptr->GetPeerAddress();
 }
 
+void Connection::_OnClose()
+{
+    if (m_notify_close_to_tcpserver_cb != nullptr)
+        m_notify_close_to_tcpserver_cb(GetConnId());
 
+    OnClose();
+}
+
+void Connection::SetOnCloseNotifyToTcpServer(std::function<void(bbt::network::ConnId)> onclose)
+{
+    m_notify_close_to_tcpserver_cb = onclose;
+}
 }

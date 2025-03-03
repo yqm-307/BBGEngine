@@ -6,7 +6,6 @@
 namespace cluster
 {
 
-// FIXME 这里设计有问题，继承自RpcServer的RpcClient具备发送和接收的功能，应该是一个具体类
 class RpcClient:
     public util::network::TcpClient
 {
