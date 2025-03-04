@@ -11,6 +11,7 @@ namespace cluster
 class NodeRegInfo
 {
 public:
+    typedef std::shared_ptr<NodeRegInfo> SPtr;
     NodeRegInfo();
     ~NodeRegInfo();
 
@@ -21,7 +22,7 @@ public:
 
     void                Update();
     void                OnHeartBeat();
-    void                AddMethod(const std::string& method_name);
+    bbt::errcode::ErrOpt AddMethod(const std::string& method_name);
     void                DelMethod(const std::string& method_name);
     bool                HasMethod(const std::string& method_name) const;
     void                SetStatus(NodeState state);
@@ -38,7 +39,7 @@ private:
     bbt::network::ConnId            m_connid{0};
     std::unordered_set<std::string> m_method_info_map;  // 方法名
     bbt::clock::Timestamp<>         m_last_heartbeat{bbt::clock::now()}; // 最后一次心跳时间
-    const int                       m_heartbeat_timeout_ms{HEARTBEAT_TIMEOUT_MS}; // 心跳超时时间
+    const int                       m_heartbeat_timeout_ms{BBGENGINE_HEARTBEAT_TIMEOUT_MS}; // 心跳超时时间
 
 };
 

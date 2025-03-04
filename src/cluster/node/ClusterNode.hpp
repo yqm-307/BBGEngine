@@ -68,8 +68,8 @@ private:
     bbt::errcode::ErrOpt                InitNetwork();
     void                                _DelayConnectToRegistery();
     void                                _ConnectToRegistery();
+    void                                OnHandshakeSucc();
 
-protected:
     std::shared_ptr<util::other::Uuid>  GetRandomUuidByMethod(const std::string& method);
 
     bbt::errcode::ErrOpt                ProcessN2NProtocol();
@@ -87,6 +87,8 @@ protected:
     // n2r request
     bbt::errcode::ErrOpt                N2R_DoHandshakeReq();
     bbt::errcode::ErrOpt                N2R_DoHeatBeatReq();
+    bbt::errcode::ErrOpt                N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature);
+    bbt::errcode::ErrOpt                N2R_DoGetNodesInfoReq();
 private:
     NodeState                           m_state{NODESTATE_UNREGISTER};
     std::string                         m_service_name{""};
@@ -107,11 +109,12 @@ private:
         std::shared_ptr<RpcClient>,
         util::other::Uuid::Hash>        m_rpc_clients;  // 与其他节点的连接
 
-    int                                 m_connect_timeout{3000};
+    int                                 m_connect_timeout{20000};
     int                                 m_heartbeat_timeout{3000};
     int                                 m_reconnect_time{3000};
     bbt::clock::Timestamp<>             m_connect_to_registery_ms{bbt::clock::now()};
     bbt::clock::Timestamp<>             m_last_heatbeart_ms{bbt::clock::now()};
+    bbt::clock::Timestamp<>             m_last_get_nodes_info_ms{bbt::clock::now()};
 
     // 本地缓存
     std::unordered_map<std::string, std::unordered_set<util::other::Uuid, util::other::Uuid::Hash>> m_service_uuids; // 服务名，到节点uuid的映射

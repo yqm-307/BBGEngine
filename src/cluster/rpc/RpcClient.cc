@@ -16,7 +16,7 @@ void RpcClient::OnReply(const char* data, size_t size)
 {
     bbt::core::Buffer buffer(data, size);
     FieldHeader header;
-    if (buffer.ReadableBytes() < sizeof(header))
+    if (buffer.Size() < sizeof(header))
     {
         GAME_EXT1_LOG_ERROR("a bad protocol! too short");
         return;
@@ -29,12 +29,14 @@ void RpcClient::OnReply(const char* data, size_t size)
         return;
     }
 
-    if (buffer.ReadableBytes() < header.field_len)
+    if (buffer.Size() < header.field_len)
     {
         GAME_EXT1_LOG_ERROR("a bad protocol! buffer not enough %d byte!", header.field_len);
         return;
     }
-    int seq = buffer.ReadInt64();
+
+    int64_t seq;
+    buffer.Read(seq);
 
     auto iter = m_callbacks.find(seq);
     if (iter == m_callbacks.end())
@@ -58,7 +60,7 @@ int RpcClient::Send(const bbt::core::Buffer& buffer)
     }
 
     if (conn != nullptr && !conn->IsClosed()) {
-        conn->Send(buffer.Peek(), buffer.DataSize());
+        conn->Send(buffer.Peek(), buffer.Size());
     }
 
     return -1;

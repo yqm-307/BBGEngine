@@ -9,7 +9,6 @@ bbt::random::mt_random<int64_t, INT64_MIN, INT64_MAX> Random::m_rand = bbt::rand
 
 void Random::SetSeed(time_t seed)
 {
-    GAME_BASE_LOG_INFO("set server random seed: [- %ld -]", seed);
     m_random_seed = seed;
     m_rand.SetSeed(seed);
 }

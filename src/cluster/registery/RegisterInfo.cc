@@ -1,4 +1,5 @@
 #include <cluster/registery/RegisterInfo.hpp>
+#include <util/errcode/ErrCodeDef.hpp>
 
 namespace cluster
 {
@@ -38,7 +39,8 @@ void NodeRegInfo::Init(const util::other::Uuid& uuid, const bbt::net::IPAddress&
 
 void NodeRegInfo::Update()
 {
-    if (bbt::clock::now() - m_last_heartbeat > bbt::clock::ms(m_heartbeat_timeout_ms))
+    auto time_diff = (bbt::clock::now() - m_last_heartbeat).count();
+    if (time_diff > m_heartbeat_timeout_ms)
     {
         m_state = NODESTATE_OFFLINE;
     }
@@ -49,9 +51,13 @@ void NodeRegInfo::OnHeartBeat()
     m_last_heartbeat = bbt::clock::now();
 }
 
-void NodeRegInfo::AddMethod(const std::string& method_name)
+bbt::errcode::ErrOpt NodeRegInfo::AddMethod(const std::string& method_name)
 {
+    if (m_method_info_map.find(method_name) != m_method_info_map.end())
+        return bbt::errcode::Errcode("method already exist!", util::errcode::emErr::CommonErr);
+    
     m_method_info_map.insert(method_name);
+    return std::nullopt;
 }
 
 void NodeRegInfo::DelMethod(const std::string& method_name)

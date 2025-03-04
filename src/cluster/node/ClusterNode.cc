@@ -3,6 +3,8 @@
 #include <cluster/connection/N2RConnection.hpp>
 #include <cluster/connection/R2NConnection.hpp>
 
+#define BBGENGINE_MODULE_NAME "[BBG::Node]"
+
 namespace cluster
 {
 
@@ -87,7 +89,6 @@ void ClusterNode::Update()
     if (m_registery_client) {
         if (auto conn = m_registery_client->GetConn(); conn == nullptr) {
             if (bbt::clock::is_expired<bbt::clock::ms>(m_connect_to_registery_ms)) {
-                // m_connect_to_registery_ms = bbt::clock::gettime() + m_connect_timeout;
                 _ConnectToRegistery();
             }
         }
@@ -97,11 +98,17 @@ void ClusterNode::Update()
                 m_last_heatbeart_ms = bbt::clock::now() + bbt::clock::ms(m_heartbeat_timeout);
         
                 if (auto err = N2R_DoHeatBeatReq(); err != std::nullopt)
-                    OnError(err.value());            
+                    OnError(err.value());
             }
         }
     }
 
+    // 定时获取注册中心的节点信息
+    if (bbt::clock::is_expired<bbt::clock::ms>(m_last_get_nodes_info_ms) && m_registery_connected) {
+        m_last_get_nodes_info_ms = bbt::clock::now() + bbt::clock::s(10);
+        if (auto err = N2R_DoGetNodesInfoReq(); err != std::nullopt)
+            OnError(err.value());
+    }
 }
 
 void ClusterNode::Offline()
@@ -143,13 +150,13 @@ void ClusterNode::RequestFromRegistery(bbt::core::Buffer& buffer)
 
     // 协议校验
     {
-        if (buffer.ReadableBytes() < sizeof(R2NProtocolHead)) {
+        if (buffer.Size() < sizeof(R2NProtocolHead)) {
             OnError(bbt::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
     
         head = (R2NProtocolHead*)buffer.Peek();
-        if (buffer.ReadableBytes() < head->protocol_length) {
+        if (buffer.Size() < head->protocol_length) {
             OnError(bbt::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
@@ -249,6 +256,14 @@ void ClusterNode::_ConnectToRegistery()
 
 }
 
+void ClusterNode::OnHandshakeSucc()
+{
+    m_registery_connected = true;
+}
+
+
+#pragma region registery protocol
+
 bbt::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* proto, size_t proto_len)
 {
 #define EasyCheck(type, len) if (proto_len != len) return bbt::errcode::Errcode("invalid protocol length type=" + std::to_string(type), util::errcode::emErr::RPC_BAD_PROTOCOL);
@@ -261,6 +276,12 @@ bbt::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* pro
     case R2N_HANDSHAKE_RESP:
         EasyCheck(type, sizeof(R2N_Handshake_Resp));
         return R2N_OnHandshakeResp((R2N_Handshake_Resp*)proto);
+    // case R2N_REGISTER_METHOD_RESP:
+    //     EasyCheck(type, sizeof(R2N_RegisterMethod_Resp));
+    //     return std::nullopt;
+    // case R2N_GET_NODES_INFO_RESP:
+    //     EasyCheck(type, sizeof(R2N_GetNodesInfo_Resp));
+    //     return std::nullopt;
     default:
         return bbt::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
@@ -271,7 +292,7 @@ bbt::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* pro
 bbt::errcode::ErrOpt ClusterNode::R2N_OnHandshakeResp(R2N_Handshake_Resp* resp)
 {
     OnInfo("registery handshake success! msg_code=" + std::to_string(resp->msg_code));
-    m_registery_connected = true;
+    OnHandshakeSucc();
     return std::nullopt;
 }
 
@@ -323,7 +344,7 @@ bbt::errcode::ErrOpt ClusterNode::SendToRegistery(bbt::core::Buffer& buffer)
     if (conn == nullptr)
         return bbt::errcode::Errcode{"registery connection is null!", util::errcode::CommonErr};
 
-    conn->Send(buffer.Peek(), buffer.DataSize());
+    conn->Send(buffer.Peek(), buffer.Size());
     return std::nullopt;
 }
 
@@ -341,7 +362,7 @@ bbt::errcode::ErrOpt ClusterNode::SendToNode(bbt::network::ConnId id, bbt::core:
     if (conn == nullptr)
         return bbt::errcode::Errcode{"[ClusterNode] node connection is null!", util::errcode::CommonErr};
 
-    conn->Send(buffer.Peek(), buffer.DataSize());
+    conn->Send(buffer.Peek(), buffer.Size());
     return std::nullopt;
 }
 
@@ -377,4 +398,53 @@ bbt::errcode::ErrOpt ClusterNode::N2N_DoHeartBeat(bbt::network::ConnId id)
     return std::nullopt;
 }
 
+bbt::errcode::ErrOpt ClusterNode::N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature)
+{
+    N2R_RegisterMethod_Req req;
+    OnDebug("send n2r register method!");
+    if (method.size() >= sizeof(req.method_name))
+        return bbt::errcode::Errcode{BBGENGINE_MODULE_NAME " method name too long!", util::errcode::CommonErr};
+    
+    if (signature.ToByte(req.method_signature, sizeof(req.method_signature)))
+        return bbt::errcode::Errcode{BBGENGINE_MODULE_NAME " signature to byte failed!", util::errcode::CommonErr};
+    
+    if (m_registery_client == nullptr)
+        return bbt::errcode::Errcode{BBGENGINE_MODULE_NAME " registery client is null!", util::errcode::CommonErr};
+
+    req.head.protocol_type = N2R_REGISTER_METHOD_REQ;
+    req.head.protocol_length = sizeof(N2R_RegisterMethod_Req);
+    req.head.timestamp_ms = bbt::clock::gettime();
+    if (!m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid)))
+        return bbt::errcode::Errcode{BBGENGINE_MODULE_NAME " uuid to byte failed!", util::errcode::CommonErr};
+
+    memcpy(req.method_name, method.c_str(), method.size());
+    req.method_name[method.size()] = '\0';
+
+    m_registery_client->GetConn()->Send((char*)&req, sizeof(req));
+    return std::nullopt;
 }
+
+bbt::errcode::ErrOpt ClusterNode::N2R_DoGetNodesInfoReq()
+{
+    N2R_GetNodesInfo_Req req;
+    OnDebug("send n2r get nodes info!");
+
+    if (m_registery_client == nullptr)
+        return bbt::errcode::Errcode{BBGENGINE_MODULE_NAME " registery client is null!", util::errcode::CommonErr};
+    
+    req.head.protocol_type = N2R_GET_NODES_INFO_REQ;
+    req.head.protocol_length = sizeof(N2R_GetNodesInfo_Req);
+    req.head.timestamp_ms = bbt::clock::gettime();
+    if (!m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid)))
+        return bbt::errcode::Errcode{BBGENGINE_MODULE_NAME " uuid to byte failed!", util::errcode::CommonErr};
+    
+    m_registery_client->GetConn()->Send((char*)&req, sizeof(req));
+    return std::nullopt;
+}
+
+
+#pragma endregion
+
+}
+
+#undef BBGENGINE_MODULE_NAME

@@ -56,7 +56,7 @@ bbt::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::
     if (iter == m_registed_methods.end())
         return bbt::errcode::Errcode("method not found", util::errcode::emErr::CommonErr);
 
-    reply.WriteInt64(call_seq);
+    reply.Write(call_seq);
 
     auto err = iter->second(req, reply);
     if (err == std::nullopt) {

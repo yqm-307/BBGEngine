@@ -30,7 +30,7 @@ public:
     virtual void                    OnInfo(const std::string& info) = 0;
     virtual void                    OnDebug(const std::string& info) = 0;
 
-    NodeRegInfo*                    GetNodeRegInfo(const util::other::Uuid& uuid);
+    NodeRegInfo::SPtr               GetNodeRegInfo(const util::other::Uuid& uuid);
     void                            CloseConn(bbt::network::ConnId connid);
     NodeState                       GetNodeStatus(const util::other::Uuid& uuid) const;
 
@@ -45,6 +45,8 @@ private:
     bbt::errcode::ErrOpt            N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len);
     bbt::errcode::ErrOpt            OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req);
     bbt::errcode::ErrOpt            OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req);
+    bbt::errcode::ErrOpt            OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req);
+    bbt::errcode::ErrOpt            OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req);
 
     void                            OnAccept(bbt::network::ConnId connid);
     void                            OnClose(bbt::network::ConnId connid);

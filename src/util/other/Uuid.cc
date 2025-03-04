@@ -46,7 +46,10 @@ Uuid::~Uuid() {}
 
 Uuid& Uuid::operator=(const Uuid& other)
 {
-    m_uuid = other.m_uuid;
+    for (int i = 0; i < m_uuid.size(); ++i)
+    {
+        m_uuid.data[i] = other.m_uuid.data[i];
+    }
     return *this;
 }
 

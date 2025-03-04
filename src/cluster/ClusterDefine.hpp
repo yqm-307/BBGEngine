@@ -9,12 +9,13 @@
 #include <bbt/base/clock/Clock.hpp>
 
 
+#define BBGENGINE_HEARTBEAT_TIMEOUT_MS 3000
+
 namespace cluster
 {
 
 class NodeMgr;
 
-#define HEARTBEAT_TIMEOUT_MS 3000
 
 enum NodeState
 {
@@ -22,6 +23,12 @@ enum NodeState
     NODESTATE_ONLINE,
     NODESTATE_OFFLINE,
     NODESTATE_INVALID,
+};
+
+enum emRegisterMethodErr
+{
+    Succ = 0,
+    Failed = 1,
 };
 
 }

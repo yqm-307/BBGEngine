@@ -4,6 +4,8 @@
 #include <cluster/protocol/N2RProtocol.hpp>
 #include <cluster/registery/NodeMgr.hpp>
 
+#define BBGENGINE_MODULE_NAME "[BBG::Registery]"
+
 namespace cluster
 {
 
@@ -48,10 +50,9 @@ void Registery::Update()
 {
     m_node_mgr->Update();
     // 如果node长时间没有heartbeat，就认为它已经下线，关闭连接
-
 }
 
-NodeRegInfo* Registery::GetNodeRegInfo(const util::other::Uuid& uuid)
+NodeRegInfo::SPtr Registery::GetNodeRegInfo(const util::other::Uuid& uuid)
 {
     return m_node_mgr->GetNodeInfo(uuid);
 }
@@ -70,7 +71,7 @@ NodeState Registery::GetNodeStatus(const util::other::Uuid& uuid) const
 
 void Registery::RegisterNode(const bbt::net::IPAddress& addr, const util::other::Uuid& uuid)
 {
-    auto* node_info = GetNodeRegInfo(uuid);
+    auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
         return;
 
@@ -79,7 +80,7 @@ void Registery::RegisterNode(const bbt::net::IPAddress& addr, const util::other:
 
 void Registery::UnRegisterNode(const util::other::Uuid& uuid)
 {
-    auto* node_info = GetNodeRegInfo(uuid);
+    auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
         return;
 
@@ -90,7 +91,7 @@ void Registery::UnRegisterNode(const util::other::Uuid& uuid)
 
 bbt::errcode::ErrOpt Registery::SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer)
 {
-    auto* node_info = GetNodeRegInfo(uuid);
+    auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
         return bbt::errcode::Errcode("node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
 
@@ -98,7 +99,7 @@ bbt::errcode::ErrOpt Registery::SendToNode(const util::other::Uuid& uuid, const 
     if (conn == nullptr)
         return bbt::errcode::Errcode("conn is losed!", util::errcode::emErr::CommonErr);
 
-    conn->Send(buffer.Peek(), buffer.ReadableBytes());
+    conn->Send(buffer.Peek(), buffer.Size());
     return std::nullopt;
 }
 
@@ -110,11 +111,18 @@ void Registery::OnAccept(bbt::network::ConnId connid)
 
 void Registery::OnClose(bbt::network::ConnId connid)
 {
-    auto node_info = m_node_mgr->GetNodeInfo(connid);
+    util::other::Uuid uuid;
     m_half_connect_set.erase(connid);
     m_registery_server->DelConnect(connid);
-    m_node_mgr->NodeOffline(connid);
-    OnInfo("registery connection close! connid=" + std::to_string(connid) + "\t uuid=" + node_info->GetUuid().ToString());
+    
+    auto node_info = m_node_mgr->GetNodeInfo(connid);
+    if (node_info != nullptr) {
+        m_node_mgr->NodeOffline(connid);
+        uuid = node_info->GetUuid();
+        OnInfo(BBGENGINE_MODULE_NAME "node offline! uuid=" + uuid.ToString());
+    }
+
+    OnInfo("registery connection close! connid=" + std::to_string(connid));
 }
 
 void Registery::OnTimeout(bbt::network::ConnId connid)
@@ -147,13 +155,13 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
     }
 
     {
-        if (buffer.ReadableBytes() < sizeof(N2RProtocolHead)) {
+        if (buffer.Size() < sizeof(N2RProtocolHead)) {
             OnError(bbt::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
     
         head = (N2RProtocolHead*)buffer.Peek();
-        if (buffer.ReadableBytes() < head->protocol_length) {
+        if (buffer.Size() < head->protocol_length) {
             OnError(bbt::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
@@ -181,6 +189,12 @@ bbt::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtoc
     case N2R_HANDSHAKE_REQ:
         EasyCheck(type, sizeof(N2R_Handshake_Req));
         return OnHandshake(id, (N2R_Handshake_Req*)proto);
+    case N2R_REGISTER_METHOD_REQ:
+        EasyCheck(type, sizeof(N2R_RegisterMethod_Req));
+        return OnRegisterMethod(id, (N2R_RegisterMethod_Req*)proto);
+    case N2R_GET_NODES_INFO_REQ:
+        EasyCheck(type, sizeof(N2R_GetNodesInfo_Req));
+        return OnGetNodesInfo(id, (N2R_GetNodesInfo_Req*)proto);
     default:
         return bbt::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
@@ -192,16 +206,18 @@ bbt::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAli
 {
     R2N_KeepAlive_Resp resp;
     util::other::Uuid uuid{req->head.uuid, sizeof(req->head.uuid)};
+    auto node_info = m_node_mgr->GetNodeInfo(uuid);
 
-    OnDebug("on heartbeat!");
-    // auto it = m_registery_map.find(util::other::Uuid{req->head.uuid, sizeof(req->head.uuid)});
-    if (GetNodeStatus(uuid) != NodeState::NODESTATE_ONLINE)
+    OnDebug("on heartbeat!" + std::to_string(req->head.timestamp_ms));
+    if (node_info == nullptr)
         return bbt::errcode::Errcode("[OnHeartBeat] node not registed!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
 
     resp.head.protocol_type = R2N_KEEPALIVE_RESP;
     resp.head.protocol_length = sizeof(R2N_KeepAlive_Resp);
     memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
     resp.head.timestamp_ms = bbt::clock::gettime();
+
+    node_info->OnHeartBeat();
     
     SendToNode(uuid, bbt::core::Buffer{(char*)&resp, sizeof(resp)});
     return std::nullopt;
@@ -210,7 +226,7 @@ bbt::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAli
 bbt::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req)
 {
     R2N_Handshake_Resp resp;
-    NodeRegInfo info;
+    auto info = std::make_shared<NodeRegInfo>();
     util::other::Uuid uuid{req->head.uuid, sizeof(req->head.uuid)};
     
     resp.head.protocol_type = R2N_HANDSHAKE_RESP;
@@ -230,8 +246,9 @@ bbt::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handsha
         return bbt::errcode::Errcode("node already registed!", util::errcode::emErr::RPC_BAD_PROTOCOL);
     }
     
-    info.Init(uuid, bbt::net::IPAddress{req->node_ip, req->node_port});
-    info.SetConnId(id);
+    info->Init(uuid, bbt::net::IPAddress{req->node_ip, req->node_port});
+    info->SetConnId(id);
+    info->SetStatus(NodeState::NODESTATE_ONLINE);
     m_half_connect_set.erase(id);
     m_node_mgr->RegisterNode(uuid, info);
 
@@ -241,4 +258,54 @@ bbt::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handsha
     return std::nullopt;
 }
 
+bbt::errcode::ErrOpt Registery::OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req)
+{
+    R2N_RegisterMethod_Resp resp;
+    resp.head.protocol_type = R2N_REGISTER_METHOD_RESP;
+    resp.head.protocol_length = sizeof(R2N_RegisterMethod_Resp);
+    memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
+    resp.head.timestamp_ms = bbt::clock::gettime();
+
+    auto node_info = m_node_mgr->GetNodeInfo(id);
+    if (node_info == nullptr) {
+        resp.msg_code = emRegisterMethodErr::Failed;
+        m_registery_server->Send(id, (char*)&resp, sizeof(resp));
+        return bbt::errcode::Errcode("node not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
+    }
+
+
+    node_info->AddMethod(req->method_name);
+    resp.msg_code = emRegisterMethodErr::Succ;
+    m_registery_server->Send(id, (char*)&resp, sizeof(resp));
+    return std::nullopt;
 }
+
+bbt::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req)
+{
+    R2N_GetNodesInfo_Resp resp;
+    R2N_GetNodesInfo_Resp::NodeInfo info;
+    bbt::core::Buffer buffer;
+    
+    resp.head.protocol_type = R2N_GET_NODES_INFO_RESP;
+    resp.head.protocol_length = sizeof(R2N_GetNodesInfo_Resp);
+    memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
+    resp.head.timestamp_ms = bbt::clock::gettime();
+    
+    auto nodes = m_node_mgr->GetAllNodeInfo();
+    resp.node_count = nodes.size();
+    buffer.Write(resp);
+    for (auto&& node : nodes) {
+        info.port = node->GetNodeAddr().GetPort();
+        node->GetUuid().ToByte(info.uuid, sizeof(info.uuid));
+        memcpy(info.ip, node->GetNodeAddr().GetIP().c_str(), sizeof(info.ip));
+        buffer.Write(info);
+    }
+
+    m_registery_server->Send(id, (char*)&resp, sizeof(resp));
+    return std::nullopt;
+}
+
+
+}
+
+#undef BBGENGINE_MODULE_NAME

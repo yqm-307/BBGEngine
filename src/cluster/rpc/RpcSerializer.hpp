@@ -64,7 +64,7 @@ public:
     bbt::errcode::ErrTuple<std::vector<FieldValue>> Deserialize(bbt::core::Buffer& buffer)
     {
         std::vector<FieldValue> values;
-        while (buffer.ReadableBytes() > 0)
+        while (buffer.Size() > 0)
         {
             FieldValue value;
             auto err = DeserializeOne(buffer, value);
@@ -79,23 +79,23 @@ public:
 
     bbt::errcode::ErrOpt DeserializeOne(bbt::core::Buffer& buffer, FieldValue& value)
     {
-        if (buffer.ReadableBytes() < sizeof(value.header))
+        if (buffer.Size() < sizeof(value.header))
             return bbt::errcode::Errcode{"deserialize failed, buffer too short!", util::errcode::emErr::CommonErr};
         
         buffer.ReadString((char*)&(value.header), sizeof(value.header));
         switch (value.header.field_type)
         {
         case INT64:
-            value.value.int64_value = buffer.ReadInt64();
+            Assert(buffer.Read(&value.value.int64_value));
             break;
         case UINT64:
-            value.value.uint64_value = buffer.ReadInt64();
+            Assert(buffer.Read(&value.value.uint64_value));
             break;
         case INT32:
-            value.value.int32_value = buffer.ReadInt32();
+            Assert(buffer.Read(&value.value.int32_value));
             break;
         case UINT32:
-            value.value.uint32_value = buffer.ReadInt32();
+            Assert(buffer.Read(&value.value.uint32_value));
             break;
         case STRING:
             value.string.resize(value.header.field_len);
@@ -122,7 +122,7 @@ private:
         header.field_type = STRING;
         header.field_len = arg.size();
         buffer.WriteString((char*)&header, sizeof(header));
-        buffer.WriteString(arg);
+        buffer.WriteString(arg.c_str(), arg.size());
     }
 
     void SerializeArg(bbt::core::Buffer& buffer, const char* arg)
@@ -131,7 +131,7 @@ private:
         header.field_type = STRING;
         header.field_len = strlen(arg);
         buffer.WriteString((char*)&header, sizeof(header));
-        buffer.WriteString(arg);
+        buffer.WriteString(arg, strlen(arg));
     }
 
     void SerializeArg(bbt::core::Buffer& buffer, int64_t arg)
@@ -140,7 +140,7 @@ private:
         header.field_type = INT64;
         header.field_len = sizeof(arg);
         buffer.WriteString((char*)&header, sizeof(header));
-        buffer.WriteInt64(arg);
+        buffer.Write(arg);
     }
 
     void SerializeArg(bbt::core::Buffer& buffer, uint64_t arg)
@@ -149,7 +149,7 @@ private:
         header.field_type = UINT64;
         header.field_len = sizeof(arg);
         buffer.WriteString((char*)&header, sizeof(header));
-        buffer.WriteInt64(arg);
+        buffer.Write(arg);
     }
 
     void SerializeArg(bbt::core::Buffer& buffer, int32_t arg)
@@ -158,7 +158,7 @@ private:
         header.field_type = INT32;
         header.field_len = sizeof(arg);
         buffer.WriteString((char*)&header, sizeof(header));
-        buffer.WriteInt32(arg);
+        buffer.Write(arg);
     }
 
     void SerializeArg(bbt::core::Buffer& buffer, uint32_t arg)
@@ -167,7 +167,7 @@ private:
         header.field_type = UINT32;
         header.field_len = sizeof(arg);
         buffer.WriteString((char*)&header, sizeof(header));
-        buffer.WriteInt32(arg);
+        buffer.Write(arg);
     }
 
     template<typename T, typename... Args>

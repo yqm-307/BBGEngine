@@ -19,13 +19,13 @@ void N2RConnection::ProcessRecvBuffer()
     R2NProtocolHead* head = nullptr;
     std::vector<bbt::core::Buffer> buffers;
     
-    while (m_recv_buffer.DataSize() > sizeof(R2NProtocolHead))
+    while (m_recv_buffer.Size() > sizeof(R2NProtocolHead))
     {
         head = (R2NProtocolHead*)m_recv_buffer.Peek();
-        if (m_recv_buffer.DataSize() < head->protocol_length)
+        if (m_recv_buffer.Size() < head->protocol_length)
             return;
         
-        if (head->protocol_type > R2N_PROTOCOL_NONE && head->protocol_type < R2N_PROTOCOL_SIZE)
+        if (head->protocol_type <= R2N_PROTOCOL_NONE || head->protocol_type >= R2N_PROTOCOL_SIZE)
             return;
             
         bbt::core::Buffer buffer{(size_t)head->protocol_length};
