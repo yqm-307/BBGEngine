@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/base/Attribute.hpp>
+#include <bbt/core/Attribute.hpp>
 #include "engine/ecs/component/ComponentMgr.hpp"
 #include "engine/ecs/entity/EntityMgr.hpp"
 

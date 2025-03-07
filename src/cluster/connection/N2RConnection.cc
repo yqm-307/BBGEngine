@@ -57,7 +57,7 @@ void N2RConnection::OnRecv(const char* data, size_t len)
     }
 }
 
-void N2RConnection::OnSend(bbt::errcode::ErrOpt err, size_t len)
+void N2RConnection::OnSend(util::errcode::ErrOpt err, size_t len)
 {
 }
 
@@ -75,7 +75,7 @@ void N2RConnection::OnTimeout()
         node->OnTimeoutFromRegistey(GetConnId());
 }
 
-void N2RConnection::OnError(const bbt::errcode::Errcode& err)
+void N2RConnection::OnError(const util::errcode::Errcode& err)
 {
     auto node = m_node.lock();
     if (node)

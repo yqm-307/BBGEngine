@@ -1,11 +1,13 @@
 #pragma once
 #include <cstring>
-#include <bbt/base/errcode/Errcode.hpp>
+#include <bbt/core/errcode/Errcode.hpp>
 
 namespace util::errcode
 {
 
-enum emErr: bbt::errcode::ErrType
+using namespace bbt::core::errcode;
+
+enum emErr: ErrType
 {
     Nothing     = 1,
     CommonErr   = 2,

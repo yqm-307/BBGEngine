@@ -9,7 +9,7 @@ inline const int ComponentHashBucketNum = 8;
 
 // FIXME 需要测试功能
 class ComponentMgr:
-    public bbt::templateutil::ManagerBase<ComponentId, Component>
+    public bbt::core::util::ManagerBase<ComponentId, Component>
 {
 public:
     typedef std::pair<MemberPtr, bool> Result;

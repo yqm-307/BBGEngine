@@ -2,7 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
-#include <bbt/base/random/Random.hpp>
+#include <bbt/core/random/Random.hpp>
 
 #include "plugin/ecs/globalluavm/GlobalLuaVM.hpp"
 #include "plugin/scene/testscene/SampleScene.hpp"

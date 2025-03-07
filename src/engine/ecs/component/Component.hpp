@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <bbt/base/templateutil/BaseType.hpp>
 #include <engine/ecs/EcsDefine.hpp>
 #include "./ComponentMgr.hpp"
 
@@ -8,7 +7,7 @@ namespace engine::ecs
 {
 
 class Component:
-    public bbt::templateutil::MemberBase<ComponentId, Component>,
+    public bbt::core::util::MemberBase<ComponentId, Component>,
     public bbt::core::reflex::ReflexDynTypeInfo<Component>
 {
     friend class Entity;

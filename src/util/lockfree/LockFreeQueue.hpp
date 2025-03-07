@@ -5,8 +5,8 @@
 #include <optional>
 #include <array>
 #include <vector>
-#include <bbt/base/templateutil/Comparator.hpp>
-#include <bbt/base/timer/Clock.hpp>
+#include <bbt/core/templateutil/Comparator.hpp>
+#include <bbt/core/timer/Clock.hpp>
 
 namespace util::lockfree
 {

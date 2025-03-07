@@ -41,7 +41,7 @@ void Connection::Init()
             if (auto shared_this = weak_this.lock(); shared_this != nullptr)
                 shared_this->OnTimeout();
         },
-        .on_err_callback = [weak_this{weak_from_this()}](void*, const bbt::errcode::Errcode& err)
+        .on_err_callback = [weak_this{weak_from_this()}](void*, const util::errcode::Errcode& err)
         {
             if (auto shared_this = weak_this.lock(); shared_this != nullptr)
                 shared_this->OnError(err);
@@ -73,7 +73,7 @@ void Connection::Close()
     m_raw_conn_ptr->Close();
 }
 
-const bbt::net::IPAddress& Connection::GetPeerAddr() const
+const util::network::IPAddress& Connection::GetPeerAddr() const
 {
     return m_raw_conn_ptr->GetPeerAddress();
 }

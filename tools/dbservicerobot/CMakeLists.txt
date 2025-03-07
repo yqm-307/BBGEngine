@@ -47,7 +47,7 @@ add_executable(dbservrobot
 # 为可执行程序添加链接库
 target_link_libraries(dbservrobot
     ${LIB_BBGCOMM}
-    ybbt
+    bbt_core
     event_core
     event_pthreads
     bbt_network

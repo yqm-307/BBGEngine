@@ -102,17 +102,17 @@
     &emsp;这是一个Errcode基类的实现：
     ``` cpp
     template<typename ErrType>
-    class Errcode
+    class util::errcode::Errcode
     {
     public:
-        Errcode();
-        explicit Errcode(const std::string& msg, ErrType type);
-        Errcode(const Errcode& other);
-        Errcode(Errcode&& other);
-        virtual ~Errcode();
+        util::errcode::Errcode();
+        explicit util::errcode::Errcode(const std::string& msg, ErrType type);
+        util::errcode::Errcode(const util::errcode::Errcode& other);
+        util::errcode::Errcode(util::errcode::Errcode&& other);
+        virtual ~util::errcode::Errcode();
 
-        Errcode& operator=(const Errcode& other);
-        Errcode& operator=(Errcode&& other);
+        util::errcode::Errcode& operator=(const util::errcode::Errcode& other);
+        util::errcode::Errcode& operator=(util::errcode::Errcode&& other);
 
         virtual const char*         CWhat() const = 0;
         virtual const std::string&  What() const = 0;
@@ -177,29 +177,29 @@
 
     ``` cpp
     // errno处理错误
-    Errcode foo() {
+    util::errcode::Errcode foo() {
         int err = ::open("file.txt", O_CREAET | O_RDONLY);
         if (err != 0) {
-            return Errcode(strerror(errno));
+            return util::errcode::Errcode(strerror(errno));
         }
     }
 
     // 以代码实现处理错误
-    Errcode foo () {
+    util::errcode::Errcode foo () {
 
         redisAsyncContext *c = redisAsyncConnect("127.0.0.1", 6379);
         if (c->err) {
             printf("Error: %s\n", c->errstr);
-            return Errcode(c->errstr);
+            return util::errcode::Errcode(c->errstr);
         }
     }
 
     // 以异常处理
-    Errcode foo() {
+    util::errcode::Errcode foo() {
         try {
             foo();
         } catch(const std::CustomException& e) {
-            return Errcode(e.what());
+            return util::errcode::Errcode(e.what());
         }
     }
 

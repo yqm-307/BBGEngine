@@ -22,7 +22,7 @@ public:
     TagId GetId() const { return m_tag_id; }
     void SetId(TagId id) { m_tag_id = id; }
 private:
-    TagId m_tag_id{-1};
+    TagId m_tag_id{0};
 };
 
 bool operator<(const Tag& lval, const Tag& rval);

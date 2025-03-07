@@ -23,14 +23,14 @@ public:
     void                    Stop();
     bool                    DelConnect(bbt::network::ConnId conn);
     std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id);
-    const bbt::net::IPAddress&  GetListenAddr() const;
-    std::optional<bbt::errcode::Errcode> SetListenAddr(const char* ip, short port);
+    const util::network::IPAddress&  GetListenAddr() const;
+    std::optional<util::errcode::Errcode> SetListenAddr(const char* ip, short port);
     
 protected:
     /**
      * @brief 重载此函数来处理新连接，默认新连接到来建立一个基础连接（只收发数据）
      */
-    virtual void OnAccept(bbt::errcode::ErrOpt err, bbt::network::interface::INetConnectionSPtr conn) final;
+    virtual void OnAccept(util::errcode::ErrOpt err, bbt::network::interface::INetConnectionSPtr conn) final;
     bool AddConnect(std::shared_ptr<Connection> conn);
 private:
     /* 连接管理 */
@@ -38,7 +38,7 @@ private:
     bbt::network::libevent::OnAcceptCallback m_onaccept_cb{nullptr};
     std::unordered_map<bbt::network::ConnId, std::shared_ptr<Connection>>
                                             m_conn_map;
-    bbt::net::IPAddress                     m_listen_addr;
+    util::network::IPAddress                     m_listen_addr;
     int                                     m_connect_timeout{1000};
     ConnectionCreator                       m_conn_creator{nullptr};
 };

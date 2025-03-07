@@ -23,7 +23,7 @@ file(GLOB_RECURSE SRC_FILE
 set(MY_DBG_LIBS
     inih
     bbt_cxxlua
-    ybbt
+    bbt_core
     ${PROJECT_BINARY_DIR}/common/lib/libBBGCommon.so
 )
 

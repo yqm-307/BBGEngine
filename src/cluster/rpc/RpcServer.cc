@@ -5,7 +5,7 @@
 namespace cluster
 {
 
-RpcServer::RpcServer(std::shared_ptr<ClusterNode> node, const bbt::net::IPAddress& listen_addr, int timeout):
+RpcServer::RpcServer(std::shared_ptr<ClusterNode> node, const util::network::IPAddress& listen_addr, int timeout):
     m_node_weak(node)
 {
 }
@@ -20,7 +20,7 @@ int RpcServer::Register(const std::string& method, RpcCallback callback)
     return 0;
 }
 
-bbt::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::Buffer& reply)
+util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::Buffer& reply)
 {
     FieldValue field;
     std::string method;
@@ -34,7 +34,7 @@ bbt::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::
             return err;
         
         if (field.header.field_type != STRING)
-            return bbt::errcode::Errcode("a bad protocol! method name must be string", util::errcode::emErr::CommonErr);
+            return util::errcode::Errcode("a bad protocol! method name must be string", util::errcode::emErr::CommonErr);
 
         method = std::move(field.string);
     }
@@ -46,7 +46,7 @@ bbt::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::
             return err;
 
         if (field.header.field_type != INT64)
-            return bbt::errcode::Errcode("a bad protocol! method call_seq must be string", util::errcode::emErr::CommonErr);
+            return util::errcode::Errcode("a bad protocol! method call_seq must be string", util::errcode::emErr::CommonErr);
 
         call_seq = field.value.int64_value;
     }
@@ -54,7 +54,7 @@ bbt::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::
 
     auto iter = m_registed_methods.find(method);
     if (iter == m_registed_methods.end())
-        return bbt::errcode::Errcode("method not found", util::errcode::emErr::CommonErr);
+        return util::errcode::Errcode("method not found", util::errcode::emErr::CommonErr);
 
     reply.Write(call_seq);
 

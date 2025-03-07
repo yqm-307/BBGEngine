@@ -12,7 +12,7 @@ set(MY_LINK_LIB
     boost_test_exec_monitor
     event_core
     bbt_cxxlua
-    ybbt
+    bbt_core
     inih
     pthread
     dl

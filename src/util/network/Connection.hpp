@@ -1,9 +1,11 @@
 #pragma once
 #include <bbt/network/adapter/libevent/Network.hpp>
+#include <util/errcode/ErrCodeDef.hpp>
 
 namespace util::network
 {
 
+typedef bbt::core::net::IPAddress IPAddress;
 class Server;
 
 class Connection:
@@ -19,13 +21,13 @@ public:
     virtual void        Send(const char* data, size_t len);
     virtual bool        IsClosed();
     virtual void        Close();
-    const bbt::net::IPAddress& GetPeerAddr() const;
+    const util::network::IPAddress&    GetPeerAddr() const;
 
     virtual void        OnRecv(const char* data, size_t len) = 0;
-    virtual void        OnSend(bbt::errcode::ErrOpt err, size_t len) = 0;
+    virtual void        OnSend(util::errcode::ErrOpt err, size_t len) = 0;
     virtual void        OnClose() = 0;
     virtual void        OnTimeout() = 0;
-    virtual void        OnError(const bbt::errcode::Errcode& err) = 0;
+    virtual void        OnError(const util::errcode::Errcode& err) = 0;
 private:
     void                SetOnCloseNotifyToTcpServer(std::function<void(bbt::network::ConnId)> onclose);
     void                _OnClose();

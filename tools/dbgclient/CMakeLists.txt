@@ -48,7 +48,7 @@ target_link_libraries(dbgclient
     event_core
     event_pthreads
     bbt_network
-    ybbt
+    bbt_core
     inih
     protobuf
     # tcmalloc

@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/base/random/Random.hpp>
+#include <bbt/core/crypto/Random.hpp>
 #include "util/log/Log.hpp"
 
 namespace util
@@ -17,7 +17,7 @@ public:
 
 private:
     static time_t m_random_seed;
-    static bbt::random::mt_random<int64_t, INT64_MIN, INT64_MAX> m_rand;
+    static bbt::core::crypto::mt_random<int64_t, INT64_MIN, INT64_MAX> m_rand;
 };
 
 }// namespace end

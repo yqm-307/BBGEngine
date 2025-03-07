@@ -18,15 +18,15 @@ public:
     explicit Registery();
     virtual ~Registery();
 
-    void                            Init(const bbt::net::IPAddress& listen_addr, int timeout_ms);
+    void                            Init(const util::network::IPAddress& listen_addr, int timeout_ms);
     void                            Update();
     void                            Start();
     void                            Stop();
 
-    bbt::errcode::ErrOpt            SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer);
+    util::errcode::ErrOpt            SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer);
     void                            OnRequest(bbt::network::ConnId id, bbt::core::Buffer& buffer);
 
-    virtual void                    OnError(const bbt::errcode::Errcode& err) = 0;
+    virtual void                    OnError(const util::errcode::Errcode& err) = 0;
     virtual void                    OnInfo(const std::string& info) = 0;
     virtual void                    OnDebug(const std::string& info) = 0;
 
@@ -35,18 +35,18 @@ public:
     NodeState                       GetNodeStatus(const util::other::Uuid& uuid) const;
 
     // 节点管理
-    void RegisterNode(const bbt::net::IPAddress& addr, const util::other::Uuid& uuid);
+    void RegisterNode(const util::network::IPAddress& addr, const util::other::Uuid& uuid);
     void UnRegisterNode(const util::other::Uuid& uuid);
 private:
     // Node握手相关
     bool                            IsHalfConn(bbt::network::ConnId connid) const;
     bbt::network::ConnId            GetConnIdByUuid(const util::other::Uuid& uuid) const;
     // 与节点的网络事件
-    bbt::errcode::ErrOpt            N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len);
-    bbt::errcode::ErrOpt            OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req);
-    bbt::errcode::ErrOpt            OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req);
-    bbt::errcode::ErrOpt            OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req);
-    bbt::errcode::ErrOpt            OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req);
+    util::errcode::ErrOpt            N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt            OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req);
+    util::errcode::ErrOpt            OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req);
+    util::errcode::ErrOpt            OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req);
+    util::errcode::ErrOpt            OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req);
 
     void                            OnAccept(bbt::network::ConnId connid);
     void                            OnClose(bbt::network::ConnId connid);

@@ -40,7 +40,7 @@ add_library(BBGEngine SHARED
 target_link_libraries(BBGEngine PRIVATE
     protobuf
     inih
-    ybbt
+    bbt_core
     bbt_pollevent
     bbt_cxxlua
     bbt_network

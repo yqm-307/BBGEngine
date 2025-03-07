@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <cluster/ClusterDefine.hpp>
 #include <util/other/Uuid.hpp>
-#include <bbt/base/buffer/Buffer.hpp>
-#include <bbt/base/clock/Clock.hpp>
+#include <bbt/core/buffer/Buffer.hpp>
+#include <bbt/core/clock/Clock.hpp>
 
 
 #define BBGENGINE_HEARTBEAT_TIMEOUT_MS 3000

@@ -6,7 +6,7 @@ namespace engine::ecs
 {
 
 class EntityMgr final:
-    public bbt::templateutil::ManagerBase<EntityId, Entity>
+    public bbt::core::util::ManagerBase<EntityId, Entity>
 {
     typedef std::tuple<std::string, GameObjectTemplateId> GameObjectInfo; 
     typedef std::pair<MemberPtr, bool> Result; 

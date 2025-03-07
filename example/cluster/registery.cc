@@ -7,7 +7,7 @@ public:
     CustomRegistery() = default;
     virtual ~CustomRegistery() = default;
 
-    virtual void OnError(const bbt::errcode::Errcode& err) override
+    virtual void OnError(const bbt::core::errcode::Errcode& err) override
     {
         std::cout << "[error][Registery] " << err.CWhat() << std::endl;
     }
@@ -26,7 +26,7 @@ int main()
 {
     auto registery_tcp = std::make_shared<CustomRegistery>();
 
-    registery_tcp->Init(bbt::net::IPAddress{"127.0.0.1", 10021}, 5000);
+    registery_tcp->Init(bbt::core::net::IPAddress{"127.0.0.1", 10021}, 5000);
 
     registery_tcp->Start();
 

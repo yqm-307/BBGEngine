@@ -5,7 +5,7 @@ namespace util
 {
 
 time_t Random::m_random_seed = 0;
-bbt::random::mt_random<int64_t, INT64_MIN, INT64_MAX> Random::m_rand = bbt::random::mt_random<int64_t, INT64_MIN, INT64_MAX>();
+bbt::core::crypto::mt_random<int64_t, INT64_MIN, INT64_MAX> Random::m_rand = bbt::core::crypto::mt_random<int64_t, INT64_MIN, INT64_MAX>();
 
 void Random::SetSeed(time_t seed)
 {

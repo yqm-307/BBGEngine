@@ -1,6 +1,6 @@
 #include <signal.h>
-#include <bbt/base/clock/Clock.hpp>
-#include <bbt/base/timer/TimeWheel.hpp>
+#include <bbt/core/clock/Clock.hpp>
+#include <bbt/core/timer/TimeWheel.hpp>
 #include "engine/ecs/system/System.hpp"
 #include "plugin/scene/testscene/SampleScene.hpp"
 #include "plugin/ecs/network/Network.hpp"
@@ -47,7 +47,7 @@ int main()
     Assert(SysRef->InitNetwork(network_obj, cfg));
     SysRef->StartNetwork(network_obj);
     GAME_EXT1_LOG_INFO("netowrk start!");
-    SysRef->AsyncConnect(network_obj, "192.168.1.159", 9000, 5000, [&](bbt::network::Errcode err, bbt::network::interface::INetConnectionSPtr conn){
+    SysRef->AsyncConnect(network_obj, "192.168.1.159", 9000, 5000, [&](bbt::network::util::errcode::Errcode err, bbt::network::interface::INetConnectionSPtr conn){
         auto comp = network_obj->GetComponent(plugin::ecs::EM_COMPONENT_TYPE_CONN_MGR);
         if (comp == nullptr)
             GAME_EXT1_LOG_ERROR("network object not found connmgr!");
@@ -76,7 +76,7 @@ int main()
             bbt::core::Buffer protocol;
             DB_HEART_BEAT_REQ req;
             std::string bytearray;
-            req.set_timestamp(bbt::clock::now<>().time_since_epoch().count() / 1000);
+            req.set_timestamp(bbt::core::clock::now<>().time_since_epoch().count() / 1000);
             bytearray = req.SerializeAsString();
             protocol.WriteInt32(bytearray.size() + sizeof(int32_t) * 2);
             protocol.WriteInt32(0x3);

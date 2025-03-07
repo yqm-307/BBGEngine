@@ -10,14 +10,14 @@ TcpClient::TcpClient(std::shared_ptr<bbt::network::base::NetworkBase> network, c
 {
 }
 
-bbt::errcode::ErrOpt TcpClient::AsyncConnect(const bbt::network::interface::OnConnectCallback& on_connect)
+util::errcode::ErrOpt TcpClient::AsyncConnect(const bbt::network::interface::OnConnectCallback& on_connect)
 {
     if (m_network == nullptr)
-        return bbt::errcode::Errcode{"[TcpClient] network not found!", util::errcode::CommonErr};
+        return util::errcode::Errcode{"[TcpClient] network not found!", util::errcode::CommonErr};
 
     auto err = m_network->AsyncConnect(m_server_addr.GetIP().c_str(), m_server_addr.GetPort(), m_connect_timeout, on_connect);
     if (err.has_value()) {
-        return bbt::errcode::Errcode{"[TcpClient] async connect failed!! " + err->What(), util::errcode::CommonErr};
+        return util::errcode::Errcode{"[TcpClient] async connect failed!! " + err->What(), util::errcode::CommonErr};
     }
 
     return std::nullopt;

@@ -2,7 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
-#include <bbt/base/random/Random.hpp>
+#include <bbt/core/random/Random.hpp>
 #include <mutex>
 #include "plugin/ecs/aoi/AoiObjectComponent.hpp"
 // #include "plugin/ecs/none/entity/NoneObj.hpp"

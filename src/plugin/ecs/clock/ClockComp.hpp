@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/base/clock/Clock.hpp>
+#include <bbt/core/clock/Clock.hpp>
 #include <engine/ecs/component/Component.hpp>
 #include <engine/ecs/EcsDefine.hpp>
 
@@ -27,16 +27,16 @@ public:
     /**
      * @brief 获取当前帧的时间
      * 
-     * @return bbt::clock::Timestamp<> 
+     * @return bbt::core::clock::Timestamp<> 
      */
-    bbt::clock::Timestamp<> GetFrameTime();
+    bbt::core::clock::Timestamp<> GetFrameTime();
 protected:
     ClockComp();
     virtual void OnUpdate();
 private:
     int                     m_interval_ms{0};
     int64_t                m_total_pass_frame{0};   // 帧
-    bbt::clock::Timestamp<> m_last_frame_update_timestamp; // 帧时间
+    bbt::core::clock::Timestamp<> m_last_frame_update_timestamp; // 帧时间
 };
 
 }

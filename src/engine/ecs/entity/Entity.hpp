@@ -10,7 +10,7 @@ namespace engine::ecs
 {
 class Entity:
     public std::enable_shared_from_this<Entity>,
-    public bbt::templateutil::MemberBase<EntityId, Entity>
+    public bbt::core::util::MemberBase<EntityId, Entity>
 {
     friend class EntityMgr;
     friend class engine::ecs::Scene;

@@ -15,7 +15,7 @@ TcpServer::~TcpServer()
 {
 }
 
-bbt::errcode::ErrOpt TcpServer::SetListenAddr(const char* ip, short port)
+util::errcode::ErrOpt TcpServer::SetListenAddr(const char* ip, short port)
 {
     Assert(m_network != nullptr);
     auto auto_init_io_thread_err = m_network->AutoInitThread(2);
@@ -47,7 +47,7 @@ void TcpServer::Stop()
     m_network->Stop();
 }
 
-void TcpServer::OnAccept(bbt::errcode::ErrOpt err, bbt::network::interface::INetConnectionSPtr new_conn)
+void TcpServer::OnAccept(util::errcode::ErrOpt err, bbt::network::interface::INetConnectionSPtr new_conn)
 {
     //TODO ERROR
     if (err.has_value()) {
@@ -57,7 +57,7 @@ void TcpServer::OnAccept(bbt::errcode::ErrOpt err, bbt::network::interface::INet
     
     auto conn = m_conn_creator(std::static_pointer_cast<bbt::network::libevent::Connection>(new_conn));
     if (!AddConnect(conn)) {
-        // OnError(bbt::errcode::Errcode{"add connect failed!", util::errcode::NET_ACCEPT_ERR});
+        // OnError(util::errcode::Errcode{"add connect failed!", util::errcode::NET_ACCEPT_ERR});
         return;
     }
 
@@ -122,7 +122,7 @@ void TcpServer::ShowDown(bbt::network::ConnId conn)
     conn_ptr->Close();
 }
 
-const bbt::net::IPAddress& TcpServer::GetListenAddr() const
+const util::network::IPAddress& TcpServer::GetListenAddr() const
 {
     return m_listen_addr;
 }

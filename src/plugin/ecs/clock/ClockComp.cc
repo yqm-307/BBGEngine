@@ -10,7 +10,7 @@ ClockComp::ClockComp()
 
 void ClockComp::OnUpdate()
 {
-    auto now_timestamp = bbt::clock::now<>();
+    auto now_timestamp = bbt::core::clock::now<>();
     int64_t pass_time = (now_timestamp - m_last_frame_update_timestamp).count();
     if (m_interval_ms <= pass_time)
     {
@@ -34,7 +34,7 @@ int64_t ClockComp::GetFrame()
     return m_total_pass_frame;
 }
 
-bbt::clock::Timestamp<> ClockComp::GetFrameTime()
+bbt::core::clock::Timestamp<> ClockComp::GetFrameTime()
 {
     return m_last_frame_update_timestamp;
 }

@@ -2,8 +2,8 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <thread>
-#include <bbt/base/random/Random.hpp>
-#include <bbt/base/timer/Interval.hpp>
+#include <bbt/core/random/Random.hpp>
+#include <bbt/core/timer/Interval.hpp>
 #include "util/other/Math.hpp"
 
 template<typename T>

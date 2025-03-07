@@ -30,7 +30,7 @@ void NodeRegInfo::Clear()
     m_uuid.Clear();
 }
 
-void NodeRegInfo::Init(const util::other::Uuid& uuid, const bbt::net::IPAddress& addr)
+void NodeRegInfo::Init(const util::other::Uuid& uuid, const util::network::IPAddress& addr)
 {
     m_uuid = uuid;
     m_node_addr = addr;
@@ -39,7 +39,7 @@ void NodeRegInfo::Init(const util::other::Uuid& uuid, const bbt::net::IPAddress&
 
 void NodeRegInfo::Update()
 {
-    auto time_diff = (bbt::clock::now() - m_last_heartbeat).count();
+    auto time_diff = (bbt::core::clock::now() - m_last_heartbeat).count();
     if (time_diff > m_heartbeat_timeout_ms)
     {
         m_state = NODESTATE_OFFLINE;
@@ -48,13 +48,13 @@ void NodeRegInfo::Update()
 
 void NodeRegInfo::OnHeartBeat()
 {
-    m_last_heartbeat = bbt::clock::now();
+    m_last_heartbeat = bbt::core::clock::now();
 }
 
-bbt::errcode::ErrOpt NodeRegInfo::AddMethod(const std::string& method_name)
+util::errcode::ErrOpt NodeRegInfo::AddMethod(const std::string& method_name)
 {
     if (m_method_info_map.find(method_name) != m_method_info_map.end())
-        return bbt::errcode::Errcode("method already exist!", util::errcode::emErr::CommonErr);
+        return util::errcode::Errcode("method already exist!", util::errcode::emErr::CommonErr);
     
     m_method_info_map.insert(method_name);
     return std::nullopt;
@@ -101,7 +101,7 @@ void NodeRegInfo::SetConnId(bbt::network::ConnId connid)
     m_connid = connid;
 }
 
-const bbt::net::IPAddress& NodeRegInfo::GetNodeAddr() const
+const util::network::IPAddress& NodeRegInfo::GetNodeAddr() const
 {
     return m_node_addr;
 }

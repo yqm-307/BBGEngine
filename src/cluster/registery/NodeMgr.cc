@@ -27,7 +27,6 @@ void NodeMgr::NodeOffline(bbt::network::ConnId connid)
     auto it = m_connid_map.find(connid);
     if (it != m_connid_map.end()) {
         NodeOffline(it->second);
-        m_connid_map.erase(it);
     }
 
 }

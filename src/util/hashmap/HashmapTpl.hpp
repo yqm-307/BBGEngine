@@ -2,8 +2,7 @@
 #include "util/hashmap/Hashmap.hpp" // 为了语法提示
 #include "util/assert/Assert.hpp"
 #include "util/other/Math.hpp"
-#include <bbt/base/timer/Interval.hpp>
-#include <bbt/base/Define.hpp>
+#include <bbt/core/Define.hpp>
 
 // using namespace
 namespace util::hashmap

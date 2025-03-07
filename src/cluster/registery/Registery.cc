@@ -18,7 +18,7 @@ Registery::~Registery()
 {
 };
 
-void Registery::Init(const bbt::net::IPAddress& listen_addr, int timeout_ms)
+void Registery::Init(const util::network::IPAddress& listen_addr, int timeout_ms)
 {
     m_network = std::make_shared<bbt::network::libevent::Network>();
     m_registery_server = std::make_shared<util::network::TcpServer>(m_network, listen_addr.GetIP(), listen_addr.GetPort(), timeout_ms);
@@ -69,7 +69,7 @@ NodeState Registery::GetNodeStatus(const util::other::Uuid& uuid) const
 
 #pragma region 节点管理
 
-void Registery::RegisterNode(const bbt::net::IPAddress& addr, const util::other::Uuid& uuid)
+void Registery::RegisterNode(const util::network::IPAddress& addr, const util::other::Uuid& uuid)
 {
     auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
@@ -89,15 +89,15 @@ void Registery::UnRegisterNode(const util::other::Uuid& uuid)
 
 #pragma endregion
 
-bbt::errcode::ErrOpt Registery::SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer)
+util::errcode::ErrOpt Registery::SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer)
 {
     auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
-        return bbt::errcode::Errcode("node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
+        return util::errcode::Errcode("node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
 
     auto conn = m_registery_server->GetConnectById(node_info->GetConnId());
     if (conn == nullptr)
-        return bbt::errcode::Errcode("conn is losed!", util::errcode::emErr::CommonErr);
+        return util::errcode::Errcode("conn is losed!", util::errcode::emErr::CommonErr);
 
     conn->Send(buffer.Peek(), buffer.Size());
     return std::nullopt;
@@ -150,25 +150,25 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
 
     auto conn = m_registery_server->GetConnectById(connid);
     if (conn == nullptr) {
-        OnError(bbt::errcode::Errcode("connection not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE));
+        OnError(util::errcode::Errcode("connection not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE));
         return;
     }
 
     {
         if (buffer.Size() < sizeof(N2RProtocolHead)) {
-            OnError(bbt::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
+            OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
     
         head = (N2RProtocolHead*)buffer.Peek();
         if (buffer.Size() < head->protocol_length) {
-            OnError(bbt::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
+            OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
 
         // 半连接只能接收握手协议
         if (IsHalfConn(connid) && head->protocol_type != N2R_HANDSHAKE_REQ) {
-            OnError(bbt::errcode::Errcode("half-connection can only recv handshake protocol", util::errcode::emErr::RPC_BAD_PROTOCOL));
+            OnError(util::errcode::Errcode("half-connection can only recv handshake protocol", util::errcode::emErr::RPC_BAD_PROTOCOL));
             return;
         }
     }
@@ -177,9 +177,9 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
         OnError(err.value());
 }
 
-bbt::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
+util::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
 {
-#define EasyCheck(type, len) if (proto_len != len) return bbt::errcode::Errcode("invalid protocol length type=" + std::to_string(type), util::errcode::emErr::RPC_BAD_PROTOCOL);
+#define EasyCheck(type, len) if (proto_len != len) return util::errcode::Errcode("invalid protocol length type=" + std::to_string(type), util::errcode::emErr::RPC_BAD_PROTOCOL);
 
     switch (type)
     {
@@ -196,13 +196,13 @@ bbt::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtoc
         EasyCheck(type, sizeof(N2R_GetNodesInfo_Req));
         return OnGetNodesInfo(id, (N2R_GetNodesInfo_Req*)proto);
     default:
-        return bbt::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
+        return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
 
 #undef EasyCheck
 }
 
-bbt::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req)
+util::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req)
 {
     R2N_KeepAlive_Resp resp;
     util::other::Uuid uuid{req->head.uuid, sizeof(req->head.uuid)};
@@ -210,12 +210,12 @@ bbt::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAli
 
     OnDebug("on heartbeat!" + std::to_string(req->head.timestamp_ms));
     if (node_info == nullptr)
-        return bbt::errcode::Errcode("[OnHeartBeat] node not registed!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
+        return util::errcode::Errcode("[OnHeartBeat] node not registed!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
 
     resp.head.protocol_type = R2N_KEEPALIVE_RESP;
     resp.head.protocol_length = sizeof(R2N_KeepAlive_Resp);
     memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
-    resp.head.timestamp_ms = bbt::clock::gettime();
+    resp.head.timestamp_ms = bbt::core::clock::gettime();
 
     node_info->OnHeartBeat();
     
@@ -223,7 +223,7 @@ bbt::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAli
     return std::nullopt;
 }
 
-bbt::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req)
+util::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req)
 {
     R2N_Handshake_Resp resp;
     auto info = std::make_shared<NodeRegInfo>();
@@ -232,21 +232,21 @@ bbt::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handsha
     resp.head.protocol_type = R2N_HANDSHAKE_RESP;
     resp.head.protocol_length = sizeof(R2N_Handshake_Resp);
     memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
-    resp.head.timestamp_ms = bbt::clock::gettime();
+    resp.head.timestamp_ms = bbt::core::clock::gettime();
     resp.msg_code = 0;
 
     if (m_half_connect_set.find(id) == m_half_connect_set.end()) {
         SendToNode(uuid, bbt::core::Buffer{(char*)&resp, sizeof(resp)});
-        return bbt::errcode::Errcode("not a helf-connection!", util::errcode::emErr::RPC_BAD_PROTOCOL);
+        return util::errcode::Errcode("not a helf-connection!", util::errcode::emErr::RPC_BAD_PROTOCOL);
     }
     
     if (GetNodeStatus(uuid) == NodeState::NODESTATE_ONLINE)
     {
         SendToNode(uuid, bbt::core::Buffer{(char*)&resp, sizeof(resp)});
-        return bbt::errcode::Errcode("node already registed!", util::errcode::emErr::RPC_BAD_PROTOCOL);
+        return util::errcode::Errcode("node already registed!", util::errcode::emErr::RPC_BAD_PROTOCOL);
     }
     
-    info->Init(uuid, bbt::net::IPAddress{req->node_ip, req->node_port});
+    info->Init(uuid, util::network::IPAddress{req->node_ip, req->node_port});
     info->SetConnId(id);
     info->SetStatus(NodeState::NODESTATE_ONLINE);
     m_half_connect_set.erase(id);
@@ -258,19 +258,19 @@ bbt::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, N2R_Handsha
     return std::nullopt;
 }
 
-bbt::errcode::ErrOpt Registery::OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req)
+util::errcode::ErrOpt Registery::OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req)
 {
     R2N_RegisterMethod_Resp resp;
     resp.head.protocol_type = R2N_REGISTER_METHOD_RESP;
     resp.head.protocol_length = sizeof(R2N_RegisterMethod_Resp);
     memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
-    resp.head.timestamp_ms = bbt::clock::gettime();
+    resp.head.timestamp_ms = bbt::core::clock::gettime();
 
     auto node_info = m_node_mgr->GetNodeInfo(id);
     if (node_info == nullptr) {
         resp.msg_code = emRegisterMethodErr::Failed;
         m_registery_server->Send(id, (char*)&resp, sizeof(resp));
-        return bbt::errcode::Errcode("node not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
+        return util::errcode::Errcode("node not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
     }
 
 
@@ -280,7 +280,7 @@ bbt::errcode::ErrOpt Registery::OnRegisterMethod(bbt::network::ConnId id, N2R_Re
     return std::nullopt;
 }
 
-bbt::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req)
+util::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req)
 {
     R2N_GetNodesInfo_Resp resp;
     R2N_GetNodesInfo_Resp::NodeInfo info;
@@ -289,7 +289,7 @@ bbt::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, N2R_GetN
     resp.head.protocol_type = R2N_GET_NODES_INFO_RESP;
     resp.head.protocol_length = sizeof(R2N_GetNodesInfo_Resp);
     memcpy(resp.head.uuid, req->head.uuid, sizeof(req->head.uuid));
-    resp.head.timestamp_ms = bbt::clock::gettime();
+    resp.head.timestamp_ms = bbt::core::clock::gettime();
     
     auto nodes = m_node_mgr->GetAllNodeInfo();
     resp.node_count = nodes.size();

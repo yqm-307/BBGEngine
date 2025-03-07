@@ -1,5 +1,5 @@
 // #pragma once
-// #include <bbt/base/templateutil/Noncopyable.hpp>
+// #include <bbt/core/templateutil/Noncopyable.hpp>
 // #include "engine/ecs/entity/Entity.hpp"
 // #include "util/hashmap/Hashmap.hpp"
 

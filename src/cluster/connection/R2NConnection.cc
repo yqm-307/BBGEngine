@@ -59,7 +59,7 @@ void R2NConnection::OnRecv(const char* data, size_t len)
     }
 }
 
-void R2NConnection::OnSend(bbt::errcode::ErrOpt err, size_t len)
+void R2NConnection::OnSend(util::errcode::ErrOpt err, size_t len)
 {
 }
 
@@ -77,7 +77,7 @@ void R2NConnection::OnTimeout()
         registery->OnTimeout(GetConnId());
 }
 
-void R2NConnection::OnError(const bbt::errcode::Errcode& err)
+void R2NConnection::OnError(const util::errcode::Errcode& err)
 {
     auto registery = m_registery.lock();
     if (registery != nullptr)

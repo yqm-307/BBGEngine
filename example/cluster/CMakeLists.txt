@@ -12,7 +12,7 @@ target_link_libraries(cluster_registery PRIVATE
     bbt_pollevent
     bbt_cxxlua
     bbt_network
-    ybbt
+    bbt_core
     inih
     protobuf
     # tcmalloc
@@ -31,7 +31,7 @@ target_link_libraries(cluster_node PRIVATE
     bbt_pollevent
     bbt_cxxlua
     bbt_network
-    ybbt
+    bbt_core
     inih
     protobuf
     # tcmalloc

@@ -17,10 +17,10 @@ public:
 protected:
 
     virtual void        OnRecv(const char* data, size_t len) override;
-    virtual void        OnSend(bbt::errcode::ErrOpt err, size_t len) override;
+    virtual void        OnSend(util::errcode::ErrOpt err, size_t len) override;
     virtual void        OnClose() override;
     virtual void        OnTimeout() override;
-    virtual void        OnError(const bbt::errcode::Errcode& err) override;
+    virtual void        OnError(const util::errcode::Errcode& err) override;
 private:
     void                ProcessRecvBuffer();
     void                _SubmitRequest2Node(std::vector<bbt::core::Buffer>& buffer);

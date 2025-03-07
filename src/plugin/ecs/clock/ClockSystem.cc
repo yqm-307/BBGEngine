@@ -12,11 +12,11 @@ int64_t ClockSystem::GetFrame(EntitySPtr gameobject)
     return comp->GetFrame();
 }
 
-bbt::clock::Timestamp<> ClockSystem::GetFrameTime(EntitySPtr gameobject)
+bbt::core::clock::Timestamp<> ClockSystem::GetFrameTime(EntitySPtr gameobject)
 {
     auto comp = GetComponent(gameobject);
     if (comp == nullptr)
-        return bbt::clock::Timestamp<>();
+        return bbt::core::clock::Timestamp<>();
     return comp->GetFrameTime();
 }
 

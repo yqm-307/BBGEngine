@@ -4,7 +4,7 @@
 // #include "plugin/ecs/aoi/Aoi.hpp"
 #include "plugin/ecs/aoi/AoiComponent.hpp"
 #include <vector>
-#include <bbt/base/random/Random.hpp>
+#include <bbt/core/random/Random.hpp>
 
 using namespace share::ecs::aoi;
 
