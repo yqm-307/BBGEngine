@@ -9,16 +9,16 @@ public:
 
     virtual void OnError(const bbt::core::errcode::Errcode& err) override
     {
-        std::cout << "[error][Registery] " << err.CWhat() << std::endl;
+        std::cout << bbt::core::clock::getnow_str() << " [error][Registery] " << err.CWhat() << std::endl;
     }
 
     void OnInfo(const std::string& info) override
     {
-        std::cout << "[Info] [Registery] " << info << std::endl;
+        std::cout << bbt::core::clock::getnow_str() << " [Info] [Registery] " << info << std::endl;
     }
     void OnDebug(const std::string& debug) override
     {
-        std::cout << "[debug][Registery] " << debug << std::endl;
+        std::cout << bbt::core::clock::getnow_str() << " [debug][Registery] " << debug << std::endl;
     }
 };
 

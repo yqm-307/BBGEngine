@@ -103,6 +103,14 @@ util::errcode::ErrOpt Registery::SendToNode(const util::other::Uuid& uuid, const
     return std::nullopt;
 }
 
+void Registery::OnSendToNode(util::errcode::ErrOpt err, size_t len)
+{
+    if (err != std::nullopt)
+        OnError(err.value());
+    else
+        OnInfo(BBGENGINE_MODULE_NAME "send to registery success! len=" + std::to_string(len));
+}
+
 void Registery::OnAccept(bbt::network::ConnId connid)
 {
     OnInfo("registery connection accept! connid=" + std::to_string(connid));
@@ -208,7 +216,7 @@ util::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, N2R_KeepAl
     util::other::Uuid uuid{req->head.uuid, sizeof(req->head.uuid)};
     auto node_info = m_node_mgr->GetNodeInfo(uuid);
 
-    OnDebug("on heartbeat!" + std::to_string(req->head.timestamp_ms));
+    OnDebug("on heartbeat! ts=" + std::to_string(req->head.timestamp_ms) + " uuid=" + uuid.ToString());
     if (node_info == nullptr)
         return util::errcode::Errcode("[OnHeartBeat] node not registed!", util::errcode::emErr::RPC_NOT_FOUND_NODE);
 

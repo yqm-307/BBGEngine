@@ -366,6 +366,14 @@ util::errcode::ErrOpt ClusterNode::SendToNode(bbt::network::ConnId id, bbt::core
     return std::nullopt;
 }
 
+void ClusterNode::OnSendToRegistery(util::errcode::ErrOpt err, size_t len)
+{
+    if (err.has_value())
+        OnError(err.value());
+    else
+        OnInfo(BBGENGINE_MODULE_NAME "send to registery succ! " + std::to_string(len));
+}
+
 util::errcode::ErrOpt ClusterNode::N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len)
 {
     /**

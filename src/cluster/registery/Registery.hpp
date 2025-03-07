@@ -23,7 +23,8 @@ public:
     void                            Start();
     void                            Stop();
 
-    util::errcode::ErrOpt            SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer);
+    util::errcode::ErrOpt           SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer);
+    void                            OnSendToNode(util::errcode::ErrOpt err, size_t len);
     void                            OnRequest(bbt::network::ConnId id, bbt::core::Buffer& buffer);
 
     virtual void                    OnError(const util::errcode::Errcode& err) = 0;

@@ -8,15 +8,15 @@ public:
 
     virtual void OnError(const util::errcode::Errcode& err) override
     {
-        std::cout << "[error][Node] " << err.CWhat() << std::endl;
+        std::cout << bbt::core::clock::getnow_str() << " [error][Node] " << err.CWhat() << std::endl;
     }
     void OnInfo(const std::string& info) override
     {
-        std::cout << "[info ][Node] " << info << std::endl;
+        std::cout << bbt::core::clock::getnow_str() << " [info ][Node] " << info << std::endl;
     }
     void OnDebug(const std::string& debug) override
     {
-        std::cout << "[debug][Node] " << debug << std::endl;
+        std::cout << bbt::core::clock::getnow_str() << " [debug][Node] " << debug << std::endl;
     }
 };
 

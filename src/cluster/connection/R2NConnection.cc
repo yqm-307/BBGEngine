@@ -61,6 +61,9 @@ void R2NConnection::OnRecv(const char* data, size_t len)
 
 void R2NConnection::OnSend(util::errcode::ErrOpt err, size_t len)
 {
+    auto registery = m_registery.lock();
+    if (registery != nullptr)
+        registery->OnSendToNode(err, len);
 }
 
 void R2NConnection::OnClose()

@@ -19,13 +19,10 @@ void N2RConnection::ProcessRecvBuffer()
     R2NProtocolHead* head = nullptr;
     std::vector<bbt::core::Buffer> buffers;
     
-    while (m_recv_buffer.Size() > sizeof(R2NProtocolHead))
+    while (m_recv_buffer.Size() >= sizeof(R2NProtocolHead))
     {
         head = (R2NProtocolHead*)m_recv_buffer.Peek();
         if (m_recv_buffer.Size() < head->protocol_length)
-            return;
-        
-        if (head->protocol_type <= R2N_PROTOCOL_NONE || head->protocol_type >= R2N_PROTOCOL_SIZE)
             return;
             
         bbt::core::Buffer buffer{(size_t)head->protocol_length};
@@ -51,7 +48,6 @@ void N2RConnection::OnRecv(const char* data, size_t len)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_recv_buffer.WriteString(data, len);
-
     if (!m_node.expired()) {
         ProcessRecvBuffer();
     }
@@ -59,6 +55,9 @@ void N2RConnection::OnRecv(const char* data, size_t len)
 
 void N2RConnection::OnSend(util::errcode::ErrOpt err, size_t len)
 {
+    auto node = m_node.lock();
+    if (node)
+        node->OnSendToRegistery(err, len);
 }
 
 void N2RConnection::OnClose()
