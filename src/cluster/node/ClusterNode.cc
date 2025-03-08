@@ -321,12 +321,12 @@ util::errcode::ErrOpt ClusterNode::R2N_OnGetNodesInfoResp(protocol::R2N_GetNodes
 
 util::errcode::ErrOpt ClusterNode::N2R_DoHandshakeReq()
 {
-    protocol::N2RProtocolHead   head;
+    protocol::N2RProtocolHead*  head = new protocol::N2RProtocolHead();
     protocol::N2R_Handshake_Req req;
     bbt::core::Buffer           buffer;
 
-    head.set_uuid(m_uuid->ToString());
-    req.set_allocated_head(&head);
+    head->set_uuid(m_uuid->ToString());
+    req.set_allocated_head(head);
     buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
 
     return SendToRegistery(protocol::N2R_HANDSHAKE_REQ, buffer);
@@ -334,12 +334,12 @@ util::errcode::ErrOpt ClusterNode::N2R_DoHandshakeReq()
 
 util::errcode::ErrOpt ClusterNode::N2R_DoHeatBeatReq()
 {
-    protocol::N2RProtocolHead   head;
+    protocol::N2RProtocolHead*  head = new protocol::N2RProtocolHead();
     protocol::N2R_KeepAlive_Req req;
     bbt::core::Buffer           buffer;
 
-    head.set_uuid(m_uuid->ToString());
-    req.set_allocated_head(&head);
+    head->set_uuid(m_uuid->ToString());
+    req.set_allocated_head(head);
     buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
 
     return SendToRegistery(protocol::N2R_HANDSHAKE_REQ, buffer);
