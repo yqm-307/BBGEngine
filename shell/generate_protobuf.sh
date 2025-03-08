@@ -6,8 +6,8 @@
 ##
 
 
-PROTO_DST_PATH="../src/protocol"   # 导出目录
-PROTO_SRC_PATH="../protocol"        # protobuf源代码目录
+PROTO_DST_PATH="../src/cluster/protocol"   # 导出目录
+PROTO_SRC_PATH="../src/cluster/protocol"        # protobuf源代码目录
 
 function generate_ex()
 {
@@ -28,9 +28,7 @@ function main()
         mkdir $PROTO_DST_PATH
     fi
 
-    generate_ex $PROTO_DST_PATH $PROTO_SRC_PATH c2gs.proto
-    generate_ex $PROTO_DST_PATH $PROTO_SRC_PATH gs2c.proto
-    generate_ex "../example/nodeserver/session" "../protocol/dbservice_protofile" dbservice.proto
+    generate_ex $PROTO_DST_PATH $PROTO_SRC_PATH Protocol.proto
 }
 
 

@@ -16,15 +16,16 @@ N2RConnection::~N2RConnection()
 
 void N2RConnection::ProcessRecvBuffer()
 {
-    R2NProtocolHead* head = nullptr;
-    std::vector<bbt::core::Buffer> buffers;
-    
-    while (m_recv_buffer.Size() >= sizeof(R2NProtocolHead))
+    protocol::ProtocolHead* head = nullptr;
+    std::vector<bbt::core::Buffer> buffers;    
+
+    while (m_recv_buffer.Size() >= sizeof(protocol::ProtocolHead))
     {
-        head = (R2NProtocolHead*)m_recv_buffer.Peek();
+        head = (protocol::ProtocolHead*)m_recv_buffer.Peek();
+        Assert(head->protocol_length <= protocol::MAX_PROTOCOL_LENGTH);   // 大概是有bug了
         if (m_recv_buffer.Size() < head->protocol_length)
             return;
-            
+
         bbt::core::Buffer buffer{(size_t)head->protocol_length};
         Assert(buffer.WriteNull(head->protocol_length) == head->protocol_length);
         m_recv_buffer.ReadString(buffer.Peek(), head->protocol_length);

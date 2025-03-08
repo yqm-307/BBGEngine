@@ -7,8 +7,7 @@
 #include <cluster/rpc/RpcClient.hpp>
 #include <cluster/rpc/RpcServer.hpp>
 #include <cluster/protocol/N2NProtocol.hpp>
-#include <cluster/protocol/N2RProtocol.hpp>
-#include <cluster/protocol/R2NProtocol.hpp>
+#include <cluster/protocol/Protocol.hpp>
 
 namespace cluster
 {
@@ -47,7 +46,7 @@ public:
     virtual util::errcode::ErrOpt       SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
     void                                OnSendToRegistery(util::errcode::ErrOpt err, size_t len);
     // 基类定义注册中心网络传输行为
-    virtual util::errcode::ErrOpt       SendToRegistery(bbt::core::Buffer& buffer);
+    virtual util::errcode::ErrOpt       SendToRegistery(protocol::emN2RProtocolType type, bbt::core::Buffer& buffer);
     virtual void                        OnError(const util::errcode::Errcode& err) = 0;
     virtual void                        OnInfo(const std::string& info) = 0;
     virtual void                        OnDebug(const std::string& info) = 0;
@@ -79,11 +78,13 @@ private:
     util::errcode::ErrOpt               N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len);
     util::errcode::ErrOpt               N2N_DoHeartBeat(bbt::network::ConnId id);
 
-    util::errcode::ErrOpt               R2N_Dispatch(emR2NProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt               R2N_Dispatch(protocol::emR2NProtocolType type, void* proto, size_t proto_len);
 
     // r2n response
-    util::errcode::ErrOpt               R2N_OnHandshakeResp(R2N_Handshake_Resp* resp);
-    util::errcode::ErrOpt               R2N_OnHeartBeatResp(R2N_KeepAlive_Resp* resp);
+    util::errcode::ErrOpt               R2N_OnHandshakeResp(protocol::R2N_Handshake_Resp* resp);
+    util::errcode::ErrOpt               R2N_OnHeartBeatResp(protocol::R2N_KeepAlive_Resp* resp);
+    util::errcode::ErrOpt               R2N_OnRegisterMethodResp(protocol::R2N_RegisterMethod_Resp* resp);
+    util::errcode::ErrOpt               R2N_OnGetNodesInfoResp(protocol::R2N_GetNodesInfo_Resp* resp);
 
     // n2r request
     util::errcode::ErrOpt               N2R_DoHandshakeReq();

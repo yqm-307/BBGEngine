@@ -1,0 +1,93 @@
+syntax = "proto3";
+package cluster.protocol;
+
+
+
+enum emN2RProtocolType
+{
+    N2R_PROTOCOL_NONE = 0;
+    N2R_KEEPALIVE_REQ = 1;
+    N2R_HANDSHAKE_REQ = 2;
+    N2R_REGISTER_METHOD_REQ = 3;
+    N2R_GET_NODES_INFO_REQ = 4;
+    N2R_PROTOCOL_SIZE = 5;
+}
+
+enum emR2NProtocolType {
+    R2N_PROTOCOL_NONE = 0;
+    R2N_KEEPALIVE_RESP = 1;
+    R2N_HANDSHAKE_RESP = 2;
+    R2N_REGISTER_METHOD_RESP = 3;
+    R2N_GET_NODES_INFO_RESP = 4;
+    R2N_PROTOCOL_SIZE = 5;
+}
+
+enum emRegisterMethodErr
+{
+    SUCC = 0;
+    FAILED = 1;
+};
+
+// common
+message NodeInfo
+{
+    string          uuid = 1;
+    string          ip = 2;
+    int32           port = 3;
+    repeated string methods = 4;
+}
+
+// N2R
+message N2RProtocolHead
+{
+    string          uuid = 1;
+}
+
+message R2NProtocolHead
+{
+    string          uuid = 1;
+}
+
+message N2R_KeepAlive_Req
+{
+    N2RProtocolHead head = 1;
+}
+
+message N2R_Handshake_Req
+{
+    N2RProtocolHead head = 1;
+    string          ip = 3;
+    int32           port = 4;
+}
+
+message N2R_RegisterMethod_Req
+{
+    N2RProtocolHead head = 1;
+    repeated string methods = 2;
+}
+
+message N2R_GetNodesInfo_Req
+{
+    N2RProtocolHead head = 1;
+}
+
+message R2N_KeepAlive_Resp
+{
+    R2NProtocolHead head = 1;
+}
+
+message R2N_Handshake_Resp
+{
+    R2NProtocolHead head = 1;
+    int32           err = 2;
+}
+
+message R2N_RegisterMethod_Resp
+{
+    emRegisterMethodErr err = 1;
+}
+
+message R2N_GetNodesInfo_Resp
+{
+    repeated NodeInfo nodes = 2;
+}

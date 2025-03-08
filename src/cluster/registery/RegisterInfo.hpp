@@ -25,6 +25,7 @@ public:
     util::errcode::ErrOpt AddMethod(const std::string& method_name);
     void                DelMethod(const std::string& method_name);
     bool                HasMethod(const std::string& method_name) const;
+    std::vector<std::string> GetMethods() const;
     void                SetStatus(NodeState state);
     NodeState           GetStatus() const;
     const util::other::Uuid& GetUuid() const;

@@ -1,8 +1,7 @@
 #pragma once
 #include <util/network/TcpServer.hpp>
 #include <cluster/registery/NodeMgr.hpp>
-#include <cluster/protocol/N2RProtocol.hpp>
-#include <cluster/protocol/R2NProtocol.hpp>
+#include <cluster/protocol/Protocol.hpp>
 
 namespace cluster
 {
@@ -23,7 +22,8 @@ public:
     void                            Start();
     void                            Stop();
 
-    util::errcode::ErrOpt           SendToNode(const util::other::Uuid& uuid, const bbt::core::Buffer& buffer);
+    util::errcode::ErrOpt           SendToNode(protocol::emR2NProtocolType type, const util::other::Uuid& uuid, const bbt::core::Buffer& buffer);
+    util::errcode::ErrOpt           SendToNode(protocol::emR2NProtocolType type, const bbt::network::ConnId& connid, const bbt::core::Buffer& buffer);
     void                            OnSendToNode(util::errcode::ErrOpt err, size_t len);
     void                            OnRequest(bbt::network::ConnId id, bbt::core::Buffer& buffer);
 
@@ -43,11 +43,11 @@ private:
     bool                            IsHalfConn(bbt::network::ConnId connid) const;
     bbt::network::ConnId            GetConnIdByUuid(const util::other::Uuid& uuid) const;
     // 与节点的网络事件
-    util::errcode::ErrOpt            N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len);
-    util::errcode::ErrOpt            OnHeartBeat(bbt::network::ConnId id, N2R_KeepAlive_Req* req);
-    util::errcode::ErrOpt            OnHandshake(bbt::network::ConnId id, N2R_Handshake_Req* req);
-    util::errcode::ErrOpt            OnRegisterMethod(bbt::network::ConnId id, N2R_RegisterMethod_Req* req);
-    util::errcode::ErrOpt            OnGetNodesInfo(bbt::network::ConnId id, N2R_GetNodesInfo_Req* req);
+    util::errcode::ErrOpt           N2RDispatch(bbt::network::ConnId id, protocol::emN2RProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt           OnHeartBeat(bbt::network::ConnId id, protocol::N2R_KeepAlive_Req* req);
+    util::errcode::ErrOpt           OnHandshake(bbt::network::ConnId id, protocol::N2R_Handshake_Req* req);
+    util::errcode::ErrOpt           OnRegisterMethod(bbt::network::ConnId id, protocol::N2R_RegisterMethod_Req* req);
+    util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::N2R_GetNodesInfo_Req* req);
 
     void                            OnAccept(bbt::network::ConnId connid);
     void                            OnClose(bbt::network::ConnId connid);

@@ -25,10 +25,4 @@ enum NodeState
     NODESTATE_INVALID,
 };
 
-enum emRegisterMethodErr
-{
-    Succ = 0,
-    Failed = 1,
-};
-
 }

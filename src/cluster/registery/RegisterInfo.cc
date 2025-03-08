@@ -76,6 +76,15 @@ bool NodeRegInfo::HasMethod(const std::string& method_name) const
     return m_method_info_map.find(method_name) != m_method_info_map.end();
 }
 
+std::vector<std::string> NodeRegInfo::GetMethods() const
+{
+    std::vector<std::string> methods;
+    for (auto&& method : m_method_info_map)
+        methods.push_back(method);
+    return methods;
+}
+
+
 NodeState NodeRegInfo::GetStatus() const
 {
     return m_state;

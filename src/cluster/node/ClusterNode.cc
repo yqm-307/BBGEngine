@@ -146,16 +146,16 @@ util::errcode::ErrOpt ClusterNode::OnRemoteCall(bbt::network::ConnId id, bbt::co
 
 void ClusterNode::RequestFromRegistery(bbt::core::Buffer& buffer)
 {
-    R2NProtocolHead* head = nullptr;
+    protocol::ProtocolHead* head = nullptr;
 
     // 协议校验
     {
-        if (buffer.Size() < sizeof(R2NProtocolHead)) {
+        if (buffer.Size() < sizeof(protocol::ProtocolHead)) {
             OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
         }
     
-        head = (R2NProtocolHead*)buffer.Peek();
+        head = (protocol::ProtocolHead*)buffer.Peek();
         if (buffer.Size() < head->protocol_length) {
             OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
             return;
@@ -163,25 +163,25 @@ void ClusterNode::RequestFromRegistery(bbt::core::Buffer& buffer)
     }
 
     {
-        if (!m_registery_connected && head->protocol_type != R2N_HANDSHAKE_RESP) {
+        if (!m_registery_connected && head->protocol_type != protocol::R2N_HANDSHAKE_RESP) {
             OnError(util::errcode::Errcode("registery not handshake", util::errcode::emErr::RPC_BAD_PROTOCOL));
             return;
         }
     }
 
-    if (auto err = R2N_Dispatch(head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt) {
+    if (auto err = R2N_Dispatch((protocol::emR2NProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt) {
         OnError(err.value());
     }
 }
 
 void ClusterNode::OnTimeoutFromRegistey(bbt::network::ConnId id)
 {
-    OnInfo("[ClusterNode] registery lose connect! timeout!");
+    OnInfo(BBGENGINE_MODULE_NAME "timeout! conn=" + std::to_string(id));
 }
 
 void ClusterNode::OnCloseFromRegistery(bbt::network::ConnId id, const util::network::IPAddress& addr)
 {
-    OnInfo("[ClusterNode] registery lose connect! addr=" + addr.GetIPPort());
+    OnInfo("[ClusterNode] lose connect! conn=" + std::to_string(id));
     m_registery_connected = false;
     m_registery_client->DelConn();
     _DelayConnectToRegistery();
@@ -189,17 +189,14 @@ void ClusterNode::OnCloseFromRegistery(bbt::network::ConnId id, const util::netw
 
 void ClusterNode::RecvFromNode(bbt::network::ConnId id, bbt::core::Buffer& buffer)
 {
-    OnInfo("recv info");
 }
 
 void ClusterNode::OnTimeoutFromNode(bbt::network::ConnId id)
 {
-    OnInfo("node timeout");
 }
 
 void ClusterNode::OnCloseFromNode(bbt::network::ConnId id)
 {
-    OnInfo("node close");
     m_rpc_client_connid_uuids.erase(id);
     m_rpc_clients.erase(m_rpc_client_connid_uuids[id]);
     m_tcp_server->DelConnect(id);
@@ -264,87 +261,110 @@ void ClusterNode::OnHandshakeSucc()
 
 #pragma region registery protocol
 
-util::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* proto, size_t proto_len)
+util::errcode::ErrOpt ClusterNode::R2N_Dispatch(protocol::emR2NProtocolType type, void* proto, size_t proto_len)
 {
-#define EasyCheck(type, len) if (proto_len != len) return util::errcode::Errcode("invalid protocol length type=" + std::to_string(type), util::errcode::emErr::RPC_BAD_PROTOCOL);
+    using namespace protocol;
+#define CheckHelper(emProtoType, TClass, Handler) \
+    case emProtoType: \
+        resp = new TClass(); \
+        if (!resp->ParseFromArray(proto, proto_len)) { \
+            return util::errcode::Errcode("parse" #emProtoType "failed!", util::errcode::emErr::RPC_BAD_PROTOCOL); \
+        } else \
+            OnDebug(BBGENGINE_MODULE_NAME " [R2N_Dispatch] protocol=" #emProtoType); \
+        return Handler(static_cast<TClass*>(resp));
+
+
+    google::protobuf::Message* resp = nullptr;
 
     switch (type)
     {
-    case R2N_KEEPALIVE_RESP:
-        EasyCheck(type, sizeof(R2N_KeepAlive_Resp));
-        return R2N_OnHeartBeatResp((R2N_KeepAlive_Resp*)proto);
-    case R2N_HANDSHAKE_RESP:
-        EasyCheck(type, sizeof(R2N_Handshake_Resp));
-        return R2N_OnHandshakeResp((R2N_Handshake_Resp*)proto);
-    // case R2N_REGISTER_METHOD_RESP:
-    //     EasyCheck(type, sizeof(R2N_RegisterMethod_Resp));
-    //     return std::nullopt;
-    // case R2N_GET_NODES_INFO_RESP:
-    //     EasyCheck(type, sizeof(R2N_GetNodesInfo_Resp));
-    //     return std::nullopt;
+        CheckHelper(R2N_KEEPALIVE_RESP,             R2N_KeepAlive_Resp,             R2N_OnHeartBeatResp);
+        CheckHelper(R2N_HANDSHAKE_RESP,             R2N_Handshake_Resp,             R2N_OnHandshakeResp);
+        CheckHelper(R2N_REGISTER_METHOD_RESP,       R2N_RegisterMethod_Resp,        R2N_OnRegisterMethodResp);
+        CheckHelper(R2N_GET_NODES_INFO_RESP,        R2N_GetNodesInfo_Resp,          R2N_OnGetNodesInfoResp);
     default:
         return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
 
+    delete resp;
 #undef EasyCheck
 }
 
-util::errcode::ErrOpt ClusterNode::R2N_OnHandshakeResp(R2N_Handshake_Resp* resp)
+util::errcode::ErrOpt ClusterNode::R2N_OnHandshakeResp(protocol::R2N_Handshake_Resp* resp)
 {
-    OnInfo("registery handshake success! msg_code=" + std::to_string(resp->msg_code));
     OnHandshakeSucc();
     return std::nullopt;
 }
 
-util::errcode::ErrOpt ClusterNode::R2N_OnHeartBeatResp(R2N_KeepAlive_Resp* resp)
+util::errcode::ErrOpt ClusterNode::R2N_OnHeartBeatResp(protocol::R2N_KeepAlive_Resp* resp)
 {
-    OnDebug("r2n onheartbeat resp!");
+    return std::nullopt;
+}
+
+util::errcode::ErrOpt ClusterNode::R2N_OnRegisterMethodResp(protocol::R2N_RegisterMethod_Resp* resp)
+{
+    if (resp == nullptr)
+        return util::errcode::Errcode{"[ClusterNode] register method resp is null!", util::errcode::CommonErr};
+    
+    protocol::emRegisterMethodErr err = resp->err();
+
+    if (err != protocol::emRegisterMethodErr::SUCC)
+        return util::errcode::Errcode{"[ClusterNode] register method failed!", util::errcode::CommonErr};
+
+    return std::nullopt;
+}
+
+util::errcode::ErrOpt ClusterNode::R2N_OnGetNodesInfoResp(protocol::R2N_GetNodesInfo_Resp* resp)
+{
     return std::nullopt;
 }
 
 util::errcode::ErrOpt ClusterNode::N2R_DoHandshakeReq()
 {
-    N2R_Handshake_Req req;
-    bbt::core::Buffer buffer;
+    protocol::N2RProtocolHead   head;
+    protocol::N2R_Handshake_Req req;
+    bbt::core::Buffer           buffer;
 
-    req.head.protocol_type = N2R_HANDSHAKE_REQ;
-    req.head.protocol_length = sizeof(N2R_Handshake_Req);
-    req.head.timestamp_ms = bbt::core::clock::gettime();
-    if (!m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid)))
-        return util::errcode::Errcode{"[ClusterNode] uuid to byte failed!", util::errcode::CommonErr};
+    head.set_uuid(m_uuid->ToString());
+    req.set_allocated_head(&head);
+    buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
 
-    buffer.WriteString((char*)&req, sizeof(req));
-
-    return SendToRegistery(buffer);
+    return SendToRegistery(protocol::N2R_HANDSHAKE_REQ, buffer);
 }
 
 util::errcode::ErrOpt ClusterNode::N2R_DoHeatBeatReq()
 {
-    N2R_KeepAlive_Req req;
-    bbt::core::Buffer buffer;
+    protocol::N2RProtocolHead   head;
+    protocol::N2R_KeepAlive_Req req;
+    bbt::core::Buffer           buffer;
 
-    OnDebug("send n2r heartbeat!");
-    req.head.protocol_type = N2R_KEEPALIVE_REQ;
-    req.head.protocol_length = sizeof(N2R_KeepAlive_Req);
-    req.head.timestamp_ms = bbt::core::clock::gettime();
-    if (!m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid)))
-        return util::errcode::Errcode{"[ClusterNode] uuid to byte failed!", util::errcode::CommonErr};
+    head.set_uuid(m_uuid->ToString());
+    req.set_allocated_head(&head);
+    buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
 
-    buffer.WriteString((char*)&req, sizeof(req));
-
-    return SendToRegistery(buffer);
+    return SendToRegistery(protocol::N2R_HANDSHAKE_REQ, buffer);
 }
 
-util::errcode::ErrOpt ClusterNode::SendToRegistery(bbt::core::Buffer& buffer)
+util::errcode::ErrOpt ClusterNode::SendToRegistery(protocol::emN2RProtocolType type, bbt::core::Buffer& proto)
 {
+    protocol::ProtocolHead head;
+    bbt::core::Buffer buffer;
+    
     if (m_registery_client == nullptr)
         return util::errcode::Errcode{"registery client is null!", util::errcode::CommonErr};
 
     auto conn = m_registery_client->GetConn();
     if (conn == nullptr)
         return util::errcode::Errcode{"registery connection is null!", util::errcode::CommonErr};
+    
+    head.protocol_type = type;
+    head.protocol_length = sizeof(protocol::ProtocolHead) + buffer.Size();
+
+    buffer.Write(head);
+    buffer.WriteString(proto.Peek(), proto.Size());
 
     conn->Send(buffer.Peek(), buffer.Size());
+    OnDebug(BBGENGINE_MODULE_NAME " [SendToReg] protocol=" + std::to_string(type));
     return std::nullopt;
 }
 
@@ -370,8 +390,6 @@ void ClusterNode::OnSendToRegistery(util::errcode::ErrOpt err, size_t len)
 {
     if (err.has_value())
         OnError(err.value());
-    else
-        OnInfo(BBGENGINE_MODULE_NAME "send to registery succ! " + std::to_string(len));
 }
 
 util::errcode::ErrOpt ClusterNode::N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len)
@@ -408,46 +426,33 @@ util::errcode::ErrOpt ClusterNode::N2N_DoHeartBeat(bbt::network::ConnId id)
 
 util::errcode::ErrOpt ClusterNode::N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature)
 {
-    N2R_RegisterMethod_Req req;
-    OnDebug("send n2r register method!");
-    if (method.size() >= sizeof(req.method_name))
+    protocol::N2RProtocolHead           head;
+    protocol::N2R_RegisterMethod_Req    req;
+    bbt::core::Buffer                   buffer;
+
+    if (method.size() >= protocol::METHOD_NAME_MAX_LEN)
         return util::errcode::Errcode{BBGENGINE_MODULE_NAME " method name too long!", util::errcode::CommonErr};
-    
-    if (signature.ToByte(req.method_signature, sizeof(req.method_signature)))
-        return util::errcode::Errcode{BBGENGINE_MODULE_NAME " signature to byte failed!", util::errcode::CommonErr};
-    
-    if (m_registery_client == nullptr)
-        return util::errcode::Errcode{BBGENGINE_MODULE_NAME " registery client is null!", util::errcode::CommonErr};
 
-    req.head.protocol_type = N2R_REGISTER_METHOD_REQ;
-    req.head.protocol_length = sizeof(N2R_RegisterMethod_Req);
-    req.head.timestamp_ms = bbt::core::clock::gettime();
-    if (!m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid)))
-        return util::errcode::Errcode{BBGENGINE_MODULE_NAME " uuid to byte failed!", util::errcode::CommonErr};
+    head.set_uuid(m_uuid->ToString());
+    req.set_allocated_head(&head);
+    req.set_methods(0, method);
 
-    memcpy(req.method_name, method.c_str(), method.size());
-    req.method_name[method.size()] = '\0';
+    buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
 
-    m_registery_client->GetConn()->Send((char*)&req, sizeof(req));
-    return std::nullopt;
+    return SendToRegistery(protocol::N2R_REGISTER_METHOD_REQ, buffer);
 }
 
 util::errcode::ErrOpt ClusterNode::N2R_DoGetNodesInfoReq()
 {
-    N2R_GetNodesInfo_Req req;
-    OnDebug("send n2r get nodes info!");
+    protocol::N2RProtocolHead           head;
+    protocol::N2R_GetNodesInfo_Req      req;
+    bbt::core::Buffer                   buffer;
 
-    if (m_registery_client == nullptr)
-        return util::errcode::Errcode{BBGENGINE_MODULE_NAME " registery client is null!", util::errcode::CommonErr};
+    head.set_uuid(m_uuid->ToString());
+    req.set_allocated_head(&head);
+    buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
     
-    req.head.protocol_type = N2R_GET_NODES_INFO_REQ;
-    req.head.protocol_length = sizeof(N2R_GetNodesInfo_Req);
-    req.head.timestamp_ms = bbt::core::clock::gettime();
-    if (!m_uuid->ToByte(req.head.uuid, sizeof(req.head.uuid)))
-        return util::errcode::Errcode{BBGENGINE_MODULE_NAME " uuid to byte failed!", util::errcode::CommonErr};
-    
-    m_registery_client->GetConn()->Send((char*)&req, sizeof(req));
-    return std::nullopt;
+    return SendToRegistery(protocol::N2R_GET_NODES_INFO_REQ, buffer);
 }
 
 
