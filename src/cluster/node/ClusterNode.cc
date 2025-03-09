@@ -146,6 +146,27 @@ util::errcode::ErrOpt ClusterNode::OnRemoteCall(bbt::network::ConnId id, bbt::co
     return std::nullopt;
 }
 
+void ClusterNode::RequestFromNode(bbt::core::Buffer& buffer)
+{
+    ProtocolHead* head = nullptr;
+
+    if (buffer.Size() < sizeof(ProtocolHead)) {
+        OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
+        return;
+    }
+
+    head = (ProtocolHead*)buffer.Peek();
+    if (buffer.Size() < head->protocol_length) {
+        OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
+        return;
+    }
+
+    if (auto err = N2N_Dispatch(head->uuid, (emN2NProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt) {
+        OnError(err.value());
+    }
+}
+
+
 void ClusterNode::RequestFromRegistery(bbt::core::Buffer& buffer)
 {
     ProtocolHead* head = nullptr;
@@ -265,7 +286,6 @@ void ClusterNode::OnHandshakeSucc()
 
 util::errcode::ErrOpt ClusterNode::R2N_Dispatch(emR2NProtocolType type, void* proto, size_t proto_len)
 {
-    using namespace protocol;
 #define CheckHelper(emProtoType, TClass, Handler) \
     case emProtoType: \
         resp = new TClass(); \
@@ -400,12 +420,30 @@ void ClusterNode::OnSendToRegistery(util::errcode::ErrOpt err, size_t len)
 
 util::errcode::ErrOpt ClusterNode::N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len)
 {
-    /**
-     * 保证Dispatch时是线程安全的
-     */
+#define CheckHelper(emProtoType, TClass, Handler) \
+    case emProtoType: \
+        resp = new TClass(); \
+        if (!resp->ParseFromArray(proto_data, proto_data_len)) { \
+            return util::errcode::Errcode(BBGENGINE_MODULE_NAME " parse protocol failed! proto=" #emProtoType, util::errcode::emErr::RPC_BAD_PROTOCOL); \
+        } else \
+            OnDebug(BBGENGINE_MODULE_NAME " [R2N_Dispatch] protocol=" #emProtoType); \
+        return Handler(id, static_cast<TClass*>(resp));
 
+    google::protobuf::Message*  resp = nullptr;
+    void*                       proto_data = (char*)proto + sizeof(ProtocolHead);
+    size_t                      proto_data_len = proto_len - sizeof(ProtocolHead);
+
+    switch (type)
+    {
+        CheckHelper(N2N_CALL_METHOD_REQ,            N2N_CallMethod_Req,             N2N_OnHeartbeat);
+        CheckHelper(N2N_CALL_METHOD_RESP,           N2N_CallMethod_Resp,            N2N_OnCallRemoteMethod);
+    default:
+        return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
+    }
     
+    delete resp;
     return std::nullopt;
+#undef EasyCheck
 }
 
 util::errcode::ErrOpt ClusterNode::N2N_DoHeartBeat(bbt::network::ConnId id)
@@ -429,6 +467,36 @@ util::errcode::ErrOpt ClusterNode::N2N_DoHeartBeat(bbt::network::ConnId id)
     conn->second->GetConn()->Send((char*)&req, sizeof(req));
     return std::nullopt;
 }
+
+util::errcode::ErrOpt ClusterNode::N2N_OnCallRemoteMethod(bbt::network::ConnId id, protocol::N2N_CallMethod_Req* req)
+{
+    util::other::Uuid uuid;
+    util::errcode::Errcode err;
+    std::string params = req->params();
+
+    if (!req->has_head())
+        return util::errcode::Errcode{"[ClusterNode] call remote method req head is null!", util::errcode::CommonErr};
+
+    if (!uuid.FromByte(req->head().uuid().c_str(), req->head().uuid().size()))
+        return util::errcode::Errcode{"[ClusterNode] call remote method req uuid is invalid!", util::errcode::CommonErr};
+
+    if (uuid != *m_uuid)
+        return util::errcode::Errcode{"[ClusterNode] call remote method req uuid is not match!", util::errcode::CommonErr};
+
+    auto method = req->method();
+    if (method.empty())
+        return util::errcode::Errcode{"[ClusterNode] call remote method req method is empty!", util::errcode::CommonErr};
+
+
+    if (!m_rpc_server->HasMethod(method))
+        return util::errcode::Errcode{"[ClusterNode] call remote method req method not found!", util::errcode::CommonErr};
+
+        
+    m_rpc_server->OnRemoteCall(bbt::core::);
+
+    return std::nullopt;
+}
+
 
 util::errcode::ErrOpt ClusterNode::N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature)
 {

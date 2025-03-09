@@ -22,6 +22,13 @@ enum emR2NProtocolType {
     R2N_PROTOCOL_SIZE = 5;
 }
 
+enum emN2NProtocolType {
+    N2N_PROTOCOL_NONE = 0;
+    N2N_CALL_METHOD_REQ = 1;
+    N2N_CALL_METHOD_RESP = 2;
+    N2N_PROTOCOL_SIZE = 3;
+}
+
 enum emRegisterMethodErr
 {
     SUCC = 0;
@@ -44,6 +51,11 @@ message N2RProtocolHead
 }
 
 message R2NProtocolHead
+{
+    bytes           uuid = 1;
+}
+
+message N2NProtocolHead
 {
     bytes           uuid = 1;
 }
@@ -90,4 +102,24 @@ message R2N_RegisterMethod_Resp
 message R2N_GetNodesInfo_Resp
 {
     repeated NodeInfo nodes = 2;
+}
+
+enum emN2NCallMethodErr
+{
+    CALL_METHOD_SUCC = 0;
+    CALL_METHOD_FAILED = 1;
+};
+
+message N2N_CallMethod_Req
+{
+    N2NProtocolHead head = 1;
+    string          method = 2;
+    bytes           params = 4;
+}
+
+message N2N_CallMethod_Resp
+{
+    N2NProtocolHead head = 1;
+    emN2NCallMethodErr err = 2;
+    bytes           results = 3;
 }

@@ -20,7 +20,7 @@ int RpcServer::Register(const std::string& method, RpcCallback callback)
     return 0;
 }
 
-util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core::Buffer& reply)
+util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req)
 {
     FieldValue field;
     std::string method;
@@ -56,14 +56,22 @@ util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req, bbt::core:
     if (iter == m_registed_methods.end())
         return util::errcode::Errcode("method not found", util::errcode::emErr::CommonErr);
 
-    reply.Write(call_seq);
+    return std::nullopt;
+}
 
-    auto err = iter->second(req, reply);
-    if (err == std::nullopt) {
-        // Send(connid, resp.Peek(), resp.DataSize());
+std::vector<std::string> RpcServer::GetRegistedMethods() const
+{
+    std::vector<std::string> methods;
+    for (auto& iter : m_registed_methods) {
+        methods.push_back(iter.first);
     }
 
-    return err;
+    return methods;
+}
+
+bool RpcServer::HasMethod(const std::string& method) const
+{
+    return m_registed_methods.find(method) != m_registed_methods.end();
 }
 
 } // namespace cluster::rpc

@@ -6,7 +6,6 @@
 #include <cluster/ClusterDefine.hpp>
 #include <cluster/rpc/RpcClient.hpp>
 #include <cluster/rpc/RpcServer.hpp>
-#include <cluster/protocol/N2NProtocol.hpp>
 #include <cluster/protocol/Protocol.hpp>
 
 namespace cluster
@@ -54,6 +53,7 @@ public:
     virtual void                        OnCloseNode(bbt::network::ConnId id, const util::network::IPAddress& addr) {}
 
     // 注册中心连接事件
+    void                                RequestFromNode(bbt::core::Buffer& buffer);
     void                                RequestFromRegistery(bbt::core::Buffer& buffer);
     void                                OnTimeoutFromRegistey(bbt::network::ConnId id);
     void                                OnCloseFromRegistery(bbt::network::ConnId id, const util::network::IPAddress& addr);
@@ -75,7 +75,9 @@ private:
     util::errcode::ErrOpt               ProcessN2RProtocol();
 
     // n2n
-    util::errcode::ErrOpt               N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt               N2N_Dispatch(bbt::network::ConnId id, protocol::emN2NProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt               N2N_OnCallRemoteMethod(bbt::network::ConnId id, protocol::N2N_CallMethod_Req* req);
+    util::errcode::ErrOpt               N2N_OnHeartbeat(bbt::network::ConnId id, protocol::N2N_CallMethod_Req* req);
     util::errcode::ErrOpt               N2N_DoHeartBeat(bbt::network::ConnId id);
 
     util::errcode::ErrOpt               R2N_Dispatch(protocol::emR2NProtocolType type, void* proto, size_t proto_len);
