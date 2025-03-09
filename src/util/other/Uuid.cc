@@ -91,6 +91,14 @@ bool Uuid::ToByte(char* uuid, size_t len) const
     return true;
 }
 
+std::string Uuid::ToByte() const
+{
+    std::string uuid;
+    uuid.resize(m_uuid.size());
+    ToByte(&uuid[0], m_uuid.size());
+    return uuid;
+}
+
 bool Uuid::ToString(std::string& uuid) const
 {
     std::stringstream f;

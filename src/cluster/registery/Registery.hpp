@@ -44,10 +44,10 @@ private:
     bbt::network::ConnId            GetConnIdByUuid(const util::other::Uuid& uuid) const;
     // 与节点的网络事件
     util::errcode::ErrOpt           N2RDispatch(bbt::network::ConnId id, protocol::emN2RProtocolType type, void* proto, size_t proto_len);
-    util::errcode::ErrOpt           OnHeartBeat(bbt::network::ConnId id, protocol::N2R_KeepAlive_Req* req);
-    util::errcode::ErrOpt           OnHandshake(bbt::network::ConnId id, protocol::N2R_Handshake_Req* req);
-    util::errcode::ErrOpt           OnRegisterMethod(bbt::network::ConnId id, protocol::N2R_RegisterMethod_Req* req);
-    util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::N2R_GetNodesInfo_Req* req);
+    util::errcode::ErrOpt           OnHeartBeat(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_KeepAlive_Req* req);
+    util::errcode::ErrOpt           OnHandshake(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_Handshake_Req* req);
+    util::errcode::ErrOpt           OnRegisterMethod(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_RegisterMethod_Req* req);
+    util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_GetNodesInfo_Req* req);
 
     void                            OnAccept(bbt::network::ConnId connid);
     void                            OnClose(bbt::network::ConnId connid);

@@ -46,7 +46,7 @@ public:
     virtual util::errcode::ErrOpt       SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
     void                                OnSendToRegistery(util::errcode::ErrOpt err, size_t len);
     // 基类定义注册中心网络传输行为
-    virtual util::errcode::ErrOpt       SendToRegistery(protocol::emN2RProtocolType type, bbt::core::Buffer& buffer);
+    virtual util::errcode::ErrOpt       SendToRegistery(protocol::emN2RProtocolType type, const bbt::core::Buffer& buffer);
     virtual void                        OnError(const util::errcode::Errcode& err) = 0;
     virtual void                        OnInfo(const std::string& info) = 0;
     virtual void                        OnDebug(const std::string& info) = 0;
@@ -88,7 +88,7 @@ private:
 
     // n2r request
     util::errcode::ErrOpt               N2R_DoHandshakeReq();
-    util::errcode::ErrOpt               N2R_DoHeatBeatReq();
+    util::errcode::ErrOpt               N2R_DoHeartBeatReq();
     util::errcode::ErrOpt               N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature);
     util::errcode::ErrOpt               N2R_DoGetNodesInfoReq();
 

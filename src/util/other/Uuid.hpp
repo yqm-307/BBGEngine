@@ -33,6 +33,7 @@ public:
 
     bool FromByte(const char* uuid, size_t len);
     bool ToByte(char* uuid, size_t len) const;
+    std::string ToByte() const;
     bool ToString(std::string& uuid) const;
     std::string ToString() const;
 

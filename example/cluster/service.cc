@@ -8,15 +8,21 @@ public:
 
     virtual void OnError(const util::errcode::Errcode& err) override
     {
-        std::cout << bbt::core::clock::getnow_str() << "[error]" << err.CWhat() << std::endl;
+        auto msg = bbt::core::clock::getnow_str() + "[error]" + err.What();
+        auto str = bbt::core::log::format_red(msg.c_str(), msg.size());
+        std::cout << str << std::endl;
     }
     void OnInfo(const std::string& info) override
     {
-        std::cout << bbt::core::clock::getnow_str() << "[info ]" << info << std::endl;
+        auto msg = bbt::core::clock::getnow_str() + "[info ]" + info;
+        auto str = bbt::core::log::format_blue(msg.c_str(), msg.size());
+        std::cout << str << std::endl;
     }
     void OnDebug(const std::string& debug) override
     {
-        std::cout << bbt::core::clock::getnow_str() << "[debug]" << debug << std::endl;
+        auto msg = bbt::core::clock::getnow_str() + "[debug]" + debug;
+        auto str = bbt::core::log::format_green(msg.c_str(), msg.size());
+        std::cout << str << std::endl;
     }
 };
 

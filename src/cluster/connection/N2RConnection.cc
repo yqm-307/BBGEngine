@@ -24,7 +24,7 @@ void N2RConnection::ProcessRecvBuffer()
         head = (protocol::ProtocolHead*)m_recv_buffer.Peek();
         Assert(head->protocol_length <= protocol::MAX_PROTOCOL_LENGTH);   // 大概是有bug了
         if (m_recv_buffer.Size() < head->protocol_length)
-            return;
+            break;
 
         bbt::core::Buffer buffer{(size_t)head->protocol_length};
         Assert(buffer.WriteNull(head->protocol_length) == head->protocol_length);
@@ -32,7 +32,8 @@ void N2RConnection::ProcessRecvBuffer()
         buffers.emplace_back(std::move(buffer));
     }
 
-    _SubmitRequest2Node(buffers);
+    if (!buffers.empty())
+        _SubmitRequest2Node(buffers);
 }
 
 void N2RConnection::_SubmitRequest2Node(std::vector<bbt::core::Buffer>& buffer)

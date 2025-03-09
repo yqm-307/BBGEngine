@@ -31,7 +31,7 @@ enum emRegisterMethodErr
 // common
 message NodeInfo
 {
-    string          uuid = 1;
+    bytes           uuid = 1;
     string          ip = 2;
     int32           port = 3;
     repeated string methods = 4;
@@ -40,12 +40,12 @@ message NodeInfo
 // N2R
 message N2RProtocolHead
 {
-    string          uuid = 1;
+    bytes           uuid = 1;
 }
 
 message R2NProtocolHead
 {
-    string          uuid = 1;
+    bytes           uuid = 1;
 }
 
 message N2R_KeepAlive_Req
