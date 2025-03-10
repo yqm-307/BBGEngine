@@ -1,0 +1,52 @@
+@startuml Network类图
+
+class TcpServer {
+    .. public method ..
+    +Send(id, data)
+    +ShowDown(id)
+    +Init(onaccept_cb)
+    +Start()
+    +Stop()
+    .. virtual method ..
+    {abstract} +OnAccept()
+    .. private field ..
+    -raw_network
+    -on_accept_callback
+    -conn_map
+    -listen_addr
+    -free_timeout
+}
+
+class TcpClient {
+    .. public method ..
+    +AsyncConnect(addr, onconnect_cb)
+    +AddConn(new_conn)
+    +DelConn()
+    +GetConn()
+    .. private field ..
+    -raw_network
+    -conn
+    -timeout
+    -server_addr
+}
+
+class Connection {
+    .. public method ..
+    +Send()
+    +Close()
+    .. virtual method ..
+    {abstract} +OnClose()
+    {abstract} +OnRecv()
+    {abstract} +OnSend()
+    {abstract} +OnTimeout()
+    {abstract} +OnError()
+    .. private field ..
+    -raw_connection
+    -on_close_callback
+}
+
+'TcpServer和TcpClient 都包含 Connection'
+TcpServer "1" *-- "1..*" Connection
+TcpClient "1" *-- "1" Connection
+
+@enduml

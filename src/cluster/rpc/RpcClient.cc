@@ -18,20 +18,17 @@ void RpcClient::OnReply(const char* data, size_t size)
     FieldHeader header;
     if (buffer.Size() < sizeof(header))
     {
-        GAME_EXT1_LOG_ERROR("a bad protocol! too short");
         return;
     }
 
     buffer.ReadString((char*)&header, sizeof(header));
     if (header.field_type != INT64)
     {
-        GAME_EXT1_LOG_ERROR("a bad protocol! seq must be int64");
         return;
     }
 
     if (buffer.Size() < header.field_len)
     {
-        GAME_EXT1_LOG_ERROR("a bad protocol! buffer not enough %d byte!", header.field_len);
         return;
     }
 
@@ -47,7 +44,6 @@ void RpcClient::OnReply(const char* data, size_t size)
     auto err = iter->second(buffer);
     if (err)
     {
-        GAME_EXT1_LOG_ERROR("rpc call error! %s", err->CWhat());
     }
 }
 

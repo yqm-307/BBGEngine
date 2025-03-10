@@ -2,7 +2,9 @@
 #include <functional>
 #include <bbt/core/buffer/Buffer.hpp>
 #include <util/errcode/ErrCodeDef.hpp>
-#include <plugin/ecs/Define.hpp>
+#include <util/other/Uuid.hpp>
+#include <cluster/ClusterDefine.hpp>
+#include <cluster/protocol/Protocol.hpp>
 
 namespace cluster
 {   

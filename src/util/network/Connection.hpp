@@ -5,13 +5,17 @@
 namespace util::network
 {
 
+class TcpServer;
+class TcpClient;
+class Connection;
+typedef std::function<std::shared_ptr<Connection>(bbt::network::libevent::ConnectionSPtr)> ConnectionCreator;
 typedef bbt::core::net::IPAddress IPAddress;
-class Server;
 
 class Connection:
     public std::enable_shared_from_this<Connection>
 {
     friend class TcpServer;
+    friend class TcpClient;
 public:
     virtual ~Connection();
     Connection(bbt::network::libevent::ConnectionSPtr raw_conn, int timeout_ms);

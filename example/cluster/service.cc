@@ -1,6 +1,7 @@
-#include <cluster/node/ClusterNode.hpp>
+#include <cluster/rpc/RpcServer.hpp>
+#include <bbt/core/log/Logger.hpp>
 
-class CustomService : public cluster::ClusterNode
+class CustomService : public cluster::RpcServer
 {
 public:
     CustomService() = default;

@@ -1,5 +1,5 @@
 #include <cluster/registery/Registery.hpp>
-#include <cluster/connection/R2NConnection.hpp>
+#include <cluster/connection/RpcConnection.hpp>
 #include <cluster/registery/NodeMgr.hpp>
 
 #define BBGENGINE_MODULE_NAME "[BBG::Registery]"
@@ -26,7 +26,7 @@ void Registery::Init(const util::network::IPAddress& listen_addr, int timeout_ms
     m_registery_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
     {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-            auto r2n_conn = std::make_shared<R2NConnection>(weak_this, conn, timeout_ms);
+            auto r2n_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_R2N, weak_this, conn, timeout_ms);
             r2n_conn->Init();
             shared_this->OnAccept(r2n_conn->GetConnId());
             return r2n_conn;
@@ -197,6 +197,66 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
     if (auto err = N2RDispatch(connid, (emN2RProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt)
         OnError(err.value());
 }
+
+#pragma region 连接管理
+
+void Registery::SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer)
+{
+    switch (type)
+    {
+    case RPC_CONN_TYPE_R2N:
+        OnRequest(id, buffer);
+        break;
+    
+    default:
+        Assert(false);
+        break;
+    }
+}
+
+void Registery::NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len)
+{
+    switch (type)
+    {
+    case RPC_CONN_TYPE_R2N:
+        OnSendToNode(err, len);
+        break;
+    
+    default:
+        Assert(false);
+        break;
+    }
+}
+
+void Registery::NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type)
+{
+    switch (type)
+    {
+    case RPC_CONN_TYPE_R2N:
+        OnClose(id);
+        break;
+    
+    default:
+        Assert(false);
+        break;
+    }
+}
+
+void Registery::NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type)
+{
+    switch (type)
+    {
+    case RPC_CONN_TYPE_R2N:
+        OnTimeout(id);
+        break;
+    
+    default:
+        Assert(false);
+        break;
+    }
+}
+
+#pragma endregion
 
 #pragma region 协议处理
 

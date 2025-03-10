@@ -68,6 +68,7 @@ void TcpServer::OnAccept(util::errcode::ErrOpt err, bbt::network::interface::INe
 
 bool TcpServer::DelConnect(bbt::network::ConnId conn)
 {
+    std::lock_guard<std::mutex> lock{m_conn_map_lock};
     auto it = m_conn_map.find(conn);
     if (it == m_conn_map.end()) {
         return false;
@@ -82,12 +83,14 @@ bool TcpServer::AddConnect(std::shared_ptr<Connection> conn)
     if (conn == nullptr)
         return false;
 
+    std::lock_guard<std::mutex> lock{m_conn_map_lock};
     auto [it, succ] = m_conn_map.insert(std::make_pair(conn->GetConnId(), conn));
     return succ;
 }
 
 std::shared_ptr<Connection> TcpServer::GetConnectById(bbt::network::ConnId conn_id)
 {
+    std::lock_guard<std::mutex> lock{m_conn_map_lock};
     auto it = m_conn_map.find(conn_id);
     if (it == m_conn_map.end())
         return nullptr;

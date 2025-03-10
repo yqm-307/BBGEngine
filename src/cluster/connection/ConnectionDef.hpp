@@ -4,8 +4,11 @@
 
 namespace cluster
 {
-
-class N2RConnection;
-class R2NConnection;
+    
+enum emRpcConnType
+{
+    RPC_CONN_TYPE_R2N,
+    RPC_CONN_TYPE_N2R,
+};
 
 }

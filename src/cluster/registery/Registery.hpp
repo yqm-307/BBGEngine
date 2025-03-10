@@ -2,6 +2,7 @@
 #include <util/network/TcpServer.hpp>
 #include <cluster/registery/NodeMgr.hpp>
 #include <cluster/protocol/Protocol.hpp>
+#include <cluster/connection/RpcConnection.hpp>
 
 namespace cluster
 {
@@ -36,8 +37,14 @@ public:
     NodeState                       GetNodeStatus(const util::other::Uuid& uuid) const;
 
     // 节点管理
-    void RegisterNode(const util::network::IPAddress& addr, const util::other::Uuid& uuid);
-    void UnRegisterNode(const util::other::Uuid& uuid);
+    void                            RegisterNode(const util::network::IPAddress& addr, const util::other::Uuid& uuid);
+    void                            UnRegisterNode(const util::other::Uuid& uuid);
+
+    // 监听连接事件
+    void                            SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer); // 从连接中获取请求，提交给监听者处理
+    void                            NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
+    void                            NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接关闭
+    void                            NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接超时
 private:
     // Node握手相关
     bool                            IsHalfConn(bbt::network::ConnId connid) const;

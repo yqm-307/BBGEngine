@@ -6,7 +6,6 @@
 namespace util::network
 {
 
-typedef std::function<std::shared_ptr<Connection>(bbt::network::libevent::ConnectionSPtr)> ConnectionCreator;
 
 class TcpServer:
     public std::enable_shared_from_this<TcpServer>
@@ -38,9 +37,10 @@ private:
     bbt::network::libevent::OnAcceptCallback m_onaccept_cb{nullptr};
     std::unordered_map<bbt::network::ConnId, std::shared_ptr<Connection>>
                                             m_conn_map;
-    util::network::IPAddress                     m_listen_addr;
+    util::network::IPAddress                m_listen_addr;
     int                                     m_connect_timeout{1000};
     ConnectionCreator                       m_conn_creator{nullptr};
+    std::mutex                              m_conn_map_lock;
 };
 
 }
