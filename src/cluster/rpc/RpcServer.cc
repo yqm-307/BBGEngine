@@ -117,7 +117,7 @@ util::errcode::ErrOpt RpcServer::Start()
         if (node_shared_ptr == nullptr)
             return nullptr;
 
-        return std::make_shared<RpcConnection<RpcServer>>(RPC_CONN_TYPE_N2R, weak_ptr, libevent_conn, node_shared_ptr->m_connect_timeout);
+        return std::make_shared<RpcConnection<RpcServer>>(RPC_CONN_TYPE_RN, weak_ptr, libevent_conn, node_shared_ptr->m_connect_timeout);
     });
     m_tcp_server->Start();
 
@@ -200,7 +200,7 @@ void RpcServer::SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, 
 {
     switch (type)
     {
-    case RPC_CONN_TYPE_N2R:
+    case RPC_CONN_TYPE_RN:
         RequestFromRegistery(buffer);
         break;
     
@@ -213,7 +213,7 @@ void RpcServer::NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type,
 {
     switch (type)
     {
-    case RPC_CONN_TYPE_N2R:
+    case RPC_CONN_TYPE_RN:
         OnSendToRegistery(err, len);
         break;
     
@@ -226,7 +226,7 @@ void RpcServer::NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType ty
 {
     switch (type)
     {
-    case RPC_CONN_TYPE_N2R:
+    case RPC_CONN_TYPE_RN:
         OnCloseFromRegistery(id, util::network::IPAddress{});
         break;
     
@@ -239,7 +239,7 @@ void RpcServer::NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType 
 {
     switch (type)
     {
-    case RPC_CONN_TYPE_N2R:
+    case RPC_CONN_TYPE_RN:
         OnTimeoutFromRegistey(id);
         break;
     
@@ -318,7 +318,7 @@ void RpcServer::_ConnectToRegistery()
     m_registery_client->Init([weak_this{weak_from_this()}](auto conn)-> std::shared_ptr<RpcConnection<RpcServer>> {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
             return std::make_shared<RpcConnection<RpcServer>>(
-                RPC_CONN_TYPE_N2R, weak_this,
+                RPC_CONN_TYPE_RN, weak_this,
                 std::static_pointer_cast<bbt::network::libevent::Connection>(conn),
                 shared_this->m_connect_timeout);
         }
@@ -386,7 +386,12 @@ util::errcode::ErrOpt RpcServer::R2N_Dispatch(emR2NProtocolType type, void* prot
 
 util::errcode::ErrOpt RpcServer::R2N_OnHandshakeResp(R2N_Handshake_Resp* resp)
 {
-    OnHandshakeSucc();
+    // resp->has_head();
+    int err = resp->err();
+    if (err != HANDSHAKE_SUCC)
+        return util::errcode::Errcode{"[ClusterNode] handshake failed!", util::errcode::CommonErr};
+    else
+        OnHandshakeSucc();
     return std::nullopt;
 }
 

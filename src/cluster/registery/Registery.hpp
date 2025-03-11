@@ -45,9 +45,13 @@ public:
     void                            NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
     void                            NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接关闭
     void                            NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接超时
+    void                            NotifyOnAccept(bbt::network::ConnId connid);
 private:
     // Node握手相关
-    bool                            IsHalfConn(bbt::network::ConnId connid) const;
+    bool                            IsHalfConn(bbt::network::ConnId connid);
+    void                            DelHalfConn(bbt::network::ConnId connid);
+    void                            AddHalfConn(bbt::network::ConnId connid);
+
     bbt::network::ConnId            GetConnIdByUuid(const util::other::Uuid& uuid) const;
     // 与节点的网络事件
     util::errcode::ErrOpt           N2RDispatch(bbt::network::ConnId id, protocol::emN2RProtocolType type, void* proto, size_t proto_len);
@@ -55,14 +59,13 @@ private:
     util::errcode::ErrOpt           OnHandshake(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_Handshake_Req* req);
     util::errcode::ErrOpt           OnRegisterMethod(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_RegisterMethod_Req* req);
     util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_GetNodesInfo_Req* req);
-
-    void                            OnAccept(bbt::network::ConnId connid);
-    void                            OnClose(bbt::network::ConnId connid);
-    void                            OnTimeout(bbt::network::ConnId connid);
 private:
     std::shared_ptr<bbt::network::libevent::Network> m_network{nullptr};
     std::shared_ptr<util::network::TcpServer>   m_registery_server{nullptr};
+
+    // 握手管理
     std::unordered_set<bbt::network::ConnId>    m_half_connect_set;
+    std::mutex                                  m_half_connect_set_lock;
     
     std::shared_ptr<RegisteryServer>            m_service{nullptr};
     std::shared_ptr<NodeMgr>                    m_node_mgr{nullptr};

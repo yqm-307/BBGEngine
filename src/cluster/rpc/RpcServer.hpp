@@ -7,15 +7,13 @@
 namespace cluster
 {
 
-class ClusterNode;
-
-struct ClientConnMgr
+struct ConnMgr
 {
     std::unordered_map<bbt::network::ConnId, util::other::Uuid>
                                         m_rpc_client_connid_uuids; // 连接id到uuid的映射
     std::unordered_map<
         util::other::Uuid,
-        std::shared_ptr<RpcClient>,
+        std::shared_ptr<util::network::TcpClient>,
         util::other::Uuid::Hash>        m_rpc_clients;  // 与其他节点的连接
 };
 
@@ -107,7 +105,7 @@ private:
                                         m_tcp_server{nullptr};  // 节点网络服务
     std::shared_ptr<util::network::TcpClient> m_registery_client{nullptr};    // 与注册中心的连接
     bool                                m_registery_connected{false};   // 是否完成连接
-    ClientConnMgr                       m_client_conn_mgr;
+    ConnMgr                       m_client_conn_mgr;
 
     int                                 m_connect_timeout{20000};
     int                                 m_heartbeat_timeout{3000};

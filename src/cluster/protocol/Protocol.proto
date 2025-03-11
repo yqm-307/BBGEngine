@@ -35,6 +35,12 @@ enum emRegisterMethodErr
     FAILED = 1;
 };
 
+enum emHandshakeErr
+{
+    HANDSHAKE_SUCC = 0;
+    HANDSHAKE_FAILED = 1;
+};
+
 // common
 message NodeInfo
 {
@@ -91,7 +97,7 @@ message R2N_KeepAlive_Resp
 message R2N_Handshake_Resp
 {
     R2NProtocolHead head = 1;
-    int32           err = 2;
+    emHandshakeErr  err = 2;
 }
 
 message R2N_RegisterMethod_Resp

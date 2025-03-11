@@ -26,9 +26,9 @@ void Registery::Init(const util::network::IPAddress& listen_addr, int timeout_ms
     m_registery_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
     {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-            auto r2n_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_R2N, weak_this, conn, timeout_ms);
+            auto r2n_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_RN, weak_this, conn, timeout_ms);
             r2n_conn->Init();
-            shared_this->OnAccept(r2n_conn->GetConnId());
+            shared_this->NotifyOnAccept(r2n_conn->GetConnId());
             return r2n_conn;
         }
 
@@ -96,7 +96,7 @@ util::errcode::ErrOpt Registery::SendToNode(emR2NProtocolType type, const util::
 
     auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
-        return util::errcode::Errcode("node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
+        return util::errcode::Errcode(BBGENGINE_MODULE_NAME " node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
     
     auto conn = m_registery_server->GetConnectById(node_info->GetConnId());
     if (conn == nullptr)
@@ -126,34 +126,28 @@ void Registery::OnSendToNode(util::errcode::ErrOpt err, size_t len)
         OnError(err.value());
 }
 
-void Registery::OnAccept(bbt::network::ConnId connid)
+void Registery::NotifyOnAccept(bbt::network::ConnId connid)
 {
-    m_half_connect_set.insert(connid);
+    AddHalfConn(connid);
+    OnInfo(BBGENGINE_MODULE_NAME " accept connection! conn=" + std::to_string(connid));
 }
 
-void Registery::OnClose(bbt::network::ConnId connid)
+bool Registery::IsHalfConn(bbt::network::ConnId connid)
 {
-    util::other::Uuid uuid;
-    m_half_connect_set.erase(connid);
-    m_registery_server->DelConnect(connid);
-    
-    auto node_info = m_node_mgr->GetNodeInfo(connid);
-    if (node_info != nullptr) {
-        m_node_mgr->NodeOffline(connid);
-        uuid = node_info->GetUuid();
-    }
-    
-    OnInfo(BBGENGINE_MODULE_NAME " lose connection! uuid=" + uuid.ToString());
-}
-
-void Registery::OnTimeout(bbt::network::ConnId connid)
-{
-    OnInfo(BBGENGINE_MODULE_NAME " node timeout! conn=" + std::to_string(connid));
-}
-
-bool Registery::IsHalfConn(bbt::network::ConnId connid) const
-{
+    std::lock_guard<std::mutex> lock(m_half_connect_set_lock);
     return m_half_connect_set.find(connid) != m_half_connect_set.end();
+}
+
+void Registery::DelHalfConn(bbt::network::ConnId connid)
+{
+    std::lock_guard<std::mutex> lock(m_half_connect_set_lock);
+    m_half_connect_set.erase(connid);
+}
+
+void Registery::AddHalfConn(bbt::network::ConnId connid)
+{
+    std::lock_guard<std::mutex> lock(m_half_connect_set_lock);
+    m_half_connect_set.insert(connid);
 }
 
 bbt::network::ConnId Registery::GetConnIdByUuid(const util::other::Uuid& uuid) const
@@ -204,7 +198,7 @@ void Registery::SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, 
 {
     switch (type)
     {
-    case RPC_CONN_TYPE_R2N:
+    case RPC_CONN_TYPE_RN:
         OnRequest(id, buffer);
         break;
     
@@ -218,7 +212,7 @@ void Registery::NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type,
 {
     switch (type)
     {
-    case RPC_CONN_TYPE_R2N:
+    case RPC_CONN_TYPE_RN:
         OnSendToNode(err, len);
         break;
     
@@ -228,32 +222,28 @@ void Registery::NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type,
     }
 }
 
-void Registery::NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type)
+void Registery::NotityOnClose2Listener(bbt::network::ConnId connid, emRpcConnType type)
 {
-    switch (type)
-    {
-    case RPC_CONN_TYPE_R2N:
-        OnClose(id);
-        break;
+    Assert(type == RPC_CONN_TYPE_RN);
+
+    util::other::Uuid uuid;
+    DelHalfConn(connid);
+    m_registery_server->DelConnect(connid);
     
-    default:
-        Assert(false);
-        break;
+    auto node_info = m_node_mgr->GetNodeInfo(connid);
+    if (node_info != nullptr) {
+        m_node_mgr->NodeOffline(connid);
+        uuid = node_info->GetUuid();
     }
+    
+    OnInfo(BBGENGINE_MODULE_NAME " lose connection! uuid=" + uuid.ToString());
+
 }
 
-void Registery::NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type)
+void Registery::NotityOnTimeout2Listener(bbt::network::ConnId connid, emRpcConnType type)
 {
-    switch (type)
-    {
-    case RPC_CONN_TYPE_R2N:
-        OnTimeout(id);
-        break;
-    
-    default:
-        Assert(false);
-        break;
-    }
+    Assert(RPC_CONN_TYPE_RN == type);
+    OnInfo(BBGENGINE_MODULE_NAME " node timeout! conn=" + std::to_string(connid));
 }
 
 #pragma endregion
@@ -269,7 +259,7 @@ util::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProto
         if (!resp->ParseFromArray(proto_data, proto_data_len)) { \
             return util::errcode::Errcode("parse protocol failed! proto=" #emProtoType, util::errcode::emErr::RPC_BAD_PROTOCOL); \
         } else \
-            OnDebug(BBGENGINE_MODULE_NAME " [R2N_Dispatch] protocol=" #emProtoType); \
+            OnDebug(BBGENGINE_MODULE_NAME "[R2N_Dispatch] protocol=" #emProtoType); \
         return Handler(id, head, static_cast<TClass*>(resp));
 
     google::protobuf::Message*  resp = nullptr;
@@ -326,22 +316,22 @@ util::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, ProtocolHe
 
     auto info = std::make_shared<NodeRegInfo>();
     uuid.FromByte(req->head().uuid().c_str(), req->head().uuid().size());
-    resp.set_err(emRegisterMethodErr::FAILED);
+    resp.set_err(emHandshakeErr::HANDSHAKE_FAILED);
     r2n_head->set_uuid(uuid.ToByte());
     resp.set_allocated_head(r2n_head);
 
-    if (m_half_connect_set.find(id) == m_half_connect_set.end())
+    if (!IsHalfConn(id))
         return SendToNode(R2N_HANDSHAKE_RESP, uuid, bbt::core::Buffer{resp.SerializeAsString().c_str(), resp.ByteSizeLong()});
-    
+
     if (GetNodeStatus(uuid) == NodeState::NODESTATE_ONLINE)
         return SendToNode(R2N_HANDSHAKE_RESP, uuid, bbt::core::Buffer{resp.SerializeAsString().c_str(), resp.ByteSizeLong()});
     
     info->Init(uuid, util::network::IPAddress{req->ip(), req->port()});
     info->SetConnId(id);
     info->SetStatus(NodeState::NODESTATE_ONLINE);
-    m_half_connect_set.erase(id);
+    DelHalfConn(id);
     m_node_mgr->RegisterNode(uuid, info);
-    resp.set_err(emRegisterMethodErr::SUCC);
+    resp.set_err(emHandshakeErr::HANDSHAKE_SUCC);
 
     return SendToNode(R2N_HANDSHAKE_RESP, uuid, bbt::core::Buffer{resp.SerializeAsString().c_str(), resp.ByteSizeLong()});
 }

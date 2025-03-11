@@ -7,8 +7,9 @@ namespace cluster
     
 enum emRpcConnType
 {
-    RPC_CONN_TYPE_R2N,
-    RPC_CONN_TYPE_N2R,
+    RPC_CONN_TYPE_RN,
+    RPC_CONN_TYPE_CR,
+    RPC_CONN_TYPE_CS,
 };
 
 }

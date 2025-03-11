@@ -1,5 +1,6 @@
 #pragma once
 #include <cluster/connection/RpcConnection.hpp>
+#include <cluster/protocol/Protocol.hpp>
 
 namespace cluster
 {
