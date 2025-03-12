@@ -7,7 +7,7 @@
 namespace cluster
 {
 
-struct ConnMgr
+struct ClientMgr
 {
     std::unordered_map<bbt::network::ConnId, util::other::Uuid>
                                         m_rpc_client_connid_uuids; // 连接id到uuid的映射
@@ -45,11 +45,10 @@ public:
     virtual util::errcode::ErrOpt       RemoteCall(const std::string& method, bbt::core::Buffer& buffer);
     virtual util::errcode::ErrOpt       OnRemoteCall(bbt::network::ConnId id, bbt::core::Buffer& reply);
 
-    // 基类定义节点间网络传输行为
     virtual util::errcode::ErrOpt       SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
     void                                OnSendToRegistery(util::errcode::ErrOpt err, size_t len);
-    // 基类定义注册中心网络传输行为
     virtual util::errcode::ErrOpt       SendToRegistery(protocol::emN2RProtocolType type, const bbt::core::Buffer& buffer);
+
     virtual void                        OnError(const util::errcode::Errcode& err) = 0;
     virtual void                        OnInfo(const std::string& info) = 0;
     virtual void                        OnDebug(const std::string& info) = 0;
@@ -105,7 +104,9 @@ private:
                                         m_tcp_server{nullptr};  // 节点网络服务
     std::shared_ptr<util::network::TcpClient> m_registery_client{nullptr};    // 与注册中心的连接
     bool                                m_registery_connected{false};   // 是否完成连接
-    ConnMgr                       m_client_conn_mgr;
+
+    ClientMgr                           m_client_conn_mgr;
+    std::mutex                          m_client_conn_mgr_mtx;
 
     int                                 m_connect_timeout{20000};
     int                                 m_heartbeat_timeout{3000};

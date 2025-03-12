@@ -18,7 +18,10 @@ public:
     explicit Registery();
     virtual ~Registery();
 
-    void                            Init(const util::network::IPAddress& listen_addr, int timeout_ms);
+    void                            Init(
+                                        const util::network::IPAddress& rs_listen,
+                                        const util::network::IPAddress& rc_listen,
+                                        int timeout_ms);
     void                            Update();
     void                            Start();
     void                            Stop();
@@ -61,7 +64,8 @@ private:
     util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_GetNodesInfo_Req* req);
 private:
     std::shared_ptr<bbt::network::libevent::Network> m_network{nullptr};
-    std::shared_ptr<util::network::TcpServer>   m_registery_server{nullptr};
+    std::shared_ptr<util::network::TcpServer>   m_rs_server{nullptr};   // RpcServer监听
+    std::shared_ptr<util::network::TcpServer>   m_rc_server{nullptr};   // RpcClient监听
 
     // 握手管理
     std::unordered_set<bbt::network::ConnId>    m_half_connect_set;

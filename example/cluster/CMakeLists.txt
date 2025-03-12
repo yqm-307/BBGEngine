@@ -39,3 +39,22 @@ target_link_libraries(cluster_node PRIVATE
     BBGEngine
     lua
 )
+
+add_executable(rpc_client
+    ${PROJECT_SOURCE_DIR}/example/cluster/service.cc
+)
+
+target_link_libraries(rpc_client PRIVATE
+    event_core
+    event_pthreads
+    bbt_pollevent
+    bbt_cxxlua
+    bbt_network
+    bbt_core
+    inih
+    protobuf
+    # tcmalloc
+    dl
+    BBGEngine
+    lua
+)

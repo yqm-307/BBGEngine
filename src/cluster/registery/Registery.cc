@@ -18,18 +18,34 @@ Registery::~Registery()
 {
 };
 
-void Registery::Init(const util::network::IPAddress& listen_addr, int timeout_ms)
+void Registery::Init(
+    const util::network::IPAddress& rs_listen,
+    const util::network::IPAddress& rc_listen,
+    int timeout_ms)
 {
     m_network = std::make_shared<bbt::network::libevent::Network>();
-    m_registery_server = std::make_shared<util::network::TcpServer>(m_network, listen_addr.GetIP(), listen_addr.GetPort(), timeout_ms);
+    m_rs_server = std::make_shared<util::network::TcpServer>(m_network, rs_listen.GetIP(), rs_listen.GetPort(), timeout_ms);
+    m_rc_server = std::make_shared<util::network::TcpServer>(m_network, rc_listen.GetIP(), rc_listen.GetPort(), timeout_ms);
 
-    m_registery_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
+    m_rs_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
     {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-            auto r2n_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_RN, weak_this, conn, timeout_ms);
-            r2n_conn->Init();
-            shared_this->NotifyOnAccept(r2n_conn->GetConnId());
-            return r2n_conn;
+            auto r2s_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_RN, weak_this, conn, timeout_ms);
+            r2s_conn->Init();
+            shared_this->NotifyOnAccept(r2s_conn->GetConnId());
+            return r2s_conn;
+        }
+
+        return nullptr;
+    });
+
+    m_rc_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
+    {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+            auto r2c_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_CR, weak_this, conn, timeout_ms);
+            r2c_conn->Init();
+            shared_this->NotifyOnAccept(r2c_conn->GetConnId());
+            return r2c_conn;
         }
 
         return nullptr;
@@ -38,12 +54,12 @@ void Registery::Init(const util::network::IPAddress& listen_addr, int timeout_ms
 
 void Registery::Start()
 {
-    m_registery_server->Start();
+    m_rs_server->Start();
 }
 
 void Registery::Stop()
 {
-    m_registery_server->Stop();
+    m_rs_server->Stop();
 }
 
 void Registery::Update()
@@ -59,7 +75,7 @@ NodeRegInfo::SPtr Registery::GetNodeRegInfo(const util::other::Uuid& uuid)
 
 void Registery::CloseConn(bbt::network::ConnId connid)
 {
-    m_registery_server->ShowDown(connid);
+    m_rs_server->ShowDown(connid);
 }
 
 NodeState Registery::GetNodeStatus(const util::other::Uuid& uuid) const
@@ -98,7 +114,7 @@ util::errcode::ErrOpt Registery::SendToNode(emR2NProtocolType type, const util::
     if (node_info == nullptr)
         return util::errcode::Errcode(BBGENGINE_MODULE_NAME " node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
     
-    auto conn = m_registery_server->GetConnectById(node_info->GetConnId());
+    auto conn = m_rs_server->GetConnectById(node_info->GetConnId());
     if (conn == nullptr)
         return util::errcode::Errcode("conn is losed!", util::errcode::emErr::CommonErr);
 
@@ -163,7 +179,7 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
 {
     ProtocolHead* head = nullptr;
 
-    auto conn = m_registery_server->GetConnectById(connid);
+    auto conn = m_rs_server->GetConnectById(connid);
     if (conn == nullptr) {
         OnError(util::errcode::Errcode("connection not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE));
         return;
@@ -228,7 +244,7 @@ void Registery::NotityOnClose2Listener(bbt::network::ConnId connid, emRpcConnTyp
 
     util::other::Uuid uuid;
     DelHalfConn(connid);
-    m_registery_server->DelConnect(connid);
+    m_rs_server->DelConnect(connid);
     
     auto node_info = m_node_mgr->GetNodeInfo(connid);
     if (node_info != nullptr) {

@@ -20,9 +20,6 @@ public:
     // 去Registery请求数据
     util::errcode::ErrOpt       RequestNodeInfo(const util::network::IPAddress& registery_addr, std::function<void()> notify_cb);
 
-    template<typename ...Args>
-    int Call(RpcReplyCallback callback, const std::string& method, Args... args);
-
     virtual void                OnReply(const char* data, size_t size) final;
 
     virtual void                OnError(const util::errcode::Errcode& err) = 0;
