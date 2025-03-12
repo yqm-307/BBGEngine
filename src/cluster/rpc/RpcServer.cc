@@ -154,13 +154,6 @@ void RpcServer::Update()
             }
         }
     }
-
-    // 定时获取注册中心的节点信息
-    if (bbt::core::clock::is_expired<bbt::core::clock::ms>(m_last_get_nodes_info_ms) && m_registery_connected) {
-        m_last_get_nodes_info_ms = bbt::core::clock::now() + bbt::core::clock::s(10);
-        if (auto err = N2R_DoGetNodesInfoReq(); err != std::nullopt)
-            OnError(err.value());
-    }
 }
 
 void RpcServer::Offline()
@@ -375,7 +368,6 @@ util::errcode::ErrOpt RpcServer::R2N_Dispatch(emR2NProtocolType type, void* prot
         CheckHelper(R2N_KEEPALIVE_RESP,             R2N_KeepAlive_Resp,             R2N_OnHeartBeatResp);
         CheckHelper(R2N_HANDSHAKE_RESP,             R2N_Handshake_Resp,             R2N_OnHandshakeResp);
         CheckHelper(R2N_REGISTER_METHOD_RESP,       R2N_RegisterMethod_Resp,        R2N_OnRegisterMethodResp);
-        CheckHelper(R2N_GET_NODES_INFO_RESP,        R2N_GetNodesInfo_Resp,          R2N_OnGetNodesInfoResp);
     default:
         return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
@@ -410,12 +402,6 @@ util::errcode::ErrOpt RpcServer::R2N_OnRegisterMethodResp(R2N_RegisterMethod_Res
     if (err != emRegisterMethodErr::SUCC)
         return util::errcode::Errcode{"[ClusterNode] register method failed!", util::errcode::CommonErr};
 
-    return std::nullopt;
-}
-
-util::errcode::ErrOpt RpcServer::R2N_OnGetNodesInfoResp(R2N_GetNodesInfo_Resp* resp)
-{
-    printf("%s\n", resp->DebugString().c_str());
     return std::nullopt;
 }
 
@@ -563,18 +549,6 @@ util::errcode::ErrOpt RpcServer::N2R_DoRegisterMethodReq(const std::string& meth
 
     return SendToRegistery(N2R_REGISTER_METHOD_REQ, buffer);
 }
-
-util::errcode::ErrOpt RpcServer::N2R_DoGetNodesInfoReq()
-{
-    N2RProtocolHead*          head = new N2RProtocolHead();
-    N2R_GetNodesInfo_Req      req;
-
-    head->set_uuid(m_uuid->ToByte());
-    req.set_allocated_head(head);
-    
-    return SendToRegistery(N2R_GET_NODES_INFO_REQ, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
-}
-
 
 #pragma endregion
 

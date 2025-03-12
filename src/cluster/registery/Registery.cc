@@ -4,6 +4,15 @@
 
 #define BBGENGINE_MODULE_NAME "[BBG::Registery]"
 
+#define CheckHelper(emProtoType, TClass, Handler) \
+    case emProtoType: \
+        resp = new TClass(); \
+        if (!resp->ParseFromArray(proto_data, proto_data_len)) { \
+            return util::errcode::Errcode("parse protocol failed! proto=" #emProtoType, util::errcode::emErr::RPC_BAD_PROTOCOL); \
+        } else \
+            OnDebug(BBGENGINE_MODULE_NAME "[R2N_Dispatch] protocol=" #emProtoType); \
+        return Handler(id, head, static_cast<TClass*>(resp));
+
 using namespace cluster::protocol;
 
 namespace cluster
@@ -268,16 +277,6 @@ void Registery::NotityOnTimeout2Listener(bbt::network::ConnId connid, emRpcConnT
 
 util::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
 {
-    using namespace protocol;
-#define CheckHelper(emProtoType, TClass, Handler) \
-    case emProtoType: \
-        resp = new TClass(); \
-        if (!resp->ParseFromArray(proto_data, proto_data_len)) { \
-            return util::errcode::Errcode("parse protocol failed! proto=" #emProtoType, util::errcode::emErr::RPC_BAD_PROTOCOL); \
-        } else \
-            OnDebug(BBGENGINE_MODULE_NAME "[R2N_Dispatch] protocol=" #emProtoType); \
-        return Handler(id, head, static_cast<TClass*>(resp));
-
     google::protobuf::Message*  resp = nullptr;
     ProtocolHead*               head = (ProtocolHead*)proto;
     void*                       proto_data = (char*)proto + sizeof(ProtocolHead);
@@ -288,14 +287,12 @@ util::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProto
         CheckHelper(N2R_KEEPALIVE_REQ, N2R_KeepAlive_Req, OnHeartBeat);
         CheckHelper(N2R_HANDSHAKE_REQ, N2R_Handshake_Req, OnHandshake);
         CheckHelper(N2R_REGISTER_METHOD_REQ, N2R_RegisterMethod_Req, OnRegisterMethod);
-        CheckHelper(N2R_GET_NODES_INFO_REQ, N2R_GetNodesInfo_Req, OnGetNodesInfo);
     default:
         return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
 
     delete resp;
     return std::nullopt;
-#undef EasyCheck
 }
 
 util::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, ProtocolHead* head, N2R_KeepAlive_Req* req)
@@ -381,9 +378,28 @@ util::errcode::ErrOpt Registery::OnRegisterMethod(bbt::network::ConnId id, Proto
     return SendToNode(R2N_REGISTER_METHOD_RESP, uuid, bbt::core::Buffer{resp.SerializeAsString().c_str(), resp.ByteSizeLong()});
 }
 
-util::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, ProtocolHead* head, N2R_GetNodesInfo_Req* req)
+util::errcode::ErrOpt Registery::C2RDispatch(bbt::network::ConnId id, protocol::emC2RProtocolType type, void* proto, size_t proto_len)
 {
-    R2N_GetNodesInfo_Resp resp;
+    google::protobuf::Message*  resp = nullptr;
+    ProtocolHead*               head = (ProtocolHead*)proto;
+    void*                       proto_data = (char*)proto + sizeof(ProtocolHead);
+    size_t                      proto_data_len = proto_len - sizeof(ProtocolHead);
+
+    switch (type)
+    {
+        CheckHelper(C2R_GET_NODES_INFO_REQ, C2R_GetNodesInfo_Req, OnGetNodesInfo);
+    default:
+        return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
+    }
+
+    delete resp;
+    return std::nullopt;
+}
+
+
+util::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, ProtocolHead* head, C2R_GetNodesInfo_Req* req)
+{
+    R2C_GetNodesInfo_Resp resp;
     NodeInfo info;
     util::other::Uuid uuid;
 
@@ -412,3 +428,4 @@ util::errcode::ErrOpt Registery::OnGetNodesInfo(bbt::network::ConnId id, Protoco
 }
 
 #undef BBGENGINE_MODULE_NAME
+#undef EasyCheck

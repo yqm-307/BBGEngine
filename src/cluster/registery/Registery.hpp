@@ -61,7 +61,9 @@ private:
     util::errcode::ErrOpt           OnHeartBeat(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_KeepAlive_Req* req);
     util::errcode::ErrOpt           OnHandshake(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_Handshake_Req* req);
     util::errcode::ErrOpt           OnRegisterMethod(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_RegisterMethod_Req* req);
-    util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_GetNodesInfo_Req* req);
+
+    util::errcode::ErrOpt           C2RDispatch(bbt::network::ConnId id, protocol::emC2RProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt           OnGetNodesInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::C2R_GetNodesInfo_Req* req);
 private:
     std::shared_ptr<bbt::network::libevent::Network> m_network{nullptr};
     std::shared_ptr<util::network::TcpServer>   m_rs_server{nullptr};   // RpcServer监听

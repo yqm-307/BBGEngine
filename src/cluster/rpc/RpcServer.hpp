@@ -83,13 +83,11 @@ private:
     util::errcode::ErrOpt               R2N_OnHandshakeResp(protocol::R2N_Handshake_Resp* resp);
     util::errcode::ErrOpt               R2N_OnHeartBeatResp(protocol::R2N_KeepAlive_Resp* resp);
     util::errcode::ErrOpt               R2N_OnRegisterMethodResp(protocol::R2N_RegisterMethod_Resp* resp);
-    util::errcode::ErrOpt               R2N_OnGetNodesInfoResp(protocol::R2N_GetNodesInfo_Resp* resp);
 
     // n2r request
     util::errcode::ErrOpt               N2R_DoHandshakeReq();
     util::errcode::ErrOpt               N2R_DoHeartBeatReq();
     util::errcode::ErrOpt               N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature);
-    util::errcode::ErrOpt               N2R_DoGetNodesInfoReq();
 private:
     std::unordered_map<std::string, RpcCallback> m_registed_methods;    // 注册的服务方法
     
@@ -113,7 +111,6 @@ private:
     int                                 m_reconnect_time{3000};
     bbt::core::clock::Timestamp<>       m_connect_to_registery_ms{bbt::core::clock::now()};
     bbt::core::clock::Timestamp<>       m_last_heatbeart_ms{bbt::core::clock::now()};
-    bbt::core::clock::Timestamp<>       m_last_get_nodes_info_ms{bbt::core::clock::now()};
 };
 
 } // namespace cluster::rpc

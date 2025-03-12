@@ -29,6 +29,18 @@ enum emN2NProtocolType {
     N2N_PROTOCOL_SIZE = 3;
 }
 
+enum emC2RProtocolType {
+    C2R_PROTOCOL_NONE = 0;
+    C2R_GET_NODES_INFO_REQ = 1;
+    C2R_PROTOCOL_SIZE = 2;
+}
+
+enum emR2CProtocolType {
+    R2C_PROTOCOL_NONE = 0;
+    R2C_GET_NODES_INFO_RESP = 1;
+    R2C_PROTOCOL_SIZE = 2;
+}
+
 enum emRegisterMethodErr
 {
     SUCC = 0;
@@ -61,6 +73,11 @@ message R2NProtocolHead
     bytes           uuid = 1;
 }
 
+message C2RProtocolHead
+{
+    bytes           uuid = 1;
+}
+
 message N2NProtocolHead
 {
     bytes           uuid = 1;
@@ -84,9 +101,9 @@ message N2R_RegisterMethod_Req
     repeated string methods = 2;
 }
 
-message N2R_GetNodesInfo_Req
+message C2R_GetNodesInfo_Req
 {
-    N2RProtocolHead head = 1;
+    C2RProtocolHead head = 1;
 }
 
 message R2N_KeepAlive_Resp
@@ -105,7 +122,7 @@ message R2N_RegisterMethod_Resp
     emRegisterMethodErr err = 1;
 }
 
-message R2N_GetNodesInfo_Resp
+message R2C_GetNodesInfo_Resp
 {
     repeated NodeInfo nodes = 2;
 }

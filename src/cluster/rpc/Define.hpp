@@ -15,4 +15,6 @@ class RpcServer;
 typedef std::function<util::errcode::ErrOpt(bbt::core::Buffer&)> RpcReplyCallback;
 typedef std::function<util::errcode::ErrOpt(bbt::core::Buffer&/*req*/, bbt::core::Buffer&/*resp*/)> RpcCallback;
 
+typedef int64_t RpcMethodHash;
+
 } // namespace cluster::rpc
