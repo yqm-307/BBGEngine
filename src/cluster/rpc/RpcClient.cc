@@ -1,4 +1,9 @@
 #include <cluster/rpc/RpcClient.hpp>
+#include <random>
+
+using namespace cluster::protocol;
+using namespace bbt::core::clock;
+
 
 namespace cluster
 {
@@ -13,8 +18,6 @@ namespace cluster
         } else \
             OnDebug(BBGENGINE_MODULE_NAME "[R2N_Dispatch] protocol=" #emProtoType); \
         return Handler(connid, head, static_cast<TClass*>(resp));
-
-using namespace protocol;
 
 void NodeCache::UpdateCache(const util::other::Uuid& uuid, const std::vector<RpcMethodHash>& methods)
 {
@@ -43,6 +46,28 @@ void NodeCache::DeleteCache(const util::other::Uuid& uuid)
     m_node_methods.erase(iter);
 }
 
+std::optional<util::other::Uuid> NodeCache::GetUuid(RpcMethodHash method)
+{
+    auto iter = m_method_uuids.find(method);
+    if (iter == m_method_uuids.end())
+    {
+        return std::nullopt;
+    }
+
+    if (iter->second.empty())
+    {
+        return std::nullopt;
+    }
+
+    // 随机返回一个
+    std::vector<util::other::Uuid> uuids(iter->second.begin(), iter->second.end());
+    util::other::Uuid random_uuid;
+    std::sample(uuids.begin(), uuids.end(), &random_uuid, 1, std::mt19937{std::random_device{}()});
+
+    return random_uuid;
+}
+
+
 RpcClient::~RpcClient()
 {
 }
@@ -55,6 +80,40 @@ RpcClient::RpcClient():
 util::errcode::ErrOpt RpcClient::Init(const util::network::IPAddress& registery_addr, int timeout_ms)
 {
     
+}
+
+void RpcClient::Start()
+{
+    m_registery_client = std::make_shared<util::network::TcpClient>(m_network);
+    m_registery_client->Init([weak_this{weak_from_this()}](bbt::network::libevent::ConnectionSPtr conn) -> std::shared_ptr<util::network::Connection> {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            return std::make_shared<RpcConnection<RpcClient>>(RPC_CONN_TYPE_CR, shared_this, conn, BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT);
+
+        return nullptr;
+    });
+
+    m_registery_client->AsyncConnect([weak_this{weak_from_this()}](util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr && err.has_value())
+            shared_this->OnError(err.value());
+    });
+}
+
+void RpcClient::Stop()
+{
+
+}
+
+void RpcClient::Update()
+{
+    auto registery_conn = m_registery_client->GetConn();
+    if (registery_conn && !registery_conn->IsClosed())
+    {
+        if (is_expired<ms>(m_cache_last_update_time + ms(m_cache_update_interval)))
+        {
+            m_cache_last_update_time = now();
+            DoGetNodesInfoReq();
+        }
+    }
 }
 
 void RpcClient::OnReply(const char* data, size_t size)
@@ -93,6 +152,24 @@ void RpcClient::OnReply(const char* data, size_t size)
 }
 
 #pragma region 连接管理
+
+std::shared_ptr<util::network::Connection> RpcClient::GetServiceConn(const std::string& method)
+{
+    std::lock_guard<std::mutex> lock{m_net_mtx};
+
+    auto uuid = m_node_cache.GetUuid(m_serializer.GetMethodHash(method));
+    if (!uuid.has_value())
+        return nullptr;
+    
+    auto it = m_server_mgr.m_rpc_clients.find(uuid.value());
+    if (it == m_server_mgr.m_rpc_clients.end())
+    {
+        return nullptr;
+    }
+
+    return it->second->GetConn();
+}
+
 
 void RpcClient::SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer)
 {

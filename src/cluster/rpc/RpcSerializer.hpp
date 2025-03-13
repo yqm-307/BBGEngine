@@ -108,7 +108,10 @@ public:
         return std::nullopt;
     }
     
-
+    RpcMethodHash GetMethodHash(const std::string& method)
+    {
+        return std::hash<std::string>{}(method);
+    }
 private:
     template<typename T>
     void SerializeArg(bbt::core::Buffer& bytes, T arg)

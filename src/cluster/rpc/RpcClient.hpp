@@ -18,11 +18,21 @@ public:
     void UpdateCache(const util::other::Uuid& uuid, const std::vector<RpcMethodHash>& methods);
     void DeleteCache(const util::other::Uuid& uuid);
 
+    std::optional<util::other::Uuid> GetUuid(RpcMethodHash method);
 private:
     std::unordered_map<RpcMethodHash, std::unordered_set<util::other::Uuid, util::other::Uuid::Hash>> m_method_uuids;
     std::unordered_map<util::other::Uuid, std::unordered_set<RpcMethodHash>, util::other::Uuid::Hash> m_node_methods;
 };
 
+struct ServerMgr
+{
+    std::unordered_map<bbt::network::ConnId, util::other::Uuid>
+                                        m_rpc_client_connid_uuids; // 连接id到uuid的映射
+    std::unordered_map<
+        util::other::Uuid,
+        std::shared_ptr<util::network::TcpClient>,
+        util::other::Uuid::Hash>        m_rpc_clients;  // 与其他节点的连接
+};
 
 class RpcClient:
     public std::enable_shared_from_this<RpcClient>
@@ -33,11 +43,14 @@ public:
     virtual ~RpcClient();
 
     util::errcode::ErrOpt       Init(const util::network::IPAddress& registery_addr, int timeout_ms);
-    // 去Registery请求数据
-    util::errcode::ErrOpt       RequestNodeInfo(const util::network::IPAddress& registery_addr, std::function<void()> notify_cb);
+
+    void                        Start();
+    void                        Stop();
+    void                        Update();
+
     // const util::network::IPAddress& GetServiceAddr(const std::string& method);  // 获取服务地址
     // util::other::Uuid           GetServiceUuid(const std::string& method);       // 获取服务uuid
-    std::shared_ptr<util::network::TcpClient> GetServiceConn(const std::string& method); // 获取服务连接
+    std::shared_ptr<util::network::Connection> GetServiceConn(const std::string& method); // 获取服务连接
 
     virtual void                OnReply(const char* data, size_t size) final;
 
@@ -64,11 +77,6 @@ private:
 private:
     std::shared_ptr<bbt::network::base::NetworkBase>    m_network{nullptr};
 
-    // 链接管理
-    // ConnMgr                                             m_conn_mgr;
-    std::mutex                                          m_conn_mgr_mtx;
-    std::shared_ptr<util::network::TcpClient>           m_registery_client{nullptr};
-
     // rpc call
     RpcSerializer                                       m_serializer;
     std::atomic_int64_t                                 m_seq{0};
@@ -76,8 +84,12 @@ private:
     std::mutex                                          m_reply_mtx;
 
     // node info cache
+    ServerMgr                                           m_server_mgr;
     NodeCache                                           m_node_cache;
-    std::mutex                                          m_node_cache_mtx;
+    std::shared_ptr<util::network::TcpClient>           m_registery_client{nullptr};
+    bbt::core::clock::Timestamp<>                       m_cache_last_update_time{bbt::core::clock::now()};
+    const int                                           m_cache_update_interval{1000};  // 1s 更新一次
+    std::mutex                                          m_net_mtx;
 };
 
 template<typename ...Args>
@@ -90,6 +102,11 @@ util::errcode::ErrOpt RpcClient::DoRemoteCall(RpcReplyCallback callback, const s
 
     m_callbacks[m_seq] = callback;
 
+    auto conn = GetServiceConn(method);
+    if (conn == nullptr)
+        return util::errcode::Errcode{"[RpcClient::DoRemoteCall] conn is null!", util::errcode::CommonErr};
+
+    conn->Send(buffer.Peek(), buffer.Size());
     return std::nullopt;
 }
 

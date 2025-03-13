@@ -17,4 +17,6 @@ typedef std::function<util::errcode::ErrOpt(bbt::core::Buffer&/*req*/, bbt::core
 
 typedef int64_t RpcMethodHash;
 
+
+
 } // namespace cluster::rpc
