@@ -63,11 +63,12 @@ public:
     void                        NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接关闭
     void                        NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接超时
 private:
+    util::errcode::ErrOpt       _ConnectToRegistery();
     util::errcode::ErrOpt       _SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer);
     util::errcode::ErrOpt       _SendToRegistery(protocol::emC2RProtocolType type, const bbt::core::Buffer& buffer);
 
     util::errcode::ErrOpt       _R_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len);
-    util::errcode::ErrOpt       DoGetNodesInfoReq();
+    util::errcode::ErrOpt       _DoGetNodesInfoReq();
     util::errcode::ErrOpt       _OnGetNodeInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::R2C_GetNodesInfo_Resp* req);
 
     util::errcode::ErrOpt       _S_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len);
@@ -76,6 +77,7 @@ private:
 
 private:
     std::shared_ptr<bbt::network::base::NetworkBase>    m_network{nullptr};
+    util::network::IPAddress                            m_registery_addr;
 
     // rpc call
     RpcSerializer                                       m_serializer;

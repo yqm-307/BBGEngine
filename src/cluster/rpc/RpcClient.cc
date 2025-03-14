@@ -79,28 +79,40 @@ RpcClient::RpcClient():
 
 util::errcode::ErrOpt RpcClient::Init(const util::network::IPAddress& registery_addr, int timeout_ms)
 {
-    
+    if (auto err =  std::static_pointer_cast<bbt::network::libevent::Network>(m_network)->AutoInitThread(2); err.has_value())
+        return err;
+
+    m_registery_addr = registery_addr;
+    m_registery_client = std::make_shared<util::network::TcpClient>(m_network);
+
+    auto err = m_registery_client->Init(
+        m_registery_addr,
+        [weak_this{weak_from_this()}]
+        (bbt::network::libevent::ConnectionSPtr conn) -> std::shared_ptr<util::network::Connection> {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                return std::make_shared<RpcConnection<RpcClient>>(RPC_CONN_TYPE_CR, shared_this, conn, BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT);
+
+            return nullptr;
+        },
+        BBGENGINE_CONNECT_TIMEOUT,
+        [weak_this{weak_from_this()}]
+        (util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr && err.has_value())
+                shared_this->OnError(err.value());
+        });
+
+    return err;
 }
 
 void RpcClient::Start()
 {
-    m_registery_client = std::make_shared<util::network::TcpClient>(m_network);
-    m_registery_client->Init([weak_this{weak_from_this()}](bbt::network::libevent::ConnectionSPtr conn) -> std::shared_ptr<util::network::Connection> {
-        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
-            return std::make_shared<RpcConnection<RpcClient>>(RPC_CONN_TYPE_CR, shared_this, conn, BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT);
-
-        return nullptr;
-    });
-
-    m_registery_client->AsyncConnect([weak_this{weak_from_this()}](util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
-        if (auto shared_this = weak_this.lock(); shared_this != nullptr && err.has_value())
-            shared_this->OnError(err.value());
-    });
+    m_network->Start();
+    _ConnectToRegistery();
 }
 
 void RpcClient::Stop()
 {
-
+    m_network->Stop();
 }
 
 void RpcClient::Update()
@@ -111,8 +123,12 @@ void RpcClient::Update()
         if (is_expired<ms>(m_cache_last_update_time + ms(m_cache_update_interval)))
         {
             m_cache_last_update_time = now();
-            DoGetNodesInfoReq();
+            _DoGetNodesInfoReq();
         }
+    }
+    else
+    {
+        _ConnectToRegistery();
     }
 }
 
@@ -204,6 +220,11 @@ void RpcClient::NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType 
 
 }
 
+util::errcode::ErrOpt RpcClient::_ConnectToRegistery()
+{
+    return m_registery_client->AsyncConnect();
+}
+
 util::errcode::ErrOpt RpcClient::_SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
 {
 
@@ -255,7 +276,7 @@ util::errcode::ErrOpt RpcClient::_R_Dispatch(bbt::network::ConnId connid, const 
     return std::nullopt;
 }
 
-util::errcode::ErrOpt RpcClient::DoGetNodesInfoReq()
+util::errcode::ErrOpt RpcClient::_DoGetNodesInfoReq()
 {
     C2RProtocolHead* head = new C2RProtocolHead();
     C2R_GetNodesInfo_Req req;

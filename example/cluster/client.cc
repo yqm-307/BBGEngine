@@ -31,4 +31,15 @@ int main()
 {
     auto client = std::make_shared<CustomClient>();
 
+    client->Init({"127.0.0.1", 11021}, 3000);
+
+    client->Start();
+
+    while(1) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        client->Update();
+    }
+
+    client->Stop();
+
 };        

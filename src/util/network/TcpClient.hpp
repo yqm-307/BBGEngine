@@ -10,11 +10,15 @@ class TcpClient:
     public std::enable_shared_from_this<TcpClient>
 {
 public:
-    TcpClient(std::shared_ptr<bbt::network::base::NetworkBase> network, const char* ip, short port, int timeout);
+    TcpClient(std::shared_ptr<bbt::network::base::NetworkBase> network);
 
-    util::errcode::ErrOpt Init(ConnectionCreator creator);
+    util::errcode::ErrOpt Init(
+        const util::network::IPAddress& serv_addr,
+        ConnectionCreator creator,
+        int timeout,
+        const TcpClientOnConnectCallback& on_connect);
 
-    util::errcode::ErrOpt AsyncConnect(const TcpClientOnConnectCallback& on_connect);
+    util::errcode::ErrOpt AsyncConnect();
     std::shared_ptr<util::network::Connection> GetConn();
     bbt::network::ConnId GetConnId() const;
 
@@ -28,6 +32,7 @@ private:
     std::shared_ptr<util::network::Connection> m_conn{nullptr};
     int                                     m_connect_timeout{1000};
     TcpClientOnConnectCallback              m_on_connect{nullptr};
+    std::atomic_bool                        m_is_connecting{false};
     ConnectionCreator                       m_conn_creator{nullptr};
     std::mutex                              m_conn_lock;
 };

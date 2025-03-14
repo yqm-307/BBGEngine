@@ -87,6 +87,49 @@ void RpcServer::Init(const util::network::IPAddress& listen_addr, const util::ne
     m_registery_addr = registery_addr;
     m_connect_timeout = timeout;
     m_uuid = std::make_shared<util::other::Uuid>();
+
+    if (auto err = InitNetwork(); err.has_value()) {
+        OnError(err.value());
+        return;
+    }
+
+    m_registery_client = std::make_shared<util::network::TcpClient>(m_network);
+    m_tcp_server = std::make_shared<util::network::TcpServer>(m_network, m_listen_addr.GetIP(), m_listen_addr.GetPort(), m_connect_timeout);
+
+    m_registery_client->Init(
+        m_registery_addr,
+        [weak_this{weak_from_this()}]
+        (auto conn)-> std::shared_ptr<RpcConnection<RpcServer>> {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
+            return std::make_shared<RpcConnection<RpcServer>>(
+                RPC_CONN_TYPE_RN, weak_this,
+                std::static_pointer_cast<bbt::network::libevent::Connection>(conn),
+                shared_this->m_connect_timeout);
+        }
+        return nullptr;
+        },
+        BBGENGINE_CONNECT_TIMEOUT,
+        [weak_this{weak_from_this()}]
+        (util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
+            if (weak_this.expired())
+                return;
+
+            auto shared_this = weak_this.lock();
+            if (err.has_value()) {
+                shared_this->OnError(err.value());
+                return;
+            }
+
+            shared_this->N2R_DoHandshakeReq();
+        });
+
+    m_tcp_server->Init([weak_ptr{weak_from_this()}](auto libevent_conn)->std::shared_ptr<util::network::Connection>{
+        auto node_shared_ptr = weak_ptr.lock();
+        if (node_shared_ptr == nullptr)
+            return nullptr;
+
+        return std::make_shared<RpcConnection<RpcServer>>(RPC_CONN_TYPE_RN, weak_ptr, libevent_conn, node_shared_ptr->m_connect_timeout);
+    });
 }
 
 util::other::Uuid::SPtr RpcServer::GetUUID() const
@@ -106,19 +149,6 @@ const std::string& RpcServer::GetName() const
 
 util::errcode::ErrOpt RpcServer::Start()
 {
-    if (auto err = InitNetwork(); err != std::nullopt)
-        return err;
-
-    m_registery_client = std::make_shared<util::network::TcpClient>(m_network, m_registery_addr.GetIP().c_str(), m_registery_addr.GetPort(), m_connect_timeout);
-    m_tcp_server = std::make_shared<util::network::TcpServer>(m_network, m_listen_addr.GetIP(), m_listen_addr.GetPort(), m_connect_timeout);
-    
-    m_tcp_server->Init([weak_ptr{weak_from_this()}](auto libevent_conn)->std::shared_ptr<util::network::Connection>{
-        auto node_shared_ptr = weak_ptr.lock();
-        if (node_shared_ptr == nullptr)
-            return nullptr;
-
-        return std::make_shared<RpcConnection<RpcServer>>(RPC_CONN_TYPE_RN, weak_ptr, libevent_conn, node_shared_ptr->m_connect_timeout);
-    });
     m_tcp_server->Start();
 
     return std::nullopt;
@@ -307,31 +337,7 @@ void RpcServer::_ConnectToRegistery()
     if (!(m_registery_client && m_registery_client->GetConn() == nullptr))
         return;
 
-
-    m_registery_client->Init([weak_this{weak_from_this()}](auto conn)-> std::shared_ptr<RpcConnection<RpcServer>> {
-        if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-            return std::make_shared<RpcConnection<RpcServer>>(
-                RPC_CONN_TYPE_RN, weak_this,
-                std::static_pointer_cast<bbt::network::libevent::Connection>(conn),
-                shared_this->m_connect_timeout);
-        }
-        return nullptr;
-    });
-
-    auto connect_to_registery_err = m_registery_client->AsyncConnect(
-    [weak_this{weak_from_this()}]
-    (util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
-        if (weak_this.expired())
-            return;
-
-        auto shared_this = weak_this.lock();
-        if (err.has_value()) {
-            shared_this->OnError(err.value());
-            return;
-        }
-
-        shared_this->N2R_DoHandshakeReq();
-    });
+    auto connect_to_registery_err = m_registery_client->AsyncConnect();
 
     if (connect_to_registery_err != std::nullopt)
         OnError(connect_to_registery_err.value());

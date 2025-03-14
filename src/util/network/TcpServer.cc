@@ -15,24 +15,16 @@ TcpServer::~TcpServer()
 {
 }
 
-util::errcode::ErrOpt TcpServer::SetListenAddr(const char* ip, short port)
+util::errcode::ErrOpt TcpServer::Init(ConnectionCreator creator)
 {
     Assert(m_network != nullptr);
     auto auto_init_io_thread_err = m_network->AutoInitThread(2);
     if (auto_init_io_thread_err.has_value())
         return auto_init_io_thread_err;
 
-    auto err = m_network->StartListen(ip, port, [this](auto err, auto conn){ OnAccept(err, conn); });
-    if (err.has_value())
-        return err;
-    
-    return std::nullopt;
-}
-
-void TcpServer::Init(ConnectionCreator creator)
-{
-    SetListenAddr(m_listen_addr.GetIP().c_str(), m_listen_addr.GetPort());
     m_conn_creator = creator;
+    auto err = m_network->StartListen(m_listen_addr.GetIP().c_str(), m_listen_addr.GetPort(), [this](auto err, auto conn){ OnAccept(err, conn); });
+    return err;
 }
 
 void TcpServer::Start()

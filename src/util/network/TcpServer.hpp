@@ -17,13 +17,12 @@ public:
     BBTATTR_FUNC_DeprecatedMsg("recv message use event callback")
     virtual size_t          Recv(bbt::network::ConnId conn, const char* recv_buf, size_t len);
     virtual void            ShowDown(bbt::network::ConnId conn);
-    virtual void            Init(ConnectionCreator creator);
+    util::errcode::ErrOpt   Init(ConnectionCreator creator);
     void                    Start();
     void                    Stop();
     bool                    DelConnect(bbt::network::ConnId conn);
     std::shared_ptr<Connection> GetConnectById(bbt::network::ConnId conn_id);
     const util::network::IPAddress&  GetListenAddr() const;
-    std::optional<util::errcode::Errcode> SetListenAddr(const char* ip, short port);
     
 protected:
     /**

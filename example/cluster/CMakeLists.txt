@@ -41,7 +41,7 @@ target_link_libraries(cluster_node PRIVATE
 )
 
 add_executable(rpc_client
-    ${PROJECT_SOURCE_DIR}/example/cluster/service.cc
+    ${PROJECT_SOURCE_DIR}/example/cluster/client.cc
 )
 
 target_link_libraries(rpc_client PRIVATE

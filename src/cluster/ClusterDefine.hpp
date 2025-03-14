@@ -11,7 +11,11 @@
 
 
 #define BBGENGINE_HEARTBEAT_TIMEOUT_MS 3000
+
+// 所有的连接默认超时时间都是这个
 #define BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT 10000
+
+#define BBGENGINE_CONNECT_TIMEOUT 1000
 
 namespace cluster
 {

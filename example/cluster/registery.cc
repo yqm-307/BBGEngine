@@ -33,7 +33,7 @@ int main()
 {
     auto registery_tcp = std::make_shared<CustomRegistery>();
 
-    registery_tcp->Init(bbt::core::net::IPAddress{"127.0.0.1", 10021}, bbt::core::net::IPAddress{"127.0.0.1", 10022}, 5000);
+    registery_tcp->Init({"", 11021}, {"", 11022}, 5000);
 
     registery_tcp->Start();
 

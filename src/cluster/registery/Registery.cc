@@ -63,12 +63,16 @@ void Registery::Init(
 
 void Registery::Start()
 {
+    m_network->Start();
     m_rs_server->Start();
+    m_rc_server->Start();
 }
 
 void Registery::Stop()
 {
     m_rs_server->Stop();
+    m_rc_server->Stop();
+    m_network->Stop();
 }
 
 void Registery::Update()
