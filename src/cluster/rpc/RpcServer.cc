@@ -266,6 +266,7 @@ util::errcode::ErrOpt RpcServer::_InitTcpServer()
 
 util::errcode::ErrOpt RpcServer::_InitRegisteryClient()
 {
+    m_registery_client->Init();
     m_registery_client->SetOnSend([weak_this{weak_from_this()}](bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len) {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr)
             shared_this->R2S_OnSend(id, err, len);
@@ -298,6 +299,8 @@ util::errcode::ErrOpt RpcServer::_InitRegisteryClient()
             shared_this->OnError(err);
     });
     m_registery_client->SetConnectionTimeout(BBGENGINE_CONNECT_TIMEOUT);
+
+    return std::nullopt;
 }
 
 void RpcServer::_DelayConnectToRegistery()

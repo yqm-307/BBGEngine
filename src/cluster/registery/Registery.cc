@@ -200,7 +200,42 @@ void Registery::_InitRCServer()
 
 void Registery::_InitRSServer()
 {
-
+    m_rs_server->Init();
+    m_rs_server->SetOnErr(
+        [weak_this{weak_from_this()}](const util::errcode::Errcode& err)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->OnError(err);
+        }
+    );
+    m_rs_server->SetOnTimeout(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RS_OnTimeout(connid);
+        }
+    );
+    m_rs_server->SetOnClose(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RS_OnClose(connid);
+        }
+    );
+    m_rs_server->SetOnRecv(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RS_OnRecv(connid, buffer);
+        }
+    );
+    m_rs_server->SetOnSend(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid, util::errcode::ErrOpt err, size_t len)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RS_OnSend(connid, err, len);
+        }
+    );
 }
 
 bool Registery::IsHalfConn(bbt::network::ConnId connid)
@@ -300,7 +335,7 @@ void Registery::RS_OnTimeout(ConnId id)
     OnInfo(BBGENGINE_MODULE_NAME " node timeout! conn=" + std::to_string(id));
 }
 
-void Registery::RS_OnRecv(ConnId id, bbt::core::Buffer& buffer)
+void Registery::RS_OnRecv(ConnId id, const bbt::core::Buffer& buffer)
 {
     if (buffer.Size() < sizeof(ProtocolHead)) {
         OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
@@ -313,7 +348,7 @@ void Registery::RS_OnRecv(ConnId id, bbt::core::Buffer& buffer)
         return;
     }
 
-    if (auto err = S2RDispatch(id, (emN2RProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt)
+    if (auto err = S2RDispatch(id, (emN2RProtocolType)head->protocol_type, (void*)buffer.Peek(), head->protocol_length); err != std::nullopt)
         OnError(err.value());
 }
 

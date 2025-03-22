@@ -54,7 +54,7 @@ public:
     void                            RS_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
     void                            RS_OnClose(bbt::network::ConnId id);
     void                            RS_OnTimeout(bbt::network::ConnId id);
-    void                            RS_OnRecv(bbt::network::ConnId id, bbt::core::Buffer& buffer);
+    void                            RS_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
 private:
     void                            _InitRCServer();
     void                            _InitRSServer();

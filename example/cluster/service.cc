@@ -45,11 +45,14 @@ int main()
         return -1;
     }
 
-    while(1)
-    {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    auto event = evthread->RegisterEvent(0, bbt::pollevent::EventOpt::PERSIST,
+    [node](int fd, short events, bbt::pollevent::EventId eventid) {
         node->Update();
-    }
+    });
 
-    node->Stop();
+    event->StartListen(1000);
+
+    evthread->Start();
+
+    evthread->Join();
 }

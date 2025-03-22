@@ -46,13 +46,13 @@
             "name": "==== exec ====",
         },
         {
-            "name": "nodeserver",
+            "name": "rpc_server",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/example/bin/nodeserver",
+            "program": "${workspaceFolder}/build/bin/example/rpc_server",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/example/bin/",
+            "cwd": "${workspaceFolder}/build/bin/example/",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -70,37 +70,13 @@
             ]
         },
         {
-            "name": "cluster_registery",
+            "name": "registery",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/example/bin/cluster_registery",
+            "program": "${workspaceFolder}/build/bin/example/registery",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/example/bin/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "cluster_node",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/example/bin/cluster_node",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/example/bin/",
+            "cwd": "${workspaceFolder}/build/bin/example",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -121,10 +97,10 @@
             "name": "rpc_client",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/example/bin/rpc_client",
+            "program": "${workspaceFolder}/build/bin/example/rpc_client",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/example/bin/",
+            "cwd": "${workspaceFolder}/build/bin/example",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
