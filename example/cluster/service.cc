@@ -1,10 +1,15 @@
 #include <cluster/rpc/RpcServer.hpp>
+#include <bbt/network/EvThread.hpp>
+#include <bbt/pollevent/Event.hpp>
 #include <bbt/core/log/Logger.hpp>
 
 class CustomService : public cluster::RpcServer
 {
 public:
-    CustomService() = default;
+    CustomService(std::shared_ptr<bbt::network::EvThread> evthread):
+        cluster::RpcServer(evthread)
+    {
+    };
     virtual ~CustomService() = default;
 
     virtual void OnError(const util::errcode::Errcode& err) override
@@ -30,7 +35,8 @@ public:
 
 int main()
 {
-    auto node = std::make_shared<CustomService>();
+    auto evthread = std::make_shared<bbt::network::EvThread>(std::make_shared<bbt::pollevent::EventLoop>());
+    auto node = std::make_shared<CustomService>(evthread);
 
     node->Init({"127.0.0.1", 10021}, {"127.0.0.1", 11021}, 5000);
     auto err = node->Start();

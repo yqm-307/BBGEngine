@@ -355,6 +355,31 @@ void RpcServer::R2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buf
 }
 
 
+void RpcServer::C2S_OnAccept(bbt::network::ConnId id)
+{
+    OnInfo(BBGENGINE_MODULE_NAME " [C2S_OnAccept] conn=" + std::to_string(id));
+}
+
+void RpcServer::C2S_OnClose(bbt::network::ConnId id)
+{
+    OnInfo(BBGENGINE_MODULE_NAME " [C2S_OnClose] conn=" + std::to_string(id));
+}
+
+void RpcServer::C2S_OnTimeout(bbt::network::ConnId id)
+{
+    OnInfo(BBGENGINE_MODULE_NAME " [C2S_OnTimeout] conn=" + std::to_string(id));
+}
+
+void RpcServer::C2S_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len)
+{
+    if (err.has_value())
+        OnError(err.value());
+}
+
+void RpcServer::C2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer)
+{
+}
+
 
 #pragma endregion
 
@@ -451,10 +476,6 @@ util::errcode::ErrOpt RpcServer::SendToRegistery(emN2RProtocolType type, const b
     if (m_registery_client == nullptr)
         return util::errcode::Errcode{"registery client is null!", util::errcode::CommonErr};
     
-    auto conn = m_registery_client->GetConn();
-    if (conn == nullptr)
-        return util::errcode::Errcode{"registery connection is null!", util::errcode::CommonErr};
-    
     
     buffer.WriteNull(sizeof(ProtocolHead));
     head = (ProtocolHead*)buffer.Peek();
@@ -463,7 +484,12 @@ util::errcode::ErrOpt RpcServer::SendToRegistery(emN2RProtocolType type, const b
 
     buffer.WriteString(proto.Peek(), proto.Size());
 
-    conn->Send(buffer.Peek(), buffer.Size());
+    if (auto err = m_registery_client->Send(buffer); err.has_value())
+    {
+        OnError(err.value());
+        return err;
+    }
+
     OnDebug(BBGENGINE_MODULE_NAME " [SendToReg] protocol=" + std::to_string(type));
     return std::nullopt;
 }
@@ -478,11 +504,13 @@ util::errcode::ErrOpt RpcServer::SendToNode(bbt::network::ConnId id, bbt::core::
     if (client == nullptr)
         return util::errcode::Errcode{"[ClusterNode] node connection is null!", util::errcode::CommonErr};
 
-    auto conn = client->second->GetConn();
-    if (conn == nullptr)
-        return util::errcode::Errcode{"[ClusterNode] node connection is null!", util::errcode::CommonErr};
 
-    conn->Send(buffer.Peek(), buffer.Size());
+    if (auto err = client->second->Send(buffer); err.has_value())
+    {
+        OnError(err.value());
+        return err;
+    }
+
     return std::nullopt;
 }
 

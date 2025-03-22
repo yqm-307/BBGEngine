@@ -1,10 +1,14 @@
 #include <cluster/rpc/RpcClient.hpp>
+#include <bbt/network/EvThread.hpp>
 #include <bbt/core/log/Logger.hpp>
 
 class CustomClient : public cluster::RpcClient
 {
 public:
-    CustomClient() = default;
+    CustomClient(std::shared_ptr<bbt::network::EvThread> evthread):
+        cluster::RpcClient(evthread)
+    {
+    };
     virtual ~CustomClient() = default;
 
     virtual void OnError(const util::errcode::Errcode& err) override
@@ -29,7 +33,8 @@ public:
 
 int main()
 {
-    auto client = std::make_shared<CustomClient>();
+    auto evthread = std::make_shared<bbt::network::EvThread>(std::make_shared<bbt::pollevent::EventLoop>());
+    auto client = std::make_shared<CustomClient>(evthread);
 
     client->Init({"127.0.0.1", 11021}, 3000);
 

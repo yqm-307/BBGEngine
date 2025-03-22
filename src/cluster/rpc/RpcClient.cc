@@ -256,6 +256,37 @@ util::errcode::ErrOpt RpcClient::_SendToRegistery(emC2RProtocolType type, const 
 
 #pragma endregion
 
+#pragma region 网络事件
+
+void RpcClient::R2C_OnConnect(bbt::network::ConnId id)
+{
+    OnInfo(BBGENGINE_MODULE_NAME " [R2C_OnConnect] conn=" + std::to_string(id));
+}
+
+void RpcClient::R2C_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len)
+{
+    if (err.has_value())
+        OnError(err.value());
+}
+
+void RpcClient::R2C_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer)
+{
+    if (auto err = _R_Dispatch(id, buffer.Peek(), buffer.Size()); err.has_value())
+        OnError(err.value());
+}
+
+void RpcClient::R2C_OnClose(bbt::network::ConnId id)
+{
+    OnInfo(BBGENGINE_MODULE_NAME " [R2C_OnClose] conn=" + std::to_string(id));
+}
+
+void RpcClient::R2C_OnTimeout(bbt::network::ConnId id)
+{
+    OnInfo(BBGENGINE_MODULE_NAME " [R2C_OnTimeout] conn=" + std::to_string(id));
+}
+
+#pragma endregion
+
 #pragma region 协议处理
 
 util::errcode::ErrOpt RpcClient::_R_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len)

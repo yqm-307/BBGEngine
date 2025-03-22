@@ -1,5 +1,7 @@
 #include <cluster/registery/Registery.hpp>
 #include <bbt/core/log/Logger.hpp>
+#include <bbt/network/EvThread.hpp>
+#include <bbt/pollevent/Event.hpp>
 
 
 class CustomRegistery : public cluster::Registery
@@ -31,19 +33,26 @@ public:
 
 int main()
 {
+    auto evthread = std::make_shared<bbt::network::EvThread>(std::make_shared<bbt::pollevent::EventLoop>());
     auto registery_tcp = std::make_shared<CustomRegistery>();
 
-    registery_tcp->Init({"", 11021}, {"", 11022}, 5000);
+    registery_tcp->Init(
+        {"", 11021},
+        {"", 11022},
+        std::make_shared<bbt::network::TcpServer>(evthread),
+        std::make_shared<bbt::network::TcpServer>(evthread),
+        5000);
 
     registery_tcp->Start();
-
-    while(1)
-    {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    auto event = evthread->RegisterEvent(0, bbt::pollevent::EventOpt::PERSIST, 
+    [registery_tcp](int fd, short events, bbt::pollevent::EventId eventid) {
         registery_tcp->Update();
-    }
+    });
 
-    registery_tcp->Stop();
+    event->StartListen(1000);
+
+    evthread->Start();
+    evthread->Join();
 
     return 0;
 }

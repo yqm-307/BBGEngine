@@ -53,11 +53,6 @@ public:
 
     virtual void                        OnCloseNode(bbt::network::ConnId id, const bbt::network::IPAddress& addr) {}
 
-    // 监听连接事件
-    void                                SubmitReq2Listener(bbt::network::ConnId id, bbt::core::Buffer& buffer);        // 从连接中获取请求，提交给监听者处理
-    void                                NotifySend2Listener(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
-    void                                NotityOnClose2Listener(bbt::network::ConnId id); // 通知监听者连接关闭
-    void                                NotityOnTimeout2Listener(bbt::network::ConnId id); // 通知监听者连接超时
 private:
     // util::errcode::ErrOpt               InitNetwork();
     util::errcode::ErrOpt               _InitRegisteryClient();
