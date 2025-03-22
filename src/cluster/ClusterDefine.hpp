@@ -22,6 +22,7 @@ namespace cluster
 
 class NodeMgr;
 
+using namespace bbt::core::net;
 
 enum NodeState
 {

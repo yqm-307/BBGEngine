@@ -81,7 +81,7 @@ bool RpcServer::HasMethod(const std::string& method) const
 }
 
 
-void RpcServer::Init(const util::network::IPAddress& listen_addr, const util::network::IPAddress& registery_addr, int timeout)
+void RpcServer::Init(const bbt::network::IPAddress& listen_addr, const bbt::network::IPAddress& registery_addr, int timeout)
 {
     m_listen_addr = listen_addr;
     m_registery_addr = registery_addr;
@@ -93,8 +93,8 @@ void RpcServer::Init(const util::network::IPAddress& listen_addr, const util::ne
         return;
     }
 
-    m_registery_client = std::make_shared<util::network::TcpClient>(m_network);
-    m_tcp_server = std::make_shared<util::network::TcpServer>(m_network, m_listen_addr.GetIP(), m_listen_addr.GetPort(), m_connect_timeout);
+    m_registery_client = std::make_shared<bbt::network::TcpClient>(m_network);
+    m_tcp_server = std::make_shared<bbt::network::TcpServer>(m_network, m_listen_addr.GetIP(), m_listen_addr.GetPort(), m_connect_timeout);
 
     m_registery_client->Init(
         m_registery_addr,
@@ -110,7 +110,7 @@ void RpcServer::Init(const util::network::IPAddress& listen_addr, const util::ne
         },
         BBGENGINE_CONNECT_TIMEOUT,
         [weak_this{weak_from_this()}]
-        (util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
+        (util::errcode::ErrOpt err, std::shared_ptr<bbt::network::TcpClient> client){
             if (weak_this.expired())
                 return;
 
@@ -123,7 +123,7 @@ void RpcServer::Init(const util::network::IPAddress& listen_addr, const util::ne
             shared_this->N2R_DoHandshakeReq();
         });
 
-    m_tcp_server->Init([weak_ptr{weak_from_this()}](auto libevent_conn)->std::shared_ptr<util::network::Connection>{
+    m_tcp_server->Init([weak_ptr{weak_from_this()}](auto libevent_conn)->std::shared_ptr<bbt::network::Connection>{
         auto node_shared_ptr = weak_ptr.lock();
         if (node_shared_ptr == nullptr)
             return nullptr;
@@ -250,7 +250,7 @@ void RpcServer::NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType ty
     switch (type)
     {
     case RPC_CONN_TYPE_RN:
-        OnCloseFromRegistery(id, util::network::IPAddress{});
+        OnCloseFromRegistery(id, bbt::network::IPAddress{});
         break;
     
     default:
@@ -307,7 +307,7 @@ void RpcServer::OnTimeoutFromRegistey(bbt::network::ConnId id)
     OnInfo(BBGENGINE_MODULE_NAME "timeout! conn=" + std::to_string(id));
 }
 
-void RpcServer::OnCloseFromRegistery(bbt::network::ConnId id, const util::network::IPAddress& addr)
+void RpcServer::OnCloseFromRegistery(bbt::network::ConnId id, const bbt::network::IPAddress& addr)
 {
     OnInfo("[ClusterNode] lose connect! conn=" + std::to_string(id));
     m_registery_connected = false;

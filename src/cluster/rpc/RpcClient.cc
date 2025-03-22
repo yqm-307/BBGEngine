@@ -77,18 +77,18 @@ RpcClient::RpcClient():
 {
 }
 
-util::errcode::ErrOpt RpcClient::Init(const util::network::IPAddress& registery_addr, int timeout_ms)
+util::errcode::ErrOpt RpcClient::Init(const bbt::network::IPAddress& registery_addr, int timeout_ms)
 {
     if (auto err =  std::static_pointer_cast<bbt::network::libevent::Network>(m_network)->AutoInitThread(2); err.has_value())
         return err;
 
     m_registery_addr = registery_addr;
-    m_registery_client = std::make_shared<util::network::TcpClient>(m_network);
+    m_registery_client = std::make_shared<bbt::network::TcpClient>(m_network);
 
     auto err = m_registery_client->Init(
         m_registery_addr,
         [weak_this{weak_from_this()}]
-        (bbt::network::libevent::ConnectionSPtr conn) -> std::shared_ptr<util::network::Connection> {
+        (bbt::network::libevent::ConnectionSPtr conn) -> std::shared_ptr<bbt::network::Connection> {
             if (auto shared_this = weak_this.lock(); shared_this != nullptr)
                 return std::make_shared<RpcConnection<RpcClient>>(RPC_CONN_TYPE_CR, shared_this, conn, BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT);
 
@@ -96,7 +96,7 @@ util::errcode::ErrOpt RpcClient::Init(const util::network::IPAddress& registery_
         },
         BBGENGINE_CONNECT_TIMEOUT,
         [weak_this{weak_from_this()}]
-        (util::errcode::ErrOpt err, std::shared_ptr<util::network::TcpClient> client){
+        (util::errcode::ErrOpt err, std::shared_ptr<bbt::network::TcpClient> client){
             if (auto shared_this = weak_this.lock(); shared_this != nullptr && err.has_value())
                 shared_this->OnError(err.value());
         });
@@ -169,7 +169,7 @@ void RpcClient::OnReply(const char* data, size_t size)
 
 #pragma region 连接管理
 
-std::shared_ptr<util::network::Connection> RpcClient::GetServiceConn(const std::string& method)
+std::shared_ptr<bbt::network::Connection> RpcClient::GetServiceConn(const std::string& method)
 {
     std::lock_guard<std::mutex> lock{m_net_mtx};
 

@@ -1,5 +1,4 @@
 #include <cluster/registery/Registery.hpp>
-#include <cluster/connection/RpcConnection.hpp>
 #include <cluster/registery/NodeMgr.hpp>
 
 #define BBGENGINE_MODULE_NAME "[BBG::Registery]"
@@ -14,6 +13,7 @@
         return Handler(id, head, static_cast<TClass*>(resp));
 
 using namespace cluster::protocol;
+using namespace bbt::network;
 
 namespace cluster
 {
@@ -28,51 +28,44 @@ Registery::~Registery()
 };
 
 void Registery::Init(
-    const util::network::IPAddress& rs_listen,
-    const util::network::IPAddress& rc_listen,
+    const IPAddress& rs_listen,
+    const IPAddress& rc_listen,
+    std::shared_ptr<TcpServer> rs_server,
+    std::shared_ptr<TcpServer> rc_server,
     int timeout_ms)
 {
-    m_network = std::make_shared<bbt::network::libevent::Network>();
-    m_rs_server = std::make_shared<util::network::TcpServer>(m_network, rs_listen.GetIP(), rs_listen.GetPort(), timeout_ms);
-    m_rc_server = std::make_shared<util::network::TcpServer>(m_network, rc_listen.GetIP(), rc_listen.GetPort(), timeout_ms);
+    Assert(rs_server != nullptr);
+    Assert(rc_server != nullptr);
 
-    m_rs_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
-    {
-        if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-            auto r2s_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_RN, weak_this, conn, timeout_ms);
-            r2s_conn->Init();
-            shared_this->NotifyOnAccept(r2s_conn->GetConnId());
-            return r2s_conn;
-        }
+    m_rs_listen_addr = rs_listen;
+    m_rc_listen_addr = rc_listen;
 
-        return nullptr;
-    });
+    m_rc_server = rc_server;
+    m_rs_server = rs_server;
 
-    m_rc_server->Init([weak_this{weak_from_this()}, timeout_ms](auto conn)->std::shared_ptr<util::network::Connection>
-    {
-        if (auto shared_this = weak_this.lock(); shared_this != nullptr) {
-            auto r2c_conn = std::make_shared<RpcConnection<Registery>>(RPC_CONN_TYPE_CR, weak_this, conn, timeout_ms);
-            r2c_conn->Init();
-            shared_this->NotifyOnAccept(r2c_conn->GetConnId());
-            return r2c_conn;
-        }
-
-        return nullptr;
-    });
+    _InitRCServer();
+    _InitRSServer();
 }
 
 void Registery::Start()
 {
-    m_network->Start();
-    m_rs_server->Start();
-    m_rc_server->Start();
+    m_rs_server->AsyncListen(m_rs_listen_addr, [weak_this{weak_from_this()}](bbt::network::ConnId connid)
+    {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->NotifyOnAccept(connid);
+    });
+
+    m_rc_server->AsyncListen(m_rc_listen_addr, [weak_this{weak_from_this()}](bbt::network::ConnId connid)
+    {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->NotifyOnAccept(connid);
+    });
 }
 
 void Registery::Stop()
 {
-    m_rs_server->Stop();
-    m_rc_server->Stop();
-    m_network->Stop();
+    m_rs_server->StopListen();
+    m_rc_server->StopListen();
 }
 
 void Registery::Update()
@@ -88,7 +81,7 @@ NodeRegInfo::SPtr Registery::GetNodeRegInfo(const util::other::Uuid& uuid)
 
 void Registery::CloseConn(bbt::network::ConnId connid)
 {
-    m_rs_server->ShowDown(connid);
+    m_rs_server->Close(connid);
 }
 
 NodeState Registery::GetNodeStatus(const util::other::Uuid& uuid) const
@@ -98,7 +91,7 @@ NodeState Registery::GetNodeStatus(const util::other::Uuid& uuid) const
 
 #pragma region 节点管理
 
-void Registery::RegisterNode(const util::network::IPAddress& addr, const util::other::Uuid& uuid)
+void Registery::RegisterNode(const bbt::network::IPAddress& addr, const util::other::Uuid& uuid)
 {
     auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
@@ -126,10 +119,10 @@ util::errcode::ErrOpt Registery::SendToNode(emR2NProtocolType type, const util::
     auto node_info = GetNodeRegInfo(uuid);
     if (node_info == nullptr)
         return util::errcode::Errcode(BBGENGINE_MODULE_NAME " node not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
-    
-    auto conn = m_rs_server->GetConnectById(node_info->GetConnId());
-    if (conn == nullptr)
-        return util::errcode::Errcode("conn is losed!", util::errcode::emErr::CommonErr);
+
+    auto connid = GetConnIdByUuid(uuid);
+    if (connid == 0)
+        return util::errcode::Errcode(BBGENGINE_MODULE_NAME " connid not found! uuid=" + uuid.ToString(), util::errcode::emErr::RPC_NOT_FOUND_NODE);
 
     buffer.WriteNull(sizeof(ProtocolHead));
     head = (ProtocolHead*)buffer.Peek();
@@ -138,7 +131,9 @@ util::errcode::ErrOpt Registery::SendToNode(emR2NProtocolType type, const util::
 
     buffer.WriteString(proto.Peek(), proto.Size());
 
-    conn->Send(buffer.Peek(), buffer.Size());
+    if (auto err = m_rs_server->Send(connid, buffer); err != std::nullopt)
+        return err;
+
     OnDebug(BBGENGINE_MODULE_NAME "[SendToNode] protocol=" + std::to_string(type));
     return std::nullopt;
 }
@@ -159,6 +154,53 @@ void Registery::NotifyOnAccept(bbt::network::ConnId connid)
 {
     AddHalfConn(connid);
     OnInfo(BBGENGINE_MODULE_NAME " accept connection! conn=" + std::to_string(connid));
+}
+
+void Registery::_InitRCServer()
+{
+    m_rc_server->Init();
+    m_rc_server->SetOnErr(
+        [weak_this{weak_from_this()}](const util::errcode::Errcode& err)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->OnError(err);
+        }
+    );
+    m_rc_server->SetOnTimeout(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RC_OnTimeout(connid);
+        }
+    );
+    m_rc_server->SetOnClose(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RC_OnClose(connid);
+        }
+    );
+    m_rc_server->SetOnRecv(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RC_OnRecv(connid, buffer);
+        }
+    );
+    m_rc_server->SetOnSend(
+        [weak_this{weak_from_this()}](bbt::network::ConnId connid, util::errcode::ErrOpt err, size_t len)
+        {
+            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+                shared_this->RC_OnSend(connid, err, len);
+        }
+    );
+
+
+}
+
+void Registery::_InitRSServer()
+{
+
 }
 
 bool Registery::IsHalfConn(bbt::network::ConnId connid)
@@ -220,6 +262,40 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
     if (auto err = N2RDispatch(connid, (emN2RProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt)
         OnError(err.value());
 }
+
+#pragma region RpcClient 网络事件
+
+void Registery::RC_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len)
+{}
+
+void Registery::RC_OnClose(bbt::network::ConnId id)
+{}
+
+void Registery::RC_OnTimeout(bbt::network::ConnId id)
+{}
+
+void Registery::RC_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer)
+{}
+
+
+#pragma endregion
+
+#pragma region RpcServer 网络事件
+
+void Registery::RS_OnSend(ConnId id)
+{}
+
+void Registery::RS_OnClose(ConnId id)
+{}
+
+void Registery::RS_OnTimeout(ConnId id)
+{}
+
+void Registery::RS_OnRecv(ConnId id, bbt::core::Buffer& buffer)
+{}
+
+
+#pragma endregion
 
 #pragma region 连接管理
 
@@ -343,7 +419,7 @@ util::errcode::ErrOpt Registery::OnHandshake(bbt::network::ConnId id, ProtocolHe
     if (GetNodeStatus(uuid) == NodeState::NODESTATE_ONLINE)
         return SendToNode(R2N_HANDSHAKE_RESP, uuid, bbt::core::Buffer{resp.SerializeAsString().c_str(), resp.ByteSizeLong()});
     
-    info->Init(uuid, util::network::IPAddress{req->ip(), req->port()});
+    info->Init(uuid, bbt::network::IPAddress{req->ip(), req->port()});
     info->SetConnId(id);
     info->SetStatus(NodeState::NODESTATE_ONLINE);
     DelHalfConn(id);

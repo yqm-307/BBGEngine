@@ -30,7 +30,7 @@ void NodeRegInfo::Clear()
     m_uuid.Clear();
 }
 
-void NodeRegInfo::Init(const util::other::Uuid& uuid, const util::network::IPAddress& addr)
+void NodeRegInfo::Init(const util::other::Uuid& uuid, const bbt::network::IPAddress& addr)
 {
     m_uuid = uuid;
     m_node_addr = addr;
@@ -110,7 +110,7 @@ void NodeRegInfo::SetConnId(bbt::network::ConnId connid)
     m_connid = connid;
 }
 
-const util::network::IPAddress& NodeRegInfo::GetNodeAddr() const
+const bbt::network::IPAddress& NodeRegInfo::GetNodeAddr() const
 {
     return m_node_addr;
 }

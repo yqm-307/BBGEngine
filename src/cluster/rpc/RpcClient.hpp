@@ -1,7 +1,6 @@
 #pragma once
 #include <atomic>
-#include <util/network/TcpClient.hpp>
-#include <cluster/connection/RpcConnection.hpp>
+#include <bbt/network/TcpClient.hpp>
 #include <cluster/protocol/Protocol.hpp>
 #include <cluster/rpc/Define.hpp>
 #include <cluster/rpc/RpcSerializer.hpp>
@@ -30,7 +29,7 @@ struct ServerMgr
                                         m_rpc_client_connid_uuids; // 连接id到uuid的映射
     std::unordered_map<
         util::other::Uuid,
-        std::shared_ptr<util::network::TcpClient>,
+        std::shared_ptr<bbt::network::TcpClient>,
         util::other::Uuid::Hash>        m_rpc_clients;  // 与其他节点的连接
 };
 
@@ -42,15 +41,15 @@ public:
     RpcClient();
     virtual ~RpcClient();
 
-    util::errcode::ErrOpt       Init(const util::network::IPAddress& registery_addr, int timeout_ms);
+    util::errcode::ErrOpt       Init(const bbt::core::net::IPAddress& registery_addr, int timeout_ms);
 
     void                        Start();
     void                        Stop();
     void                        Update();
 
-    // const util::network::IPAddress& GetServiceAddr(const std::string& method);  // 获取服务地址
+    // const bbt::network::IPAddress& GetServiceAddr(const std::string& method);  // 获取服务地址
     // util::other::Uuid           GetServiceUuid(const std::string& method);       // 获取服务uuid
-    std::shared_ptr<util::network::Connection> GetServiceConn(const std::string& method); // 获取服务连接
+    // std::shared_ptr<bbt::network::Connection> GetServiceConn(const std::string& method); // 获取服务连接
 
     virtual void                OnReply(const char* data, size_t size) final;
 
@@ -58,10 +57,10 @@ public:
     virtual void                OnInfo(const std::string& info) = 0;
     virtual void                OnDebug(const std::string& info) = 0;
 
-    void                        SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer);        // 从连接中获取请求，提交给监听者处理
-    void                        NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
-    void                        NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接关闭
-    void                        NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接超时
+    void                        SubmitReq2Listener(bbt::network::ConnId id, bbt::core::Buffer& buffer);        // 从连接中获取请求，提交给监听者处理
+    void                        NotifySend2Listener(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
+    void                        NotityOnClose2Listener(bbt::network::ConnId id); // 通知监听者连接关闭
+    void                        NotityOnTimeout2Listener(bbt::network::ConnId id); // 通知监听者连接超时
 private:
     util::errcode::ErrOpt       _ConnectToRegistery();
     util::errcode::ErrOpt       _SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer);
@@ -76,8 +75,8 @@ private:
     util::errcode::ErrOpt       DoRemoteCall(RpcReplyCallback callback, const std::string& method, Args... args);
 
 private:
-    std::shared_ptr<bbt::network::base::NetworkBase>    m_network{nullptr};
-    util::network::IPAddress                            m_registery_addr;
+    std::shared_ptr<bbt::network::EvThread> m_ev_thread{nullptr};
+    bbt::network::IPAddress                            m_registery_addr;
 
     // rpc call
     RpcSerializer                                       m_serializer;
@@ -88,7 +87,7 @@ private:
     // node info cache
     ServerMgr                                           m_server_mgr;
     NodeCache                                           m_node_cache;
-    std::shared_ptr<util::network::TcpClient>           m_registery_client{nullptr};
+    std::shared_ptr<bbt::network::TcpClient>           m_registery_client{nullptr};
     bbt::core::clock::Timestamp<>                       m_cache_last_update_time{bbt::core::clock::now()};
     const int                                           m_cache_update_interval{1000};  // 1s 更新一次
     std::mutex                                          m_net_mtx;

@@ -1,8 +1,6 @@
 #pragma once
-#include <util/network/TcpServer.hpp>
+#include <bbt/network/TcpServer.hpp>
 #include <cluster/rpc/Define.hpp>
-#include <cluster/connection/RpcConnection.hpp>
-#include <cluster/connection/ConnectionDef.hpp>
 
 namespace cluster
 {
@@ -13,7 +11,7 @@ struct ClientMgr
                                         m_rpc_client_connid_uuids; // 连接id到uuid的映射
     std::unordered_map<
         util::other::Uuid,
-        std::shared_ptr<util::network::TcpClient>,
+        std::shared_ptr<bbt::network::TcpClient>,
         util::other::Uuid::Hash>        m_rpc_clients;  // 与其他节点的连接
 };
 
@@ -30,7 +28,7 @@ public:
     std::vector<std::string>            GetRegistedMethods() const;
     bool                                HasMethod(const std::string& method) const;
 
-    void                                Init(const util::network::IPAddress& listen_addr, const util::network::IPAddress& registery_addr, int timeout);
+    void                                Init(const IPAddress& listen_addr, const IPAddress& registery_addr, int timeout);
     util::errcode::ErrOpt               Start();
     void                                Stop();
     virtual void                        Update();
@@ -53,13 +51,13 @@ public:
     virtual void                        OnInfo(const std::string& info) = 0;
     virtual void                        OnDebug(const std::string& info) = 0;
 
-    virtual void                        OnCloseNode(bbt::network::ConnId id, const util::network::IPAddress& addr) {}
+    virtual void                        OnCloseNode(bbt::network::ConnId id, const bbt::network::IPAddress& addr) {}
 
     // 监听连接事件
-    void                                SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer);        // 从连接中获取请求，提交给监听者处理
-    void                                NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
-    void                                NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接关闭
-    void                                NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type); // 通知监听者连接超时
+    void                                SubmitReq2Listener(bbt::network::ConnId id, bbt::core::Buffer& buffer);        // 从连接中获取请求，提交给监听者处理
+    void                                NotifySend2Listener(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len); // 通知监听者发送结果
+    void                                NotityOnClose2Listener(bbt::network::ConnId id); // 通知监听者连接关闭
+    void                                NotityOnTimeout2Listener(bbt::network::ConnId id); // 通知监听者连接超时
 private:
     util::errcode::ErrOpt               InitNetwork();
     void                                _DelayConnectToRegistery();
@@ -68,7 +66,7 @@ private:
 
     void                                RequestFromRegistery(bbt::core::Buffer& buffer);
     void                                OnTimeoutFromRegistey(bbt::network::ConnId id);
-    void                                OnCloseFromRegistery(bbt::network::ConnId id, const util::network::IPAddress& addr);
+    void                                OnCloseFromRegistery(bbt::network::ConnId id, const IPAddress& addr);
 
 
     std::shared_ptr<util::other::Uuid>  GetRandomUuidByMethod(const std::string& method);
@@ -91,16 +89,16 @@ private:
 private:
     std::unordered_map<std::string, RpcCallback> m_registed_methods;    // 注册的服务方法
     
-    std::shared_ptr<bbt::network::libevent::Network> m_network{nullptr};
+    std::shared_ptr<bbt::network::EvThread> m_ev_thread{nullptr};
     NodeState                           m_state{NODESTATE_UNREGISTER};
     std::string                         m_service_name{""};
     util::other::Uuid::SPtr             m_uuid{nullptr};
-    util::network::IPAddress            m_listen_addr;
-    util::network::IPAddress            m_registery_addr;
+    IPAddress                           m_listen_addr;
+    IPAddress                           m_registery_addr;
 
-    std::shared_ptr<util::network::TcpServer>
+    std::shared_ptr<bbt::network::TcpServer>
                                         m_tcp_server{nullptr};  // 节点网络服务
-    std::shared_ptr<util::network::TcpClient> m_registery_client{nullptr};    // 与注册中心的连接
+    std::shared_ptr<bbt::network::TcpClient> m_registery_client{nullptr};    // 与注册中心的连接
     bool                                m_registery_connected{false};   // 是否完成连接
 
     ClientMgr                           m_client_conn_mgr;
