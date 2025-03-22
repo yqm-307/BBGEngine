@@ -234,12 +234,6 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
 {
     ProtocolHead* head = nullptr;
 
-    auto conn = m_rs_server->GetConnectById(connid);
-    if (conn == nullptr) {
-        OnError(util::errcode::Errcode("connection not found!", util::errcode::emErr::RPC_NOT_FOUND_NODE));
-        return;
-    }
-
     {
         if (buffer.Size() < sizeof(ProtocolHead)) {
             OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
@@ -259,7 +253,7 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
         }
     }
 
-    if (auto err = N2RDispatch(connid, (emN2RProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt)
+    if (auto err = S2RDispatch(connid, (emN2RProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt)
         OnError(err.value());
 }
 
@@ -282,80 +276,54 @@ void Registery::RC_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buff
 
 #pragma region RpcServer 网络事件
 
-void Registery::RS_OnSend(ConnId id)
-{}
-
-void Registery::RS_OnClose(ConnId id)
-{}
-
-void Registery::RS_OnTimeout(ConnId id)
-{}
-
-void Registery::RS_OnRecv(ConnId id, bbt::core::Buffer& buffer)
-{}
-
-
-#pragma endregion
-
-#pragma region 连接管理
-
-void Registery::SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer)
+void Registery::RS_OnSend(ConnId id, util::errcode::ErrOpt err, size_t len)
 {
-    switch (type)
-    {
-    case RPC_CONN_TYPE_RN:
-        OnRequest(id, buffer);
-        break;
-    
-    default:
-        Assert(false);
-        break;
-    }
+    OnSendToNode(err, len);
 }
 
-void Registery::NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len)
+void Registery::RS_OnClose(ConnId connid)
 {
-    switch (type)
-    {
-    case RPC_CONN_TYPE_RN:
-        OnSendToNode(err, len);
-        break;
-    
-    default:
-        Assert(false);
-        break;
-    }
-}
-
-void Registery::NotityOnClose2Listener(bbt::network::ConnId connid, emRpcConnType type)
-{
-    Assert(type == RPC_CONN_TYPE_RN);
-
     util::other::Uuid uuid;
     DelHalfConn(connid);
-    m_rs_server->DelConnect(connid);
     
     auto node_info = m_node_mgr->GetNodeInfo(connid);
     if (node_info != nullptr) {
         m_node_mgr->NodeOffline(connid);
         uuid = node_info->GetUuid();
     }
-    
+
     OnInfo(BBGENGINE_MODULE_NAME " lose connection! uuid=" + uuid.ToString());
-
 }
 
-void Registery::NotityOnTimeout2Listener(bbt::network::ConnId connid, emRpcConnType type)
+void Registery::RS_OnTimeout(ConnId id)
 {
-    Assert(RPC_CONN_TYPE_RN == type);
-    OnInfo(BBGENGINE_MODULE_NAME " node timeout! conn=" + std::to_string(connid));
+    OnInfo(BBGENGINE_MODULE_NAME " node timeout! conn=" + std::to_string(id));
 }
+
+void Registery::RS_OnRecv(ConnId id, bbt::core::Buffer& buffer)
+{
+    if (buffer.Size() < sizeof(ProtocolHead)) {
+        OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
+        return;
+    }
+
+    ProtocolHead* head = (ProtocolHead*)buffer.Peek();
+    if (buffer.Size() < head->protocol_length) {
+        OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
+        return;
+    }
+
+    if (auto err = S2RDispatch(id, (emN2RProtocolType)head->protocol_type, buffer.Peek(), head->protocol_length); err != std::nullopt)
+        OnError(err.value());
+}
+
 
 #pragma endregion
 
+
 #pragma region 协议处理
 
-util::errcode::ErrOpt Registery::N2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
+util::errcode::ErrOpt Registery::S2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
 {
     google::protobuf::Message*  resp = nullptr;
     ProtocolHead*               head = (ProtocolHead*)proto;

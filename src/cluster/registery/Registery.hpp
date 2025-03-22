@@ -51,7 +51,7 @@ public:
     void                            NotifyOnAccept(bbt::network::ConnId connid);
 
     // RpcServer 网络事件
-    void                            RS_OnSend(bbt::network::ConnId id);
+    void                            RS_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
     void                            RS_OnClose(bbt::network::ConnId id);
     void                            RS_OnTimeout(bbt::network::ConnId id);
     void                            RS_OnRecv(bbt::network::ConnId id, bbt::core::Buffer& buffer);
@@ -65,7 +65,7 @@ private:
 
     bbt::network::ConnId            GetConnIdByUuid(const util::other::Uuid& uuid) const;
     // 与节点的网络事件
-    util::errcode::ErrOpt           N2RDispatch(bbt::network::ConnId id, protocol::emN2RProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt           S2RDispatch(bbt::network::ConnId id, protocol::emN2RProtocolType type, void* proto, size_t proto_len);
     util::errcode::ErrOpt           OnHeartBeat(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_KeepAlive_Req* req);
     util::errcode::ErrOpt           OnHandshake(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_Handshake_Req* req);
     util::errcode::ErrOpt           OnRegisterMethod(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::N2R_RegisterMethod_Req* req);

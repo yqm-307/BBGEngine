@@ -20,7 +20,7 @@ class RpcServer:
 {
     friend class RpcClient;
 public:
-    RpcServer();
+    RpcServer(std::shared_ptr<bbt::network::EvThread> evthread);
     virtual ~RpcServer() noexcept;
 
     int                                 Register(const std::string& method, RpcCallback callback);
@@ -59,15 +59,28 @@ public:
     void                                NotityOnClose2Listener(bbt::network::ConnId id); // 通知监听者连接关闭
     void                                NotityOnTimeout2Listener(bbt::network::ConnId id); // 通知监听者连接超时
 private:
-    util::errcode::ErrOpt               InitNetwork();
+    // util::errcode::ErrOpt               InitNetwork();
+    util::errcode::ErrOpt               _InitRegisteryClient();
+    util::errcode::ErrOpt               _InitTcpServer();
     void                                _DelayConnectToRegistery();
     void                                _ConnectToRegistery();
     void                                OnHandshakeSucc();
 
-    void                                RequestFromRegistery(bbt::core::Buffer& buffer);
+    void                                RequestFromRegistery(const bbt::core::Buffer& buffer);
     void                                OnTimeoutFromRegistey(bbt::network::ConnId id);
     void                                OnCloseFromRegistery(bbt::network::ConnId id, const IPAddress& addr);
 
+    void                                R2S_OnConnect(bbt::network::ConnId id);
+    void                                R2S_OnClose(bbt::network::ConnId id);
+    void                                R2S_OnTimeout(bbt::network::ConnId id);
+    void                                R2S_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
+    void                                R2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
+
+    void                                C2S_OnAccept(bbt::network::ConnId id);
+    void                                C2S_OnClose(bbt::network::ConnId id);
+    void                                C2S_OnTimeout(bbt::network::ConnId id);
+    void                                C2S_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
+    void                                C2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
 
     std::shared_ptr<util::other::Uuid>  GetRandomUuidByMethod(const std::string& method);
 

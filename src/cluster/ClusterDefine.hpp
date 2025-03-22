@@ -15,6 +15,7 @@
 // 所有的连接默认超时时间都是这个
 #define BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT 10000
 
+// async connect 超时时间
 #define BBGENGINE_CONNECT_TIMEOUT 1000
 
 namespace cluster

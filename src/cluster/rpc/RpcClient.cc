@@ -3,6 +3,10 @@
 
 using namespace cluster::protocol;
 using namespace bbt::core::clock;
+using namespace util::errcode;
+using namespace bbt::network;
+
+typedef bbt::core::Buffer Buffer;
 
 
 namespace cluster
@@ -72,54 +76,43 @@ RpcClient::~RpcClient()
 {
 }
 
-RpcClient::RpcClient():
-    m_network(std::make_shared<bbt::network::libevent::Network>())
+RpcClient::RpcClient(std::shared_ptr<bbt::network::EvThread> evthread):
+    m_ev_thread(evthread)
 {
+    Assert(evthread != nullptr);
 }
 
 util::errcode::ErrOpt RpcClient::Init(const bbt::network::IPAddress& registery_addr, int timeout_ms)
 {
-    if (auto err =  std::static_pointer_cast<bbt::network::libevent::Network>(m_network)->AutoInitThread(2); err.has_value())
-        return err;
-
     m_registery_addr = registery_addr;
-    m_registery_client = std::make_shared<bbt::network::TcpClient>(m_network);
+    m_registery_client = std::make_shared<bbt::network::TcpClient>(m_ev_thread);
 
-    auto err = m_registery_client->Init(
-        m_registery_addr,
-        [weak_this{weak_from_this()}]
-        (bbt::network::libevent::ConnectionSPtr conn) -> std::shared_ptr<bbt::network::Connection> {
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr)
-                return std::make_shared<RpcConnection<RpcClient>>(RPC_CONN_TYPE_CR, shared_this, conn, BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT);
+    _InitRegisteryClient();
 
-            return nullptr;
-        },
-        BBGENGINE_CONNECT_TIMEOUT,
-        [weak_this{weak_from_this()}]
-        (util::errcode::ErrOpt err, std::shared_ptr<bbt::network::TcpClient> client){
-            if (auto shared_this = weak_this.lock(); shared_this != nullptr && err.has_value())
-                shared_this->OnError(err.value());
-        });
-
-    return err;
+    return std::nullopt;
 }
 
 void RpcClient::Start()
 {
-    m_network->Start();
     _ConnectToRegistery();
 }
 
 void RpcClient::Stop()
 {
-    m_network->Stop();
+    if (m_registery_client)
+    {
+        m_registery_client->Close();
+        m_registery_client = nullptr;
+    }
+
+    m_server_mgr.m_rpc_clients.clear();
 }
 
 void RpcClient::Update()
 {
-    auto registery_conn = m_registery_client->GetConn();
-    if (registery_conn && !registery_conn->IsClosed())
+    if (m_registery_client && m_registery_client->IsConnected())
     {
+        // 定时去注册中心获取节点信息
         if (is_expired<ms>(m_cache_last_update_time + ms(m_cache_update_interval)))
         {
             m_cache_last_update_time = now();
@@ -169,60 +162,69 @@ void RpcClient::OnReply(const char* data, size_t size)
 
 #pragma region 连接管理
 
-std::shared_ptr<bbt::network::Connection> RpcClient::GetServiceConn(const std::string& method)
+ConnId RpcClient::GetServiceConn(const std::string& method)
 {
     std::lock_guard<std::mutex> lock{m_net_mtx};
 
     auto uuid = m_node_cache.GetUuid(m_serializer.GetMethodHash(method));
     if (!uuid.has_value())
-        return nullptr;
+        return 0;
     
     auto it = m_server_mgr.m_rpc_clients.find(uuid.value());
     if (it == m_server_mgr.m_rpc_clients.end())
     {
-        return nullptr;
+        return 0;
     }
 
-    return it->second->GetConn();
-}
-
-
-void RpcClient::SubmitReq2Listener(bbt::network::ConnId id, emRpcConnType type, bbt::core::Buffer& buffer)
-{
-    ProtocolHead* head = (ProtocolHead*)buffer.Peek();
-
-    switch (type)
+    if (it->second == nullptr)
     {
-    case RPC_CONN_TYPE_CR:
-        _R_Dispatch(id, buffer.Peek(), head->protocol_length);
-        break;
-    case RPC_CONN_TYPE_CS:
-        _S_Dispatch(id, buffer.Peek(), head->protocol_length);
-        break;
-    default:
-        OnError(util::errcode::Errcode{"[RpcClient::SubmitReq2Listener] unknown conn type", util::errcode::CommonErr});
-        break;
+        return 0;
     }
+
+    return it->second->GetConnId();
 }
 
-void RpcClient::NotifySend2Listener(bbt::network::ConnId id, emRpcConnType type, util::errcode::ErrOpt err, size_t len)
+util::errcode::ErrOpt RpcClient::_InitRegisteryClient()
 {
+    m_registery_client->SetConnectionTimeout(BBGENGINE_CONNECT_TIMEOUT);
+    m_registery_client->SetOnErr([weak_this{weak_from_this()}](const util::errcode::Errcode& err) {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->OnError(err);
+    });
+    m_registery_client->SetOnSend([weak_this{weak_from_this()}](ConnId id, ErrOpt err, size_t len) {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->R2C_OnSend(id, err, len);
+    });
+    m_registery_client->SetOnRecv([weak_this{weak_from_this()}](bbt::network::ConnId id, const Buffer& buffer) {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->R2C_OnRecv(id, buffer);
+    });
+    m_registery_client->SetOnClose([weak_this{weak_from_this()}](bbt::network::ConnId id) {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->R2C_OnClose(id);
+    });
+    m_registery_client->SetOnTimeout([weak_this{weak_from_this()}](bbt::network::ConnId id) {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+            shared_this->R2C_OnTimeout(id);
+    });
+    m_registery_client->SetOnConnect([weak_this{weak_from_this()}](bbt::network::ConnId id, ErrOpt err) {
+        if (auto shared_this = weak_this.lock(); shared_this != nullptr)
+        {
+            if (err.has_value())
+            {
+                shared_this->OnError(err.value());
+                return;
+            }
+            shared_this->R2C_OnConnect(id);
+        }
+    });
 
-}
-
-void RpcClient::NotityOnClose2Listener(bbt::network::ConnId id, emRpcConnType type)
-{
-
-}
-
-void RpcClient::NotityOnTimeout2Listener(bbt::network::ConnId id, emRpcConnType type)
-{
-
+    return std::nullopt;
 }
 
 util::errcode::ErrOpt RpcClient::_ConnectToRegistery()
 {
-    return m_registery_client->AsyncConnect();
+    return m_registery_client->AsyncConnect(m_registery_addr, BBGENGINE_CONNECT_TIMEOUT);
 }
 
 util::errcode::ErrOpt RpcClient::_SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
@@ -238,10 +240,6 @@ util::errcode::ErrOpt RpcClient::_SendToRegistery(emC2RProtocolType type, const 
     if (m_registery_client == nullptr)
         return util::errcode::Errcode{BBGENGINE_MODULE_NAME " registery client is null!", util::errcode::CommonErr};
 
-    auto conn = m_registery_client->GetConn();
-    if (!conn || (conn && conn->IsClosed()))
-        return util::errcode::Errcode{"[RpcClient::_SendToRegistery] conn is null", util::errcode::CommonErr};
-
     buffer.WriteNull(sizeof(ProtocolHead));
     head = (ProtocolHead*)buffer.Peek();
     head->protocol_type = type;
@@ -249,7 +247,9 @@ util::errcode::ErrOpt RpcClient::_SendToRegistery(emC2RProtocolType type, const 
 
     buffer.WriteString(proto.Peek(), proto.Size());
 
-    conn->Send(buffer.Peek(), buffer.Size());
+    if (auto err = m_registery_client->Send(buffer); err)
+        return err;
+
     OnDebug(BBGENGINE_MODULE_NAME " [SendToReg] protocol=" + std::to_string(type));
     return std::nullopt;
 }

@@ -38,7 +38,7 @@ class RpcClient:
 {
     friend class RpcServer;
 public:
-    RpcClient();
+    RpcClient(std::shared_ptr<bbt::network::EvThread> evthread);
     virtual ~RpcClient();
 
     util::errcode::ErrOpt       Init(const bbt::core::net::IPAddress& registery_addr, int timeout_ms);
@@ -49,7 +49,7 @@ public:
 
     // const bbt::network::IPAddress& GetServiceAddr(const std::string& method);  // 获取服务地址
     // util::other::Uuid           GetServiceUuid(const std::string& method);       // 获取服务uuid
-    // std::shared_ptr<bbt::network::Connection> GetServiceConn(const std::string& method); // 获取服务连接
+    bbt::network::ConnId        GetServiceConn(const std::string& method); // 获取服务连接
 
     virtual void                OnReply(const char* data, size_t size) final;
 
@@ -62,9 +62,16 @@ public:
     void                        NotityOnClose2Listener(bbt::network::ConnId id); // 通知监听者连接关闭
     void                        NotityOnTimeout2Listener(bbt::network::ConnId id); // 通知监听者连接超时
 private:
+    // registery 网络事件
+    util::errcode::ErrOpt       _InitRegisteryClient();
     util::errcode::ErrOpt       _ConnectToRegistery();
     util::errcode::ErrOpt       _SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer);
     util::errcode::ErrOpt       _SendToRegistery(protocol::emC2RProtocolType type, const bbt::core::Buffer& buffer);
+    void                        R2C_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
+    void                        R2C_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
+    void                        R2C_OnClose(bbt::network::ConnId id);
+    void                        R2C_OnTimeout(bbt::network::ConnId id);
+    void                        R2C_OnConnect(bbt::network::ConnId id);
 
     util::errcode::ErrOpt       _R_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len);
     util::errcode::ErrOpt       _DoGetNodesInfoReq();
@@ -75,8 +82,9 @@ private:
     util::errcode::ErrOpt       DoRemoteCall(RpcReplyCallback callback, const std::string& method, Args... args);
 
 private:
-    std::shared_ptr<bbt::network::EvThread> m_ev_thread{nullptr};
-    bbt::network::IPAddress                            m_registery_addr;
+    // 先支持单独的io线程
+    std::shared_ptr<bbt::network::EvThread>             m_ev_thread{nullptr};
+    bbt::network::IPAddress                             m_registery_addr;
 
     // rpc call
     RpcSerializer                                       m_serializer;
@@ -87,7 +95,7 @@ private:
     // node info cache
     ServerMgr                                           m_server_mgr;
     NodeCache                                           m_node_cache;
-    std::shared_ptr<bbt::network::TcpClient>           m_registery_client{nullptr};
+    std::shared_ptr<bbt::network::TcpClient>            m_registery_client{nullptr};
     bbt::core::clock::Timestamp<>                       m_cache_last_update_time{bbt::core::clock::now()};
     const int                                           m_cache_update_interval{1000};  // 1s 更新一次
     std::mutex                                          m_net_mtx;
@@ -103,11 +111,11 @@ util::errcode::ErrOpt RpcClient::DoRemoteCall(RpcReplyCallback callback, const s
 
     m_callbacks[m_seq] = callback;
 
-    auto conn = GetServiceConn(method);
-    if (conn == nullptr)
-        return util::errcode::Errcode{"[RpcClient::DoRemoteCall] conn is null!", util::errcode::CommonErr};
+    auto connid = GetServiceConn(method);
 
-    conn->Send(buffer.Peek(), buffer.Size());
+    if (auto err = _SendToNode(connid, buffer); err != std::nullopt)
+        return err;
+
     return std::nullopt;
 }
 
