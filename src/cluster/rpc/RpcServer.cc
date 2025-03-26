@@ -83,11 +83,10 @@ bool RpcServer::HasMethod(const std::string& method) const
 }
 
 
-void RpcServer::Init(const bbt::network::IPAddress& listen_addr, const bbt::network::IPAddress& registery_addr, int timeout)
+void RpcServer::Init(const bbt::network::IPAddress& listen_addr, const bbt::network::IPAddress& registery_addr)
 {
     m_listen_addr = listen_addr;
     m_registery_addr = registery_addr;
-    m_connect_timeout = timeout;
     m_uuid = std::make_shared<util::other::Uuid>();
 
     m_registery_client = std::make_shared<bbt::network::TcpClient>(m_ev_thread);
@@ -127,7 +126,7 @@ util::errcode::ErrOpt RpcServer::Start()
             shared_this->C2S_OnAccept(id);
     });
 
-    m_registery_client->AsyncConnect(m_registery_addr, m_connect_timeout);
+    m_registery_client->AsyncConnect(m_registery_addr, m_connection_timeout);
 
     return std::nullopt;
 }
@@ -156,7 +155,7 @@ void RpcServer::Update()
         if (bbt::core::clock::is_expired<bbt::core::clock::ms>(m_last_heatbeart_ms)) {
             m_last_heatbeart_ms = bbt::core::clock::now() + bbt::core::clock::ms(m_heartbeat_timeout);
     
-            if (auto err = N2R_DoHeartBeatReq(); err != std::nullopt)
+            if (auto err = N2R_DoHeartBeatReq(); err.has_value())
                 OnError(err.value());
         }
     }
@@ -298,7 +297,7 @@ util::errcode::ErrOpt RpcServer::_InitRegisteryClient()
         if (auto shared_this = weak_this.lock(); shared_this != nullptr)
             shared_this->OnError(err);
     });
-    m_registery_client->SetConnectionTimeout(BBGENGINE_CONNECT_TIMEOUT);
+    m_registery_client->SetConnectionTimeout(m_connection_timeout);
 
     return std::nullopt;
 }
@@ -489,7 +488,6 @@ util::errcode::ErrOpt RpcServer::SendToRegistery(emN2RProtocolType type, const b
 
     if (auto err = m_registery_client->Send(buffer); err.has_value())
     {
-        OnError(err.value());
         return err;
     }
 

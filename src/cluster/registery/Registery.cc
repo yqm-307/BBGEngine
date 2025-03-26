@@ -89,28 +89,6 @@ NodeState Registery::GetNodeStatus(const util::other::Uuid& uuid) const
     return m_node_mgr->GetNodeState(uuid);
 }
 
-#pragma region 节点管理
-
-void Registery::RegisterNode(const bbt::network::IPAddress& addr, const util::other::Uuid& uuid)
-{
-    auto node_info = GetNodeRegInfo(uuid);
-    if (node_info == nullptr)
-        return;
-
-    node_info->SetStatus(NodeState::NODESTATE_ONLINE);
-}
-
-void Registery::UnRegisterNode(const util::other::Uuid& uuid)
-{
-    auto node_info = GetNodeRegInfo(uuid);
-    if (node_info == nullptr)
-        return;
-
-    node_info->SetStatus(NodeState::NODESTATE_OFFLINE);
-}
-
-#pragma endregion
-
 util::errcode::ErrOpt Registery::SendToNode(emR2NProtocolType type, const util::other::Uuid& uuid, const bbt::core::Buffer& proto)
 {
     ProtocolHead*       head = nullptr;
@@ -297,14 +275,18 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
 void Registery::RC_OnAccept(bbt::network::ConnId connid)
 {
     AddHalfConn(connid);
+    _NewBuffer(connid);
     OnInfo(BBGENGINE_MODULE_NAME "RC accept connection! conn=" + std::to_string(connid));
 }
 
 void Registery::RC_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len)
 {}
 
-void Registery::RC_OnClose(bbt::network::ConnId id)
-{}
+void Registery::RC_OnClose(ConnId id)
+{
+    DelHalfConn(id);
+    _DelBuffer(id);
+}
 
 void Registery::RC_OnTimeout(bbt::network::ConnId id)
 {}
@@ -320,6 +302,7 @@ void Registery::RC_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buff
 void Registery::RS_OnAccept(bbt::network::ConnId connid)
 {
     AddHalfConn(connid);
+    _NewBuffer(connid);
     OnInfo(BBGENGINE_MODULE_NAME "RS accept connection! conn=" + std::to_string(connid));
 }
 
@@ -331,8 +314,10 @@ void Registery::RS_OnSend(ConnId id, util::errcode::ErrOpt err, size_t len)
 void Registery::RS_OnClose(ConnId connid)
 {
     util::other::Uuid uuid;
+
     DelHalfConn(connid);
-    
+    _DelBuffer(connid);
+
     auto node_info = m_node_mgr->GetNodeInfo(connid);
     if (node_info != nullptr) {
         m_node_mgr->NodeOffline(connid);
@@ -402,12 +387,13 @@ ErrOpt Registery::_RecvAndParse(bbt::network::ConnId id, const bbt::core::Buffer
 
 void Registery::_NewBuffer(bbt::network::ConnId connid)
 {
-    m_buffer_mgr.AddBuffer(connid, bbt::core::Buffer{});
+    if (auto err = m_buffer_mgr.AddBuffer(connid, bbt::core::Buffer{}); err != std::nullopt)
+        OnError(err.value());
 }
 
 void Registery::_DelBuffer(bbt::network::ConnId connid)
 {
-
+    m_buffer_mgr.RemoveBuffer(connid);
 }
 
 
@@ -443,7 +429,7 @@ util::errcode::ErrOpt Registery::OnHeartBeat(bbt::network::ConnId id, ProtocolHe
     util::other::Uuid   uuid;
 
     if (!req->has_head())
-        return util::errcode::Errcode("head not found!", util::errcode::emErr::RPC_BAD_PROTOCOL);
+        return util::errcode::Errcode("[OnHeartBeat] head not found!", util::errcode::emErr::RPC_BAD_PROTOCOL);
 
     Assert(uuid.FromByte(req->head().uuid().c_str(), req->head().uuid().size()));
     auto node_info = m_node_mgr->GetNodeInfo(uuid);

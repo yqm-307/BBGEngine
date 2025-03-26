@@ -102,7 +102,7 @@ void NodeMgr::Update()
         }
     }
 
-    // DebugPrint();
+    DebugPrint();
 }
 
 

@@ -28,7 +28,11 @@ public:
     std::vector<std::string>            GetRegistedMethods() const;
     bool                                HasMethod(const std::string& method) const;
 
-    void                                Init(const IPAddress& listen_addr, const IPAddress& registery_addr, int timeout);
+    void                                Init(
+        const IPAddress& listen_addr,
+        const IPAddress& registery_addr);
+    void                                SetConnectTimeout(int timeout) { m_connect_timeout = timeout; }
+    void                                SetConnectionTimeout(int timeout){ m_connection_timeout = timeout; };
     util::errcode::ErrOpt               Start();
     void                                Stop();
     virtual void                        Update();
@@ -112,9 +116,10 @@ private:
     ClientMgr                           m_client_conn_mgr;
     std::mutex                          m_client_conn_mgr_mtx;
 
-    int                                 m_connect_timeout{20000};
-    int                                 m_heartbeat_timeout{3000};
+    int                                 m_connect_timeout{BBGENGINE_CONNECT_TIMEOUT};
+    int                                 m_heartbeat_timeout{BBGENGINE_HEARTBEAT_TIMEOUT_MS};
     int                                 m_reconnect_time{3000};
+    int                                 m_connection_timeout{BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT};
     bbt::core::clock::Timestamp<>       m_connect_to_registery_ms{bbt::core::clock::now()};
     bbt::core::clock::Timestamp<>       m_last_heatbeart_ms{bbt::core::clock::now()};
 };

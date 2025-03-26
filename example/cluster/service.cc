@@ -38,7 +38,9 @@ int main()
     auto evthread = std::make_shared<bbt::network::EvThread>(std::make_shared<bbt::pollevent::EventLoop>());
     auto node = std::make_shared<CustomService>(evthread);
 
-    node->Init({"127.0.0.1", 10021}, {"127.0.0.1", 11021}, 5000);
+    node->Init({"127.0.0.1", 10021}, {"127.0.0.1", 11021});
+    node->SetConnectionTimeout(10000);
+    node->SetConnectTimeout(1000);
     auto err = node->Start();
     if (err != std::nullopt) {
         std::cout << "start failed: " << err->CWhat() << std::endl;

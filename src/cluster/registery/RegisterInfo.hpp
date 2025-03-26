@@ -40,7 +40,7 @@ private:
     bbt::network::ConnId            m_connid{0};
     std::unordered_set<std::string> m_method_info_map;  // 方法名
     bbt::core::clock::Timestamp<>   m_last_heartbeat{bbt::core::clock::now()}; // 最后一次心跳时间
-    const int                       m_heartbeat_timeout_ms{BBGENGINE_HEARTBEAT_TIMEOUT_MS}; // 心跳超时时间
+    const int                       m_heartbeat_timeout_ms{BBGENGINE_HEARTBEAT_TIMEOUT_MS * 2}; // 心跳超时时间
 
 };
 

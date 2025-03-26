@@ -39,10 +39,6 @@ public:
     void                            CloseConn(bbt::network::ConnId connid);
     NodeState                       GetNodeStatus(const util::other::Uuid& uuid) const;
 
-    // 节点管理
-    void                            RegisterNode(const bbt::network::IPAddress& addr, const util::other::Uuid& uuid);
-    void                            UnRegisterNode(const util::other::Uuid& uuid);
-private:
     // RpcClient 网络事件
     void                            RC_OnAccept(bbt::network::ConnId connid);
     void                            RC_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
