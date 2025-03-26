@@ -1,5 +1,6 @@
 #pragma once
 #include <bbt/network/TcpServer.hpp>
+#include <cluster/rpc/BufferMgr.hpp>
 #include <cluster/registery/NodeMgr.hpp>
 #include <cluster/protocol/Protocol.hpp>
 
@@ -41,9 +42,9 @@ public:
     // 节点管理
     void                            RegisterNode(const bbt::network::IPAddress& addr, const util::other::Uuid& uuid);
     void                            UnRegisterNode(const util::other::Uuid& uuid);
-
+private:
     // RpcClient 网络事件
-    // void                            SubmitReq2Listener(bbt::network::ConnId id, bbt::core::Buffer& buffer);
+    void                            RC_OnAccept(bbt::network::ConnId connid);
     void                            RC_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
     void                            RC_OnClose(bbt::network::ConnId id);
     void                            RC_OnTimeout(bbt::network::ConnId id);
@@ -51,10 +52,16 @@ public:
     void                            NotifyOnAccept(bbt::network::ConnId connid);
 
     // RpcServer 网络事件
+    void                            RS_OnAccept(bbt::network::ConnId connid);
     void                            RS_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
     void                            RS_OnClose(bbt::network::ConnId id);
     void                            RS_OnTimeout(bbt::network::ConnId id);
     void                            RS_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
+
+    // buffer mgr
+    util::errcode::ErrOpt           _RecvAndParse(bbt::network::ConnId id, const bbt::core::Buffer& buffer, std::vector<bbt::core::Buffer>& protocols);
+    void                            _NewBuffer(bbt::network::ConnId connid);
+    void                            _DelBuffer(bbt::network::ConnId connid);
 private:
     void                            _InitRCServer();
     void                            _InitRSServer();
@@ -78,6 +85,8 @@ private:
     IPAddress                                   m_rs_listen_addr;
     std::shared_ptr<bbt::network::TcpServer>    m_rc_server{nullptr};   // RpcClient监听
     IPAddress                                   m_rc_listen_addr;
+
+    BufferMgr                                   m_buffer_mgr;           // 缓存管理
 
     // 握手管理
     std::unordered_set<bbt::network::ConnId>    m_half_connect_set;

@@ -52,13 +52,13 @@ void Registery::Start()
     m_rs_server->AsyncListen(m_rs_listen_addr, [weak_this{weak_from_this()}](bbt::network::ConnId connid)
     {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr)
-            shared_this->NotifyOnAccept(connid);
+            shared_this->RS_OnAccept(connid);
     });
 
     m_rc_server->AsyncListen(m_rc_listen_addr, [weak_this{weak_from_this()}](bbt::network::ConnId connid)
     {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr)
-            shared_this->NotifyOnAccept(connid);
+            shared_this->RC_OnAccept(connid);
     });
 }
 
@@ -294,6 +294,12 @@ void Registery::OnRequest(bbt::network::ConnId connid, bbt::core::Buffer& buffer
 
 #pragma region RpcClient 网络事件
 
+void Registery::RC_OnAccept(bbt::network::ConnId connid)
+{
+    AddHalfConn(connid);
+    OnInfo(BBGENGINE_MODULE_NAME "RC accept connection! conn=" + std::to_string(connid));
+}
+
 void Registery::RC_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len)
 {}
 
@@ -310,6 +316,12 @@ void Registery::RC_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buff
 #pragma endregion
 
 #pragma region RpcServer 网络事件
+
+void Registery::RS_OnAccept(bbt::network::ConnId connid)
+{
+    AddHalfConn(connid);
+    OnInfo(BBGENGINE_MODULE_NAME "RS accept connection! conn=" + std::to_string(connid));
+}
 
 void Registery::RS_OnSend(ConnId id, util::errcode::ErrOpt err, size_t len)
 {
@@ -337,19 +349,65 @@ void Registery::RS_OnTimeout(ConnId id)
 
 void Registery::RS_OnRecv(ConnId id, const bbt::core::Buffer& buffer)
 {
-    if (buffer.Size() < sizeof(ProtocolHead)) {
-        OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
-        return;
-    }
+    std::vector<bbt::core::Buffer> protocols;
 
-    ProtocolHead* head = (ProtocolHead*)buffer.Peek();
-    if (buffer.Size() < head->protocol_length) {
-        OnError(util::errcode::Errcode("buffer not enough", util::errcode::emErr::RPC_IMCOMPLETE_PACKET));
-        return;
-    }
-
-    if (auto err = S2RDispatch(id, (emN2RProtocolType)head->protocol_type, (void*)buffer.Peek(), head->protocol_length); err != std::nullopt)
+    if (auto err = _RecvAndParse(id, buffer, protocols); err != std::nullopt) {
         OnError(err.value());
+        return;
+    }
+
+    for (auto && protocol : protocols)
+    {
+        ProtocolHead* head = (ProtocolHead*)protocol.Peek();
+        Assert(buffer.Size() >= sizeof(ProtocolHead));
+        Assert(buffer.Size() == head->protocol_length);
+        if (auto err = S2RDispatch(id, (emN2RProtocolType)head->protocol_type, (void*)protocol.Peek(), head->protocol_length); err != std::nullopt)
+            OnError(err.value());
+    }
+
+}
+
+#pragma endregion
+
+
+#pragma region buffer mgr
+
+ErrOpt Registery::_RecvAndParse(bbt::network::ConnId id, const bbt::core::Buffer& buffer, std::vector<bbt::core::Buffer>& protocols)
+{
+    return m_buffer_mgr.DoBuffer(id, [this, &protocols, &buffer](bbt::core::Buffer& buf)
+    {
+
+        buf.WriteString(buffer.Peek(), buffer.Size());
+
+        // 协议解析
+        while (true)
+        {
+            if (buf.Size() < sizeof(ProtocolHead))
+                break;
+
+            ProtocolHead* head = (ProtocolHead*)buf.Peek();
+            if (buf.Size() < head->protocol_length)
+                break;
+
+            bbt::core::Buffer protocol{head->protocol_length};
+            protocol.WriteNull(head->protocol_length);
+
+            if (buf.ReadString(protocol.Peek(), head->protocol_length))
+                protocols.emplace_back(std::move(protocol));
+            else
+                OnError(Errcode{BBGENGINE_MODULE_NAME "write buffer error!", util::errcode::emErr::RPC_BAD_PROTOCOL});
+        }
+    });
+}
+
+void Registery::_NewBuffer(bbt::network::ConnId connid)
+{
+    m_buffer_mgr.AddBuffer(connid, bbt::core::Buffer{});
+}
+
+void Registery::_DelBuffer(bbt::network::ConnId connid)
+{
+
 }
 
 
@@ -358,10 +416,10 @@ void Registery::RS_OnRecv(ConnId id, const bbt::core::Buffer& buffer)
 
 #pragma region 协议处理
 
-util::errcode::ErrOpt Registery::S2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
+ErrOpt Registery::S2RDispatch(bbt::network::ConnId id, emN2RProtocolType type, void* proto, size_t proto_len)
 {
     google::protobuf::Message*  resp = nullptr;
-    ProtocolHead*               head = (ProtocolHead*)proto;
+    ProtocolHead*               head = (ProtocolHead*)proto; 
     void*                       proto_data = (char*)proto + sizeof(ProtocolHead);
     size_t                      proto_data_len = proto_len - sizeof(ProtocolHead);
 
