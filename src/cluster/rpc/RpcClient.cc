@@ -121,7 +121,11 @@ void RpcClient::Update()
     }
     else
     {
-        _ConnectToRegistery();
+        if (is_expired<ms>(m_connect_to_registery_ms))
+        {
+            _ConnectToRegistery();
+            _DelayConnectToRegistery();
+        }
     }
 }
 
@@ -186,7 +190,8 @@ ConnId RpcClient::GetServiceConn(const std::string& method)
 
 util::errcode::ErrOpt RpcClient::_InitRegisteryClient()
 {
-    m_registery_client->SetConnectionTimeout(BBGENGINE_CONNECT_TIMEOUT);
+    m_registery_client->Init();
+    m_registery_client->SetConnectionTimeout(BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT);
     m_registery_client->SetOnErr([weak_this{weak_from_this()}](const util::errcode::Errcode& err) {
         if (auto shared_this = weak_this.lock(); shared_this != nullptr)
             shared_this->OnError(err);
@@ -222,6 +227,11 @@ util::errcode::ErrOpt RpcClient::_InitRegisteryClient()
     return std::nullopt;
 }
 
+void RpcClient::_DelayConnectToRegistery()
+{
+    m_connect_to_registery_ms = bbt::core::clock::nowAfter(bbt::core::clock::ms{m_reconnect_time});
+}
+
 util::errcode::ErrOpt RpcClient::_ConnectToRegistery()
 {
     return m_registery_client->AsyncConnect(m_registery_addr, BBGENGINE_CONNECT_TIMEOUT);
@@ -229,7 +239,7 @@ util::errcode::ErrOpt RpcClient::_ConnectToRegistery()
 
 util::errcode::ErrOpt RpcClient::_SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
 {
-
+    return Errcode{"_SendToNode not implementation", CommonErr};
 }
 
 util::errcode::ErrOpt RpcClient::_SendToRegistery(emC2RProtocolType type, const bbt::core::Buffer& proto)
@@ -321,7 +331,7 @@ util::errcode::ErrOpt RpcClient::_DoGetNodesInfoReq()
 
 util::errcode::ErrOpt RpcClient::_OnGetNodeInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::R2C_GetNodesInfo_Resp* req)
 {
-
+    return Errcode{"_OnGetNodeInfo not implementation", CommonErr};
 }
 
 util::errcode::ErrOpt RpcClient::_S_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len)

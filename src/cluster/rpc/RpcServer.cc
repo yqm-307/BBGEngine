@@ -149,6 +149,7 @@ void RpcServer::Update()
         if (!m_registery_client->IsConnected()) {
             if (bbt::core::clock::is_expired<bbt::core::clock::ms>(m_connect_to_registery_ms)) {
                 _ConnectToRegistery();
+                _DelayConnectToRegistery();
             }
         }
 
@@ -475,10 +476,12 @@ util::errcode::ErrOpt RpcServer::SendToRegistery(emN2RProtocolType type, const b
     bbt::core::Buffer buffer;
     ProtocolHead* head = nullptr;
     
+    if (!m_registery_client->IsConnected())
+        return std::nullopt;
+
     if (m_registery_client == nullptr)
         return util::errcode::Errcode{"registery client is null!", util::errcode::CommonErr};
-    
-    
+
     buffer.WriteNull(sizeof(ProtocolHead));
     head = (ProtocolHead*)buffer.Peek();
     head->protocol_type = type;
@@ -504,7 +507,6 @@ util::errcode::ErrOpt RpcServer::SendToNode(bbt::network::ConnId id, bbt::core::
     auto client = m_client_conn_mgr.m_rpc_clients.find(uuid->second);
     if (client == nullptr)
         return util::errcode::Errcode{"[ClusterNode] node connection is null!", util::errcode::CommonErr};
-
 
     if (auto err = client->second->Send(buffer); err.has_value())
     {

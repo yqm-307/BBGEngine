@@ -60,6 +60,7 @@ public:
 private:
     // registery 网络事件
     util::errcode::ErrOpt       _InitRegisteryClient();
+    void                        _DelayConnectToRegistery();
     util::errcode::ErrOpt       _ConnectToRegistery();
     util::errcode::ErrOpt       _SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer);
     util::errcode::ErrOpt       _SendToRegistery(protocol::emC2RProtocolType type, const bbt::core::Buffer& buffer);
@@ -95,6 +96,9 @@ private:
     bbt::core::clock::Timestamp<>                       m_cache_last_update_time{bbt::core::clock::now()};
     const int                                           m_cache_update_interval{1000};  // 1s 更新一次
     std::mutex                                          m_net_mtx;
+
+    int                                                 m_reconnect_time{BBGENGINE_RECONNECT_TIME};
+    bbt::core::clock::Timestamp<>                       m_connect_to_registery_ms{bbt::core::clock::now()};
 };
 
 template<typename ...Args>

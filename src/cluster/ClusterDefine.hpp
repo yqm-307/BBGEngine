@@ -10,6 +10,7 @@
 #include <bbt/network/Define.hpp>
 
 
+// 心跳的间隔时间
 #define BBGENGINE_HEARTBEAT_TIMEOUT_MS 3000
 
 // 所有的连接默认超时时间都是这个
@@ -17,6 +18,9 @@
 
 // async connect 超时时间
 #define BBGENGINE_CONNECT_TIMEOUT 1000
+
+// 重连时间间隔
+#define BBGENGINE_RECONNECT_TIME 10000
 
 namespace cluster
 {

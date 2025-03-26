@@ -118,7 +118,7 @@ private:
 
     int                                 m_connect_timeout{BBGENGINE_CONNECT_TIMEOUT};
     int                                 m_heartbeat_timeout{BBGENGINE_HEARTBEAT_TIMEOUT_MS};
-    int                                 m_reconnect_time{3000};
+    int                                 m_reconnect_time{BBGENGINE_RECONNECT_TIME};
     int                                 m_connection_timeout{BBGENGINE_CLUSTER_CONN_FREE_TIMEOUT};
     bbt::core::clock::Timestamp<>       m_connect_to_registery_ms{bbt::core::clock::now()};
     bbt::core::clock::Timestamp<>       m_last_heatbeart_ms{bbt::core::clock::now()};

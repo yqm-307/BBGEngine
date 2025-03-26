@@ -1,6 +1,7 @@
 #include <cluster/rpc/RpcClient.hpp>
 #include <bbt/network/EvThread.hpp>
 #include <bbt/core/log/Logger.hpp>
+#include <bbt/pollevent/Event.hpp>
 
 class CustomClient : public cluster::RpcClient
 {
@@ -36,15 +37,18 @@ int main()
     auto evthread = std::make_shared<bbt::network::EvThread>(std::make_shared<bbt::pollevent::EventLoop>());
     auto client = std::make_shared<CustomClient>(evthread);
 
-    client->Init({"127.0.0.1", 11021}, 3000);
+    client->Init({"127.0.0.1", 11022}, 3000);
 
     client->Start();
 
-    while(1) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        client->Update();
-    }
+    auto event = evthread->RegisterEvent(0, bbt::pollevent::EventOpt::PERSIST, 
+        [client](int fd, short events, bbt::pollevent::EventId eventid) {
+            client->Update();
+    });
 
-    client->Stop();
+    event->StartListen(1000);
 
-};        
+    evthread->Start();
+    evthread->Join();
+
+};
