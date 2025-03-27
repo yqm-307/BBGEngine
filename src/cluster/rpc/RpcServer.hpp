@@ -1,6 +1,7 @@
 #pragma once
 #include <bbt/network/TcpServer.hpp>
 #include <cluster/rpc/Define.hpp>
+#include <cluster/rpc/BufferMgr.hpp>
 
 namespace cluster
 {
@@ -23,7 +24,7 @@ public:
     RpcServer(std::shared_ptr<bbt::network::EvThread> evthread);
     virtual ~RpcServer() noexcept;
 
-    int                                 Register(const std::string& method, RpcCallback callback);
+    util::errcode::ErrOpt               Register(const std::string& method, RpcCallback callback);
     util::errcode::ErrOpt               OnRemoteCall(bbt::core::Buffer& req);
     std::vector<std::string>            GetRegistedMethods() const;
     bool                                HasMethod(const std::string& method) const;
@@ -36,20 +37,13 @@ public:
     util::errcode::ErrOpt               Start();
     void                                Stop();
     virtual void                        Update();
-    virtual void                        Offline();
-    virtual void                        Online();
-    virtual void                        Clear();
 
     virtual util::other::Uuid::SPtr     GetUUID() const;
-    virtual NodeState                   GetNodeState();
     virtual const std::string&          GetName() const;
 
-    virtual util::errcode::ErrOpt       RemoteCall(const std::string& method, bbt::core::Buffer& buffer);
     virtual util::errcode::ErrOpt       OnRemoteCall(bbt::network::ConnId id, bbt::core::Buffer& reply);
 
     virtual util::errcode::ErrOpt       SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
-    void                                OnSendToRegistery(util::errcode::ErrOpt err, size_t len);
-    virtual util::errcode::ErrOpt       SendToRegistery(protocol::emN2RProtocolType type, const bbt::core::Buffer& buffer);
 
     virtual void                        OnError(const util::errcode::Errcode& err) = 0;
     virtual void                        OnInfo(const std::string& info) = 0;
@@ -69,6 +63,7 @@ private:
     void                                OnTimeoutFromRegistey(bbt::network::ConnId id);
     void                                OnCloseFromRegistery(bbt::network::ConnId id, const IPAddress& addr);
 
+    virtual util::errcode::ErrOpt       _SendToRegistery(protocol::emN2RProtocolType type, const bbt::core::Buffer& buffer);
     void                                R2S_OnConnect(bbt::network::ConnId id);
     void                                R2S_OnClose(bbt::network::ConnId id);
     void                                R2S_OnTimeout(bbt::network::ConnId id);
@@ -90,19 +85,18 @@ private:
     util::errcode::ErrOpt               R2N_Dispatch(protocol::emR2NProtocolType type, void* proto, size_t proto_len);
 
     // r2n response
-    util::errcode::ErrOpt               R2N_OnHandshakeResp(protocol::R2N_Handshake_Resp* resp);
-    util::errcode::ErrOpt               R2N_OnHeartBeatResp(protocol::R2N_KeepAlive_Resp* resp);
-    util::errcode::ErrOpt               R2N_OnRegisterMethodResp(protocol::R2N_RegisterMethod_Resp* resp);
+    util::errcode::ErrOpt               R2S_OnHandshakeResp(protocol::R2N_Handshake_Resp* resp);
+    util::errcode::ErrOpt               R2S_OnHeartBeatResp(protocol::R2N_KeepAlive_Resp* resp);
+    util::errcode::ErrOpt               R2S_OnRegisterMethodResp(protocol::R2N_RegisterMethod_Resp* resp);
 
     // n2r request
-    util::errcode::ErrOpt               N2R_DoHandshakeReq();
-    util::errcode::ErrOpt               N2R_DoHeartBeatReq();
-    util::errcode::ErrOpt               N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature);
+    util::errcode::ErrOpt               S2R_DoHandshakeReq();
+    util::errcode::ErrOpt               S2R_DoHeartBeatReq();
+    util::errcode::ErrOpt               S2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature);
 private:
     std::unordered_map<std::string, RpcCallback> m_registed_methods;    // 注册的服务方法
     
     std::shared_ptr<bbt::network::EvThread> m_ev_thread{nullptr};
-    NodeState                           m_state{NODESTATE_UNREGISTER};
     std::string                         m_service_name{""};
     util::other::Uuid::SPtr             m_uuid{nullptr};
     IPAddress                           m_listen_addr;
@@ -115,6 +109,8 @@ private:
 
     ClientMgr                           m_client_conn_mgr;
     std::mutex                          m_client_conn_mgr_mtx;
+
+    BufferMgr                           m_buffer_mgr;           // 缓存管理
 
     int                                 m_connect_timeout{BBGENGINE_CONNECT_TIMEOUT};
     int                                 m_heartbeat_timeout{BBGENGINE_HEARTBEAT_TIMEOUT_MS};

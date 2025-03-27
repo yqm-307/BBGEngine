@@ -22,13 +22,13 @@ RpcServer::~RpcServer()
 {
 }
 
-int RpcServer::Register(const std::string& method, RpcCallback callback)
+ErrOpt RpcServer::Register(const std::string& method, RpcCallback callback)
 {
     m_registed_methods[method] = callback;
-    return 0;
+    return std::nullopt;
 }
 
-util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req)
+ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req)
 {
     FieldValue field;
     std::string method;
@@ -109,11 +109,6 @@ util::other::Uuid::SPtr RpcServer::GetUUID() const
     return m_uuid;
 }
 
-NodeState RpcServer::GetNodeState()
-{
-    return m_state;
-}
-
 const std::string& RpcServer::GetName() const
 {
     return m_service_name;
@@ -156,42 +151,14 @@ void RpcServer::Update()
         if (bbt::core::clock::is_expired<bbt::core::clock::ms>(m_last_heatbeart_ms)) {
             m_last_heatbeart_ms = bbt::core::clock::now() + bbt::core::clock::ms(m_heartbeat_timeout);
     
-            if (auto err = N2R_DoHeartBeatReq(); err.has_value())
+            if (auto err = S2R_DoHeartBeatReq(); err.has_value())
                 OnError(err.value());
         }
     }
 }
 
-void RpcServer::Offline()
-{
-    m_state = NODESTATE_OFFLINE;
-}
-
-void RpcServer::Online()
-{
-    m_state = NODESTATE_ONLINE;
-}
-
-void RpcServer::Clear()
-{
-    m_service_name = "";
-    m_state = NODESTATE_UNREGISTER;
-    m_uuid = nullptr;
-}
-
-util::errcode::ErrOpt RpcServer::RemoteCall(const std::string& method, bbt::core::Buffer& buffer)
-{
-    // 找到本地方法
-
-    // 解析协议头
-
-    // 执行方法
-    return std::nullopt;
-}
-
 util::errcode::ErrOpt RpcServer::OnRemoteCall(bbt::network::ConnId id, bbt::core::Buffer& reply)
 {
-
     return std::nullopt;
 }
 
@@ -328,7 +295,8 @@ void RpcServer::R2S_OnConnect(bbt::network::ConnId id)
 {
     OnInfo(BBGENGINE_MODULE_NAME " [R2S_OnConnect] conn=" + std::to_string(id));
     m_registery_connected = true;
-    if (auto err = N2R_DoHandshakeReq(); err != std::nullopt)
+    m_buffer_mgr.AddBuffer(id, bbt::core::Buffer{});
+    if (auto err = S2R_DoHandshakeReq(); err != std::nullopt)
         OnError(err.value());
 
 }
@@ -337,8 +305,8 @@ void RpcServer::R2S_OnClose(bbt::network::ConnId id)
 {
     OnInfo("[ClusterNode] lose connect! conn=" + std::to_string(id));
     m_registery_connected = false;
+    m_buffer_mgr.RemoveBuffer(id);
     _DelayConnectToRegistery();
-
 }
 
 void RpcServer::R2S_OnTimeout(bbt::network::ConnId id)
@@ -407,9 +375,9 @@ util::errcode::ErrOpt RpcServer::R2N_Dispatch(emR2NProtocolType type, void* prot
 
     switch (type)
     {
-        CheckHelper(R2N_KEEPALIVE_RESP,             R2N_KeepAlive_Resp,             R2N_OnHeartBeatResp);
-        CheckHelper(R2N_HANDSHAKE_RESP,             R2N_Handshake_Resp,             R2N_OnHandshakeResp);
-        CheckHelper(R2N_REGISTER_METHOD_RESP,       R2N_RegisterMethod_Resp,        R2N_OnRegisterMethodResp);
+        CheckHelper(R2N_KEEPALIVE_RESP,             R2N_KeepAlive_Resp,             R2S_OnHeartBeatResp);
+        CheckHelper(R2N_HANDSHAKE_RESP,             R2N_Handshake_Resp,             R2S_OnHandshakeResp);
+        CheckHelper(R2N_REGISTER_METHOD_RESP,       R2N_RegisterMethod_Resp,        R2S_OnRegisterMethodResp);
     default:
         return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
@@ -418,7 +386,7 @@ util::errcode::ErrOpt RpcServer::R2N_Dispatch(emR2NProtocolType type, void* prot
 #undef CheckHelper
 }
 
-util::errcode::ErrOpt RpcServer::R2N_OnHandshakeResp(R2N_Handshake_Resp* resp)
+util::errcode::ErrOpt RpcServer::R2S_OnHandshakeResp(R2N_Handshake_Resp* resp)
 {
     // resp->has_head();
     int err = resp->err();
@@ -429,12 +397,12 @@ util::errcode::ErrOpt RpcServer::R2N_OnHandshakeResp(R2N_Handshake_Resp* resp)
     return std::nullopt;
 }
 
-util::errcode::ErrOpt RpcServer::R2N_OnHeartBeatResp(R2N_KeepAlive_Resp* resp)
+util::errcode::ErrOpt RpcServer::R2S_OnHeartBeatResp(R2N_KeepAlive_Resp* resp)
 {
     return std::nullopt;
 }
 
-util::errcode::ErrOpt RpcServer::R2N_OnRegisterMethodResp(R2N_RegisterMethod_Resp* resp)
+util::errcode::ErrOpt RpcServer::R2S_OnRegisterMethodResp(R2N_RegisterMethod_Resp* resp)
 {
     if (resp == nullptr)
         return util::errcode::Errcode{"[ClusterNode] register method resp is null!", util::errcode::CommonErr};
@@ -447,7 +415,7 @@ util::errcode::ErrOpt RpcServer::R2N_OnRegisterMethodResp(R2N_RegisterMethod_Res
     return std::nullopt;
 }
 
-util::errcode::ErrOpt RpcServer::N2R_DoHandshakeReq()
+util::errcode::ErrOpt RpcServer::S2R_DoHandshakeReq()
 {
     N2RProtocolHead*  head = new N2RProtocolHead();
     N2R_Handshake_Req req;
@@ -457,10 +425,10 @@ util::errcode::ErrOpt RpcServer::N2R_DoHandshakeReq()
     req.set_ip(m_listen_addr.GetIP());
     req.set_port(m_listen_addr.GetPort());
 
-    return SendToRegistery(N2R_HANDSHAKE_REQ, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
+    return _SendToRegistery(N2R_HANDSHAKE_REQ, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
 }
 
-util::errcode::ErrOpt RpcServer::N2R_DoHeartBeatReq()
+util::errcode::ErrOpt RpcServer::S2R_DoHeartBeatReq()
 {
     N2RProtocolHead*  head = new N2RProtocolHead();
     N2R_KeepAlive_Req req;
@@ -468,10 +436,10 @@ util::errcode::ErrOpt RpcServer::N2R_DoHeartBeatReq()
     head->set_uuid(m_uuid->ToByte());
     req.set_allocated_head(head);
 
-    return SendToRegistery(N2R_KEEPALIVE_REQ, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
+    return _SendToRegistery(N2R_KEEPALIVE_REQ, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
 }
 
-util::errcode::ErrOpt RpcServer::SendToRegistery(emN2RProtocolType type, const bbt::core::Buffer& proto)
+util::errcode::ErrOpt RpcServer::_SendToRegistery(emN2RProtocolType type, const bbt::core::Buffer& proto)
 {
     bbt::core::Buffer buffer;
     ProtocolHead* head = nullptr;
@@ -515,12 +483,6 @@ util::errcode::ErrOpt RpcServer::SendToNode(bbt::network::ConnId id, bbt::core::
     }
 
     return std::nullopt;
-}
-
-void RpcServer::OnSendToRegistery(util::errcode::ErrOpt err, size_t len)
-{
-    if (err.has_value())
-        OnError(err.value());
 }
 
 util::errcode::ErrOpt RpcServer::N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len)
@@ -577,7 +539,7 @@ util::errcode::ErrOpt RpcServer::N2N_OnCallRemoteMethod(bbt::network::ConnId id,
 }
 
 
-util::errcode::ErrOpt RpcServer::N2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature)
+util::errcode::ErrOpt RpcServer::S2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature)
 {
     N2RProtocolHead           head;
     N2R_RegisterMethod_Req    req;
@@ -592,7 +554,7 @@ util::errcode::ErrOpt RpcServer::N2R_DoRegisterMethodReq(const std::string& meth
 
     buffer.WriteString(req.SerializeAsString().c_str(), req.ByteSizeLong());
 
-    return SendToRegistery(N2R_REGISTER_METHOD_REQ, buffer);
+    return _SendToRegistery(N2R_REGISTER_METHOD_REQ, buffer);
 }
 
 #pragma endregion
