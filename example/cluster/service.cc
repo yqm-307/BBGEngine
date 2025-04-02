@@ -1,4 +1,4 @@
-#include <cluster/rpc/RpcServer.hpp>
+#include <cluster/server/RpcServer.hpp>
 #include <bbt/network/EvThread.hpp>
 #include <bbt/pollevent/Event.hpp>
 #include <bbt/core/log/Logger.hpp>

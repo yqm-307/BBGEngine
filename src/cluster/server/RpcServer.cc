@@ -1,6 +1,6 @@
-#include <cluster/rpc/RpcClient.hpp>
-#include <cluster/rpc/RpcServer.hpp>
-#include <cluster/rpc/RpcSerializer.hpp>
+#include <cluster/client/RpcClient.hpp>
+#include <cluster/server/RpcServer.hpp>
+#include <cluster/other/RpcSerializer.hpp>
 #include <cluster/protocol/Protocol.hpp>
 
 #define BBGENGINE_MODULE_NAME "[BBG::Node]"
@@ -8,6 +8,7 @@
 cluster::RpcSerializer serializer;
 using namespace cluster::protocol;
 using namespace bbt::network;
+using namespace bbt::core;
 
 namespace cluster
 {
@@ -32,7 +33,7 @@ ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req)
 {
     FieldValue field;
     std::string method;
-    int64_t call_seq = 0;
+    // int64_t call_seq = 0;
     RpcSerializer coder;
 
     // 读取 mothod name
@@ -56,7 +57,7 @@ ErrOpt RpcServer::OnRemoteCall(bbt::core::Buffer& req)
         if (field.header.field_type != INT64)
             return util::errcode::Errcode("a bad protocol! method call_seq must be string", util::errcode::emErr::CommonErr);
 
-        call_seq = field.value.int64_value;
+        // call_seq = field.value.int64_value;
     }
     
 
@@ -329,11 +330,14 @@ void RpcServer::R2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buf
 void RpcServer::C2S_OnAccept(bbt::network::ConnId id)
 {
     OnInfo(BBGENGINE_MODULE_NAME " [C2S_OnAccept] conn=" + std::to_string(id));
+    if (auto err = m_buffer_mgr.AddBuffer(id, Buffer{}); err.has_value())
+        OnError(err.value());    
 }
 
 void RpcServer::C2S_OnClose(bbt::network::ConnId id)
 {
     OnInfo(BBGENGINE_MODULE_NAME " [C2S_OnClose] conn=" + std::to_string(id));
+    m_buffer_mgr.RemoveBuffer(id);
 }
 
 void RpcServer::C2S_OnTimeout(bbt::network::ConnId id)
@@ -349,6 +353,27 @@ void RpcServer::C2S_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, s
 
 void RpcServer::C2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer)
 {
+    std::vector<bbt::core::Buffer> protocols;
+
+    if (auto err = m_buffer_mgr.DoBuffer(id, [this, &protocols, &buffer](bbt::core::Buffer& buf)
+    {
+        buf.WriteString(buffer.Peek(), buffer.Size());
+        if (auto err = protocol::Helper::ParseProtocolFromBuffer(buf, protocols); err.has_value())
+            OnError(err.value());
+    }); err.has_value())
+    {
+        OnError(err.value());
+        return;
+    }
+
+    for (auto&& protocol : protocols)
+    {
+        ProtocolHead* head = (ProtocolHead*)protocol.Peek();
+        Assert(buffer.Size() >= sizeof(ProtocolHead));
+        Assert(buffer.Size() == head->protocol_length);
+        if (auto err = C2S_Dispatch(id, (emC2SProtocolType)head->protocol_type, protocol.Peek(), head->protocol_length); err.has_value())
+            OnError(err.value());
+    }
 }
 
 
@@ -466,26 +491,12 @@ util::errcode::ErrOpt RpcServer::_SendToRegistery(emN2RProtocolType type, const 
     return std::nullopt;
 }
 
-util::errcode::ErrOpt RpcServer::SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer)
+util::errcode::ErrOpt RpcServer::_SendToClient(bbt::network::ConnId id, const bbt::core::Buffer& buffer)
 {
-    auto uuid = m_client_conn_mgr.m_rpc_client_connid_uuids.find(id);
-    if (uuid == m_client_conn_mgr.m_rpc_client_connid_uuids.end())
-        return util::errcode::Errcode{"[ClusterNode] node uuid not found!", util::errcode::CommonErr};
-
-    auto client = m_client_conn_mgr.m_rpc_clients.find(uuid->second);
-    if (client == nullptr)
-        return util::errcode::Errcode{"[ClusterNode] node connection is null!", util::errcode::CommonErr};
-
-    if (auto err = client->second->Send(buffer); err.has_value())
-    {
-        OnError(err.value());
-        return err;
-    }
-
-    return std::nullopt;
+    return m_tcp_server->Send(id, buffer);
 }
 
-util::errcode::ErrOpt RpcServer::N2N_Dispatch(bbt::network::ConnId id, emN2NProtocolType type, void* proto, size_t proto_len)
+util::errcode::ErrOpt RpcServer::C2S_Dispatch(bbt::network::ConnId id, emC2SProtocolType type, void* proto, size_t proto_len)
 {
 #define CheckHelper(emProtoType, TClass, Handler) \
     case emProtoType: \
@@ -502,7 +513,7 @@ util::errcode::ErrOpt RpcServer::N2N_Dispatch(bbt::network::ConnId id, emN2NProt
 
     switch (type)
     {
-        CheckHelper(N2N_CALL_METHOD_RESP,           N2N_CallMethod_Req,             N2N_OnCallRemoteMethod);
+        CheckHelper(C2S_CALL_METHOD_RESP,           C2S_CallMethod_Req,             C2S_OnCallRemoteMethod);
     default:
         return util::errcode::Errcode("unknown protocol type=" + std::to_string(type), util::errcode::emErr::RPC_UNKNOWN_PROTOCOL);
     }
@@ -512,28 +523,64 @@ util::errcode::ErrOpt RpcServer::N2N_Dispatch(bbt::network::ConnId id, emN2NProt
 #undef CheckHelper
 }
 
-util::errcode::ErrOpt RpcServer::N2N_OnCallRemoteMethod(bbt::network::ConnId id, protocol::N2N_CallMethod_Req* req)
+util::errcode::ErrOpt RpcServer::C2S_OnCallRemoteMethod(bbt::network::ConnId id, protocol::C2S_CallMethod_Req* req)
 {
+    S2C_CallMethod_Resp resp;
     util::other::Uuid uuid;
-    util::errcode::Errcode err;
     std::string params = req->params();
+    ErrOpt err;
 
-    if (!req->has_head())
-        return util::errcode::Errcode{"[ClusterNode] call remote method req head is null!", util::errcode::CommonErr};
+    do 
+    {
+        if (!req->has_head())
+        {
+            err = util::errcode::Errcode{BBGENGINE_MODULE_NAME "call remote method req head is null!", util::errcode::CommonErr};
+            break;
+        }
+    
+        if (!uuid.FromByte(req->head().uuid().c_str(), req->head().uuid().size()))
+        {
+            err = util::errcode::Errcode{BBGENGINE_MODULE_NAME "call remote method req uuid is invalid!", util::errcode::CommonErr};
+            break;
+        }
+    
+        if (uuid != *m_uuid)
+        {
+            err = util::errcode::Errcode{BBGENGINE_MODULE_NAME "call remote method req uuid is not match!", util::errcode::CommonErr};
+            break;
+        }
+    
+        auto method = req->method();
+        if (method.empty())
+        {
+            err = util::errcode::Errcode{BBGENGINE_MODULE_NAME "call remote method req method is empty!", util::errcode::CommonErr};
+            break;
+        }
+    
+        if (!HasMethod(method))
+        {
+            return util::errcode::Errcode{BBGENGINE_MODULE_NAME "call remote method req method not found!", util::errcode::CommonErr};
+            break;
+        }
 
-    if (!uuid.FromByte(req->head().uuid().c_str(), req->head().uuid().size()))
-        return util::errcode::Errcode{"[ClusterNode] call remote method req uuid is invalid!", util::errcode::CommonErr};
+    } while(0);
 
-    if (uuid != *m_uuid)
-        return util::errcode::Errcode{"[ClusterNode] call remote method req uuid is not match!", util::errcode::CommonErr};
+    if (err.has_value())
+    {
+        resp.set_err(emC2SCallMethodErr::CALL_METHOD_FAILED);
+        resp.set_errmsg(err->CWhat());
+    }
+    else
+    {
+        resp.set_err(emC2SCallMethodErr::CALL_METHOD_FAILED);
+        resp.set_errmsg("功能还没做好，请稍等！");
+    }
 
-    auto method = req->method();
-    if (method.empty())
-        return util::errcode::Errcode{"[ClusterNode] call remote method req method is empty!", util::errcode::CommonErr};
-
-
-    if (!HasMethod(method))
-        return util::errcode::Errcode{"[ClusterNode] call remote method req method not found!", util::errcode::CommonErr};
+    if (auto err = _SendToClient(id, bbt::core::Buffer{resp.SerializeAsString().c_str(), resp.ByteSizeLong()}); err.has_value())
+    {
+        OnError(err.value());
+        return err;
+    }
 
     return std::nullopt;
 }
@@ -543,7 +590,7 @@ util::errcode::ErrOpt RpcServer::S2R_DoRegisterMethodReq(const std::string& meth
 {
     N2RProtocolHead           head;
     N2R_RegisterMethod_Req    req;
-    bbt::core::Buffer                   buffer;
+    bbt::core::Buffer         buffer;
 
     if (method.size() >= METHOD_NAME_MAX_LEN)
         return util::errcode::Errcode{BBGENGINE_MODULE_NAME " method name too long!", util::errcode::CommonErr};

@@ -1,4 +1,4 @@
-#include <cluster/rpc/BufferMgr.hpp>
+#include <cluster/other/BufferMgr.hpp>
 
 namespace cluster
 {

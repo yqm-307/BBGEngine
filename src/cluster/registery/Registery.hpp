@@ -1,6 +1,6 @@
 #pragma once
 #include <bbt/network/TcpServer.hpp>
-#include <cluster/rpc/BufferMgr.hpp>
+#include <cluster/other/BufferMgr.hpp>
 #include <cluster/registery/NodeMgr.hpp>
 #include <cluster/protocol/Protocol.hpp>
 

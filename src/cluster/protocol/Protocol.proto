@@ -22,11 +22,17 @@ enum emR2NProtocolType {
     R2N_PROTOCOL_SIZE = 5;
 }
 
-enum emN2NProtocolType {
-    N2N_PROTOCOL_NONE = 0;
-    N2N_CALL_METHOD_REQ = 1;
-    N2N_CALL_METHOD_RESP = 2;
-    N2N_PROTOCOL_SIZE = 3;
+enum emC2SProtocolType {
+    C2S_PROTOCOL_NONE = 0;
+    C2S_CALL_METHOD_REQ = 1;
+    C2S_CALL_METHOD_RESP = 2;
+    C2S_PROTOCOL_SIZE = 3;
+}
+
+enum emS2CProtocolType {
+    S2C_PROTOCOL_NONE = 0;
+    S2C_CALL_METHOD_RESP = 1;
+    S2C_PROTOCOL_SIZE = 2;
 }
 
 enum emC2RProtocolType {
@@ -78,7 +84,7 @@ message C2RProtocolHead
     bytes           uuid = 1;
 }
 
-message N2NProtocolHead
+message C2SProtocolHead
 {
     bytes           uuid = 1;
 }
@@ -127,22 +133,23 @@ message R2C_GetNodesInfo_Resp
     repeated NodeInfo nodes = 2;
 }
 
-enum emN2NCallMethodErr
+enum emC2SCallMethodErr
 {
     CALL_METHOD_SUCC = 0;
     CALL_METHOD_FAILED = 1;
 };
 
-message N2N_CallMethod_Req
+message C2S_CallMethod_Req
 {
-    N2NProtocolHead head = 1;
+    C2SProtocolHead head = 1;
     string          method = 2;
     bytes           params = 4;
 }
 
-message N2N_CallMethod_Resp
+message S2C_CallMethod_Resp
 {
-    N2NProtocolHead head = 1;
-    emN2NCallMethodErr err = 2;
-    bytes           results = 3;
+    C2SProtocolHead head = 1;
+    emC2SCallMethodErr err = 2;
+    string             errmsg = 3;
+    bytes           results = 4;
 }

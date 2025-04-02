@@ -1,13 +1,18 @@
 #pragma once
 #include <string>
-#include <string>
+#include <functional>
 #include <unordered_set>
 #include <unordered_map>
-#include <cluster/ClusterDefine.hpp>
-#include <util/other/Uuid.hpp>
+
 #include <bbt/core/buffer/Buffer.hpp>
 #include <bbt/core/clock/Clock.hpp>
 #include <bbt/network/Define.hpp>
+
+#include <util/other/Uuid.hpp>
+#include <util/errcode/ErrCodeDef.hpp>
+
+#include <cluster/ClusterDefine.hpp>
+#include <cluster/protocol/Protocol.hpp>
 
 
 // 心跳的间隔时间
@@ -26,6 +31,8 @@ namespace cluster
 {
 
 class NodeMgr;
+class RpcClient;
+class RpcServer;
 
 using namespace bbt::core::net;
 
@@ -36,5 +43,9 @@ enum NodeState
     NODESTATE_OFFLINE,
     NODESTATE_INVALID,
 };
+
+typedef std::function<util::errcode::ErrOpt(bbt::core::Buffer&)> RpcReplyCallback;
+typedef std::function<util::errcode::ErrOpt(bbt::core::Buffer&/*req*/, bbt::core::Buffer&/*resp*/)> RpcCallback;
+typedef int64_t RpcMethodHash;
 
 }

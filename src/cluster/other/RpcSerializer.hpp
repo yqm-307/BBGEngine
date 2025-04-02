@@ -1,5 +1,5 @@
 #pragma once
-#include <cluster/rpc/Define.hpp>
+#include <cluster/ClusterDefine.hpp>
 
 namespace cluster
 {

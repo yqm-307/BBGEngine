@@ -1,4 +1,4 @@
-#include <cluster/rpc/RpcClient.hpp>
+#include <cluster/client/RpcClient.hpp>
 #include <random>
 
 using namespace cluster::protocol;
@@ -20,7 +20,7 @@ namespace cluster
         if (!resp->ParseFromArray(proto_data, proto_data_len)) { \
             return util::errcode::Errcode("parse protocol failed! proto=" #emProtoType, util::errcode::emErr::RPC_BAD_PROTOCOL); \
         } else \
-            OnDebug(BBGENGINE_MODULE_NAME "[R2N_Dispatch] protocol=" #emProtoType); \
+            OnDebug(BBGENGINE_MODULE_NAME "[Dispatch] protocol=" #emProtoType); \
         return Handler(connid, head, static_cast<TClass*>(resp));
 
 void NodeCache::UpdateCache(const util::other::Uuid& uuid, const std::vector<RpcMethodHash>& methods)
@@ -116,7 +116,7 @@ void RpcClient::Update()
         if (is_expired<ms>(m_cache_last_update_time + ms(m_cache_update_interval)))
         {
             m_cache_last_update_time = now();
-            _DoGetNodesInfoReq();
+            DoGetNodesInfo();
         }
     }
     else
@@ -237,8 +237,9 @@ util::errcode::ErrOpt RpcClient::_ConnectToRegistery()
     return m_registery_client->AsyncConnect(m_registery_addr, BBGENGINE_CONNECT_TIMEOUT);
 }
 
-util::errcode::ErrOpt RpcClient::_SendToNode(bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
+util::errcode::ErrOpt RpcClient::_SendToServer(bbt::network::ConnId connid, const bbt::core::Buffer& buffer)
 {
+    
     return Errcode{"_SendToNode not implementation", CommonErr};
 }
 
@@ -281,7 +282,7 @@ void RpcClient::R2C_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, s
 
 void RpcClient::R2C_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer)
 {
-    if (auto err = _R_Dispatch(id, buffer.Peek(), buffer.Size()); err.has_value())
+    if (auto err = R2C_Dispatch(id, buffer.Peek(), buffer.Size()); err.has_value())
         OnError(err.value());
 }
 
@@ -297,9 +298,9 @@ void RpcClient::R2C_OnTimeout(bbt::network::ConnId id)
 
 #pragma endregion
 
-#pragma region 协议处理
+#pragma region register 协议处理
 
-util::errcode::ErrOpt RpcClient::_R_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len)
+util::errcode::ErrOpt RpcClient::R2C_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len)
 {
     google::protobuf::Message*  resp = nullptr;
     ProtocolHead*               head = (ProtocolHead*)proto;
@@ -309,15 +310,19 @@ util::errcode::ErrOpt RpcClient::_R_Dispatch(bbt::network::ConnId connid, const 
 
     switch (type)
     {
-        CheckHelper(R2C_GET_NODES_INFO_RESP, R2C_GetNodesInfo_Resp, _OnGetNodeInfo);
+        CheckHelper(R2C_GET_NODES_INFO_RESP, R2C_GetNodesInfo_Resp, R2C_OnGetNodeInfo);
     default:
         return util::errcode::Errcode{"[RpcClient::_R_Dispatch] unknown protocol type=" + std::to_string(type), util::errcode::CommonErr};
     }
 
     return std::nullopt;
 }
+util::errcode::ErrOpt RpcClient::R2C_OnGetNodeInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::R2C_GetNodesInfo_Resp* resq)
+{
 
-util::errcode::ErrOpt RpcClient::_DoGetNodesInfoReq()
+}
+
+util::errcode::ErrOpt RpcClient::DoGetNodesInfo()
 {
     C2RProtocolHead* head = new C2RProtocolHead();
     C2R_GetNodesInfo_Req req;
@@ -329,13 +334,36 @@ util::errcode::ErrOpt RpcClient::_DoGetNodesInfoReq()
     return _SendToRegistery(C2R_GET_NODES_INFO_REQ, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
 }
 
-util::errcode::ErrOpt RpcClient::_OnGetNodeInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::R2C_GetNodesInfo_Resp* req)
+util::errcode::ErrOpt RpcClient::S2C_OnRemoteCall(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::S2C_CallMethod_Resp* req)
 {
+    if (req->err() != emC2SCallMethodErr::CALL_METHOD_SUCC)
+    {
+        return Errcode{"[RpcClient::_OnGetNodeInfo] call method failed! err=" + std::to_string(req->err()), CommonErr};
+    }
+
     return Errcode{"_OnGetNodeInfo not implementation", CommonErr};
 }
 
-util::errcode::ErrOpt RpcClient::_S_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len)
+#pragma endregion
+
+
+#pragma region RpcServer 协议处理
+
+util::errcode::ErrOpt RpcClient::S2C_Dispatch(bbt::network::ConnId connid, const char* proto, size_t len)
 {
+    google::protobuf::Message*  resp = nullptr;
+    ProtocolHead*               head = (ProtocolHead*)proto;
+    void*                       proto_data = (char*)proto + sizeof(ProtocolHead);
+    size_t                      proto_data_len = len - sizeof(ProtocolHead);
+    emR2CProtocolType           type = (emR2CProtocolType)head->protocol_type;
+
+    switch (type)
+    {
+        CheckHelper(S2C_CALL_METHOD_RESP, S2C_CallMethod_Resp, S2C_OnRemoteCall);
+    default:
+        return util::errcode::Errcode{"[RpcClient::_R_Dispatch] unknown protocol type=" + std::to_string(type), util::errcode::CommonErr};
+    }
+
     return std::nullopt;
 }
 

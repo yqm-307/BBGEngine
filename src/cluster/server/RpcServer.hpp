@@ -1,7 +1,7 @@
 #pragma once
 #include <bbt/network/TcpServer.hpp>
-#include <cluster/rpc/Define.hpp>
-#include <cluster/rpc/BufferMgr.hpp>
+#include <cluster/ClusterDefine.hpp>
+#include <cluster/other/BufferMgr.hpp>
 
 namespace cluster
 {
@@ -43,7 +43,6 @@ public:
 
     virtual util::errcode::ErrOpt       OnRemoteCall(bbt::network::ConnId id, bbt::core::Buffer& reply);
 
-    virtual util::errcode::ErrOpt       SendToNode(bbt::network::ConnId id, bbt::core::Buffer& buffer);
 
     virtual void                        OnError(const util::errcode::Errcode& err) = 0;
     virtual void                        OnInfo(const std::string& info) = 0;
@@ -70,6 +69,7 @@ private:
     void                                R2S_OnSend(bbt::network::ConnId id, util::errcode::ErrOpt err, size_t len);
     void                                R2S_OnRecv(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
 
+    virtual util::errcode::ErrOpt       _SendToClient(bbt::network::ConnId id, const bbt::core::Buffer& buffer);
     void                                C2S_OnAccept(bbt::network::ConnId id);
     void                                C2S_OnClose(bbt::network::ConnId id);
     void                                C2S_OnTimeout(bbt::network::ConnId id);
@@ -79,8 +79,8 @@ private:
     std::shared_ptr<util::other::Uuid>  GetRandomUuidByMethod(const std::string& method);
 
     // n2n
-    util::errcode::ErrOpt               N2N_Dispatch(bbt::network::ConnId id, protocol::emN2NProtocolType type, void* proto, size_t proto_len);
-    util::errcode::ErrOpt               N2N_OnCallRemoteMethod(bbt::network::ConnId id, protocol::N2N_CallMethod_Req* req);
+    util::errcode::ErrOpt               C2S_Dispatch(bbt::network::ConnId id, protocol::emC2SProtocolType type, void* proto, size_t proto_len);
+    util::errcode::ErrOpt               C2S_OnCallRemoteMethod(bbt::network::ConnId id, protocol::C2S_CallMethod_Req* req);
 
     util::errcode::ErrOpt               R2N_Dispatch(protocol::emR2NProtocolType type, void* proto, size_t proto_len);
 
@@ -93,7 +93,10 @@ private:
     util::errcode::ErrOpt               S2R_DoHandshakeReq();
     util::errcode::ErrOpt               S2R_DoHeartBeatReq();
     util::errcode::ErrOpt               S2R_DoRegisterMethodReq(const std::string& method, util::other::Uuid signature);
+
 private:
+    std::mutex                           m_all_opt_mtx; // 保护所有操作的互斥锁
+
     std::unordered_map<std::string, RpcCallback> m_registed_methods;    // 注册的服务方法
     
     std::shared_ptr<bbt::network::EvThread> m_ev_thread{nullptr};

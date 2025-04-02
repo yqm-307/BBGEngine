@@ -361,27 +361,9 @@ ErrOpt Registery::_RecvAndParse(bbt::network::ConnId id, const bbt::core::Buffer
 {
     return m_buffer_mgr.DoBuffer(id, [this, &protocols, &buffer](bbt::core::Buffer& buf)
     {
-
         buf.WriteString(buffer.Peek(), buffer.Size());
-
-        // 协议解析
-        while (true)
-        {
-            if (buf.Size() < sizeof(ProtocolHead))
-                break;
-
-            ProtocolHead* head = (ProtocolHead*)buf.Peek();
-            if (buf.Size() < head->protocol_length)
-                break;
-
-            bbt::core::Buffer protocol{head->protocol_length};
-            protocol.WriteNull(head->protocol_length);
-
-            if (buf.ReadString(protocol.Peek(), head->protocol_length))
-                protocols.emplace_back(std::move(protocol));
-            else
-                OnError(Errcode{BBGENGINE_MODULE_NAME "write buffer error!", util::errcode::emErr::RPC_BAD_PROTOCOL});
-        }
+        if (auto err = protocol::Helper::ParseProtocolFromBuffer(buf, protocols); err.has_value())
+            OnError(err.value());
     });
 }
 
