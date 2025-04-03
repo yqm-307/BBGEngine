@@ -141,9 +141,8 @@ enum emC2SCallMethodErr
 
 message C2S_CallMethod_Req
 {
-    C2SProtocolHead head = 1;
-    string          method = 2;
-    bytes           params = 4;
+    string          method = 1;
+    bytes           params = 2;
 }
 
 message S2C_CallMethod_Resp

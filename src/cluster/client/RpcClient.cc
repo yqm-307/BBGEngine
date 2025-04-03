@@ -23,54 +23,6 @@ namespace cluster
             OnDebug(BBGENGINE_MODULE_NAME "[Dispatch] protocol=" #emProtoType); \
         return Handler(connid, head, static_cast<TClass*>(resp));
 
-void NodeCache::UpdateCache(const util::other::Uuid& uuid, const std::vector<RpcMethodHash>& methods)
-{
-    m_method_uuids.clear();
-
-    for (auto& method : methods)
-    {
-        m_method_uuids[method].insert(uuid);
-        m_node_methods[uuid].insert(method);
-    }
-}
-
-void NodeCache::DeleteCache(const util::other::Uuid& uuid)
-{
-    auto iter = m_node_methods.find(uuid);
-    if (iter == m_node_methods.end())
-    {
-        return;
-    }
-
-    for (auto& method : iter->second)
-    {
-        m_method_uuids[method].erase(uuid);
-    }
-
-    m_node_methods.erase(iter);
-}
-
-std::optional<util::other::Uuid> NodeCache::GetUuid(RpcMethodHash method)
-{
-    auto iter = m_method_uuids.find(method);
-    if (iter == m_method_uuids.end())
-    {
-        return std::nullopt;
-    }
-
-    if (iter->second.empty())
-    {
-        return std::nullopt;
-    }
-
-    // 随机返回一个
-    std::vector<util::other::Uuid> uuids(iter->second.begin(), iter->second.end());
-    util::other::Uuid random_uuid;
-    std::sample(uuids.begin(), uuids.end(), &random_uuid, 1, std::mt19937{std::random_device{}()});
-
-    return random_uuid;
-}
-
 
 RpcClient::~RpcClient()
 {
@@ -105,7 +57,6 @@ void RpcClient::Stop()
         m_registery_client = nullptr;
     }
 
-    m_server_mgr.m_rpc_clients.clear();
 }
 
 void RpcClient::Update()
@@ -168,24 +119,7 @@ void RpcClient::OnReply(const char* data, size_t size)
 
 ConnId RpcClient::GetServiceConn(const std::string& method)
 {
-    std::lock_guard<std::mutex> lock{m_net_mtx};
-
-    auto uuid = m_node_cache.GetUuid(m_serializer.GetMethodHash(method));
-    if (!uuid.has_value())
-        return 0;
-    
-    auto it = m_server_mgr.m_rpc_clients.find(uuid.value());
-    if (it == m_server_mgr.m_rpc_clients.end())
-    {
-        return 0;
-    }
-
-    if (it->second == nullptr)
-    {
-        return 0;
-    }
-
-    return it->second->GetConnId();
+    return m_service_mgr.GetServiceConnIdRandom(method);
 }
 
 util::errcode::ErrOpt RpcClient::_InitRegisteryClient()
@@ -319,7 +253,6 @@ util::errcode::ErrOpt RpcClient::R2C_Dispatch(bbt::network::ConnId connid, const
 }
 util::errcode::ErrOpt RpcClient::R2C_OnGetNodeInfo(bbt::network::ConnId id, protocol::ProtocolHead* head, protocol::R2C_GetNodesInfo_Resp* resq)
 {
-
 }
 
 util::errcode::ErrOpt RpcClient::DoGetNodesInfo()
@@ -342,6 +275,15 @@ util::errcode::ErrOpt RpcClient::S2C_OnRemoteCall(bbt::network::ConnId id, proto
     }
 
     return Errcode{"_OnGetNodeInfo not implementation", CommonErr};
+}
+
+util::errcode::ErrOpt RpcClient::C2S_SendRemoteCall(bbt::network::ConnId id, const std::string& method, const bbt::core::Buffer& params)
+{
+    C2S_CallMethod_Req req;
+    req.set_method(method);
+    req.set_params(params.Peek(), params.Size());
+
+    return _SendToServer(id, bbt::core::Buffer{req.SerializeAsString().c_str(), req.ByteSizeLong()});
 }
 
 #pragma endregion
