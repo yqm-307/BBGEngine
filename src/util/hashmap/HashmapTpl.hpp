@@ -1,6 +1,6 @@
 #pragma once
+#include <bbt/core/util/Assert.hpp>
 #include "util/hashmap/Hashmap.hpp" // 为了语法提示
-#include "util/assert/Assert.hpp"
 #include "util/other/Math.hpp"
 #include <bbt/core/Define.hpp>
 

@@ -1,7 +1,6 @@
 #include <typeinfo>
 #include <engine/ecs/component/Component.hpp>
 #include <engine/ecs/entity/Entity.hpp>
-#include "util/assert/Assert.hpp"
 #include "util/log/Log.hpp"
 namespace engine::ecs
 {

@@ -7,7 +7,6 @@
 #include <bbt/core/util/ManagerBase.hpp>
 #include <bbt/core/reflex/Reflex.hpp>
 #include <util/typedef/NamespaceType.hpp>
-#include <util/assert/Assert.hpp>
 #include <util/hashmap/Hashmap.hpp>
 
 #pragma region "==> 宏声明 <=="

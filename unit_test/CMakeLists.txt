@@ -13,7 +13,6 @@ set(MY_LINK_LIB
     event_core
     bbt_cxxlua
     bbt_core
-    inih
     pthread
     dl
     BBGEngine
