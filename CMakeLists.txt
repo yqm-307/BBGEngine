@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(BBGEngine)
+project(bbt_ecs)
 
 option(NO_EXAMPLE
     "不需要编译例程" ON)
@@ -22,27 +22,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g ${Wall_Flag}")
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/thirdparty/include
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/bbt
 )
 
 file(GLOB_RECURSE SOURCE_FILES
-    ${PROJECT_SOURCE_DIR}/src/engine/*.cc
-    ${PROJECT_SOURCE_DIR}/src/plugin/*.cc
-    ${PROJECT_SOURCE_DIR}/src/util/*.cc
-    ${PROJECT_SOURCE_DIR}/src/cluster/*.cc
+    ${PROJECT_SOURCE_DIR}/bbt/**.cc
 )
 
-add_library(BBGEngine SHARED
+add_library(bbt_ecs SHARED
     ${SOURCE_FILES}
 )
 
-target_link_libraries(BBGEngine PRIVATE
-    protobuf
+target_link_libraries(bbt_ecs PRIVATE
     bbt_core
-    bbt_pollevent
-    bbt_cxxlua
-    bbt_network
 )
 
 

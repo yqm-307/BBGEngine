@@ -15,7 +15,7 @@ set(MY_LINK_LIB
     bbt_core
     pthread
     dl
-    BBGEngine
+    bbt_ecs
     lua
 )
 

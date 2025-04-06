@@ -2,23 +2,23 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 
-#include <engine/ecs/scene/Scene.hpp>
-#include <engine/ecs/system/System.hpp>
-#include <engine/ecs/component/Component.hpp>
-#include <engine/ecs/filter/EntityFilter.hpp>
+#include <bbt/ecs/scene/Scene.hpp>
+#include <bbt/ecs/system/System.hpp>
+#include <bbt/ecs/component/Component.hpp>
+#include <bbt/ecs/filter/EntityFilter.hpp>
 
 class GameObject:
-    public engine::ecs::Entity
+    public bbt::ecs::Entity
 {
 public:
-    GameObject() : engine::ecs::Entity(0) {};
+    GameObject() : bbt::ecs::Entity(0) {};
     virtual ~GameObject() = default;
 
     void OnUpdate() {}
 };
 
 class PosComp:
-    public engine::ecs::Component
+    public bbt::ecs::Component
 {
 public:
     PosComp() {};
@@ -32,7 +32,7 @@ public:
 };
 
 class CommandComp:
-    public engine::ecs::Component
+    public bbt::ecs::Component
 {
 public:
     CommandComp() {};
@@ -45,7 +45,7 @@ public:
 };
 
 class VelocityComp:
-    public engine::ecs::Component
+    public bbt::ecs::Component
 {
 public:
     VelocityComp() {};
@@ -60,11 +60,11 @@ public:
 
 
 class MoveSystem:
-    public engine::ecs::System
+    public bbt::ecs::System
 {
 public:
 
-    void OnInitFilter(std::shared_ptr<engine::ecs::EntityFilter> filter) override
+    void OnInitFilter(std::shared_ptr<bbt::ecs::EntityFilter> filter) override
     {
         filter->AddTag<PosComp>().AddTag<VelocityComp>();
     }
@@ -86,7 +86,7 @@ public:
 
 #define DefineTestComponent(name) \
 class name: \
-    public engine::ecs::Component \
+    public bbt::ecs::Component \
 { \
 public: \
     name() {}; \
@@ -102,14 +102,14 @@ DefineTestComponent(TestComp3);
 DefineTestComponent(TestComp4);
 DefineTestComponent(TestComp5);
 
-std::map<engine::ecs::EntityId, int> g_gameobject_count_map;
+std::map<bbt::ecs::EntityId, int> g_gameobject_count_map;
 
 class FilterTestSystem:
-    public engine::ecs::System
+    public bbt::ecs::System
 {
 public:
 
-    void OnInitFilter(std::shared_ptr<engine::ecs::EntityFilter> filter) override
+    void OnInitFilter(std::shared_ptr<bbt::ecs::EntityFilter> filter) override
     {
         filter->AddTag<TestComp2>().AddTag<TestComp3>().AddTag<TestComp4>();
     }
@@ -138,13 +138,13 @@ BOOST_AUTO_TEST_SUITE(SceneTest)
 // 单独场景 Update
 BOOST_AUTO_TEST_CASE(t_scene_alone_update)
 {
-    auto scene = std::make_shared<engine::ecs::Scene>();
+    auto scene = std::make_shared<bbt::ecs::Scene>();
     scene->Init();
     scene->RegistComponent<PosComp>("PosComp");
     scene->RegistComponent<VelocityComp>("VelocityComp");
 
     auto move_system = std::make_shared<MoveSystem>();
-    scene->RegistSystem(move_system, engine::ecs::EntityFilter());
+    scene->RegistSystem(move_system, bbt::ecs::EntityFilter());
     
 
     auto go = scene->GetEntityMgr()->Create<GameObject>();
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(t_scene_alone_update)
 
 BOOST_AUTO_TEST_CASE(t_entity_filter_test)
 {
-    auto scene = std::make_shared<engine::ecs::Scene>();
+    auto scene = std::make_shared<bbt::ecs::Scene>();
     scene->Init();
     scene->RegistComponent<TestComp1>("TestComp1");
     scene->RegistComponent<TestComp2>("TestComp2");
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(t_entity_filter_test)
     scene->RegistComponent<TestComp5>("TestComp5");
 
     auto filter_system = std::make_shared<FilterTestSystem>();
-    scene->RegistSystem(filter_system, engine::ecs::EntityFilter());
+    scene->RegistSystem(filter_system, bbt::ecs::EntityFilter());
     
     auto go_1 = scene->GetEntityMgr()->Create<GameObject>();
     {
