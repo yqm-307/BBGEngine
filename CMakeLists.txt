@@ -45,10 +45,6 @@ target_link_libraries(BBGEngine PRIVATE
     bbt_network
 )
 
-if(NOT NO_EXAMPLE)
-    add_subdirectory(example)
-endif()
-
 
 if(NOT NO_TEST)
     enable_testing()

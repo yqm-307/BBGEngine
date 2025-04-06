@@ -6,7 +6,16 @@
 #include <engine/ecs/system/System.hpp>
 #include <engine/ecs/component/Component.hpp>
 #include <engine/ecs/filter/EntityFilter.hpp>
-#include <plugin/ecs/gameobject/GameObject.hpp>
+
+class GameObject:
+    public engine::ecs::Entity
+{
+public:
+    GameObject() : engine::ecs::Entity(0) {};
+    virtual ~GameObject() = default;
+
+    void OnUpdate() {}
+};
 
 class PosComp:
     public engine::ecs::Component
@@ -138,7 +147,7 @@ BOOST_AUTO_TEST_CASE(t_scene_alone_update)
     scene->RegistSystem(move_system, engine::ecs::EntityFilter());
     
 
-    auto go = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go = scene->GetEntityMgr()->Create<GameObject>();
     BOOST_ASSERT(go->AddComponent<PosComp>());
     BOOST_ASSERT(go->AddComponent<VelocityComp>());
 
@@ -163,20 +172,20 @@ BOOST_AUTO_TEST_CASE(t_entity_filter_test)
     auto filter_system = std::make_shared<FilterTestSystem>();
     scene->RegistSystem(filter_system, engine::ecs::EntityFilter());
     
-    auto go_1 = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go_1 = scene->GetEntityMgr()->Create<GameObject>();
     {
         BOOST_ASSERT(go_1->AddComponent<TestComp1>());
         g_gameobject_count_map[go_1->GetId()] = go_1->GetComponentCount();
     }
 
-    auto go_12 = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go_12 = scene->GetEntityMgr()->Create<GameObject>();
     {
         BOOST_ASSERT(go_12->AddComponent<TestComp1>());
         BOOST_ASSERT(go_12->AddComponent<TestComp2>());
         g_gameobject_count_map[go_12->GetId()] = go_12->GetComponentCount();
     }
 
-    auto go_123 = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go_123 = scene->GetEntityMgr()->Create<GameObject>();
     {
         BOOST_ASSERT(go_123->AddComponent<TestComp1>());
         BOOST_ASSERT(go_123->AddComponent<TestComp2>());
@@ -184,7 +193,7 @@ BOOST_AUTO_TEST_CASE(t_entity_filter_test)
         g_gameobject_count_map[go_123->GetId()] = go_123->GetComponentCount();
     }
 
-    auto go_1234 = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go_1234 = scene->GetEntityMgr()->Create<GameObject>();
     {
         BOOST_ASSERT(go_1234->AddComponent<TestComp1>());
         BOOST_ASSERT(go_1234->AddComponent<TestComp2>());
@@ -193,7 +202,7 @@ BOOST_AUTO_TEST_CASE(t_entity_filter_test)
         g_gameobject_count_map[go_1234->GetId()] = go_1234->GetComponentCount();
     }
 
-    auto go_12345 = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go_12345 = scene->GetEntityMgr()->Create<GameObject>();
     {
         BOOST_ASSERT(go_12345->AddComponent<TestComp1>());
         BOOST_ASSERT(go_12345->AddComponent<TestComp2>());
@@ -203,7 +212,7 @@ BOOST_AUTO_TEST_CASE(t_entity_filter_test)
         g_gameobject_count_map[go_12345->GetId()] = go_12345->GetComponentCount();
     }
 
-    auto go_234 = scene->GetEntityMgr()->Create<plugin::ecs::gameobject::GameObject>();
+    auto go_234 = scene->GetEntityMgr()->Create<GameObject>();
     {
         BOOST_ASSERT(go_234->AddComponent<TestComp2>());
         BOOST_ASSERT(go_234->AddComponent<TestComp3>());

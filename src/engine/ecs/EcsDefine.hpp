@@ -71,7 +71,7 @@ static const EntityId InvalidComponentId = -1;
 static const EntityId InvalidSystemId = -1;
 static const TagId        InvalidTagId = -1;
 
-typedef int32_t ComponentTemplateId; // 模板id
+typedef bbt::core::reflex::TypeId ComponentTemplateId; // 模板id
 typedef int32_t GameObjectTemplateId; // 模板id
 
 template<int, typename TId>
