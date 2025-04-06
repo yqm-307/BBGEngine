@@ -20,12 +20,12 @@ public:
     CmdQueue(size_t default_size):m_cmd_queue(default_size) {}
     ~CmdQueue() = default;
 
-    void Push(const Cmd& cmd)
+    void Push(Cmd* cmd)
     {
         Assert(m_cmd_queue.Push(cmd));
     }
 
-    bool Pop(Cmd& cmd)
+    bool Pop(Cmd*& cmd)
     {
         return m_cmd_queue.Pop(cmd);
     }
@@ -35,7 +35,7 @@ public:
         return m_cmd_queue.Empty();
     }
 private:
-    bbt::core::thread::Queue<Cmd> m_cmd_queue;
+    bbt::core::thread::Queue<Cmd*> m_cmd_queue;
 };
 
 } // namespace util
